@@ -193,6 +193,49 @@
     .link-button:hover {
       color: #000;
     }
+    
+    .tooltip-trigger {
+      display: inline-block;
+      cursor: help;
+      color: #666;
+      font-size: 0.85em;
+      margin-left: 0.25rem;
+      vertical-align: middle;
+    }
+    
+    .tooltip-trigger:hover {
+      color: #333;
+    }
+    
+    .tooltip {
+      position: absolute;
+      background: #333;
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      max-width: 250px;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .tooltip.is-visible {
+      opacity: 1;
+    }
+    
+    .tooltip p {
+      margin: 0.25rem 0;
+    }
+    
+    .tooltip p:first-child {
+      margin-top: 0;
+    }
+    
+    .tooltip p:last-child {
+      margin-bottom: 0;
+    }
   </style>
 </head>
 <body>
@@ -241,7 +284,7 @@
     <!-- Form existente (agora escondido por defeito) -->
     <form id="precise-form" style="display: none;">
       <div class="field">
-        <label for="power">Potência contratada</label>
+        <label for="power">Potência contratada<span class="tooltip-trigger" data-tooltip="potencia-contratada">ⓘ</span></label>
         <select id="power">
           <option value="1.15">1.15 kVA</option>
           <option value="2.3">2.3 kVA</option>
@@ -257,12 +300,12 @@
       </div>
       
       <div class="field">
-        <label for="consumption">Consumo mensal (kWh)</label>
+        <label for="consumption">Consumo mensal<span class="tooltip-trigger" data-tooltip="consumo-mensal">ⓘ</span> (kWh<span class="tooltip-trigger" data-tooltip="kwh">ⓘ</span>)</label>
         <input type="number" id="consumption" placeholder="250" min="0" max="5000" required>
       </div>
       
       <div class="field">
-        <label for="tariff-type">Tipo de tarifa</label>
+        <label for="tariff-type">Tipo de tarifa<span class="tooltip-trigger" data-tooltip="tarifa-simples">ⓘ</span></label>
         <select id="tariff-type">
           <option value="1" selected>Simples</option>
           <option value="2">Bi-horária</option>
