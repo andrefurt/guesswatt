@@ -1,0 +1,637 @@
+/**
+ * GuestWatt - Main CSS Entry Point
+ * 
+ * Import order matters:
+ * 1. tokens - Variables first (used by everything else)
+ * 2. reset - Normalize browser defaults
+ * 3. base - Typography and element defaults
+ * 4. components - UI components
+ * 5. utilities - Utility classes last (highest specificity)
+ */
+
+@import 'tokens.css';
+@import 'reset.css';
+@import 'base.css';
+@import 'components.css';
+@import 'utilities.css';
+
+/**
+ * App-specific styles
+ * These are custom styles for the GuestWatt app layout
+ * that don't fit neatly into components or utilities
+ */
+
+/* =============================================================================
+   APP LAYOUT
+   ============================================================================= */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  padding: var(--space-6) 0;
+  text-align: center;
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+
+/* Controlado via JS através de classes no body */
+body.is-initial .app-header,
+body.is-initial .app-footer {
+  display: none;
+}
+
+.app-logo {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+}
+
+.app-logo span {
+  color: var(--color-accent);
+}
+
+.app-tagline {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.app-main {
+  flex: 1;
+  padding: var(--space-6) 0;
+}
+
+.app-footer {
+  padding: var(--space-8) 0;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.app-footer a {
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   HERO SECTION
+   ============================================================================= */
+
+.hero {
+  position: relative;
+  transition: all var(--duration-slow) var(--ease-out);
+}
+
+/* Estado inicial: 100vh, centrado */
+.hero[data-state="initial"] {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-6); /* More vertical padding */
+}
+
+.hero[data-state="initial"] .hero-content {
+  width: 100%;
+  max-width: 40rem; /* 640px - comfortable reading width */
+  margin-inline: auto;
+}
+
+/* Estado collapsed: input no topo */
+.hero[data-state="collapsed"] {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: var(--space-3) var(--space-4);
+  min-height: auto;
+}
+
+.hero[data-state="collapsed"] .hero-content {
+  max-width: 40rem; /* 640px - consistent with content width */
+  margin-inline: auto;
+}
+
+.hero[data-state="collapsed"] .hero-text {
+  display: none;
+}
+
+.hero[data-state="collapsed"] .input-container {
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.hero-content {
+  width: 100%;
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.hero-text {
+  text-align: center;
+  margin-bottom: var(--space-12); /* More breathing room */
+}
+
+.hero-title {
+  font-size: 24px; /* Matches Figma design */
+  font-weight: var(--font-medium); /* Inter Medium */
+  margin-bottom: 0;
+  line-height: 1.15;
+  letter-spacing: -0.72px; /* -0.03em * 24px */
+  color: #18181b; /* zinc-800 */
+}
+
+.hero-tagline {
+  font-size: var(--text-lg);
+  color: var(--color-text);
+  font-weight: var(--font-normal);
+  opacity: 0.44; /* Matches Figma design */
+}
+
+/* Input Container - Gerencia os 3 modos */
+.input-container {
+  position: relative;
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.input-container.is-dragover {
+  background-color: var(--color-accent-soft);
+  border: 2px dashed var(--color-accent);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+/* Input container clickable quando collapsed */
+.hero[data-state="collapsed"] .input-container[role="button"] {
+  cursor: pointer;
+  outline: none;
+}
+
+.hero[data-state="collapsed"] .input-container[role="button"]:hover {
+  opacity: 0.8;
+}
+
+.hero[data-state="collapsed"] .input-container[role="button"]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+.input-mode {
+  transition: opacity var(--duration-base) var(--ease-out),
+              transform var(--duration-base) var(--ease-out);
+}
+
+.input-mode[hidden] {
+  display: none;
+}
+
+/* Modo Estimate - input grande e centralizado */
+.input-mode-estimate .input-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6); /* More generous spacing */
+}
+
+.input-mode-estimate .input-group {
+  font-size: var(--text-xl);
+  /* Figma-style input container */
+  border: 0.5px solid rgba(0, 0, 0, 0.14);
+  border-radius: 16px;
+  padding: 2px;
+  background: transparent;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.input-mode-estimate .input-group-inner {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  background: white;
+  position: relative;
+}
+
+.input-mode-estimate .input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.input-mode-estimate .input-postfix {
+  font-family: "Roboto Mono", monospace;
+  font-size: 16px;
+  font-weight: 400;
+  color: #404043;
+  opacity: 0.5;
+  letter-spacing: -0.48px;
+  white-space: nowrap;
+}
+
+.input-mode-estimate .input-submit-btn {
+  align-self: stretch;
+  border-radius: 6px;
+  padding: 0 12px;
+  height: auto;
+}
+
+.input-mode-estimate .input-group::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 14px;
+  box-shadow: 
+    2px -2px 8px 0px inset rgba(255, 255, 255, 0.25),
+    -2px 2px 8px 0px inset rgba(0, 0, 0, 0.04);
+}
+
+.input-mode-estimate .input-group .input {
+  border: none;
+  background: transparent;
+  padding: 0;
+  flex: 1;
+  min-height: auto;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.72px;
+  color: #18181b;
+  text-align: left;
+}
+
+.input-mode-estimate .input::placeholder {
+  opacity: 0.5;
+}
+
+.input-mode-estimate .input-prefix {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.72px;
+  color: #18181b;
+  position: static;
+}
+
+/* Remove old prefix/suffix positioning since we're using new layout */
+.input-mode-estimate .input-suffix {
+  position: static;
+  flex-shrink: 0;
+}
+
+/* Quando collapsed, input fica menor */
+.hero[data-state="collapsed"] .input-mode-estimate .input {
+  font-size: var(--text-lg);
+  padding: var(--space-3) var(--space-4);
+  min-height: 48px;
+}
+
+.hero[data-state="collapsed"] .input-mode-estimate .input-prefix {
+  font-size: var(--text-lg);
+  left: var(--space-3);
+}
+
+.hero[data-state="collapsed"] .input-mode-estimate .input-group:has(.input-prefix) .input {
+  padding-left: var(--space-10);
+}
+
+/* Modo Details - formulário expandido */
+.input-mode-details {
+  animation: slide-in var(--duration-base) var(--ease-out);
+}
+
+.input-mode-details .input-form {
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+/* Modo PDF - mantém anatomia do input */
+.input-mode-pdf {
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.pdf-card {
+  width: 100%;
+  margin-inline: auto;
+  padding: var(--space-4) var(--space-5);
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero[data-state="collapsed"] .pdf-card {
+  padding: var(--space-3) var(--space-4);
+  min-height: 48px;
+}
+
+.pdf-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.pdf-card-header span {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-text);
+}
+
+.hero[data-state="initial"] .pdf-card-header span {
+  font-size: var(--text-lg);
+}
+
+.pdf-data {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.hero[data-state="initial"] .pdf-data {
+  font-size: var(--text-base);
+}
+
+/* Results wrapper - aparece após submit */
+#results-wrapper {
+  max-width: 40rem; /* 640px - comfortable reading width */
+  margin-inline: auto;
+  padding: var(--space-12) var(--space-6);
+  animation: fade-in var(--duration-slow) var(--ease-out);
+}
+
+/* Garantir que resultados estão escondidos no estado inicial */
+body.is-initial #results-wrapper,
+body.is-initial #result-section {
+  display: none !important;
+}
+
+/* Garantir que resultados aparecem apenas após submit */
+body.is-collapsed #results-wrapper {
+  display: block;
+}
+
+/* Lista de ofertas escondida por padrão */
+.offers-list {
+  display: none;
+}
+
+.offers-list:not([hidden]) {
+  display: block;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
+   SOCIAL PROOF
+   ============================================================================= */
+
+.social-proof {
+  margin-top: var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.social-proof[hidden] {
+  display: none;
+}
+
+.social-proof-item {
+  border-top: 0.5px solid rgba(0, 0, 0, 0.14);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 1);
+  padding: 20px 12px;
+}
+
+.social-proof-item:first-child {
+  border-top: 0.5px solid rgba(0, 0, 0, 0.14);
+}
+
+.social-proof-text {
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.42px;
+  color: #000;
+  opacity: 0.44;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+
+.social-proof-source {
+  font-style: italic;
+}
+
+.social-proof-source em {
+  font-style: italic;
+}
+
+.social-proof-source a {
+  text-decoration: underline;
+  text-underline-position: from-font;
+  color: inherit;
+  opacity: 1;
+}
+
+/* =============================================================================
+   INPUT SECTION (legacy - mantido para compatibilidade)
+   ============================================================================= */
+
+.input-section {
+  max-width: 24rem;
+  margin-inline: auto;
+}
+
+/* =============================================================================
+   RESULT SECTION
+   ============================================================================= */
+
+.result-section {
+  animation: fade-in var(--duration-slow) var(--ease-out);
+}
+
+.result-current {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: var(--space-8); /* More space before loss highlight */
+}
+
+.result-current strong {
+  color: var(--color-text);
+}
+
+.result-loss {
+  text-align: center;
+  padding: 0;
+  margin-bottom: var(--space-10); /* Generous space after */
+  /* No background - let the large number speak */
+}
+
+.result-loss-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-medium);
+  margin-bottom: var(--space-3);
+}
+
+.result-loss-value {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text);
+}
+
+.result-loss-period {
+  font-size: var(--text-lg);
+  font-weight: var(--font-normal);
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   ESTIMATE NOTICE
+   ============================================================================= */
+
+.estimate-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  /* No background - clean and minimal */
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+.estimate-notice-icon {
+  flex-shrink: 0;
+  color: var(--color-warning);
+}
+
+/* =============================================================================
+   SOCIAL PROOF
+   ============================================================================= */
+
+.social-proof {
+  padding: var(--space-4);
+  /* No background - clean text */
+  text-align: center;
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+}
+
+.social-proof p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.social-proof small {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* =============================================================================
+   ALL OFFERS LIST
+   ============================================================================= */
+
+.offers-list {
+  list-style: none;
+  padding: 0;
+}
+
+.offer-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: var(--transition-colors);
+  cursor: pointer;
+}
+
+.offer-row:hover {
+  background-color: var(--color-gray-0);
+}
+
+.offer-row.is-best {
+  background-color: var(--color-accent-soft);
+}
+
+.offer-rank {
+  width: 24px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.offer-row.is-best .offer-rank {
+  color: var(--color-accent);
+}
+
+.offer-row-provider {
+  flex: 1;
+  font-weight: var(--font-medium);
+}
+
+.offer-row-price {
+  font-weight: var(--font-semibold);
+}
+
+.offer-row-diff {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  min-width: 60px;
+  text-align: right;
+}
+
+.offer-row.is-best .offer-row-diff {
+  color: var(--color-accent);
+  font-weight: var(--font-medium);
+}
+
+/* =============================================================================
+   PRINT STYLES
+   ============================================================================= */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}

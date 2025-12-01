@@ -1,0 +1,640 @@
+---
+description: "Technical stack, CSS architecture, JS patterns, and accessibility requirements"
+globs:
+  alwaysApply: true
+---
+
+# LessWatt v2 - Tech Stack & Architecture
+
+## Philosophy
+
+> Write code that a junior developer can read and a senior developer respects.
+
+**Core principles:**
+- Zero build step
+- Zero runtime dependencies
+- Maximum browser-native features
+- Every line documented or self-explanatory
+- Accessibility is not optional
+
+---
+
+## Stack Overview
+
+| Layer | Choice | Rationale |
+|-------|--------|-----------|
+| Markup | Semantic HTML5 | Native a11y, SEO, no abstraction |
+| Styling | CSS3 + Custom Properties | Variables, no build, full control |
+| Logic | Vanilla ES6+ | Modules, no transpilation needed |
+| Hosting | GitHub Pages | Free, HTTPS, CDN, zero config |
+| Build | None | Nothing to break, nothing to maintain |
+
+---
+
+## CSS Architecture
+
+### Design Tokens
+
+All values derived from a systematic scale. No magic numbers.
+
+```
+css/
+├── tokens.css       → Variables (colors, spacing, timing)
+├── reset.css        → Modern CSS reset
+├── base.css         → Typography, body, links
+├── components.css   → Button, input, card, modal, toast
+├── utilities.css    → Helpers (.sr-only, .stack, .cluster)
+└── main.css         → Single import point
+```
+
+### Color System (OKLCH)
+
+OKLCH provides perceptually uniform colors - equal lightness values look equally bright to humans.
+
+```css
+:root {
+  /* Neutral scale */
+  --color-gray-0: oklch(99% 0 0);      /* Background */
+  --color-gray-1: oklch(97% 0 0);      /* Surface */
+  --color-gray-2: oklch(92% 0 0);      /* Border */
+  --color-gray-3: oklch(80% 0 0);      /* Border hover */
+  --color-gray-4: oklch(55% 0 0);      /* Text muted */
+  --color-gray-5: oklch(35% 0 0);      /* Text secondary */
+  --color-gray-6: oklch(20% 0 0);      /* Text primary */
+  
+  /* Accent (green) */
+  --color-accent: oklch(55% 0.18 145);
+  --color-accent-soft: oklch(94% 0.05 145);
+  --color-accent-hover: oklch(48% 0.18 145);
+  
+  /* Semantic */
+  --color-danger: oklch(55% 0.2 25);
+  --color-danger-soft: oklch(94% 0.05 25);
+  --color-warning: oklch(70% 0.15 85);
+  --color-warning-soft: oklch(95% 0.05 85);
+}
+```
+
+**Why OKLCH over HSL:**
+- `oklch(50% ...)` green and `oklch(50% ...)` red look equally bright
+- HSL lies - `hsl(120, 100%, 50%)` looks brighter than `hsl(240, 100%, 50%)`
+- Better for generating accessible color scales
+
+### Typography Scale
+
+Fluid typography that scales smoothly from mobile to desktop.
+
+```css
+:root {
+  /* Base: 16px at 320px → 18px at 1280px */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+  --text-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+  --text-lg: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+  --text-2xl: clamp(2rem, 1.5rem + 2.5vw, 3rem);
+  
+  /* Line heights */
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+  
+  /* Font stacks */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+```
+
+### Spacing Scale
+
+Consistent 4px base unit, rem-based for accessibility (respects user font size).
+
+```css
+:root {
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+}
+```
+
+### Animation Tokens (Emil Kowalski Philosophy)
+
+Animations should feel physical, purposeful, and interruptible.
+
+```css
+:root {
+  /* Durations */
+  --duration-instant: 50ms;   /* Micro-feedback */
+  --duration-fast: 150ms;     /* Hover, focus */
+  --duration-base: 250ms;     /* Most transitions */
+  --duration-slow: 400ms;     /* Enter/exit, reveals */
+  --duration-slower: 600ms;   /* Page transitions */
+  
+  /* Easing curves */
+  --ease-linear: linear;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);        /* Decelerate */
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);         /* Accelerate */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);    /* Symmetric */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Overshoot */
+  
+  /* Common transitions */
+  --transition-colors: color var(--duration-fast) var(--ease-out),
+                       background var(--duration-fast) var(--ease-out),
+                       border-color var(--duration-fast) var(--ease-out);
+  --transition-transform: transform var(--duration-fast) var(--ease-out);
+  --transition-shadow: box-shadow var(--duration-fast) var(--ease-out);
+}
+
+/* Respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+}
+```
+
+### Layout Utilities
+
+Flexbox-based, composable patterns.
+
+```css
+/* Stack: vertical rhythm */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap, var(--space-4));
+}
+
+.stack-sm { --stack-gap: var(--space-2); }
+.stack-lg { --stack-gap: var(--space-8); }
+
+/* Cluster: horizontal with wrapping */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cluster-gap, var(--space-4));
+  align-items: center;
+}
+
+/* Center: max-width container */
+.center {
+  max-width: var(--center-width, 40rem);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+/* Grid: responsive columns */
+.grid {
+  display: grid;
+  gap: var(--grid-gap, var(--space-4));
+  grid-template-columns: repeat(
+    auto-fit, 
+    minmax(min(100%, var(--grid-min, 16rem)), 1fr)
+  );
+}
+```
+
+---
+
+## JavaScript Architecture
+
+### Module Structure
+
+```
+js/
+├── app.js              → Main entry, orchestration
+├── state.js            → URL state encode/decode
+├── calculator.js       → Invoice calculations
+├── pdf-extractor.js    → PDF parsing
+├── a11y.js             → Accessibility utilities
+├── components/
+│   ├── modal.js        → Accessible modal
+│   ├── toast.js        → Notifications
+│   └── result.js       → Result display with animation
+└── utils/
+    ├── dom.js          → DOM helpers
+    ├── format.js       → Number/currency formatting
+    └── calendar.js     → .ics generation
+```
+
+### Module Pattern
+
+Each module exports clean public API:
+
+```javascript
+// components/modal.js
+
+/**
+ * Creates an accessible modal dialog.
+ * 
+ * @param {Object} options
+ * @param {HTMLElement} options.trigger - Element that opens modal
+ * @param {string} options.content - Modal HTML content
+ * @param {string} options.title - Modal title for a11y
+ * @param {Function} options.onOpen - Callback on open
+ * @param {Function} options.onClose - Callback on close
+ * @returns {{ open: Function, close: Function, destroy: Function }}
+ * 
+ * @example
+ * const modal = createModal({
+ *   trigger: document.querySelector('#help-btn'),
+ *   title: 'Como encontrar o CPE',
+ *   content: '<p>O CPE está na sua fatura...</p>'
+ * });
+ */
+export function createModal({ trigger, content, title, onOpen, onClose }) {
+  // Implementation...
+}
+```
+
+### Accessibility Utilities
+
+```javascript
+// a11y.js
+
+/**
+ * Traps focus within an element (for modals).
+ * Returns cleanup function.
+ */
+export function trapFocus(element) {
+  const focusable = element.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  
+  function handleKeydown(e) {
+    if (e.key !== 'Tab') return;
+    
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+  
+  element.addEventListener('keydown', handleKeydown);
+  first?.focus();
+  
+  return () => element.removeEventListener('keydown', handleKeydown);
+}
+
+/**
+ * Announces message to screen readers.
+ */
+export function announce(message, priority = 'polite') {
+  const el = document.createElement('div');
+  el.setAttribute('role', 'status');
+  el.setAttribute('aria-live', priority);
+  el.setAttribute('aria-atomic', 'true');
+  el.className = 'sr-only';
+  el.textContent = message;
+  
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+/**
+ * Handles Escape key to close overlays.
+ */
+export function onEscape(callback) {
+  function handler(e) {
+    if (e.key === 'Escape') callback();
+  }
+  document.addEventListener('keydown', handler);
+  return () => document.removeEventListener('keydown', handler);
+}
+```
+
+### State Management (URL-based)
+
+No localStorage dependency. State lives in URL.
+
+```javascript
+// state.js
+
+/**
+ * Encodes state to URL-safe base64.
+ */
+export function encodeState(state) {
+  const json = JSON.stringify(state);
+  return btoa(encodeURIComponent(json));
+}
+
+/**
+ * Decodes state from URL.
+ */
+export function decodeState(encoded) {
+  try {
+    const json = decodeURIComponent(atob(encoded));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Updates URL with state (no page reload).
+ */
+export function pushState(state) {
+  const encoded = encodeState(state);
+  const url = new URL(window.location);
+  url.searchParams.set('s', encoded);
+  history.pushState(null, '', url);
+}
+
+/**
+ * Reads state from current URL.
+ */
+export function readState() {
+  const url = new URL(window.location);
+  const encoded = url.searchParams.get('s');
+  return encoded ? decodeState(encoded) : null;
+}
+```
+
+---
+
+## Component Patterns
+
+### Button States
+
+```css
+.button {
+  /* Base */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  
+  cursor: pointer;
+  transition: var(--transition-colors), var(--transition-transform);
+}
+
+/* Hover: subtle lift */
+.button:hover {
+  transform: translateY(-1px);
+}
+
+/* Active: press down */
+.button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Focus: visible ring */
+.button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Disabled */
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Variants */
+.button-primary {
+  background: var(--color-accent);
+  color: white;
+}
+
+.button-primary:hover {
+  background: var(--color-accent-hover);
+}
+
+.button-secondary {
+  background: transparent;
+  border-color: var(--color-gray-2);
+  color: var(--color-gray-6);
+}
+
+.button-secondary:hover {
+  background: var(--color-gray-1);
+  border-color: var(--color-gray-3);
+}
+```
+
+### Input States
+
+```css
+.input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  
+  background: var(--color-gray-0);
+  border: 1px solid var(--color-gray-2);
+  border-radius: var(--radius-md);
+  
+  transition: var(--transition-colors), var(--transition-shadow);
+}
+
+.input:hover {
+  border-color: var(--color-gray-3);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.input::placeholder {
+  color: var(--color-gray-4);
+}
+
+/* Error state */
+.input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px var(--color-danger-soft);
+}
+```
+
+### Result Animation
+
+```css
+/* Reveal animation - staggers children */
+.result {
+  animation: reveal var(--duration-slow) var(--ease-out) both;
+}
+
+.result > * {
+  animation: reveal var(--duration-slow) var(--ease-out) both;
+}
+
+.result > *:nth-child(1) { animation-delay: 0ms; }
+.result > *:nth-child(2) { animation-delay: 50ms; }
+.result > *:nth-child(3) { animation-delay: 100ms; }
+.result > *:nth-child(4) { animation-delay: 150ms; }
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loss number - emphasis animation */
+.loss-amount {
+  animation: 
+    reveal var(--duration-slow) var(--ease-out) both,
+    pulse var(--duration-slower) var(--ease-out) 300ms both;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+```
+
+---
+
+## Accessibility Checklist
+
+Every component must pass:
+
+### Keyboard
+- [ ] All interactive elements focusable
+- [ ] Logical tab order
+- [ ] Escape closes overlays
+- [ ] Enter/Space activates buttons
+- [ ] Arrow keys for menus/selects
+
+### Screen Readers
+- [ ] Semantic HTML (button, not div)
+- [ ] ARIA labels where needed
+- [ ] Live regions for dynamic content
+- [ ] Hidden decorative elements
+
+### Visual
+- [ ] 4.5:1 contrast (text)
+- [ ] 3:1 contrast (UI elements)
+- [ ] Focus visible at all times
+- [ ] No color-only indicators
+
+### Motor
+- [ ] Touch targets ≥44px
+- [ ] No hover-only interactions
+- [ ] Reduced motion respected
+
+---
+
+## File Naming Conventions
+
+```
+kebab-case.js       → JavaScript modules
+kebab-case.css      → CSS files
+PascalCase          → Classes (in docs only, not in code)
+camelCase           → Functions, variables
+SCREAMING_SNAKE     → Constants
+```
+
+---
+
+## Code Comments
+
+```javascript
+// ✅ Good: Explains WHY
+// Use 40% vazio as default - matches typical apartment usage pattern
+const DEFAULT_VAZIO = 0.4;
+
+// ❌ Bad: Explains WHAT (code already says this)
+// Set the vazio to 0.4
+const DEFAULT_VAZIO = 0.4;
+
+// ✅ Good: Documents non-obvious behavior
+// ERSE CSV uses semicolon delimiter and Portuguese decimal comma
+const parsed = value.replace(',', '.');
+
+// ✅ Good: Links to source/decision
+// Formula based on ERSE documentation
+// See: docs/DATA_SOURCES.md#calculation-formula
+```
+
+---
+
+## Browser Support
+
+Targeting modern browsers only:
+
+| Feature | Support |
+|---------|---------|
+| CSS Custom Properties | 95%+ |
+| CSS clamp() | 93%+ |
+| OKLCH | 90%+ (fallback for older) |
+| ES6 Modules | 95%+ |
+| Fetch API | 97%+ |
+
+**OKLCH Fallback:**
+
+```css
+:root {
+  /* Fallback for browsers without OKLCH */
+  --color-accent: #16a34a;
+  --color-accent: oklch(55% 0.18 145);
+}
+```
+
+---
+
+## Performance Budget
+
+| Metric | Target | Rationale |
+|--------|--------|-----------|
+| HTML | <10KB | Single page |
+| CSS | <15KB | No framework bloat |
+| JS | <30KB | Vanilla, no deps |
+| CSV (initial) | ~300KB | Cached after first load |
+| Total | <400KB | Fast on 3G |
+
+---
+
+## Summary
+
+This is a deliberately simple stack:
+- HTML for structure
+- CSS for presentation
+- JS for behavior
+
+No build step. No dependencies. No abstraction layers.
+
+The complexity budget is spent on:
+- Excellent accessibility
+- Polished micro-interactions
+- Clean, documented code
+- Systematic design tokens
+
+Everything else is intentionally boring.

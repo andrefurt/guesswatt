@@ -1,0 +1,258 @@
+---
+description: "AI assistant behaviour, project context, and coding standards for LessWatt v2"
+globs:
+  alwaysApply: true
+---
+
+# LessWatt v2 - Cursor Rules
+
+## Project Context
+
+LessWatt is a Portuguese electricity tariff comparison tool. Zero backend, zero framework, zero build step. Pure client-side vanilla JS with modern CSS.
+
+**Mission:** Break consumer inertia by showing people how much they're losing, not how much they could save.
+
+## Role
+
+You are a senior frontend developer with deep expertise in:
+- Vanilla JavaScript (ES6+)
+- Modern CSS (custom properties, OKLCH, clamp(), flexbox, grid)
+- Accessibility (WCAG 2.1 AA)
+- Performance optimization
+- Clean, maintainable code
+
+You follow Dieter Rams' design principles: useful, aesthetic, minimal, honest, "less but better".
+
+## Code Standards
+
+### General
+
+- **No frameworks** — Vanilla JS only, no React/Vue/Svelte
+- **No build step** — No webpack, Vite, or transpilation
+- **No external dependencies** — Exception: pdf.js for PDF parsing (Phase 4)
+- **ES6 modules** — Use native `import`/`export`
+- **Semantic HTML** — Use proper elements (`<button>`, `<dialog>`, `<details>`)
+
+### CSS
+
+- **OKLCH colors** — With hex fallback for older browsers
+- **rem units** — Never px (except borders and shadows)
+- **clamp()** — For fluid typography and spacing
+- **Custom properties** — All values from design tokens
+- **BEM-ish naming** — `.component`, `.component-element`, `.component--modifier`
+
+```css
+/* ✅ Good */
+.offer-card { }
+.offer-card-header { }
+.offer-card--highlighted { }
+
+/* ❌ Bad */
+.offerCard { }
+.offer_card_header { }
+.highlighted-offer-card { }
+```
+
+### JavaScript
+
+- **Descriptive function names** — Verb + noun: `calculateMonthlyCost`, `renderOfferCard`
+- **JSDoc comments** — For all public functions
+- **Early returns** — Avoid deep nesting
+- **No abbreviations** — `consumption` not `cons`, `provider` not `prov`
+- **Constants in SCREAMING_SNAKE** — `const DEFAULT_POWER = 4.6`
+
+```javascript
+// ✅ Good
+/**
+ * Calculates monthly electricity cost.
+ * @param {number} consumption - Monthly consumption in kWh
+ * @param {Object} offer - Offer data from CSV
+ * @returns {number} Total monthly cost with VAT
+ */
+function calculateMonthlyCost(consumption, offer) {
+  if (!offer || !consumption) return 0;
+  // ...
+}
+
+// ❌ Bad
+function calc(c, o) {
+  // ...
+}
+```
+
+### File Structure
+
+```
+js/
+├── app.js              # Entry point, orchestration
+├── state.js            # URL state management
+├── calculator.js       # Invoice calculations
+├── components/
+│   ├── modal.js        # Accessible modal
+│   ├── toast.js        # Notifications
+│   └── tooltip.js      # Info tooltips
+└── utils/
+    ├── dom.js          # DOM helpers
+    ├── format.js       # Number formatting
+    └── calendar.js     # ICS generation
+```
+
+## Accessibility Requirements
+
+Every component must:
+
+- [ ] Be keyboard navigable (Tab, Enter, Space, Escape, Arrows)
+- [ ] Have visible focus states
+- [ ] Work with screen readers (proper ARIA when needed)
+- [ ] Respect `prefers-reduced-motion`
+- [ ] Have sufficient color contrast (4.5:1 text, 3:1 UI)
+- [ ] Have touch targets ≥44px
+
+```javascript
+// Always include reduced motion check
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Use native elements when possible
+// ✅ <button> not <div onclick>
+// ✅ <dialog> not custom modal div
+// ✅ <details> not custom accordion
+```
+
+## Animation Philosophy
+
+Following Emil Kowalski's principles:
+
+- **Purposeful** — Animations should guide, not decorate
+- **Fast** — 150-400ms, never sluggish
+- **Interruptible** — User can cancel/override
+- **Physical** — Use ease-out for entrances, ease-in for exits
+
+```css
+/* Standard durations */
+--duration-fast: 150ms;    /* Hover, focus */
+--duration-base: 250ms;    /* Most transitions */
+--duration-slow: 400ms;    /* Reveals, modals */
+
+/* Standard easing */
+--ease-out: cubic-bezier(0.16, 1, 0.3, 1);  /* Decelerate */
+```
+
+## Portuguese Language
+
+All user-facing text is in Portuguese (PT-PT), not Brazilian.
+
+- Use "tu" consistently (never mix with "você")
+- Avoid anglicisms when Portuguese terms exist
+- Technical terms: use Portuguese explanation + original term
+  - "potência contratada (kVA)"
+  - "consumo mensal (kWh)"
+
+## Data Handling
+
+- **CSV delimiter**: Semicolon (`;`)
+- **Decimal separator**: Comma in source, convert to dot for JS
+- **Encoding**: UTF-8 with BOM
+
+```javascript
+// Handle Portuguese CSV format
+const value = csvValue.replace(',', '.');
+const number = parseFloat(value);
+```
+
+## Error Handling
+
+- Always provide user-friendly error messages
+- Log technical details to console
+- Never expose internal errors to users
+- Provide recovery actions when possible
+
+```javascript
+// ✅ Good
+try {
+  const data = await loadCSV();
+} catch (error) {
+  console.error('CSV load failed:', error);
+  showToast('Não conseguimos carregar os dados. Tenta novamente.');
+}
+
+// ❌ Bad
+try {
+  const data = await loadCSV();
+} catch (error) {
+  alert(error.message);
+}
+```
+
+## Comments
+
+- **WHY, not WHAT** — Code shows what, comments explain why
+- **Link to sources** — Reference ADRs, external docs
+- **TODO format** — `// TODO(phase): description`
+
+```javascript
+// ✅ Good: Explains reasoning
+// Use 35% vazio as default - matches typical PT apartment usage
+const DEFAULT_VAZIO_PERCENT = 0.35;
+
+// ✅ Good: Links to decision
+// See ADR-009 for formula rationale
+const VAT_RATE = 0.23;
+
+// ❌ Bad: States the obvious
+// Set VAT to 23%
+const VAT_RATE = 0.23;
+```
+
+## Git Commits
+
+```
+type(scope): description
+
+feat(calculator): add bi-hourly tariff support
+fix(modal): trap focus correctly
+style(tokens): update color palette to OKLCH
+docs(readme): add installation instructions
+refactor(state): simplify URL encoding
+```
+
+## When Uncertain
+
+1. Check `DECISIONS.mdc` for existing ADRs
+2. Check `TECH_STACK.mdc` for constraints
+3. Prefer simpler solutions over clever ones
+4. Ask before adding dependencies
+5. Document new decisions
+
+## Performance Budget
+
+| Asset | Target |
+|-------|--------|
+| HTML | <10KB |
+| CSS | <15KB |
+| JS | <30KB |
+| CSV data | ~300KB (cached) |
+| **Total** | <400KB |
+
+## Quick Reference
+
+| Need | Solution |
+|------|----------|
+| Modal | Native `<dialog>` |
+| Accordion | Native `<details>` |
+| Dropdown | Native `<select>` or custom with ARIA |
+| Toast | Custom with `aria-live="polite"` |
+| Tooltip | Custom with `role="tooltip"` |
+| Animation | CSS transitions + `prefers-reduced-motion` |
+| State | URL params (no localStorage) |
+| Icons | Inline SVG or emoji |
+
+## Don'ts
+
+- ❌ Don't add npm dependencies
+- ❌ Don't use CSS-in-JS
+- ❌ Don't use px units (except 1px borders)
+- ❌ Don't use `innerHTML` for user content
+- ❌ Don't use `var` (use `const`/`let`)
+- ❌ Don't use anonymous functions for event handlers
+- ❌ Don't skip accessibility for "MVP"
+- ❌ Don't hardcode Portuguese strings (future i18n possibility)

@@ -1,0 +1,992 @@
+---
+description: "Phase-by-phase implementation plan with tasks, deliverables, and a11y checklists"
+globs:
+  alwaysApply: false
+---
+
+# LessWatt v2 - Implementation Phases
+
+Each phase is a discrete unit of work with clear deliverables, documented decisions, and a11y validation.
+
+---
+
+## Phase 0: Foundation
+
+**Goal:** Set up project structure, design tokens, and base styles.
+
+### Deliverables
+
+```
+lesswatt/
+├── index.html              # Semantic structure
+├── css/
+│   ├── tokens.css          # Design tokens
+│   ├── reset.css           # CSS reset
+│   ├── base.css            # Typography, defaults
+│   ├── utilities.css       # Layout helpers
+│   └── main.css            # Imports
+├── js/
+│   └── app.js              # Entry point (empty)
+└── data/                   # Existing CSVs
+```
+
+### Tasks
+
+- [ ] Create CSS architecture with tokens
+- [ ] Implement modern CSS reset
+- [ ] Set up typography scale with clamp()
+- [ ] Define color palette in OKLCH
+- [ ] Create spacing scale
+- [ ] Set up animation tokens
+- [ ] Add layout utilities (.stack, .cluster, .center)
+- [ ] Test reduced-motion media query
+
+### Decisions to Document
+
+- [ ] OKLCH fallback strategy for older browsers
+- [ ] Base font size (16px vs 18px)
+- [ ] Max content width (40rem chosen, why?)
+- [ ] Animation duration defaults
+
+### A11y Checklist
+
+- [ ] Base font size ≥16px
+- [ ] Line height ≥1.5 for body text
+- [ ] Focus styles defined globally
+- [ ] Reduced motion respected
+
+---
+
+## Phase 1.1: Simplified Input (with PDF option)
+
+**Goal:** Single €/mês input with optional PDF upload for instant precision.
+
+### Deliverables
+
+```html
+<main class="center stack">
+  <header>
+    <h1>LessWatt</h1>
+    <p>Descobre quanto perdes em eletricidade</p>
+  </header>
+  
+  <form id="quick-form" class="stack-sm">
+    <label for="monthly-cost">Quanto pagas por mês?</label>
+    <div class="input-group">
+      <span class="input-prefix">€</span>
+      <input 
+        type="text" 
+        id="monthly-cost" 
+        name="monthly-cost"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        placeholder="95"
+        aria-describedby="cost-hint"
+      >
+      <button type="button" class="input-suffix" id="pdf-trigger" aria-label="Carregar fatura PDF">
+        <svg><!-- PDF icon --></svg>
+      </button>
+    </div>
+    <p id="cost-hint" class="hint">Valor aproximado ou arrasta a tua fatura em PDF</p>
+    <input type="file" id="pdf-input" accept=".pdf" hidden>
+    <button type="submit" class="button button-primary">
+      Ver quanto perco
+    </button>
+  </form>
+</main>
+```
+
+### Behavior
+
+| Input | Result |
+|-------|--------|
+| € value typed | Estimate calculation (low confidence) |
+| PDF dropped/selected | Parse PDF → precise calculation (high confidence) |
+| Both | PDF takes precedence |
+
+### Tasks
+
+- [ ] Create input component with PDF icon suffix
+- [ ] Implement drag-and-drop on input area
+- [ ] PDF icon triggers file picker
+- [ ] Detect PDF drop vs text input
+- [ ] Add loading state during PDF processing
+- [ ] Show "PDF lido" confirmation
+- [ ] Estimate consumption from €/mês value
+- [ ] Store input method in state (estimate vs precise)
+
+### Estimation Logic
+
+```javascript
+/**
+ * Estimates consumption from monthly bill.
+ * 
+ * Assumptions:
+ * - Average power: 4.6 kVA (most common)
+ * - Simple tariff (conservative)
+ * - Fixed costs: ~€15-20/month
+ * - Variable: ~€0.18/kWh average
+ */
+function estimateConsumption(monthlyBill) {
+  const FIXED_COSTS = 18;        // €/month average
+  const AVG_RATE = 0.18;         // €/kWh average
+  
+  const energyCost = Math.max(0, monthlyBill - FIXED_COSTS);
+  const consumption = Math.round(energyCost / AVG_RATE);
+  
+  return {
+    consumption,
+    power: 4.6,
+    tariff: 1,  // Simple
+    confidence: 'estimate'
+  };
+}
+```
+
+### PDF Parsing (Phase 4)
+
+```javascript
+/**
+ * Extract data from electricity bill PDF.
+ * Returns precise values for calculation.
+ */
+async function parsePDF(file) {
+  // Implementation in Phase 4
+  return {
+    consumption,
+    power,
+    tariff,
+    provider,
+    tariffName,
+    confidence: 'precise'
+  };
+}
+```
+
+### Decisions
+
+- **PDF icon placement**: Inside input as suffix (subtle, doesn't distract)
+- **Drag-drop zone**: Entire input area (not separate dropzone)
+- **Placeholder copy**: "95" with hint mentioning PDF option
+- **File type**: PDF only (.pdf)
+
+### A11y Checklist
+
+- [ ] Label associated with input
+- [ ] Hint text via aria-describedby
+- [ ] PDF button has aria-label
+- [ ] File input properly hidden but accessible
+- [ ] Drag-drop has keyboard alternative
+- [ ] Loading state announced
+
+---
+
+## Phase 1.2: Loss-Focused Result with Offer Card
+
+**Goal:** Show loss amount + best offer card with expandable details.
+
+### Deliverables
+
+```html
+<section id="result" class="result stack" aria-live="polite" hidden>
+  <!-- Current situation -->
+  <p class="result-current">
+    Estás a pagar <strong>~€<span id="current-value">95</span>/mês</strong>
+  </p>
+  
+  <!-- Best offer card -->
+  <article class="offer-card" id="best-offer">
+    <header class="offer-header">
+      <span class="offer-provider">Endesa</span>
+      <span class="offer-name">Tarifa Digital</span>
+    </header>
+    
+    <div class="offer-price">
+      <span class="price-value">€71</span><span class="price-period">/mês</span>
+    </div>
+    
+    <p class="offer-savings">
+      Poupas <strong>€24/mês</strong> · <strong>€288/ano</strong>
+    </p>
+    
+    <!-- Expandable details -->
+    <details class="offer-details">
+      <summary>Ver detalhes</summary>
+      <dl class="offer-specs">
+        <div class="spec">
+          <dt>Termo fixo <button class="tooltip-trigger" aria-label="O que é termo fixo?">ⓘ</button></dt>
+          <dd>€0.23/dia</dd>
+        </div>
+        <div class="spec">
+          <dt>Termo variável <button class="tooltip-trigger" aria-label="O que é termo variável?">ⓘ</button></dt>
+          <dd>€0.134/kWh</dd>
+        </div>
+        <div class="spec">
+          <dt>Fidelização</dt>
+          <dd>Não tem</dd>
+        </div>
+        <div class="spec">
+          <dt>Energia renovável</dt>
+          <dd>Sim</dd>
+        </div>
+      </dl>
+    </details>
+    
+    <footer class="offer-actions">
+      <button type="button" class="button button-primary" id="action-switch">
+        Ver como mudar
+      </button>
+      <a href="#" class="button button-ghost" id="offer-link" target="_blank" rel="noopener">
+        Ver no site →
+      </a>
+    </footer>
+  </article>
+  
+  <!-- More offers -->
+  <button type="button" class="link" id="show-more-offers">
+    📊 Ver mais 12 ofertas
+  </button>
+  
+  <!-- Estimate disclaimer (if not from PDF) -->
+  <aside class="estimate-notice" id="estimate-notice">
+    <p>⚡ Estimativa baseada em consumo médio.</p>
+    <button type="button" class="link" id="action-refine">
+      Refinar com a tua fatura
+    </button>
+  </aside>
+</section>
+```
+
+### Card Structure
+
+| Element | Always Visible | Expandable |
+|---------|----------------|------------|
+| Provider name | ✅ | |
+| Tariff name | ✅ | |
+| Monthly price | ✅ | |
+| Savings (month + year) | ✅ | |
+| Fixed term | | ✅ with tooltip |
+| Variable term | | ✅ with tooltip |
+| Lock-in period | | ✅ |
+| Renewable energy | | ✅ |
+| CTA: Ver como mudar | ✅ | |
+| CTA: Ver no site | ✅ | |
+
+### Tooltips
+
+Tooltips appear on hover/focus of ⓘ buttons:
+
+```html
+<div class="tooltip" role="tooltip" id="tooltip-fixed-term">
+  O termo fixo é o valor que pagas por dia,
+  independentemente do consumo.
+  Inclui custos de rede e taxas.
+</div>
+```
+
+### Tasks
+
+- [ ] Create offer card component
+- [ ] Implement expandable details with <details>
+- [ ] Create tooltip component
+- [ ] Map provider data (name, phone, website)
+- [ ] Include offer link from CSV (LinkOfertaCom)
+- [ ] Staggered reveal animation
+- [ ] Hide estimate notice if PDF was used
+- [ ] "Ver mais ofertas" expands list
+
+### Animation Spec
+
+```css
+.offer-card {
+  animation: card-reveal 400ms var(--ease-out) both;
+}
+
+@keyframes card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .offer-card {
+    animation: none;
+  }
+}
+```
+
+### Decisions
+
+- **Card expansion**: Native `<details>` element (accessible, no JS needed)
+- **Tooltips**: Appear on hover/focus, close on Escape
+- **Offer link**: Opens in new tab (external site)
+- **More offers**: Shows top 10, not all (avoid paralysis)
+
+### A11y Checklist
+
+- [ ] Card is `<article>` with proper heading
+- [ ] Details summary is keyboard accessible
+- [ ] Tooltips have `role="tooltip"` and `aria-describedby`
+- [ ] External links have `rel="noopener"`
+- [ ] Animation respects reduced-motion
+
+---
+
+## Phase 1.3: Switching Guide with Real Data
+
+**Goal:** Step-by-step instructions with actual provider contact info.
+
+### Deliverables
+
+```html
+<section id="switch-guide" class="switch-guide stack" hidden>
+  <h2>Para mudar para <span id="guide-provider">Endesa</span></h2>
+  
+  <ol class="steps stack-sm">
+    <li class="step">
+      <span class="step-number">1</span>
+      <div class="step-content">
+        <p>Liga <strong id="guide-phone">800 100 100</strong></p>
+        <small>Linha gratuita, dias úteis 8h-22h</small>
+      </div>
+    </li>
+    <li class="step">
+      <span class="step-number">2</span>
+      <div class="step-content">
+        <p>Pede a "<strong id="guide-tariff">Tarifa Digital</strong>"</p>
+        <small>É o nome da oferta que encontrámos</small>
+      </div>
+    </li>
+    <li class="step">
+      <span class="step-number">3</span>
+      <div class="step-content">
+        <p>Dá os teus dados</p>
+        <ul class="data-list">
+          <li>CPE <button type="button" class="tooltip-trigger" id="cpe-help">ⓘ</button></li>
+          <li>NIF</li>
+          <li>Morada completa</li>
+          <li>Contacto</li>
+        </ul>
+      </div>
+    </li>
+    <li class="step">
+      <span class="step-number">4</span>
+      <div class="step-content">
+        <p>Pronto</p>
+        <small>Eles tratam de tudo. A mudança fica ativa em 5-7 dias.</small>
+      </div>
+    </li>
+  </ol>
+  
+  <!-- What you DON'T need -->
+  <details class="not-needed">
+    <summary>O que NÃO precisas de fazer</summary>
+    <ul>
+      <li>Contactar o fornecedor antigo</li>
+      <li>Mudar contador ou equipamento</li>
+      <li>Pagar pela mudança</li>
+      <li>Preocupar-te com cortes</li>
+    </ul>
+  </details>
+  
+  <!-- Social proof -->
+  <aside class="social-proof">
+    <p>68 mil portugueses mudaram de fornecedor só no último mês.</p>
+    <small>Fonte: ERSE, Agosto 2025</small>
+  </aside>
+  
+  <div class="switch-actions cluster">
+    <a href="#" class="button button-secondary" id="provider-website" target="_blank" rel="noopener">
+      Ir para o site →
+    </a>
+    <button type="button" class="button button-ghost" id="action-calendar">
+      📅 Lembrar-me
+    </button>
+    <button type="button" class="button button-ghost" id="action-share">
+      🔗 Partilhar
+    </button>
+  </div>
+</section>
+```
+
+### Provider Data (from CSV)
+
+```javascript
+// Data comes from CondComerciais.csv
+const providerContact = {
+  phone: offer.ContactoComercialTel,     // "800100100"
+  website: offer.LinkCOM,                 // "https://endesa.pt"
+  offerLink: offer.LinkOfertaCom,        // Direct to offer page
+  tariffName: offer.NomeProposta         // "Tarifa Digital"
+};
+```
+
+### Tasks
+
+- [ ] Extract phone from CSV (ContactoComercialTel)
+- [ ] Extract website from CSV (LinkCOM, LinkOfertaCom)
+- [ ] Format phone number for display (800 100 100)
+- [ ] Make phone clickable (tel: link)
+- [ ] Add CPE tooltip trigger
+- [ ] Include "O que NÃO precisas" section
+- [ ] Add ERSE social proof snippet
+- [ ] Calendar reminder (2 months default)
+- [ ] Share functionality
+
+### Decisions
+
+- **Phone source**: `ContactoComercialTel` from CSV (verified ERSE data)
+- **Website**: Link to offer page when available, fallback to provider homepage
+- **Steps**: 4 steps (Liga → Pede → Dá → Pronto)
+- **Calendar default**: 2 months (not 3 - more aggressive follow-up)
+
+### A11y Checklist
+
+- [ ] Ordered list for steps
+- [ ] Phone number is `<a href="tel:...">`
+- [ ] External links properly labeled
+- [ ] Tooltip accessible via keyboard
+
+---
+
+## Phase 1.4: Tooltips & Info Modals
+
+**Goal:** Contextual help for technical terms without overwhelming.
+
+### Tooltip Component
+
+```html
+<!-- Tooltip trigger (inline) -->
+<button type="button" 
+        class="tooltip-trigger" 
+        aria-describedby="tooltip-kwh"
+        data-tooltip="tooltip-kwh">
+  ⓘ
+</button>
+
+<!-- Tooltip content (hidden until triggered) -->
+<div class="tooltip" 
+     role="tooltip" 
+     id="tooltip-kwh"
+     hidden>
+  <p>Quilowatt-hora (kWh) é a unidade de energia.</p>
+  <p>1 kWh = aparelho de 1000W ligado 1 hora.</p>
+</div>
+```
+
+### Tooltip Behavior
+
+| Trigger | Action |
+|---------|--------|
+| Hover (mouse) | Show after 200ms delay |
+| Focus (keyboard) | Show immediately |
+| Click (touch) | Toggle visibility |
+| Escape | Hide |
+| Click outside | Hide |
+
+### Tooltips Needed
+
+| Term | Tooltip ID | Content |
+|------|------------|---------|
+| Termo fixo | `tooltip-fixed-term` | Valor diário independente do consumo |
+| Termo variável | `tooltip-variable-term` | Preço por cada kWh consumido |
+| kWh | `tooltip-kwh` | Unidade de energia |
+| Potência contratada | `tooltip-power` | "Largura do cano" da instalação |
+| Consumo mensal | `tooltip-consumption` | Energia gasta por mês |
+| CPE | `tooltip-cpe` | Código do contador |
+| Fidelização | `tooltip-lockin` | Período mínimo de permanência |
+
+### CPE Modal (larger explanation)
+
+```html
+<dialog id="cpe-modal" class="modal">
+  <div class="modal-content stack">
+    <header class="modal-header">
+      <h2>Onde encontrar o CPE?</h2>
+      <button type="button" class="modal-close" aria-label="Fechar">✕</button>
+    </header>
+    
+    <div class="modal-body stack">
+      <p>O CPE identifica a tua instalação elétrica.</p>
+      <p>Formato: <code>PT0002000012345678XX</code></p>
+      <p>Está no canto superior direito da tua fatura.</p>
+      <p class="hint">Se não encontrares, o operador ajuda-te.</p>
+    </div>
+    
+    <footer class="modal-footer">
+      <button type="button" class="button button-primary" data-close>Entendi</button>
+    </footer>
+  </div>
+</dialog>
+```
+
+### Tasks
+
+- [ ] Create tooltip component (JS)
+- [ ] Position tooltip smartly (avoid viewport overflow)
+- [ ] Add all tooltip content from COPY.md glossary
+- [ ] Create modal component with focus trap
+- [ ] CPE modal with illustration
+- [ ] Keyboard navigation (Tab, Escape)
+
+### Tooltip Positioning
+
+```javascript
+function positionTooltip(trigger, tooltip) {
+  const rect = trigger.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
+  
+  // Default: above the trigger
+  let top = rect.top - tooltipRect.height - 8;
+  let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+  
+  // If would overflow top, show below
+  if (top < 8) {
+    top = rect.bottom + 8;
+  }
+  
+  // Constrain to viewport
+  left = Math.max(8, Math.min(left, window.innerWidth - tooltipRect.width - 8));
+  
+  tooltip.style.top = `${top}px`;
+  tooltip.style.left = `${left}px`;
+}
+```
+
+### A11y Checklist
+
+- [ ] Tooltips use `role="tooltip"`
+- [ ] Triggers have `aria-describedby`
+- [ ] Modal uses native `<dialog>`
+- [ ] Focus trapped in modal
+- [ ] Escape closes tooltip/modal
+- [ ] Focus returns to trigger on close
+
+---
+
+## Phase 2.1: Refine Flow (Manual Input)
+
+**Goal:** Let users refine estimate with manual data entry.
+
+### Deliverables
+
+```html
+<section id="refine-form" class="refine stack" hidden>
+  <header>
+    <h2>Refinar cálculo</h2>
+    <p>Para um resultado mais preciso</p>
+  </header>
+  
+  <form id="detailed-form" class="stack">
+    <!-- Power -->
+    <div class="field">
+      <label for="power">
+        Potência contratada
+        <button type="button" class="tooltip-trigger" data-tooltip="tooltip-power">ⓘ</button>
+      </label>
+      <select id="power" name="power">
+        <option value="3.45">3.45 kVA</option>
+        <option value="4.6" selected>4.6 kVA (mais comum)</option>
+        <option value="5.75">5.75 kVA</option>
+        <option value="6.9">6.9 kVA</option>
+        <option value="10.35">10.35 kVA</option>
+        <option value="13.8">13.8 kVA</option>
+      </select>
+    </div>
+    
+    <!-- Consumption -->
+    <div class="field">
+      <label for="consumption">
+        Consumo mensal
+        <button type="button" class="tooltip-trigger" data-tooltip="tooltip-consumption">ⓘ</button>
+      </label>
+      <div class="input-group">
+        <input type="number" id="consumption" name="consumption" min="50" max="2000" placeholder="250">
+        <span class="input-suffix">kWh</span>
+      </div>
+      <p class="hint">Encontras na fatura, secção "Consumo"</p>
+    </div>
+    
+    <!-- Tariff type -->
+    <fieldset class="field">
+      <legend>
+        Tipo de tarifa
+        <button type="button" class="tooltip-trigger" data-tooltip="tooltip-tariff">ⓘ</button>
+      </legend>
+      <div class="radio-group">
+        <label class="radio">
+          <input type="radio" name="tariff" value="1" checked>
+          <span>Simples</span>
+          <small>Preço único todo o dia</small>
+        </label>
+        <label class="radio">
+          <input type="radio" name="tariff" value="2">
+          <span>Bi-horária</span>
+          <small>Dia e noite</small>
+        </label>
+        <label class="radio">
+          <input type="radio" name="tariff" value="3">
+          <span>Tri-horária</span>
+          <small>Ponta, cheias, vazio</small>
+        </label>
+      </div>
+    </fieldset>
+    
+    <!-- Current provider (optional) -->
+    <div class="field">
+      <label for="current-provider">Fornecedor atual <span class="optional">(opcional)</span></label>
+      <select id="current-provider" name="current-provider">
+        <option value="">Seleciona...</option>
+        <option value="EDPC">EDP</option>
+        <option value="ENDESA">Endesa</option>
+        <option value="GALP">Galp</option>
+        <option value="GOLD">Goldenergy</option>
+        <option value="IBER">Iberdrola</option>
+        <option value="MEO">MEO Energia</option>
+        <option value="REPSOL">Repsol</option>
+      </select>
+    </div>
+    
+    <button type="submit" class="button button-primary">Calcular</button>
+  </form>
+</section>
+```
+
+### Behavior
+
+- Pre-fill with estimated values when coming from quick input
+- If current provider known, calculate and compare with their tariff
+- Show "Já tens uma das melhores" if current is optimal
+
+### Tasks
+
+- [ ] Create form with all fields
+- [ ] Pre-fill from previous estimate
+- [ ] Power dropdown with common values
+- [ ] Tariff type radio buttons with descriptions
+- [ ] Optional current provider dropdown
+- [ ] Calculate with precise values
+- [ ] Compare with current provider if known
+- [ ] Update URL state with precise values
+
+### A11y Checklist
+
+- [ ] All inputs have labels
+- [ ] Radio group uses `<fieldset>` and `<legend>`
+- [ ] Tooltips accessible
+- [ ] Form validation announced
+- [ ] Submit button clearly labeled
+
+---
+
+## Phase 2.2: Calendar Reminder
+
+**Goal:** Export .ics file for "check again in 2 months".
+
+### Deliverables
+
+```html
+<dialog id="calendar-modal" class="modal">
+  <div class="modal-content stack">
+    <header class="modal-header">
+      <h2>Lembrar-me de verificar</h2>
+      <button type="button" class="modal-close" aria-label="Fechar">✕</button>
+    </header>
+    
+    <div class="modal-body stack">
+      <p>Os preços mudam frequentemente. Quando queres ser lembrado?</p>
+      
+      <div class="radio-group">
+        <label class="radio">
+          <input type="radio" name="reminder" value="1">
+          <span>1 mês</span>
+        </label>
+        <label class="radio">
+          <input type="radio" name="reminder" value="2" checked>
+          <span>2 meses</span>
+        </label>
+        <label class="radio">
+          <input type="radio" name="reminder" value="6">
+          <span>6 meses</span>
+        </label>
+      </div>
+    </div>
+    
+    <footer class="modal-footer">
+      <button type="button" class="button button-primary" id="download-ics">
+        Adicionar ao calendário
+      </button>
+    </footer>
+  </div>
+</dialog>
+```
+
+### ICS Generation
+
+```javascript
+function generateICS({ months, currentCost, bestCost, savings, url }) {
+  const date = new Date();
+  date.setMonth(date.getMonth() + months);
+  
+  const event = {
+    title: 'Verificar tarifa de eletricidade',
+    date: formatICSDate(date),
+    description: [
+      `Última vez pagavas €${currentCost}/mês.`,
+      `Podias poupar €${savings}/ano.`,
+      `Verifica se há ofertas melhores.`,
+      '',
+      url
+    ].join('\\n'),
+    url
+  };
+  
+  return createICSBlob(event);
+}
+```
+
+### Tasks
+
+- [ ] Create calendar modal
+- [ ] Interval selection (1/2/6 months)
+- [ ] Generate .ics file
+- [ ] Download trigger
+- [ ] Include state URL in event
+- [ ] Test with major calendar apps
+
+### Decisions
+
+- **Default interval**: 2 months (more aggressive than 3)
+- **Event type**: All-day reminder
+- **Include URL**: Yes, with state encoded
+
+### A11y Checklist
+
+- [ ] Modal accessible
+- [ ] Radio group properly labeled
+- [ ] Download confirmation announced
+
+---
+
+## Phase 2.3: Share Functionality
+
+**Goal:** Copy shareable link/message.
+
+### Tasks
+
+- [ ] Generate share text with savings
+- [ ] Copy to clipboard
+- [ ] Web Share API on mobile
+- [ ] Toast confirmation
+- [ ] Track shares (analytics)
+
+### Share Text
+
+```javascript
+const shareText = `Descobri que perdia €${savings}/ano em eletricidade. Vê quanto perdes tu:`;
+const shareUrl = `https://lesswatt.pt/?s=${encodedState}`;
+```
+
+---
+
+## Phase 3: Offers List
+
+**Goal:** Show all offers, not just the best.
+
+### Deliverables
+
+```html
+<section id="all-offers" class="offers-list stack" hidden>
+  <h2>Todas as ofertas para o teu perfil</h2>
+  
+  <ol class="offers">
+    <li class="offer-row best">
+      <span class="offer-rank">1</span>
+      <span class="offer-provider">Endesa Digital</span>
+      <span class="offer-price">€71/mês</span>
+      <span class="offer-diff">melhor</span>
+    </li>
+    <li class="offer-row">
+      <span class="offer-rank">2</span>
+      <span class="offer-provider">Goldenergy Solar</span>
+      <span class="offer-price">€73/mês</span>
+      <span class="offer-diff">+€2</span>
+    </li>
+    <!-- ... -->
+  </ol>
+  
+  <button type="button" class="link" id="hide-offers">Ver menos</button>
+</section>
+```
+
+### Tasks
+
+- [ ] Create compact offer row component
+- [ ] Show top 10 offers initially
+- [ ] "Ver mais" expands full list
+- [ ] Click row expands to full card
+- [ ] Sort by monthly cost (ascending)
+- [ ] Highlight best offer
+
+---
+
+## Phase 4: PDF Parsing
+
+**Goal:** Extract data from electricity bill PDFs.
+
+### Supported Providers (Initial)
+
+- EDP
+- Endesa
+- Galp
+- Goldenergy
+
+### Data to Extract
+
+| Field | Where to find |
+|-------|---------------|
+| Consumo (kWh) | "Consumo" or "Energia ativa" section |
+| Potência (kVA) | "Potência contratada" |
+| Tipo tarifa | "Simples" / "Bi-horária" / "Tri-horária" |
+| Fornecedor | Header/logo |
+| Nome tarifa | Contract details |
+
+### Tasks
+
+- [ ] Integrate PDF.js
+- [ ] Create parser for each provider format
+- [ ] Extract consumption value
+- [ ] Extract power value
+- [ ] Detect tariff type
+- [ ] Identify provider
+- [ ] Error handling for unsupported formats
+- [ ] Privacy: process client-side only
+
+### Error States
+
+```html
+<!-- Unsupported format -->
+<div class="error">
+  <p>Não conseguimos ler esta fatura.</p>
+  <p>Por agora suportamos EDP, Endesa, Galp e Goldenergy.</p>
+  <button type="button" class="link">Introduzir manualmente</button>
+</div>
+```
+
+---
+
+## Phase 5: ERSE Insights Integration
+
+**Goal:** Fetch and display market statistics for social proof.
+
+### Data Source
+
+- Síntese Mensal do Mercado Liberalizado (ERSE)
+- Boletim Eurostat (ERSE)
+- Update frequency: Every 4 months
+
+### GitHub Action
+
+```yaml
+# .github/workflows/update-erse-insights.yml
+name: Update ERSE Insights
+
+on:
+  schedule:
+    - cron: '0 10 1 */4 *'  # Day 1, every 4 months
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: pnpm install
+      - run: node scripts/fetch-erse-insights.js
+      - run: |
+          git config user.name "github-actions[bot]"
+          git add data/erse-insights.json
+          git diff --staged --quiet || git commit -m "chore: update ERSE insights"
+          git push
+```
+
+### Usage in Copy
+
+```javascript
+// Load insights
+const insights = await fetch('/data/erse-insights.json').then(r => r.json());
+
+// Use in social proof
+const socialProof = `${insights.mercadoLivre.mudancasMes.toLocaleString()} portugueses mudaram de fornecedor só no último mês.`;
+```
+
+### Tasks
+
+- [ ] Create fetch script for ERSE reports
+- [ ] Parse relevant statistics
+- [ ] Store in `data/erse-insights.json`
+- [ ] GitHub Action for quarterly updates
+- [ ] Display in switching guide
+- [ ] Include source attribution
+
+---
+
+## Phase 6: Polish & Refinement
+
+### Tasks
+
+- [ ] Mobile responsive audit
+- [ ] Touch target sizes (≥44px)
+- [ ] Performance audit (Lighthouse)
+- [ ] Cross-browser testing (Chrome, Safari, Firefox)
+- [ ] Screen reader testing (VoiceOver, NVDA)
+- [ ] Keyboard navigation audit
+- [ ] Color contrast verification (WCAG AA)
+- [ ] Error state testing
+- [ ] Empty state testing
+- [ ] Documentation review
+
+### Performance Targets
+
+- First Contentful Paint: <1.5s
+- Time to Interactive: <3s
+- Lighthouse Performance: >90
+- Lighthouse Accessibility: 100
+
+---
+
+## Implementation Log Template
+
+Each completed phase should document:
+
+```markdown
+## Phase X.X - [Name]
+
+**Completed:** YYYY-MM-DD
+
+### Summary
+One paragraph describing what was built.
+
+### Decisions Made
+- Decision 1: Chose X over Y because...
+- Decision 2: ...
+
+### Code Changes
+- `file.js`: Added function X (+45 lines)
+- `file.css`: New component styles (+60 lines)
+
+### Testing
+- [x] Chrome/Safari/Firefox
+- [x] VoiceOver
+- [x] Keyboard navigation
+- [x] Reduced motion
+
+### Screenshots
+[Before/after if applicable]
+
+### Open Questions
+- Question for next phase...
+```

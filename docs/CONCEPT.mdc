@@ -1,0 +1,346 @@
+---
+description: "Product vision, user flow, LOVE framework analysis, and design principles"
+globs:
+  alwaysApply: false
+---
+
+# LessWatt v2 - Concept Validation
+
+## Mission
+
+Break consumer inertia in the Portuguese energy market. Help people realize they're losing money and make switching effortless.
+
+> The problem isn't information. It's inertia. LessWatt's job is to break it.
+
+---
+
+## Feature List (Prioritized)
+
+### Phase 1 - Core (MVP Refinement)
+
+| # | Feature | Purpose | Effort |
+|---|---------|---------|--------|
+| 1.1 | **Simplified input (€/mês)** | Lower barrier, instant engagement | Small |
+| 1.2 | **Loss-focused result ("Perdes €X/ano")** | Emotional trigger, wake-up call | Small |
+| 1.3 | **Single best offer highlight** | Clear answer, no paralysis | Small |
+| 1.4 | **Switching script** | Actionable steps, reduce friction | Small |
+| 1.5 | **CPE helper** | Remove common blocker | Small |
+
+### Phase 2 - Retention & Distribution
+
+| # | Feature | Purpose | Effort |
+|---|---------|---------|--------|
+| 2.1 | **Personal URL with state** | Stateless "account", return visits | Small |
+| 2.2 | **Calendar reminder export** | Self-managed alerts, zero backend | Small |
+| 2.3 | **Comparison on return** | Show improvement opportunity | Medium |
+| 2.4 | **Share card** | Organic distribution, ENDORSE | Medium |
+
+### Phase 3 - Refinement
+
+| # | Feature | Purpose | Effort |
+|---|---------|---------|--------|
+| 3.1 | **Human-readable power selector** | Replace jargon with context | Small |
+| 3.2 | **PDF refinement flow** | Precision after initial estimate | Done |
+| 3.3 | **Mobile optimization** | Broader reach | Medium |
+| 3.4 | **"Verificar novamente" prompt** | Seasonal nudge | Small |
+
+### Intentionally Not Doing
+
+| Feature | Reason |
+|---------|--------|
+| User accounts | Overengineered, privacy concerns |
+| Email backend | Maintenance burden, GDPR |
+| Operadora integrations | Political complexity, low ROI |
+| Native app | Web sufficient for occasional use |
+| Price history charts | Nobody returns for graphs |
+| B2B segment | Different product entirely |
+
+---
+
+## Domain Map
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     PORTUGUESE ENERGY MARKET                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────┐    regulates    ┌──────────────────────────────┐  │
+│  │   ERSE   │ ──────────────► │    LIBERALIZED MARKET        │  │
+│  │(regulator)│                │    ~45 providers              │  │
+│  └──────────┘                 │    ~400 offers                │  │
+│       │                       │    Updated monthly            │  │
+│       │ publishes             └──────────────────────────────┘  │
+│       ▼                                      │                   │
+│  ┌──────────┐                               │ compete for       │
+│  │   CSV    │                               ▼                   │
+│  │  Data    │                       ┌──────────────┐            │
+│  └──────────┘                       │  CONSUMERS   │            │
+│       │                             │              │            │
+│       │                             │  - Domestic  │            │
+│       │                             │  - No lock-in│            │
+│       ▼                             │  - Can switch│            │
+│  ┌──────────────────┐               │    monthly   │            │
+│  │    LESSWATT      │               └──────────────┘            │
+│  │                  │                      ▲                    │
+│  │  Transforms data │                      │                    │
+│  │  into insight    │──────────────────────┘                    │
+│  │  + action        │   "You're losing €288/year"               │
+│  └──────────────────┘                                           │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Insight
+
+The market is **designed for switching**:
+- No fidelização by default
+- CPE (delivery point code) is the only key needed
+- Switch takes one phone call (~5 minutes)
+
+Yet 80%+ of consumers stay with the same provider for years.
+
+**The gap isn't information. It's inertia.**
+
+---
+
+## Service Design Blueprint
+
+```
+                    CUSTOMER JOURNEY
+     ─────────────────────────────────────────────────────────►
+     
+     AWARENESS        CONSIDERATION       ACTION          LOOP
+     ──────────       ─────────────       ──────          ────
+     
+┌─────────────────────────────────────────────────────────────────┐
+│ FRONTSTAGE (User sees)                                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Friend shares    "Quanto pagas?"    "Perdes €288"    "Lembrar  │
+│  link/card        Single input       Loss highlight    daqui a   │
+│       │                │                  │           3 meses"   │
+│       │                │                  │               │      │
+│       ▼                ▼                  ▼               ▼      │
+│   Landing page    Instant result     Switch script    Calendar  │
+│   with hook       ~5 seconds         + CPE helper     export    │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│ LINE OF VISIBILITY                                               │
+├─────────────────────────────────────────────────────────────────┤
+│ BACKSTAGE (User doesn't see)                                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Static hosting   CSV in memory      Pre-written       .ics     │
+│  (free)           Filter + calc      scripts per       generator │
+│                   <16ms              provider                    │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│ SUPPORT PROCESSES                                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Monthly CSV      URL state          Copy/share        Zero     │
+│  update           encoding           generation        backend   │
+│  (AUTO)           (stateless)        (client-side)              │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Moments of Truth
+
+| Moment | User Emotion | Design Response |
+|--------|--------------|-----------------|
+| First input | "Will this work?" | Single field, instant response |
+| Seeing loss | "Holy shit, that much?!" | Big number, loss framing |
+| How to switch | "Ok but it's complicated..." | Step-by-step script, phone number |
+| CPE confusion | "I don't know what this is" | Visual guide, "it's on your bill" |
+| Future check | "I'll forget about this" | Calendar export, personal URL |
+
+---
+
+## LOVE Framework Analysis
+
+### L - LEARN
+
+*"How do people discover this exists?"*
+
+| Before (v1) | After (v2) |
+|-------------|------------|
+| ❌ No distribution | ✅ Share cards with shock value |
+| ❌ SEO only | ✅ "Descobre quanto perdes por ano" |
+| ❌ Passive | ✅ Viral loop built-in |
+
+**Triggers:**
+- Friend shares result
+- Social media card
+- News about energy prices
+- Moving house
+- Received shocking bill
+
+---
+
+### O - ONBOARD
+
+*"How fast to value?"*
+
+| Before (v1) | After (v2) |
+|-------------|------------|
+| ⚠️ 4 fields minimum | ✅ 1 field (€/mês) |
+| ⚠️ Technical jargon | ✅ Human language |
+| ⚠️ ~30 seconds | ✅ ~5 seconds to value |
+
+**Flow:**
+```
+"Quanto pagas?" → €95 → "Perdes €288/ano" → 5 seconds
+```
+
+**Refinement (optional):**
+```
+Upload PDF → Precise calculation → Same loss framing
+```
+
+---
+
+### V - VALUE
+
+*"What's the aha moment?"*
+
+| Before (v1) | After (v2) |
+|-------------|------------|
+| ⚠️ "Best offer is €71" | ✅ "You're LOSING €288/year" |
+| ⚠️ Information | ✅ Emotion + Action |
+| ⚠️ List of options | ✅ Single clear answer |
+
+**Value Equation:**
+```
+           Perceived savings × Ease of action
+Value  =  ─────────────────────────────────────
+                   Effort to discover
+```
+
+**Key insight:** Loss framing is 2x more motivating than gain framing.
+- "Save €288" < "Stop losing €288"
+
+---
+
+### E - ENDORSE
+
+*"Why would someone share this?"*
+
+| Before (v1) | After (v2) |
+|-------------|------------|
+| ❌ Nothing to share | ✅ Shareable result card |
+| ❌ No social proof | ✅ "Descobri que perdia €288/ano" |
+| ❌ Utility only | ✅ Conversation starter |
+
+**Share motivations:**
+- Help friends save money (altruism)
+- "Look what I discovered" (social currency)
+- Outrage at current provider (venting)
+
+**Share mechanics:**
+- One-click copy link
+- Pre-generated card with personal result
+- WhatsApp/Twitter/Facebook optimized
+
+---
+
+## User Flow (v2)
+
+```
+┌─────────────────────────────────────────┐
+│                                         │
+│   Quanto pagas de luz por mês?          │
+│                                         │
+│   €[____] aproximadamente               │
+│                                         │
+│   [Descobrir quanto perco]              │
+│                                         │
+└─────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────┐
+│                                         │
+│   Estás a pagar ~€95/mês                │
+│                                         │
+│   Podias pagar €71/mês                  │
+│                                         │
+│   💸 Estás a perder €288/ano            │
+│                                         │
+│   [Ver como mudar]   [Refinar cálculo]  │
+│                                         │
+└─────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────┐
+│                                         │
+│   Para mudar para Endesa:               │
+│                                         │
+│   1. Liga 800 XXX XXX (grátis)          │
+│   2. Diz: "Quero aderir à               │
+│      Tarifa Digital luz&gás"            │
+│   3. Dá o teu CPE (está na fatura)      │
+│                                         │
+│   Demora ~5 minutos. Sem papelada.      │
+│                                         │
+│   [Onde encontrar o CPE?]               │
+│   [📅 Lembrar-me de verificar]          │
+│   [🔗 Partilhar com amigos]             │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Impact Potential
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│   Average household loses €200-400/year by not switching.       │
+│                                                                  │
+│   Portugal has ~4 million households.                            │
+│                                                                  │
+│   If 1% use LessWatt and switch → €8-16M saved collectively.    │
+│                                                                  │
+│   That's impact without being a business.                        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Mitigation |
+|------|------------|------------|
+| Estimates inaccurate with €/mês only | Medium | Clear "estimativa" label + PDF refinement |
+| Users don't return to check | High | Calendar reminder + personal URL |
+| Switch scripts get outdated | Medium | Review quarterly, crowdsource updates |
+| ERSE changes CSV format | Low | Manual fix when needed |
+| Provider links break | Medium | Fallback to generic site |
+
+---
+
+## Success Metrics (If We Tracked)
+
+| Metric | Target | Why It Matters |
+|--------|--------|----------------|
+| Time to first result | <10 seconds | Engagement |
+| Share rate | >5% | Growth loop |
+| Return visits | >10% | Retention |
+| Perceived savings shown | >€150/year avg | Value delivery |
+
+*Note: As a side project, we're not actively tracking. These are directional.*
+
+---
+
+## Summary
+
+LessWatt is a **wake-up call tool**, not a comparison engine.
+
+The job is to:
+1. **Shock** → "You're losing €288/year"
+2. **Simplify** → "Here's exactly what to do"
+3. **Spread** → "Tell your friends"
+
+Zero backend. Zero accounts. Maximum impact.

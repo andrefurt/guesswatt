@@ -1,0 +1,129 @@
+/**
+ * Modern CSS Reset
+ * Based on Josh Comeau's reset with adaptations for LessWatt
+ * 
+ * Goals:
+ * - Remove default margins
+ * - Sensible box-sizing
+ * - Better text defaults
+ * - Remove list styles on lists with roles
+ * - Accessible focus states
+ */
+
+/* Box sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margins */
+* {
+  margin: 0;
+}
+
+/* Body defaults */
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Media defaults */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Remove built-in form typography styles */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Avoid text overflows */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* Remove list styles on ul, ol with role */
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+}
+
+/* Anchor defaults */
+a {
+  color: inherit;
+  text-decoration-skip-ink: auto;
+}
+
+/* Button reset */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Remove animations for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Improve focus visibility */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Table defaults */
+table {
+  border-collapse: collapse;
+}
+
+/* Form elements */
+fieldset {
+  border: none;
+  padding: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+/* Dialog reset */
+dialog {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+dialog::backdrop {
+  background: oklch(0% 0 0 / 0.5);
+  background: rgba(0, 0, 0, 0.5);
+}

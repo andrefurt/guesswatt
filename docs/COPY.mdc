@@ -1,0 +1,930 @@
+---
+description: "Tone of voice, all UI copy, tooltips, error states, and Portuguese glossary"
+globs:
+  alwaysApply: false
+---
+
+# LessWatt v2 - Copy Guidelines
+
+## Tom de Voz
+
+### Quem somos (como marca)
+
+Um vizinho que percebe de eletricidade e quer ajudar. Não somos uma empresa de energia, não vendemos nada, não ganhamos comissões. Só queremos que as pessoas parem de pagar demais.
+
+### Princípios
+
+| Princípio | Significa | Não significa |
+|-----------|-----------|---------------|
+| **Amigável** | Próximo, acessível, humano | Infantil, exclamativo, forçado |
+| **Honesto** | Transparente sobre limitações | Defensivo, cheio de disclaimers |
+| **Direto** | Vai ao ponto, sem rodeios | Seco, frio, robótico |
+| **Útil** | Informação acionável | Didático, paternalista |
+
+### Tratamento
+
+**Usamos "tu"** — consistente, nunca misturar com "você".
+
+```
+✅ "Quanto pagas de luz?"
+❌ "Quanto paga de luz?"
+❌ "Quanto pagas... pode verificar..." (mistura)
+```
+
+### O que evitamos
+
+| Padrão | Exemplo | Problema |
+|--------|---------|----------|
+| Superlativos vazios | "A melhor solução!" | Zero credibilidade |
+| Urgência artificial | "Muda já!" | Manipulativo |
+| Exclamações excessivas | "Incrível!!" | Parece spam |
+| Jargão técnico | "kWh em período de vazio" | Exclui pessoas |
+| Diminutivos | "É só um cliquezinho" | Condescendente |
+| Emojis decorativos | "Poupa já! 🚀💰🔥" | Ruído visual |
+| Linguagem marketeer | "Oferta imperdível" | Desconfiança |
+
+---
+
+## Retórica (usada com moderação)
+
+Dispositivos clássicos que funcionam sem soar a vendedor:
+
+### Antítese (contraste)
+
+Clarifica a diferença entre situação atual e possível.
+
+```
+"Pagas €95. Podias pagar €71."
+```
+
+### Tricolon (regra dos três)
+
+Ritmo natural, fácil de memorizar.
+
+```
+"Sem contratos. Sem papelada. Sem complicações."
+```
+
+### Litotes (afirmar pela negativa)
+
+Mais credível que afirmações absolutas.
+
+```
+"Não é complicado" em vez de "É super fácil"
+```
+
+### Pergunta retórica
+
+Convida à reflexão sem pressionar.
+
+```
+"Quanto pagas de luz por mês?"
+```
+
+---
+
+## Copy por Secção
+
+### Homepage / Hero
+
+**Versão principal:**
+
+```
+Quanto perdes em eletricidade?
+
+Descobre em 5 segundos se estás a pagar demais.
+```
+
+**Versão alternativa (mais direta):**
+
+```
+Quanto pagas de luz por mês?
+
+A maioria dos portugueses paga mais do que devia.
+Vê se és um deles.
+```
+
+**Social proof contextual (usar uma destas):**
+
+```
+"87% dos portugueses já estão no mercado livre. E tu?"
+Fonte: ERSE, 2025
+
+"Mais de 68 mil pessoas mudaram de fornecedor só no último mês."
+Fonte: ERSE, Agosto 2025
+```
+
+**Notas:**
+- Começa com pergunta (engagement imediato)
+- "perdes" não "podes poupar" (loss framing)
+- Tempo concreto reduz fricção percebida
+- Sem exclamações
+
+---
+
+### Input Principal
+
+**Layout com opção de PDF:**
+
+```
+┌─────────────────────────────────────────────────┐
+│                                                 │
+│  Quanto pagas por mês?                          │
+│                                                 │
+│  ┌─────────────────────────────────┐  ┌─────┐  │
+│  │ € 95                            │  │ 📄  │  │
+│  │ ou arrasta a tua fatura em PDF  │  │     │  │
+│  └─────────────────────────────────┘  └─────┘  │
+│                                                 │
+│  [Ver quanto perco]                             │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+**Elementos:**
+
+```
+Label:        Quanto pagas por mês?
+Placeholder:  95 (ou arrasta a tua fatura em PDF)
+Icon:         📄 ou ícone de upload (clicável)
+Hint:         Valor aproximado da tua última fatura
+Button:       Ver quanto perco
+```
+
+**Comportamento:**
+- Se introduz valor → cálculo estimado
+- Se arrasta/clica PDF → cálculo preciso
+- O ícone de PDF é um affordance subtil, não distrai
+
+**Estados de erro:**
+
+```
+Vazio:        Precisamos de um valor para calcular
+Inválido:     Introduz um valor entre €30 e €500
+PDF erro:     Não conseguimos ler este PDF. Tenta com o valor em €.
+```
+
+---
+
+### Resultado - Cartão da Melhor Oferta
+
+**Layout do cartão (estimativa):**
+
+```
+┌─────────────────────────────────────────────────┐
+│                                                 │
+│  Estás a pagar ~€95/mês                         │
+│                                                 │
+│  ┌─────────────────────────────────────────┐   │
+│  │                                         │   │
+│  │  Endesa                                 │   │
+│  │  Tarifa Digital                         │   │
+│  │                                         │   │
+│  │  €71/mês                                │   │
+│  │                                         │   │
+│  │  Poupas €24/mês · €288/ano              │   │
+│  │                                         │   │
+│  │  ────────────────────────────────────   │   │
+│  │                                         │   │
+│  │  Termo fixo: €0.23/dia ⓘ               │   │
+│  │  Termo variável: €0.134/kWh ⓘ          │   │
+│  │  Fidelização: Não tem                   │   │
+│  │  Energia renovável: Sim                 │   │
+│  │                                         │   │
+│  │  [Ver como mudar]  [Ver no site →]      │   │
+│  │                                         │   │
+│  └─────────────────────────────────────────┘   │
+│                                                 │
+│  📊 Ver mais 12 ofertas                         │
+│                                                 │
+│  ─────────────────────────────────────────────  │
+│                                                 │
+│  ⚡ Isto é uma estimativa. Para um valor        │
+│     mais preciso, refina com a tua fatura.      │
+│                                                 │
+│  [Refinar cálculo]                              │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+**Resultado (com PDF - preciso):**
+
+```
+┌─────────────────────────────────────────────────┐
+│                                                 │
+│  Com a tua tarifa atual (EDP Base)              │
+│  pagas €95/mês                                  │
+│                                                 │
+│  ┌─────────────────────────────────────────┐   │
+│  │                                         │   │
+│  │  Endesa                                 │   │
+│  │  Tarifa Digital                         │   │
+│  │                                         │   │
+│  │  €71/mês                                │   │
+│  │                                         │   │
+│  │  ✓ Poupas €24/mês · €288/ano            │   │
+│  │                                         │   │
+│  │  [Ver como mudar]                       │   │
+│  │                                         │   │
+│  └─────────────────────────────────────────┘   │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+**Se já tem a melhor tarifa:**
+
+```
+┌─────────────────────────────────────────────────┐
+│                                                 │
+│  ✓ Boa! Já tens uma das melhores tarifas.       │
+│                                                 │
+│  Com a tua tarifa atual (Goldenergy Solar)      │
+│  pagas €68/mês — está no top 3.                 │
+│                                                 │
+│  A melhor oferta pouparia apenas €3/mês.        │
+│  Provavelmente não vale a pena mudar.           │
+│                                                 │
+│  [Guardar link]  [Lembrar-me em 2 meses]        │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+**Elementos do cartão:**
+
+| Elemento | Sempre visível | Notas |
+|----------|----------------|-------|
+| Nome do comercializador | ✅ | "Endesa" |
+| Nome da tarifa | ✅ | "Tarifa Digital" |
+| Preço mensal | ✅ | "€71/mês" |
+| Poupança | ✅ | "Poupas €24/mês · €288/ano" |
+| Termo fixo | Expandido | Com tooltip ⓘ |
+| Termo variável | Expandido | Com tooltip ⓘ |
+| Fidelização | Expandido | "Não tem" ou "12 meses" |
+| Energia renovável | Expandido | "Sim" / "Não" |
+| CTA primário | ✅ | "Ver como mudar" |
+| CTA secundário | ✅ | Link para site do comercializador |
+
+---
+
+### Lista de Ofertas (expandida)
+
+Quando clica "Ver mais X ofertas":
+
+```
+┌─────────────────────────────────────────────────┐
+│                                                 │
+│  Todas as ofertas para o teu perfil             │
+│                                                 │
+│  1. Endesa Digital       €71/mês   (melhor)     │
+│  2. Goldenergy Solar     €73/mês   +€2          │
+│  3. Galp Casa            €74/mês   +€3          │
+│  4. EDP Online           €76/mês   +€5          │
+│  5. Iberdrola Plan       €77/mês   +€6          │
+│  ···                                            │
+│                                                 │
+│  [Ver menos]                                    │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
+### Tooltips (ⓘ)
+
+Aparecem ao hover/tap nos elementos com ⓘ:
+
+**Termo fixo:**
+```
+O termo fixo é o valor que pagas por dia,
+independentemente do consumo.
+Inclui custos de rede e taxas.
+```
+
+**Termo variável:**
+```
+O termo variável é o preço por cada kWh consumido.
+Quanto mais gastas, mais pagas desta componente.
+```
+
+**kWh:**
+```
+Quilowatt-hora (kWh) é a unidade de energia.
+1 kWh = ter um aparelho de 1000W ligado durante 1 hora.
+Uma máquina de lavar gasta ~1.5 kWh por ciclo.
+```
+
+**Potência contratada:**
+```
+A potência define quanta energia podes usar ao mesmo tempo.
+Se for baixa e ligares muitos aparelhos, o quadro dispara.
+4.6 kVA é o valor mais comum em Portugal.
+```
+
+**Consumo mensal:**
+```
+É a quantidade de energia que gastas por mês.
+Encontras este valor na tua fatura, em kWh.
+Uma casa média consome 200-300 kWh/mês.
+```
+
+---
+
+### Aviso de Estimativa
+
+```
+⚡ Estimativa baseada em consumo médio.
+   Para um valor mais preciso, usa a tua fatura em PDF.
+```
+
+**Não fazer:**
+
+```
+⚠️ ATENÇÃO: Os valores apresentados são meramente indicativos 
+e não constituem uma proposta vinculativa...
+```
+
+---
+
+### Guia de Mudança
+
+**Intro:**
+
+```
+Mudar é mais simples do que parece.
+```
+
+**Passos (com telefone real):**
+
+```
+1. Liga 800 100 100
+   Linha gratuita da Endesa, dias úteis 8h-22h
+   [Ou visita endesa.pt →]
+
+2. Pede a "Tarifa Digital"
+   É o nome da oferta que encontrámos para ti
+
+3. Dá os teus dados
+   Vão pedir-te:
+   · CPE (código na fatura) ⓘ
+   · NIF
+   · Morada completa
+   · Contacto (telefone ou email)
+   
+4. Pronto
+   Eles tratam de tudo, incluindo cancelar o contrato antigo.
+```
+
+**O que NÃO precisas de fazer:**
+
+```
+· Contactar o fornecedor antigo — o novo trata de tudo
+· Mudar contador ou equipamento — nada muda fisicamente
+· Pagar pela mudança — é gratuito
+· Preocupar-te com cortes — a energia nunca é interrompida
+```
+
+**Prazos:**
+
+```
+· A mudança fica ativa em 5-7 dias úteis (máximo legal: 3 semanas)
+· Vais receber uma última fatura do antigo fornecedor até 6 semanas depois
+· A partir do dia da mudança, o novo fornecedor começa a faturar
+```
+
+**Social proof contextual:**
+
+```
+"68 mil portugueses mudaram de fornecedor só no último mês. 
+O processo demora em média 5 dias."
+Fonte: ERSE
+```
+
+**Nota sobre fidelização:**
+
+```
+Se tens contrato com período de fidelização, 
+confirma se há penalização por saída antecipada.
+
+A maioria das ofertas no mercado livre não tem fidelização.
+Se mudares para a tarifa regulada (CUR), nunca há penalização.
+```
+
+**Nota sobre tipo de tarifa:**
+
+```
+Se tens tarifa bi-horária ou tri-horária, podes mudar de fornecedor
+mas tens de manter o mesmo tipo de tarifa durante 12 meses.
+
+Ou seja: podes trocar de empresa, mas não de simples para bi-horária
+(ou vice-versa) antes de completar um ano.
+
+💡 Isto vai mudar em 2026 — a ERSE está a eliminar esta obrigação.
+```
+
+---
+
+### Refinar Cálculo (Input Manual)
+
+**Título:**
+
+```
+Refinar cálculo
+Para um resultado mais preciso
+```
+
+**Campos:**
+
+```
+┌─────────────────────────────────────────────────┐
+│                                                 │
+│  Potência contratada ⓘ                          │
+│  [4.6 kVA ▼] (a mais comum)                     │
+│                                                 │
+│  Consumo mensal ⓘ                               │
+│  [___] kWh                                      │
+│  Encontras na fatura, secção "Consumo"          │
+│                                                 │
+│  Tipo de tarifa ⓘ                               │
+│  ○ Simples (preço único todo o dia)             │
+│  ○ Bi-horária (dia e noite)                     │
+│  ○ Tri-horária (ponta, cheias, vazio)           │
+│                                                 │
+│  ─────────────────────────────────────────────  │
+│                                                 │
+│  Fornecedor atual (opcional)                    │
+│  [EDP ▼]                                        │
+│                                                 │
+│  [Calcular]                                     │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+**Valores do dropdown de potência:**
+
+```
+1.15 kVA
+2.3 kVA
+3.45 kVA
+4.6 kVA ← default (mais comum)
+5.75 kVA
+6.9 kVA
+10.35 kVA
+13.8 kVA
+```
+
+---
+
+### CPE Helper (Modal)
+
+**Título:**
+
+```
+Onde encontrar o CPE?
+```
+
+**Corpo:**
+
+```
+O CPE é o código que identifica o teu contador.
+Está em todas as faturas de eletricidade.
+
+Procura por "CPE" ou "Código de Ponto de Entrega",
+normalmente no canto superior direito.
+
+Tem este formato:
+PT0002000012345678XX
+
+Não te preocupes — se não encontrares, 
+o operador ajuda-te a localizar.
+```
+
+**Botão:**
+
+```
+Entendi
+```
+
+---
+
+### Lembrete (Calendar)
+
+**Texto do modal:**
+
+```
+Lembrar-me de verificar
+
+Os preços mudam frequentemente.
+Adicionamos um lembrete ao teu calendário
+para verificares novamente.
+```
+
+**Opções:**
+
+```
+[1 mês]  [2 meses ✓]  [6 meses]
+```
+
+Default: **2 meses**
+
+**Evento gerado:**
+
+```
+Título:     Verificar tarifa de eletricidade
+Descrição:  Última vez pagavas €95/mês e podias poupar €288/ano.
+            Vê se há ofertas melhores: lesswatt.pt/r/abc123
+```
+
+---
+
+### Partilha
+
+**Texto do modal:**
+
+```
+Partilhar
+
+Copia o link para enviar a quem também 
+paga luz a mais.
+```
+
+**Texto copiado:**
+
+```
+Descobri que podia poupar €288/ano em eletricidade. 
+Vê quanto perdes tu: lesswatt.pt
+```
+
+**Confirmação:**
+
+```
+✓ Link copiado
+```
+
+---
+
+### Estados Vazios e Erros
+
+**Sem ofertas melhores:**
+
+```
+Não encontrámos ofertas melhores.
+
+Isto pode acontecer se:
+· Já tens uma boa tarifa
+· O teu consumo é muito baixo
+· A potência contratada é invulgar
+
+Podes tentar com valores diferentes ou 
+carregar a tua fatura para um cálculo mais preciso.
+
+[Tentar novamente]
+```
+
+**Erro de carregamento:**
+
+```
+Algo correu mal.
+
+Não conseguimos carregar os dados das tarifas.
+Podes tentar novamente ou voltar mais tarde.
+
+[Tentar novamente]
+```
+
+**Erro de PDF:**
+
+```
+Não conseguimos ler esta fatura.
+
+O formato não é reconhecido. Por agora, 
+suportamos faturas da EDP, Endesa, Galp e Goldenergy.
+
+Podes introduzir os valores manualmente.
+
+[Introduzir manualmente]
+```
+
+---
+
+### Toasts / Confirmações
+
+Mínimos. Confirmam e desaparecem.
+
+```
+✓ Link copiado
+✓ Lembrete adicionado
+✓ Valores atualizados
+✓ PDF lido com sucesso
+```
+
+---
+
+### Loading States
+
+```
+A comparar ofertas...       (não "A carregar...")
+A ler a fatura...           (não "A processar...")
+A calcular poupança...      (não "Por favor aguarde...")
+```
+
+---
+
+### Micro-copy
+
+| Contexto | ❌ Genérico | ✅ LessWatt |
+|----------|------------|-------------|
+| Submeter | "Submeter" | "Ver quanto perco" |
+| Cancelar | "Cancelar" | "Voltar" |
+| Ajuda | "Saiba mais" | "Como funciona?" |
+| Obrigatório | "Campo obrigatório" | "Precisamos deste valor" |
+| Opcional | "Opcional" | "Se souberes" |
+| Erro | "Erro" | "Algo correu mal" |
+| Upload | "Carregar ficheiro" | "Arrasta a fatura" |
+
+---
+
+### Footer / Meta
+
+```
+LessWatt compara tarifas de eletricidade em Portugal.
+Não somos uma empresa de energia. Não vendemos nada.
+
+Dados: ERSE (atualizado mensalmente)
+```
+
+---
+
+## Insights ERSE (Social Proof)
+
+Dados actualizados a cada 4 meses. Usar contextualmente, sempre com referência à fonte.
+
+### Dados disponíveis
+
+| Insight | Valor (Ago 2025) | Onde usar |
+|---------|------------------|-----------|
+| % no mercado livre | 87.5% | Hero, switching guide |
+| Mudanças/mês | 68,578 | Switching guide |
+| Preço médio doméstico | €0.2536/kWh | Validação interna |
+| PT vs Zona Euro | -22% | Contexto educativo |
+| PT vs Espanha | -8% | Contexto educativo |
+
+### Exemplos de uso
+
+**No hero:**
+```
+87% dos portugueses já estão no mercado livre.
+Se ainda não comparaste, podes estar a perder dinheiro.
+```
+
+**No guia de mudança:**
+```
+Mais de 68 mil pessoas mudaram de fornecedor só no último mês.
+O processo é gratuito e demora em média 5 dias.
+<small>Fonte: ERSE, Agosto 2025</small>
+```
+
+**Em contexto educativo:**
+```
+Portugal tem eletricidade 22% mais barata que a média da Zona Euro.
+Mas dentro de Portugal, ainda há diferenças grandes entre tarifas.
+<small>Fonte: Eurostat via ERSE, 1º Semestre 2025</small>
+```
+
+### Regras
+
+1. **Sempre citar a fonte** - "Fonte: ERSE" ou "Fonte: ERSE, [mês] [ano]"
+2. **Não inventar dados** - só usar o que está no `erse-insights.json`
+3. **Contextualizar** - não atirar números soltos, dar significado
+4. **Actualizar a cada 4 meses** - via GitHub Action
+
+---
+
+## Glossário de Tom por Contexto
+
+| Contexto | Tom | Exemplo |
+|----------|-----|---------|
+| Entrada | Curioso, convidativo | "Quanto pagas de luz?" |
+| Input | Calmo, claro | "Valor aproximado da tua fatura" |
+| Resultado | Direto, impactante | "Perdes €288 por ano" |
+| Instruções | Confiante, passo-a-passo | "Liga, pede, dá os dados, pronto" |
+| Erros | Empático, solucionador | "Não conseguimos, mas podes..." |
+| Confirmações | Neutro, mínimo | "✓ Copiado" |
+
+---
+
+## Checklist de Review de Copy
+
+Antes de aprovar qualquer texto:
+
+### Clareza
+- [ ] Uma pessoa de 60 anos percebe?
+- [ ] Não há jargão técnico desnecessário?
+- [ ] O próximo passo é óbvio?
+- [ ] Tooltips explicam termos técnicos?
+
+### Tom
+- [ ] Soa a pessoa, não a empresa?
+- [ ] Sem exclamações excessivas?
+- [ ] Sem superlativos vazios?
+
+### Honestidade
+- [ ] Não prometemos o que não podemos garantir?
+- [ ] Limitações estão claras (sem ser defensivo)?
+- [ ] Estimativas estão identificadas como tal?
+- [ ] Insights ERSE têm fonte citada?
+
+### Ação
+- [ ] O utilizador sabe o que fazer a seguir?
+- [ ] CTAs são verbos de ação?
+- [ ] Há saída para quem não quer continuar?
+
+### Consistência
+- [ ] Tratamento por "tu" consistente?
+- [ ] Terminologia igual em todo o lado?
+- [ ] Tom alinhado com o contexto?
+
+---
+
+## Dados Reais: Processo de Mudança
+
+### Documentos obrigatórios
+
+| Dado | Onde encontrar |
+|------|----------------|
+| **CPE** | Fatura, canto superior (PT00020000...) |
+| **Nome completo** | Titular do contrato |
+| **NIF** | Cartão cidadão |
+| **Morada** | Morada de fornecimento |
+| **Contacto** | Telefone e/ou email |
+
+### Dados opcionais
+
+| Dado | Quando |
+|------|--------|
+| **Leitura do contador** | Recomendado para acerto correto |
+| **IBAN** | Se débito direto |
+| **Comprovativo de morada** | Só em mudança de titular |
+
+### O que NÃO é preciso
+
+- Contactar o fornecedor antigo
+- Mudar contador ou equipamento
+- Pagar qualquer valor pela mudança
+- Preocupar-te com cortes de energia
+
+### Prazos
+
+| Etapa | Tempo |
+|-------|-------|
+| Processo típico | 5-7 dias úteis |
+| Máximo legal | 3 semanas |
+| Última fatura do antigo | Até 6 semanas depois |
+
+### Fidelização
+
+- Se existir, pode haver penalização por saída antecipada
+- Exceção: mudança para tarifa regulada (CUR) nunca tem penalização
+- Muitas ofertas no mercado livre não têm período de fidelização
+
+### Restrição de tarifa (até 2026)
+
+A mudança de tipo de tarifa (simples ↔ bi-horária ↔ tri-horária) obriga a permanecer nessa opção durante 12 meses. Podes mudar de fornecedor, mas não de tipo de tarifa antes de completar um ano.
+
+**Fonte:** Artigo 51º do Regulamento das Relações Comerciais (ERSE)
+
+**Nota:** A partir de 2026, esta obrigação será eliminada.
+
+---
+
+## Glossário de Conceitos (Literacia Energética)
+
+Para usar em tooltips e modais de ajuda.
+
+### Consumo e Medição
+
+**kWh (quilowatt-hora)**
+```
+Unidade de energia consumida. 
+É como medir eletricidade em "litros".
+
+1 kWh = ter um aparelho de 1000W ligado durante 1 hora.
+Exemplos: uma máquina de lavar gasta ~1-2 kWh por ciclo,
+um frigorífico gasta ~1 kWh por dia.
+```
+
+**kVA (quilovolt-ampere) / Potência contratada**
+```
+É a "largura do cano" da tua instalação.
+Define quanta energia podes usar ao mesmo tempo.
+
+Se a potência for baixa e ligares muitos aparelhos,
+o quadro dispara. 
+
+Valores típicos:
+· 3.45 kVA — apartamento pequeno
+· 4.6 kVA — apartamento médio (mais comum)
+· 6.9 kVA — casa maior ou com ar condicionado
+· 10.35+ kVA — casas grandes, aquecimento elétrico
+```
+
+**Leitura do contador**
+```
+O número que aparece no teu contador de eletricidade.
+Indica quanto consumiste desde sempre (acumulado).
+
+A diferença entre duas leituras = consumo nesse período.
+```
+
+### Tarifas
+
+**Tarifa simples**
+```
+Pagas o mesmo preço por kWh a qualquer hora do dia.
+Mais simples de gerir, sem preocupações com horários.
+
+Ideal se: consomes energia distribuída ao longo do dia.
+```
+
+**Tarifa bi-horária**
+```
+Dois preços diferentes: 
+· Vazio (mais barato): 22h-08h
+· Fora de vazio (mais caro): 08h-22h
+
+Ideal se: consegues concentrar >40% do consumo à noite.
+```
+
+**Tarifa tri-horária**
+```
+Três preços: ponta (caro), cheias (médio), vazio (barato).
+
+Horas de ponta: tipicamente 9h-10h30 e 18h-20h30.
+
+Ideal se: consegues evitar consumo nas horas de ponta.
+```
+
+### Identificadores
+
+**CPE (Código de Ponto de Entrega)**
+```
+Código único que identifica a tua instalação elétrica.
+
+Formato: PT0002000012345678XX (20 caracteres)
+Onde encontrar: fatura, canto superior direito.
+
+Precisas dele para mudar de fornecedor.
+```
+
+### Mercado
+
+**Mercado livre**
+```
+Cada comercializador define os seus preços.
+Podes escolher entre dezenas de fornecedores.
+
+Vantagem: mais opções, potencialmente mais barato.
+```
+
+**Mercado regulado / CUR**
+```
+CUR = Comercializador de Último Recurso.
+Preços definidos pela ERSE (regulador).
+
+Qualquer pessoa pode voltar ao mercado regulado até 2025.
+Mudar para CUR nunca tem penalização.
+```
+
+**Fidelização**
+```
+Período mínimo de permanência num contrato.
+Se saíres antes, podes ter de pagar penalização.
+
+Muitas ofertas no mercado livre não têm fidelização.
+```
+
+### Fatura
+
+**Termo fixo**
+```
+Valor fixo mensal, independentemente do consumo.
+Inclui custos de rede, taxas, e potência contratada.
+Pagas mesmo que não gastes eletricidade.
+```
+
+**Termo variável**
+```
+Valor que depende do consumo (kWh).
+Quanto mais gastas, mais pagas.
+É aqui que a tarifa (€/kWh) faz diferença.
+```
+
+---
+
+## Referências de Tom
+
+Marcas com tom semelhante ao que queremos:
+
+- **Revolut** (fintech) — direto, sem floreados
+- **Notion** — claro, útil, não condescendente
+- **Linear** — técnico mas acessível
+- **Monzo** — amigável sem ser infantil

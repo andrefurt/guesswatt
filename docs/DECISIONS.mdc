@@ -1,0 +1,738 @@
+---
+description: "Architecture Decision Records - technical and product decisions with rationale"
+globs:
+  alwaysApply: true
+---
+
+# LessWatt v2 - Architecture Decision Records
+
+Decisões técnicas e de produto documentadas. Cada ADR segue o formato: contexto → opções → decisão → consequências.
+
+---
+
+## Índice
+
+### Arquitectura
+- [ADR-001](#adr-001-client-side-only) Client-Side Only
+- [ADR-002](#adr-002-vanilla-js-sem-framework) Vanilla JS, Sem Framework
+- [ADR-003](#adr-003-sem-build-step) Sem Build Step
+
+### Dados
+- [ADR-004](#adr-004-csvs-da-erse-como-fonte-primária) CSVs da ERSE como Fonte Primária
+- [ADR-005](#adr-005-actualização-manual-dos-csvs) Actualização Manual dos CSVs
+- [ADR-006](#adr-006-insights-erse-a-cada-4-meses) Insights ERSE a Cada 4 Meses
+
+### Input & Cálculo
+- [ADR-007](#adr-007-input-único-com-opção-pdf) Input Único €/mês com Opção PDF
+- [ADR-008](#adr-008-estimativa-vs-preciso) Estimativa vs Preciso (dois modos)
+- [ADR-009](#adr-009-fórmula-de-cálculo) Fórmula de Cálculo
+- [ADR-010](#adr-010-defaults-assumidos) Defaults Assumidos
+
+### Output & UX
+- [ADR-011](#adr-011-loss-framing) Loss Framing ("Perdes €X")
+- [ADR-012](#adr-012-cartão-de-oferta-com-detalhes-expansíveis) Cartão de Oferta com Detalhes Expansíveis
+- [ADR-013](#adr-013-tooltips-para-termos-técnicos) Tooltips para Termos Técnicos
+- [ADR-014](#adr-014-top-n-ofertas-não-todas) Top N Ofertas, Não Todas
+- [ADR-015](#adr-015-contactos-reais-do-csv) Contactos Reais do CSV
+
+### Funcionalidades
+- [ADR-016](#adr-016-calendário-2-meses-default) Calendário: 2 Meses Default
+- [ADR-017](#adr-017-pdf-parsing-client-side) PDF Parsing Client-Side
+- [ADR-018](#adr-018-url-state-para-bookmarks) URL State para Bookmarks
+
+### Scope
+- [ADR-019](#adr-019-português-de-portugal-apenas) Português de Portugal Apenas
+- [ADR-020](#adr-020-segmento-doméstico-apenas) Segmento Doméstico Apenas
+
+---
+
+## ADR-001: Client-Side Only
+
+**Data:** Novembro 2024 (v1), mantido em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Precisávamos de uma ferramenta de comparação de tarifas. Opções:
+1. Full-stack com base de dados e API
+2. Site estático com build step (Next.js, Vite)
+3. Pure client-side com vanilla JS
+
+**Decisão:**
+Pure client-side. Todo o processamento acontece no browser do utilizador.
+
+**Razões:**
+- Zero custos de hosting (GitHub Pages)
+- Sem preocupações de segurança no backend
+- PDFs ficam no browser (privacidade)
+- ~13K linhas processam em <16ms
+- Manutenção mais simples
+- Funciona offline após primeiro load
+
+**Consequências:**
+- ✅ Privacidade total (dados nunca saem do browser)
+- ✅ Custo zero de infraestrutura
+- ✅ Performance excelente
+- ⚠️ Actualização manual dos CSVs
+- ⚠️ Sem analytics server-side (pode adicionar client-side)
+
+---
+
+## ADR-002: Vanilla JS, Sem Framework
+
+**Data:** Novembro 2024 (v1), mantido em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Dev moderno usa tipicamente React, Vue, ou similar. Considerámos:
+1. React (familiar, componentes)
+2. Vue (mais simples)
+3. Vanilla JS (zero dependências)
+
+**Decisão:**
+Vanilla JavaScript com ES6+.
+
+**Razões:**
+- Codebase total ~800 linhas
+- Sem complexidade de state management
+- Sem build step
+- Sem actualizações de dependências
+- Garantido funcionar em 10 anos
+- Load inicial mais rápido
+
+**Consequências:**
+- ✅ Zero dependências para manter
+- ✅ Código auditável e simples
+- ✅ Longevidade garantida
+- ⚠️ Manipulação DOM manual
+- ⚠️ Sem reutilização de componentes (aceitável nesta escala)
+
+---
+
+## ADR-003: Sem Build Step
+
+**Data:** Novembro 2024 (v1), mantido em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+A maioria dos projectos modernos usa bundlers (Vite, webpack, esbuild).
+
+**Decisão:**
+Sem build step. Ficheiros servidos directamente.
+
+**Razões:**
+- Editar e refrescar (DX simples)
+- Sem configuração de tooling
+- Funciona abrindo o HTML directamente
+- Deploy = copiar ficheiros
+
+**Consequências:**
+- ✅ Setup instantâneo
+- ✅ Sem bugs de build
+- ⚠️ Sem minificação (aceitável, <50KB total de JS)
+- ⚠️ Sem tree-shaking (não temos dependências)
+
+---
+
+## ADR-004: CSVs da ERSE como Fonte Primária
+
+**Data:** Novembro 2024 (v1), mantido em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+A ERSE (regulador) publica dados oficiais de todas as ofertas.
+
+**Decisão:**
+Usar os CSVs do simulador ERSE como fonte única de verdade.
+
+**Ficheiros:**
+- `Precos_ELEGN.csv` — Preços por oferta/potência/tarifa (~13K linhas)
+- `CondComerciais.csv` — Condições comerciais, contactos, links (~700 linhas)
+
+**Razões:**
+- Fonte oficial e regulamentada
+- Todos os comercializadores obrigados a reportar
+- Actualização mensal garantida
+- Inclui telefones e links (descoberta v2!)
+
+**Consequências:**
+- ✅ Dados fiáveis e completos
+- ✅ Inclui contactos dos comercializadores
+- ⚠️ Alguns links podem estar desactualizados
+- ⚠️ Formato pode mudar (raro)
+
+---
+
+## ADR-005: Actualização Manual dos CSVs
+
+**Data:** Novembro 2024 (v1), mantido em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Os CSVs da ERSE actualizam mensalmente. Opções:
+1. Scraping automático
+2. Playwright (headless browser)
+3. Download manual
+
+**Decisão:**
+Download manual + commit.
+
+**Razões:**
+- Site da ERSE usa JavaScript (curl não funciona)
+- Playwright adiciona 50MB de dependência
+- Scripts automáticos quebram quando sites mudam
+- Download manual demora 2 minutos/mês
+- ROI da automação é negativo
+
+**Consequências:**
+- ✅ Zero manutenção de scripts
+- ✅ Controlo sobre o que é commitado
+- ⚠️ Precisa lembrar de actualizar
+- ⚠️ Dados podem ter 1-30 dias de atraso
+
+**Nota:** Temos um GitHub Action preparado (`update-erse.yml`) caso a ERSE disponibilize download directo no futuro.
+
+---
+
+## ADR-006: Insights ERSE a Cada 4 Meses
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Relatórios da ERSE têm estatísticas úteis para social proof:
+- % de portugueses no mercado livre
+- Número de mudanças por mês
+- Comparação com Europa
+
+Opções de frequência:
+1. Mensal (sincronizado com CSVs)
+2. Trimestral
+3. A cada 4 meses
+4. Manual quando relevante
+
+**Decisão:**
+Actualização a cada 4 meses via GitHub Action.
+
+**Razões:**
+- Dados não mudam drasticamente mês a mês
+- 87% → 88% não altera o copy
+- Reduz manutenção
+- 3x por ano é suficiente
+
+**Consequências:**
+- ✅ Dados sempre razoavelmente actuais
+- ✅ Baixa manutenção
+- ⚠️ Pode estar 1-4 meses desactualizado
+- ⚠️ Script de parsing pode quebrar se formato mudar
+
+**Uso:**
+Integrar contextualmente no copy, sempre com citação:
+```
+"68 mil portugueses mudaram de fornecedor só no último mês."
+Fonte: ERSE, Agosto 2025
+```
+
+---
+
+## ADR-007: Input Único €/mês com Opção PDF
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+v1 pedia potência + consumo + tarifa (3 inputs obrigatórios). Fricção alta.
+
+Opções para v2:
+1. Manter 3 inputs
+2. Input único €/mês (estimar o resto)
+3. PDF obrigatório
+4. Input €/mês + PDF opcional
+
+**Decisão:**
+Input único €/mês com ícone de PDF subtil como opção.
+
+**Layout:**
+```
+┌─────────────────────────────────┐  ┌─────┐
+│ € 95                            │  │ 📄  │
+│ ou arrasta a tua fatura em PDF  │  │     │
+└─────────────────────────────────┘  └─────┘
+```
+
+**Razões:**
+- Reduz fricção de entrada para 1 campo
+- €/mês toda a gente sabe
+- PDF dá precisão para quem quer
+- Ícone não distrai mas está disponível
+
+**Comportamento:**
+- Se € → cálculo estimado (com disclaimer)
+- Se PDF → cálculo preciso
+- Se ambos → PDF tem precedência
+
+**Consequências:**
+- ✅ Entrada em 5 segundos
+- ✅ Opção de precisão para power users
+- ⚠️ Estimativa pode variar ±15% do real
+- ⚠️ PDF parsing adiciona complexidade
+
+---
+
+## ADR-008: Estimativa vs Preciso (dois modos)
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Com input €/mês, não sabemos potência nem consumo exacto.
+
+**Decisão:**
+Dois modos de operação:
+1. **Estimativa** — assume defaults, mostra disclaimer
+2. **Preciso** — PDF ou input manual, sem disclaimer
+
+**Defaults para estimativa:**
+- Potência: 4.6 kVA (mais comum em PT)
+- Tarifa: simples (conservador)
+- Consumo: calculado a partir do €
+
+**Consequências:**
+- ✅ Valor imediato mesmo com dados mínimos
+- ✅ Caminho para precisão quando necessário
+- ⚠️ Disclaimer necessário ("estimativa")
+- ⚠️ Flow de refinamento adiciona complexidade
+
+---
+
+## ADR-009: Fórmula de Cálculo
+
+**Data:** Novembro 2024 (v1), refinada em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Calcular factura mensal a partir dos dados CSV.
+
+**Fórmula:**
+
+```javascript
+// Tarifa simples
+custoMensal = (TF × 30) + (consumo × TV)
+
+// Bi-horária (com distribuição assumida)
+custoMensal = (TF × 30) + (consumo × 0.35 × TVV) + (consumo × 0.65 × TVFV)
+
+// Tri-horária (com distribuição assumida)
+custoMensal = (TF × 30) + (consumo × 0.30 × TVVz) + (consumo × 0.50 × TVC) + (consumo × 0.20 × TVP)
+
+// Taxas e IVA
+subtotal = custoMensal + IEC + audiovisual
+total = subtotal × 1.23
+```
+
+**Constantes:**
+- IVA: 23%
+- Audiovisual: €2.85/mês
+- IEC: €0.001/kWh
+- Dias/mês: 30
+
+**Consequências:**
+- ✅ Alinhado com fórmula ERSE
+- ✅ Validado contra facturas reais
+- ⚠️ Variação ±2% vs factura real (simplificação IVA)
+
+---
+
+## ADR-010: Defaults Assumidos
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Quando o utilizador só dá €/mês, precisamos de assumir valores.
+
+**Decisão:**
+
+| Parâmetro | Default | Razão |
+|-----------|---------|-------|
+| Potência | 4.6 kVA | Mais comum em Portugal |
+| Tarifa | Simples (1) | Mais comum, conservador |
+| Distribuição bi-horária | 35% vazio / 65% fora | Média típica |
+| Distribuição tri-horária | 30% vazio / 50% cheias / 20% ponta | Média típica |
+
+**Consequências:**
+- ✅ Permite cálculo com input mínimo
+- ⚠️ Pode sobre/subestimar para perfis atípicos
+- ⚠️ Disclaimer obrigatório
+
+---
+
+## ADR-011: Loss Framing
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Como apresentar o resultado? Opções:
+1. "Poupas €288/ano" (gain framing)
+2. "Perdes €288/ano" (loss framing)
+3. Ambos
+
+**Decisão:**
+Loss framing como mensagem principal.
+
+```
+💸 Estás a perder €288/ano
+```
+
+**Razões:**
+- Loss aversion é mais forte que gain (Kahneman)
+- "Perder" cria urgência
+- "Poupar" é abstracto, "perder" é concreto
+- Mais honesto (já estás a pagar isto)
+
+**Consequências:**
+- ✅ Maior impacto emocional
+- ✅ Incentiva acção
+- ⚠️ Pode parecer agressivo (mitigar com tom amigável)
+
+---
+
+## ADR-012: Cartão de Oferta com Detalhes Expansíveis
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Quanta informação mostrar sobre cada oferta?
+
+Opções:
+1. Tudo visível (overwhelming)
+2. Mínimo (falta contexto)
+3. Progressivo (core visível, detalhes expansíveis)
+
+**Decisão:**
+Cartão com info essencial visível + `<details>` para expandir.
+
+**Sempre visível:**
+- Nome do comercializador
+- Nome da tarifa
+- Preço mensal
+- Poupança (mês + ano)
+- CTAs (mudar, ver site)
+
+**Expansível:**
+- Termo fixo (€/dia) com tooltip
+- Termo variável (€/kWh) com tooltip
+- Fidelização
+- Energia renovável
+
+**Razões:**
+- Foco no essencial (preço, poupança)
+- Detalhes disponíveis para quem quer
+- `<details>` é nativo e acessível
+- Reduz cognitive load inicial
+
+**Consequências:**
+- ✅ Interface limpa
+- ✅ Informação completa disponível
+- ✅ Acessível (nativo HTML)
+
+---
+
+## ADR-013: Tooltips para Termos Técnicos
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Termos como "termo fixo", "kWh", "kVA" não são familiares a todos.
+
+Opções:
+1. Glossário separado
+2. Tooltips inline (ⓘ)
+3. Assumir que sabem
+
+**Decisão:**
+Tooltips inline com ícone ⓘ ao lado de termos técnicos.
+
+**Termos com tooltip:**
+- Termo fixo
+- Termo variável
+- kWh
+- Potência contratada
+- Consumo mensal
+- CPE
+- Fidelização
+
+**Comportamento:**
+- Hover (desktop): aparece após 200ms
+- Focus (keyboard): aparece imediatamente
+- Tap (mobile): toggle
+- Escape: fecha
+
+**Consequências:**
+- ✅ Educação contextual
+- ✅ Não interrompe o flow
+- ✅ Acessível (keyboard + screen reader)
+- ⚠️ Adiciona complexidade de implementação
+
+---
+
+## ADR-014: Top N Ofertas, Não Todas
+
+**Data:** Novembro 2024 (v1), mantido em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+A comparação retorna 300-500 ofertas. Mostrar todas causa paralisia.
+
+**Decisão:**
+Mostrar melhor oferta destacada + "Ver mais X ofertas" para expandir top 10.
+
+**Razões:**
+- Choice paralysis é real
+- Top 1 cobre 80% dos casos
+- Top 10 cobre 99%
+- Quem quer ver todas pode expandir
+
+**Consequências:**
+- ✅ Interface limpa
+- ✅ Decisão clara (a melhor está destacada)
+- ⚠️ Pode esconder ofertas interessantes (ex: sem fidelização)
+
+---
+
+## ADR-015: Contactos Reais do CSV
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Descobrimos que o CSV `CondComerciais.csv` tem:
+- `ContactoComercialTel` — telefone do comercializador
+- `LinkCOM` — website do comercializador
+- `LinkOfertaCom` — link directo para a oferta
+
+**Decisão:**
+Usar estes dados no guia de mudança e no cartão de oferta.
+
+**Uso:**
+```
+1. Liga 800 100 100
+   Linha gratuita da Endesa
+   
+   [Ir para o site →]
+```
+
+**Consequências:**
+- ✅ Informação actionable real
+- ✅ Fonte oficial (ERSE)
+- ⚠️ Alguns links podem estar desactualizados
+- ⚠️ Alguns campos podem estar vazios (fallback necessário)
+
+---
+
+## ADR-016: Calendário: 2 Meses Default
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Queremos que os utilizadores voltem a verificar periodicamente.
+
+Opções de default:
+1. 1 mês (muito frequente)
+2. 2 meses
+3. 3 meses (original)
+4. 6 meses (muito espaçado)
+
+**Decisão:**
+Default de 2 meses, com opções 1/2/6.
+
+**Razões:**
+- Mais agressivo que 3 (maior engagement)
+- Preços mudam frequentemente
+- 2 meses é tempo suficiente para não ser spam
+- Mantém o produto na mente do utilizador
+
+**Consequências:**
+- ✅ Maior probabilidade de re-engagement
+- ⚠️ Pode parecer frequente demais para alguns
+
+---
+
+## ADR-017: PDF Parsing Client-Side
+
+**Data:** Novembro 2024 (v1), mantido em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Utilizadores querem upload de facturas para auto-preenchimento.
+
+Opções:
+1. Server-side (Python, Node)
+2. Client-side com pdf.js
+3. OCR service (Google Vision, AWS)
+
+**Decisão:**
+Client-side com Mozilla pdf.js via CDN.
+
+**Razões:**
+- Privacidade: PDF nunca sai do browser
+- Custo: zero
+- Velocidade: 1-3 segundos
+- Sem dependência de servidor
+
+**Trade-offs:**
+- ~200KB adicional de JS
+- Só extrai texto (não funciona com PDFs scanned)
+- Regex frágil para cada fornecedor
+
+**Fornecedores suportados (inicial):**
+- EDP
+- Endesa
+- Galp
+- Goldenergy
+
+**Consequências:**
+- ✅ Privacidade total
+- ✅ Funciona offline
+- ⚠️ Patterns quebram se fornecedores mudarem formato
+- ⚠️ PDFs de imagem não funcionam
+
+---
+
+## ADR-018: URL State para Bookmarks
+
+**Data:** Novembro 2025 (v2)
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Queremos que utilizadores possam guardar/partilhar resultados.
+
+**Decisão:**
+Encodar estado no URL como base64.
+
+**Formato:**
+```
+lesswatt.pt/?s=eyJwIjo0LjYsImMiOjM1MCwiYiI6NzF9
+```
+
+**Decoded:**
+```json
+{
+  "p": 4.6,      // potência
+  "c": 350,      // consumo
+  "t": 1,        // tarifa
+  "b": 71,       // melhor preço
+  "d": "2025-11"  // data
+}
+```
+
+**Razões:**
+- URL bookmarkable
+- Partilhável
+- Permite "voltar e comparar"
+- Data permite detectar staleness
+
+**Consequências:**
+- ✅ Bookmarks funcionam
+- ✅ Partilha fácil
+- ⚠️ URL fica mais longo
+- ⚠️ Estado pode ficar desactualizado
+
+---
+
+## ADR-019: Português de Portugal Apenas
+
+**Data:** Novembro 2024 (v1), mantido em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Público-alvo são consumidores portugueses.
+
+**Decisão:**
+Apenas PT-PT. Sem internacionalização.
+
+**Razões:**
+- 100% dos utilizadores falam português
+- Termos técnicos não traduzem bem
+- Sem complexidade de i18n
+- Alinhado com dados ERSE
+
+**Consequências:**
+- ✅ Codebase mais simples
+- ✅ Copy mais natural
+- ⚠️ Exclui não-falantes de português
+
+---
+
+## ADR-020: Segmento Doméstico Apenas
+
+**Data:** Novembro 2024 (v1), mantido em v2
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Dados ERSE incluem doméstico e empresarial.
+
+**Decisão:**
+Filtrar para doméstico apenas (`Segmento !== 'Ndom'`).
+
+**Razões:**
+- Preços empresariais são mais complexos
+- Empresas têm necessidades diferentes
+- Doméstico é o mercado maior
+- UX mais simples
+
+**Consequências:**
+- ✅ Interface simplificada
+- ✅ Cálculos mais directos
+- ⚠️ Empresas não servidas
+- ⚠️ Poderia adicionar no futuro
+
+---
+
+## Template para Novos ADRs
+
+```markdown
+## ADR-XXX: [Título]
+
+**Data:** [Mês Ano]
+
+**Status:** ⬜ Proposto | ✅ Aceite | ❌ Rejeitado | 🔄 Substituído por ADR-YYY
+
+**Contexto:**
+[Qual o problema ou necessidade?]
+
+**Opções consideradas:**
+1. [Opção A]
+2. [Opção B]
+3. [Opção C]
+
+**Decisão:**
+[O que decidimos e porquê]
+
+**Consequências:**
+- ✅ [Benefício]
+- ⚠️ [Trade-off ou risco]
+```

@@ -1,0 +1,434 @@
+---
+description: "CSV schema, calculation formulas, data relationships, and ERSE insights structure"
+globs:
+  alwaysApply: false
+---
+
+# LessWatt v2 - Data Model
+
+## Data Sources
+
+### Primary: ERSE CSVs
+
+Two CSV files from the ERSE simulator, updated monthly via GitHub Actions.
+
+| File | Purpose | Update Frequency |
+|------|---------|------------------|
+| `Precos_ELEGN.csv` | Prices per offer/power/tariff | Monthly (day 5) |
+| `CondComerciais.csv` | Commercial conditions, contacts, links | Monthly (day 5) |
+
+### Secondary: ERSE Reports (Insights)
+
+PDF reports with market statistics, fetched and parsed quarterly.
+
+| Report | URL | Update Frequency |
+|--------|-----|------------------|
+| Síntese Mensal ML | erse.pt/media/.../YYYYMM_ele_rel_ml.pdf | Every 4 months |
+| Boletim Eurostat | erse.pt/media/.../boletim-eletricidade-eurostat_YYYYsX.pdf | Every 4 months |
+
+---
+
+## CSV Schema
+
+### Precos_ELEGN.csv (Prices)
+
+```
+COM;Pot_Cont;Escalao;ORD;COD_Proposta;Contagem;TF;TV|TVFV|TVP;TVV|TVC;TVVz;TFGN;TVGN
+```
+
+| Column | Type | Description | Example |
+|--------|------|-------------|---------|
+| `COM` | string | Provider code | `EDPC`, `GALP`, `GOLD` |
+| `Pot_Cont` | float | Contracted power (kVA) | `3.45`, `4.6`, `6.9` |
+| `Escalao` | int? | Consumption tier (gas only) | `1`, `2`, `3`, `4` |
+| `ORD` | string? | Order/variant | - |
+| `COD_Proposta` | string | Offer code (join key) | `EDPC_01`, `GALP_03` |
+| `Contagem` | int | Tariff type | `1`=simple, `2`=bi, `3`=tri |
+| `TF` | float | Fixed term (€/day) | `0.2325` |
+| `TV\|TVFV\|TVP` | float | Variable: simple / off-peak / peak (€/kWh) | `0.1658` |
+| `TVV\|TVC` | float | Variable: valley / mid (€/kWh) | `0.1094` |
+| `TVVz` | float | Variable: super-valley (€/kWh) | `0.0947` |
+| `TFGN` | float | Fixed term gas (€/day) | - |
+| `TVGN` | float | Variable term gas (€/kWh) | - |
+
+**Notes:**
+- Electricity only: ignore `TFGN`, `TVGN` columns
+- `Contagem` determines which price columns to use
+- Multiple rows per offer (one per power level)
+
+### CondComerciais.csv (Conditions)
+
+Key columns we use (full CSV has 60+ columns):
+
+| Column | Type | Description | Example |
+|--------|------|-------------|---------|
+| `COM` | string | Provider code (join key) | `EDPC` |
+| `COD_Proposta` | string | Offer code (join key) | `EDPC_01` |
+| `NomeProposta` | string | Human-readable offer name | `Tarifa Digital` |
+| `Segmento` | string | Target segment | `Tod`, `Dom`, `Ndom` |
+| `TipoContagem` | string | Supported tariff types | `1`, `2`, `3`, `123` |
+| `Fornecimento` | string | Energy type | `ELE`, `GN`, `DUAL` |
+| `DuracaoContrato` | int | Contract duration (months) | `12` |
+| `Data ini` | date | Offer start date | `01/01/2025` |
+| `Data fim` | date | Offer end date | `31/12/2025` |
+| `FiltroFidelização` | char | Has lock-in period | `S`, `N` |
+| `FiltroRenovavel` | char | Renewable energy | `S`, `N` |
+| `FiltroPrecosIndex` | char | Indexed prices (volatile) | `S`, `N` |
+| `ContactoComercialTel` | string | **Phone number** | `808505505` |
+| `ContactoWEBouMAIL` | string | Website or email | `url` or `email` |
+| `LinkCOM` | url | Provider website | `https://...` |
+| `LinkOfertaCom` | url | Offer page | `https://...` |
+| `LinkFichaPadrao` | url | Standard info sheet | `https://...` |
+| `TxTOferta` | string | Offer description | `Energia 100% Renovável...` |
+| `TxTFidelização` | string | Lock-in details | `Não tem fidelização` |
+| `TxTContratação` | string | How to contract | `Eletrónica, Telefónica` |
+
+---
+
+## Data Relationships
+
+```
+┌─────────────────────┐         ┌─────────────────────┐
+│  CondComerciais     │         │    Precos_ELEGN     │
+├─────────────────────┤         ├─────────────────────┤
+│ COM ────────────────┼────┬────┼─ COM                │
+│ COD_Proposta ───────┼────┼────┼─ COD_Proposta       │
+│ NomeProposta        │    │    │ Pot_Cont            │
+│ ContactoComercialTel│    │    │ Contagem            │
+│ LinkCOM             │    │    │ TF                  │
+│ LinkOfertaCom       │    │    │ TV|TVFV|TVP         │
+│ FiltroFidelização   │    │    │ TVV|TVC             │
+│ FiltroRenovavel     │    │    │ TVVz                │
+│ ...                 │    │    │ ...                 │
+└─────────────────────┘    │    └─────────────────────┘
+                           │
+                    JOIN ON COM + COD_Proposta
+```
+
+**Join Logic:**
+```javascript
+// Get full offer details
+const offer = prices.find(p => 
+  p.COM === 'EDPC' && 
+  p.COD_Proposta === 'EDPC_01' &&
+  p.Pot_Cont === 4.6 &&
+  p.Contagem === 1
+);
+
+const conditions = commercialConditions.find(c =>
+  c.COM === 'EDPC' &&
+  c.COD_Proposta === 'EDPC_01'
+);
+
+const fullOffer = { ...offer, ...conditions };
+```
+
+---
+
+## Calculation Formulas
+
+### Constants
+
+```javascript
+const IVA = 0.23;                    // 23% VAT
+const DIAS_MES = 30;                 // Days per month
+const AUDIOVISUAL = 2.85;            // Monthly TV tax (€)
+const IEC_KWH = 0.001;               // Special consumption tax (€/kWh)
+
+// Consumption distribution assumptions (when unknown)
+const BI_HORARIA = {
+  vazio: 0.35,      // 22h-08h
+  foraVazio: 0.65   // 08h-22h
+};
+
+const TRI_HORARIA = {
+  vazio: 0.30,      // night
+  cheias: 0.50,     // mid-day
+  ponta: 0.20       // peak hours
+};
+```
+
+### Monthly Cost Calculation
+
+```javascript
+/**
+ * Calculate monthly electricity cost for an offer
+ * 
+ * @param {number} potencia - Contracted power (kVA)
+ * @param {number} consumoKwh - Monthly consumption (kWh)
+ * @param {number} tipoTarifa - 1=simple, 2=bi-hourly, 3=tri-hourly
+ * @param {Object} oferta - Offer data from CSV
+ * @param {Object} distribuicao - Optional: actual consumption distribution
+ * @returns {number} Total monthly cost with VAT (€)
+ */
+function calcularCustoMensal(potencia, consumoKwh, tipoTarifa, oferta, distribuicao = null) {
+  // Fixed term (daily charge × days)
+  const termoFixo = oferta.TF * DIAS_MES;
+  
+  // Variable term (depends on tariff type)
+  let termoVariavel;
+  
+  if (tipoTarifa === 1) {
+    // Simple: single price
+    termoVariavel = consumoKwh * oferta.TV;
+  } 
+  else if (tipoTarifa === 2) {
+    // Bi-hourly: valley + off-valley
+    const dist = distribuicao || BI_HORARIA;
+    termoVariavel = 
+      consumoKwh * dist.vazio * oferta.TVV +
+      consumoKwh * dist.foraVazio * oferta.TVFV;
+  }
+  else if (tipoTarifa === 3) {
+    // Tri-hourly: valley + mid + peak
+    const dist = distribuicao || TRI_HORARIA;
+    termoVariavel = 
+      consumoKwh * dist.vazio * oferta.TVVz +
+      consumoKwh * dist.cheias * oferta.TVC +
+      consumoKwh * dist.ponta * oferta.TVP;
+  }
+  
+  // Taxes
+  const iec = consumoKwh * IEC_KWH;
+  const subtotal = termoFixo + termoVariavel + iec + AUDIOVISUAL;
+  const iva = subtotal * IVA;
+  
+  return subtotal + iva;
+}
+```
+
+### Estimate Consumption from Invoice Amount
+
+```javascript
+/**
+ * Reverse-calculate consumption from monthly bill
+ * Used for €/month quick input
+ * 
+ * @param {number} valorFatura - Monthly bill amount (€)
+ * @param {number} potencia - Assumed power (default: 4.6 kVA)
+ * @param {number} precoMedioKwh - Average price (default: 0.18 €/kWh)
+ * @returns {number} Estimated monthly consumption (kWh)
+ */
+function estimarConsumo(valorFatura, potencia = 4.6, precoMedioKwh = 0.18) {
+  // Remove VAT
+  const semIva = valorFatura / (1 + IVA);
+  
+  // Remove fixed costs (estimated)
+  const termoFixoEstimado = 0.25 * DIAS_MES; // ~€7.50/month
+  const custosFixos = termoFixoEstimado + AUDIOVISUAL;
+  
+  // Remaining is variable consumption
+  const termoVariavel = semIva - custosFixos;
+  
+  // Estimate kWh
+  const consumoKwh = termoVariavel / precoMedioKwh;
+  
+  return Math.max(0, Math.round(consumoKwh));
+}
+```
+
+### Find Best Offer
+
+```javascript
+/**
+ * Find best offer for a given profile
+ * 
+ * @param {number} potencia - Contracted power (kVA)
+ * @param {number} consumoKwh - Monthly consumption (kWh)
+ * @param {number} tipoTarifa - 1, 2, or 3
+ * @param {Array} ofertas - All offers from CSVs
+ * @returns {Array} Sorted offers by monthly cost (ascending)
+ */
+function encontrarMelhoresOfertas(potencia, consumoKwh, tipoTarifa, ofertas) {
+  // Filter valid offers
+  const ofertasValidas = ofertas.filter(o => 
+    o.Fornecimento === 'ELE' &&
+    o.Segmento !== 'Ndom' && // Exclude non-domestic
+    o.Pot_Cont === potencia &&
+    o.Contagem === tipoTarifa &&
+    o.TF != null && o.TF !== ''
+  );
+  
+  // Calculate cost for each
+  const comCusto = ofertasValidas.map(o => ({
+    ...o,
+    custoMensal: calcularCustoMensal(potencia, consumoKwh, tipoTarifa, o)
+  }));
+  
+  // Sort by cost (ascending)
+  return comCusto.sort((a, b) => a.custoMensal - b.custoMensal);
+}
+```
+
+---
+
+## Default Values
+
+When user provides only €/month:
+
+| Parameter | Default | Rationale |
+|-----------|---------|-----------|
+| Potência | 4.6 kVA | Most common in Portugal |
+| Tipo tarifa | 1 (simples) | Most common, conservative estimate |
+| Consumo | Estimated from € | See formula above |
+
+When user provides partial data:
+
+| Missing | Fallback |
+|---------|----------|
+| Potência | 4.6 kVA |
+| Consumo | Estimate from € |
+| Distribuição horária | Use BI_HORARIA or TRI_HORARIA constants |
+
+---
+
+## Data Validation
+
+### Price Sanity Checks
+
+```javascript
+function validarOferta(oferta) {
+  const errors = [];
+  
+  // Fixed term: €0.05 - €2.00 per day
+  if (oferta.TF < 0.05 || oferta.TF > 2.0) {
+    errors.push(`TF fora do intervalo: ${oferta.TF}`);
+  }
+  
+  // Variable term: €0.05 - €0.40 per kWh
+  if (oferta.TV < 0.05 || oferta.TV > 0.40) {
+    errors.push(`TV fora do intervalo: ${oferta.TV}`);
+  }
+  
+  // Valley should be cheaper than peak
+  if (oferta.TVV && oferta.TVFV && oferta.TVV >= oferta.TVFV) {
+    errors.push(`Vazio não é mais barato que fora-vazio`);
+  }
+  
+  return errors;
+}
+```
+
+---
+
+## ERSE Insights Data
+
+Quarterly fetched statistics for social proof.
+
+### Data Structure
+
+```javascript
+const erseInsights = {
+  updatedAt: '2025-08-15',
+  source: 'ERSE Síntese Mensal ML',
+  sourceUrl: 'https://www.erse.pt/media/s2xluwec/202508_ele_rel_ml.pdf',
+  
+  mercadoLivre: {
+    percentagemClientes: 87.5,      // % of customers in free market
+    numeroClientes: 5760182,         // Total customers
+    mudancasMes: 68578,              // Switches this month
+  },
+  
+  quotas: {
+    edp: 59.6,
+    endesa: 10.1,
+    goldenergy: 9.0,
+    galp: 6.1,
+    iberdrola: 5.7,
+    meoEnergia: 3.6,
+    repsol: 1.8,
+    outros: 4.1
+  },
+  
+  captacaoClientes: {
+    lider: 'Goldenergy',
+    percentagem: 45  // % of switches captured
+  },
+  
+  comparacaoEuropa: {
+    portugalVsZonaEuro: -22,  // Portugal is 22% cheaper
+    portugalVsEspanha: -8,    // Portugal is 8% cheaper
+    precoMedioDomestico: 0.2536,  // €/kWh
+    sourceUrl: 'https://www.erse.pt/media/pzehnq31/boletim-eletricidade-eurostat_2025s1.pdf'
+  }
+};
+```
+
+### How to Use Insights (in copy)
+
+**Contextual social proof** - weave into copy naturally, always with reference:
+
+```
+// In hero or result section
+"Mais de 68 mil portugueses mudaram de fornecedor só no último mês."
+<small>Fonte: ERSE, Agosto 2025</small>
+
+// In switching guide
+"A mudança é gratuita e demora 5-7 dias. 
+87% dos portugueses já estão no mercado livre."
+<small>Fonte: ERSE</small>
+
+// In comparison context
+"Portugal tem eletricidade 22% mais barata que a média europeia,
+mas ainda podes pagar menos."
+<small>Fonte: Eurostat via ERSE, 1º Semestre 2025</small>
+```
+
+### Update Workflow
+
+```yaml
+# .github/workflows/update-erse-insights.yml
+name: Update ERSE Insights
+
+on:
+  schedule:
+    - cron: '0 10 1 */4 *'  # Day 1, every 4 months, 10:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: pnpm install
+      - run: node scripts/fetch-erse-insights.js
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/erse-insights.json
+          git diff --staged --quiet || git commit -m "chore: update ERSE insights"
+          git push
+```
+
+---
+
+## Provider Mapping
+
+Human-readable names for UI:
+
+```javascript
+const providers = {
+  'EDPC': { name: 'EDP Comercial', short: 'EDP' },
+  'EDPSU': { name: 'SU Eletricidade', short: 'SU' },
+  'GALP': { name: 'Galp', short: 'Galp' },
+  'GOLD': { name: 'Goldenergy', short: 'Goldenergy' },
+  'ENDESA': { name: 'Endesa', short: 'Endesa' },
+  'IBER': { name: 'Iberdrola', short: 'Iberdrola' },
+  'REPSOL': { name: 'Repsol', short: 'Repsol' },
+  'MEO': { name: 'MEO Energia', short: 'MEO' },
+  // Add as providers appear in data
+};
+```
+
+---
+
+## File Structure
+
+```
+data/
+├── Precos_ELEGN.csv          # Prices (monthly auto-update)
+├── CondComerciais.csv        # Conditions (monthly auto-update)
+├── erse-insights.json        # Market stats (quarterly auto-update)
+└── providers.json            # Provider metadata (manual)
+```
