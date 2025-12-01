@@ -434,8 +434,8 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
   
   // Só mostrar consumo e potência no modo Estimativa (no Preciso já estão no formulário)
   const consumptionHtml = isEstimate ? `
-    <p><strong>Consumo estimado:</strong> ${consumption} kWh/mês</p>
-    <p><strong>Potência:</strong> ${power} kVA</p>
+    <p><strong>Consumo estimado:</strong> ${consumption} kWh<span class="tooltip-trigger" data-tooltip="kwh">ⓘ</span>/mês</p>
+    <p><strong>Potência:</strong> ${power} kVA<span class="tooltip-trigger" data-tooltip="kva">ⓘ</span></p>
   ` : '';
   
   // Guia de mudança (sempre presente quando há resultado)
@@ -445,7 +445,7 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
       <p>Diz que queres aderir à "${enrichedBest.tariffName}"</p>
       <p>Vão pedir-te:</p>
       <ul>
-        <li>CPE (está na tua factura)</li>
+        <li>CPE<span class="tooltip-trigger" data-tooltip="cpe">ⓘ</span> (está na tua factura)</li>
         <li>NIF</li>
         <li>Morada</li>
         <li>Telefone ou email</li>
@@ -479,6 +479,9 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
   // Mostrar resultado
   resultDiv.innerHTML = resultHTML;
   resultDiv.style.display = 'block';
+  
+  // Reinicializar tooltips após renderizar resultado
+  initTooltips();
   
   // Debug info
   debugDiv.innerHTML = `
