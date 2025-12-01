@@ -739,12 +739,17 @@ function showPDFData(data) {
   const providerName = data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detectado';
   const tariffName = data.tariffType === 1 ? 'Simples' : data.tariffType === 2 ? 'Bi-horária' : 'Tri-horária';
   
+  const tariffTooltip = data.tariffType === 1 ? 'tarifa-simples' : data.tariffType === 2 ? 'tarifa-bihoraria' : 'tarifa-trihoraria';
+  
   dataContainer.innerHTML = `
     <p><strong>Operador:</strong> ${providerName}</p>
-    <p><strong>Consumo:</strong> ${data.consumption} kWh</p>
-    <p><strong>Potência:</strong> ${data.power} kVA</p>
-    <p><strong>Tarifa:</strong> ${tariffName}</p>
+    <p><strong>Consumo:</strong> ${data.consumption} kWh<span class="tooltip-trigger" data-tooltip="kwh">ⓘ</span></p>
+    <p><strong>Potência:</strong> ${data.power} kVA<span class="tooltip-trigger" data-tooltip="kva">ⓘ</span></p>
+    <p><strong>Tarifa:</strong> ${tariffName}<span class="tooltip-trigger" data-tooltip="${tariffTooltip}">ⓘ</span></p>
   `;
+  
+  // Reinicializar tooltips após mostrar dados do PDF
+  initTooltips();
   
   // Esconder link manual e form
   toggleManual.style.display = 'none';
