@@ -320,7 +320,7 @@
     if (openChatGPT && copyPageMenu) {
       openChatGPT.addEventListener('click', (e) => {
         e.preventDefault();
-        window.open(`https://chatgpt.com/?q=${prompt}`, '_blank');
+        window.open('https://chatgpt.com/', '_blank');
         copyPageMenu.classList.remove('is-open');
       });
     }
