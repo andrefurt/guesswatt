@@ -104,8 +104,14 @@ function hideTooltip() {
   }
 }
 
+let tooltipsInitialized = false;
+
 function initTooltips() {
   createTooltip();
+  
+  // Evitar múltiplos event listeners
+  if (tooltipsInitialized) return;
+  tooltipsInitialized = true;
   
   // Handle hover (desktop)
   document.addEventListener('mouseover', (e) => {
