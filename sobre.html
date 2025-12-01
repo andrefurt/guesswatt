@@ -146,17 +146,51 @@
       color: #666;
     }
     
-    .back-link {
-      margin-bottom: 1.5rem;
+    /* About content styles */
+    .about-content {
+      line-height: 1.6;
     }
     
-    .back-link a {
-      text-decoration: none;
+    .about-content h1 {
+      margin-bottom: 2rem;
+    }
+    
+    .about-content h2 {
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      font-size: 1.25rem;
+    }
+    
+    .about-content p {
+      margin-bottom: 1rem;
+    }
+    
+    .about-content ul {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+    }
+    
+    .about-content li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .about-content a {
       color: #333;
     }
     
-    .back-link a:hover {
+    .about-content a:hover {
       color: #000;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      color: #666;
+      text-decoration: none;
+    }
+    
+    .back-link:hover {
+      color: #333;
     }
   </style>
 </head>
@@ -179,13 +213,62 @@
     </nav>
   </header>
   
-  <main class="main-content">
-    <div class="back-link">
-      <a href="/">← Voltar</a>
-    </div>
+  <main class="main-content about-content">
+    <a href="/" class="back-link">← Voltar</a>
     
     <h1>Sobre o GuessWatt</h1>
-    <p>Conteúdo em breve.</p>
+    
+    <section>
+      <h2>O que é</h2>
+      <p>O GuessWatt compara tarifas de eletricidade em Portugal. Mostras quanto pagas, nós dizemos se estás a pagar demais e qual a melhor alternativa.</p>
+      <p>Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.</p>
+    </section>
+    
+    <section>
+      <h2>Porquê</h2>
+      <p>Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem comparar — e perde dinheiro.</p>
+      <p>Mudar de fornecedor é gratuito, demora menos de uma semana, e não requer qualquer intervenção técnica. Mas quase ninguém o faz.</p>
+      <p>O GuessWatt existe para quebrar essa inércia.</p>
+    </section>
+    
+    <section>
+      <h2>Como calculamos</h2>
+      <p>Usamos os dados oficiais da <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (Entidade Reguladora dos Serviços Energéticos), a mesma fonte usada pelo simulador oficial.</p>
+      <p>Para cada tarifa, calculamos:</p>
+      <ul>
+        <li>Termo fixo (€/dia) × 30 dias</li>
+        <li>Termo variável (€/kWh) × consumo mensal</li>
+        <li>Taxas (audiovisual, IEC)</li>
+        <li>IVA a 23%</li>
+      </ul>
+      <p>Comparamos todas as ofertas disponíveis para o teu perfil e ordenamos por custo mensal.</p>
+    </section>
+    
+    <section>
+      <h2>Fonte dos dados</h2>
+      <p>Os dados vêm directamente da ERSE:</p>
+      <ul>
+        <li>Preços por tarifa, potência e tipo de contagem</li>
+        <li>Condições comerciais (fidelização, contactos, links)</li>
+      </ul>
+      <p>Actualizamos mensalmente quando a ERSE publica novos dados.</p>
+    </section>
+    
+    <section>
+      <h2>Limitações</h2>
+      <ul>
+        <li>Estimativas baseadas em consumo médio podem variar ±15% do real</li>
+        <li>Tarifas indexadas (preço variável) não são comparáveis directamente</li>
+        <li>Algumas ofertas têm condições especiais não reflectidas nos dados</li>
+      </ul>
+      <p>Para maior precisão, usa a tua factura real.</p>
+    </section>
+    
+    <section>
+      <h2>Quem faz isto</h2>
+      <p>Projecto pessoal de Andrefurt. Código aberto, sem fins lucrativos.</p>
+      <p>Sugestões ou correcções: <a href="https://github.com/andrefurt/guesswatt" target="_blank" rel="noopener">github.com/andrefurt/guesswatt</a></p>
+    </section>
   </main>
   
   <!-- Footer -->
