@@ -1,0 +1,7 @@
+GuessWatt
+
+Ferramenta de comparação de tarifas de eletricidade em Portugal.
+
+Contexto
+[Placeholder - será preenchido depois]
+
