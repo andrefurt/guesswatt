@@ -388,7 +388,8 @@
           Copy Page ▾
         </button>
         <div class="dropdown-menu" id="copy-page-menu">
-          <a href="/llms.txt" target="_blank">View as Markdown</a>
+          <a href="#" id="copy-markdown">Copy as Markdown</a>
+          <a href="/llms.txt" target="_blank">View llms.txt</a>
           <a href="#" id="open-chatgpt">Open in ChatGPT</a>
           <a href="#" id="open-claude">Open in Claude</a>
         </div>
@@ -525,21 +526,50 @@
       });
     }
     
-    // Copy Page - Open in LLMs
+    // Copy Page functionality
+    const copyMarkdown = document.getElementById('copy-markdown');
     const openChatGPT = document.getElementById('open-chatgpt');
     const openClaude = document.getElementById('open-claude');
     
+    // Determine which markdown file to use based on current page
+    const isAboutPage = window.location.pathname.includes('sobre');
+    const markdownFile = isAboutPage ? '/sobre.md' : '/index.md';
+    
+    // Copy as Markdown - fetch and copy to clipboard
+    if (copyMarkdown && copyPageMenu) {
+      copyMarkdown.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          const response = await fetch(markdownFile);
+          const text = await response.text();
+          await navigator.clipboard.writeText(text);
+          
+          // Visual feedback
+          const originalText = copyMarkdown.textContent;
+          copyMarkdown.textContent = '✓ Copied!';
+          setTimeout(() => {
+            copyMarkdown.textContent = originalText;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+        copyPageMenu.classList.remove('is-open');
+      });
+    }
+    
+    // Open in ChatGPT
     const llmsUrl = window.location.origin + '/llms.txt';
     const prompt = encodeURIComponent(`Use this documentation to answer questions about GuessWatt: ${llmsUrl}`);
     
     if (openChatGPT && copyPageMenu) {
       openChatGPT.addEventListener('click', (e) => {
         e.preventDefault();
-        window.open('https://chatgpt.com/', '_blank');
+        window.open(`https://chatgpt.com/?q=${prompt}`, '_blank');
         copyPageMenu.classList.remove('is-open');
       });
     }
     
+    // Open in Claude
     if (openClaude && copyPageMenu) {
       openClaude.addEventListener('click', (e) => {
         e.preventDefault();
