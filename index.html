@@ -532,7 +532,7 @@
     const llmsUrl = window.location.origin + '/llms.txt';
     const prompt = encodeURIComponent(`Use this documentation to answer questions about GuessWatt: ${llmsUrl}`);
     
-    if (openChatGPT) {
+    if (openChatGPT && copyPageMenu) {
       openChatGPT.addEventListener('click', (e) => {
         e.preventDefault();
         window.open(`https://chatgpt.com/?q=${prompt}`, '_blank');
@@ -540,7 +540,7 @@
       });
     }
     
-    if (openClaude) {
+    if (openClaude && copyPageMenu) {
       openClaude.addEventListener('click', (e) => {
         e.preventDefault();
         window.open(`https://claude.ai/new?q=${prompt}`, '_blank');
