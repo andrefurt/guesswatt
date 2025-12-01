@@ -205,9 +205,9 @@
           Copy Page ▾
         </button>
         <div class="dropdown-menu" id="copy-page-menu">
-          <a href="#">View as Markdown</a>
-          <a href="#">Open in ChatGPT</a>
-          <a href="#">Open in Claude</a>
+          <a href="/llms.txt" target="_blank">View as Markdown</a>
+          <a href="#" id="open-chatgpt">Open in ChatGPT</a>
+          <a href="#" id="open-claude">Open in Claude</a>
         </div>
       </div>
     </nav>
@@ -307,6 +307,29 @@
         if (!e.target.closest('.dropdown')) {
           copyPageMenu.classList.remove('is-open');
         }
+      });
+    }
+    
+    // Copy Page - Open in LLMs
+    const openChatGPT = document.getElementById('open-chatgpt');
+    const openClaude = document.getElementById('open-claude');
+    
+    const llmsUrl = window.location.origin + '/llms.txt';
+    const prompt = encodeURIComponent(`Use this documentation to answer questions about GuessWatt: ${llmsUrl}`);
+    
+    if (openChatGPT) {
+      openChatGPT.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.open(`https://chatgpt.com/?q=${prompt}`, '_blank');
+        copyPageMenu.classList.remove('is-open');
+      });
+    }
+    
+    if (openClaude) {
+      openClaude.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.open(`https://claude.ai/new?q=${prompt}`, '_blank');
+        copyPageMenu.classList.remove('is-open');
       });
     }
     
