@@ -424,8 +424,8 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
       <p><strong>💡 Estimativa baseada em:</strong></p>
       <ul>
         <li>Perfil típico: família com 2 adultos e 1 criança</li>
-        <li>Potência: 4.6 kVA (a mais comum em Portugal)</li>
-        <li>Tarifa: Simples (preço único todo o dia)</li>
+        <li>Potência: 4.6 kVA<span class="tooltip-trigger" data-tooltip="kva">ⓘ</span> (a mais comum em Portugal)</li>
+        <li>Tarifa: Simples<span class="tooltip-trigger" data-tooltip="tarifa-simples">ⓘ</span> (preço único todo o dia)</li>
         <li>Consumo estimado a partir do valor da tua fatura</li>
       </ul>
       <p class="context-hint">Para um cálculo mais preciso, usa a tab "Preciso".</p>
