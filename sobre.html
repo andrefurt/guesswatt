@@ -4,11 +4,229 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sobre - GuessWatt</title>
+  <style>
+    html, body {
+      height: 100%;
+    }
+    
+    body { 
+      font-family: system-ui, sans-serif; 
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .main-content {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 1rem 2rem 1rem;
+      flex: 1;
+    }
+    
+    /* Topbar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+      padding: 0 1rem;
+      background: white;
+      margin-bottom: 2rem;
+    }
+    
+    .topbar-logo {
+      font-weight: bold;
+      font-size: 1.25rem;
+      text-decoration: none;
+      color: #333;
+    }
+    
+    .topbar-logo:hover {
+      color: #000;
+    }
+    
+    .topbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .topbar-nav a {
+      text-decoration: none;
+      color: #333;
+      font-size: 0.95rem;
+    }
+    
+    .topbar-nav a:hover {
+      color: #000;
+    }
+    
+    .dropdown {
+      position: relative;
+    }
+    
+    .dropdown-button {
+      background: none;
+      border: none;
+      color: #333;
+      font-size: 0.95rem;
+      cursor: pointer;
+      padding: 0.25rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .dropdown-button:hover {
+      color: #000;
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 0.5rem;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      min-width: 180px;
+      display: none;
+      z-index: 100;
+    }
+    
+    .dropdown-menu.is-open {
+      display: block;
+    }
+    
+    .dropdown-menu a {
+      display: block;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      color: #333;
+      font-size: 0.9rem;
+    }
+    
+    .dropdown-menu a:hover {
+      background: #f5f5f5;
+    }
+    
+    .dropdown-menu a:first-child {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
+    
+    .dropdown-menu a:last-child {
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+    
+    /* Footer */
+    footer {
+      padding: 2rem 1rem;
+      color: #999;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    
+    footer p {
+      margin: 0.5rem 0;
+    }
+    
+    footer a {
+      color: #999;
+      text-decoration: underline;
+    }
+    
+    footer a:hover {
+      color: #666;
+    }
+    
+    .back-link {
+      margin-bottom: 1.5rem;
+    }
+    
+    .back-link a {
+      text-decoration: none;
+      color: #333;
+    }
+    
+    .back-link a:hover {
+      color: #000;
+    }
+  </style>
 </head>
 <body>
-  <h1>Sobre o GuessWatt</h1>
-  <p>Conteúdo em breve.</p>
-  <a href="/">← Voltar</a>
+  <!-- Topbar -->
+  <header class="topbar">
+    <a href="/" class="topbar-logo">GuessWatt</a>
+    <nav class="topbar-nav">
+      <a href="/sobre.html">Sobre</a>
+      <div class="dropdown">
+        <button type="button" class="dropdown-button" id="copy-page-button">
+          Copy Page ▾
+        </button>
+        <div class="dropdown-menu" id="copy-page-menu">
+          <a href="#">View as Markdown</a>
+          <a href="#">Open in ChatGPT</a>
+          <a href="#">Open in Claude</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+  
+  <main class="main-content">
+    <div class="back-link">
+      <a href="/">← Voltar</a>
+    </div>
+    
+    <h1>Sobre o GuessWatt</h1>
+    <p>Conteúdo em breve.</p>
+  </main>
+  
+  <!-- Footer -->
+  <footer id="footer">
+    <p>Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia.</p>
+    <p>Não vendemos nada. Dados: <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (atualizado mensalmente)</p>
+    <p>↻ Última actualização foi em <span id="last-update-month"></span> de <span id="last-update-year"></span></p>
+    <p><a href="/llms.txt">llms.txt</a></p>
+  </footer>
+  
+  <script>
+    // Load last update date
+    async function loadLastUpdate() {
+      try {
+        const response = await fetch('data/last-update.json');
+        const data = await response.json();
+        document.getElementById('last-update-month').textContent = data.month;
+        document.getElementById('last-update-year').textContent = data.year;
+      } catch (error) {
+        console.error('Error loading last update:', error);
+      }
+    }
+    
+    // Dropdown toggle
+    const copyPageButton = document.getElementById('copy-page-button');
+    const copyPageMenu = document.getElementById('copy-page-menu');
+    
+    if (copyPageButton && copyPageMenu) {
+      copyPageButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyPageMenu.classList.toggle('is-open');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.dropdown')) {
+          copyPageMenu.classList.remove('is-open');
+        }
+      });
+    }
+    
+    // Load last update on page load
+    loadLastUpdate();
+  </script>
 </body>
 </html>
-
