@@ -343,7 +343,8 @@
     }
     
     // Open in ChatGPT
-    const basePath = window.location.pathname.replace(/\/[^/]*$/, '') || '';
+    let basePath = window.location.pathname.replace(/\/[^/]*$/, '') || '';
+    basePath = basePath.replace(/\/+$/, ''); // Remove trailing slashes
     const llmsUrl = window.location.origin + basePath + '/llms.txt';
     const prompt = encodeURIComponent(`Use this documentation to answer questions about GuessWatt: ${llmsUrl}`);
     
