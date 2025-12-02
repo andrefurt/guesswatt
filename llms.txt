@@ -4,8 +4,8 @@
 
 ## Páginas
 
-- [Início](https://guesswatt.pt): Comparador de tarifas com modo estimativa e modo preciso
-- [Sobre](https://guesswatt.pt/sobre.html): Informação sobre o projecto, como calculamos, fonte dos dados
+- [Início](https://andrefurt.github.io/guesswatt/): Comparador de tarifas com modo estimativa e modo preciso
+- [Sobre](https://andrefurt.github.io/guesswatt/sobre.html): Informação sobre o projecto, como calculamos, fonte dos dados
 
 ## Recursos
 

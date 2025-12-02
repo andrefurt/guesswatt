@@ -197,16 +197,16 @@
 <body>
   <!-- Topbar -->
   <header class="topbar">
-    <a href="/" class="topbar-logo">GuessWatt</a>
+    <a href="index.html" class="topbar-logo">GuessWatt</a>
     <nav class="topbar-nav">
-      <a href="/sobre.html">Sobre</a>
+      <a href="sobre.html">Sobre</a>
       <div class="dropdown">
         <button type="button" class="dropdown-button" id="copy-page-button">
           Copy Page ▾
         </button>
         <div class="dropdown-menu" id="copy-page-menu">
           <a href="#" id="copy-markdown">Copy as Markdown</a>
-          <a href="/llms.txt" target="_blank">View llms.txt</a>
+          <a href="llms.txt" target="_blank">View llms.txt</a>
           <a href="#" id="open-chatgpt">Open in ChatGPT</a>
           <a href="#" id="open-claude">Open in Claude</a>
         </div>
@@ -215,7 +215,7 @@
   </header>
   
   <main class="main-content about-content">
-    <a href="/" class="back-link">← Voltar</a>
+    <a href="index.html" class="back-link">← Voltar</a>
     
     <h1>Sobre o GuessWatt</h1>
     
@@ -277,7 +277,7 @@
     <p>Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia.</p>
     <p>Não vendemos nada. Dados: <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (atualizado mensalmente)</p>
     <p>↻ Última actualização foi em <span id="last-update-month"></span> de <span id="last-update-year"></span></p>
-    <p><a href="/llms.txt">llms.txt</a></p>
+    <p><a href="llms.txt">llms.txt</a></p>
   </footer>
   
   <script>
@@ -318,7 +318,7 @@
     
     // Determine which markdown file to use based on current page
     const isAboutPage = window.location.pathname.includes('sobre');
-    const markdownFile = isAboutPage ? '/sobre.md' : '/index.md';
+    const markdownFile = isAboutPage ? 'sobre.md' : 'index.md';
     
     // Copy as Markdown - fetch and copy to clipboard
     if (copyMarkdown && copyPageMenu) {
@@ -343,7 +343,8 @@
     }
     
     // Open in ChatGPT
-    const llmsUrl = window.location.origin + '/llms.txt';
+    const basePath = window.location.pathname.replace(/\/[^/]*$/, '') || '';
+    const llmsUrl = window.location.origin + basePath + '/llms.txt';
     const prompt = encodeURIComponent(`Use this documentation to answer questions about GuessWatt: ${llmsUrl}`);
     
     if (openChatGPT && copyPageMenu) {
