@@ -404,7 +404,6 @@ function findBestOfferForTariff(offers, consumption, power, tariffType = 1) {
 
 function renderResult(enrichedBest, consumption, power, monthlyBill = null, savings = null, isEstimate = false) {
   const resultDiv = document.getElementById('result');
-  const debugDiv = document.getElementById('debug');
   
   const providerName = PROVIDERS[enrichedBest.COM] || enrichedBest.COM;
   const formattedPhone = formatPhone(enrichedBest.phone);
@@ -488,14 +487,6 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
   
   // Reinicializar tooltips após renderizar resultado
   initTooltips();
-  
-  // Debug info
-  debugDiv.innerHTML = `
-    <details>
-      <summary>Debug</summary>
-      <pre>${JSON.stringify({ consumption, power, best: enrichedBest, savings: displaySavings }, null, 2)}</pre>
-    </details>
-  `;
 }
 
 // =============================================================================
@@ -508,10 +499,8 @@ async function handleEstimateSubmit(e) {
   
   const monthlyBill = parseFloat(document.getElementById('monthly-bill').value);
   const resultDiv = document.getElementById('result');
-  const debugDiv = document.getElementById('debug');
   
   resultDiv.innerHTML = '<p>A calcular...</p>';
-  debugDiv.innerHTML = '';
   
   try {
     // 1. Estimar consumo
@@ -546,10 +535,8 @@ async function handlePreciseSubmit(e) {
   const currentProvider = document.getElementById('current-provider').value;
   
   const resultDiv = document.getElementById('result');
-  const debugDiv = document.getElementById('debug');
   
   resultDiv.innerHTML = '<p>A calcular...</p>';
-  debugDiv.innerHTML = '';
   
   try {
     // 1. Validar inputs
