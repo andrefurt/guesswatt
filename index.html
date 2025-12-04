@@ -5,494 +5,248 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GuessWatt</title>
   <style>
-    html, body {
-      height: 100%;
-    }
+    /* Minimal functional styles only - no visual decoration */
     
-    body { 
-      font-family: system-ui, sans-serif; 
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    
-    .main-content {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 0 1rem 2rem 1rem;
-      flex: 1;
-    }
-    input, button { font-size: 1rem; padding: 0.5rem 1rem; }
-    #result { margin-top: 2rem; padding: 1rem; background: #f5f5f5; }
-    .error { color: red; }
-    
-    .tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 1rem;
-    }
-    
-    .tab {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ccc;
-      background: #f5f5f5;
-      cursor: pointer;
-      border-bottom: none;
-    }
-    
-    .tab.active {
-      background: white;
-      border-bottom-color: white;
-      font-weight: bold;
-    }
-    
+    /* Required for functionality */
     .mode-form {
       display: none;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      background: white;
     }
     
     .mode-form.active {
       display: block;
     }
     
-    .field {
-      margin-bottom: 1rem;
-    }
-    
-    .field label {
-      display: block;
-      margin-bottom: 0.25rem;
-      font-weight: 500;
-    }
-    
-    .field select,
-    .field input {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      box-sizing: border-box;
-    }
-    
-    .estimate-context {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: #f8f9fa;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    
-    .estimate-context ul {
-      margin: 0.5rem 0;
-      padding-left: 1.5rem;
-    }
-    
-    .estimate-context li {
-      margin: 0.25rem 0;
-    }
-    
-    .context-hint {
-      margin-top: 0.5rem;
-      font-style: italic;
-      color: #888;
-    }
-    
-    .switch-guide {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      background: #f5f5f5;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-    
-    .switch-guide h4 {
-      margin: 0 0 0.75rem 0;
-      font-size: 1rem;
-    }
-    
-    .switch-guide p {
-      margin: 0.5rem 0;
-    }
-    
-    .switch-guide ul {
-      margin: 0.5rem 0;
-      padding-left: 1.5rem;
-    }
-    
-    .switch-guide li {
-      margin: 0.25rem 0;
-    }
-    
-    .pdf-upload-box {
-      border: 2px dashed #ccc;
-      border-radius: 8px;
-      padding: 1.5rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background-color 0.2s;
-      margin-bottom: 1rem;
-    }
-    
-    .pdf-upload-box:hover,
-    .pdf-upload-box.drag-over {
-      border-color: #666;
-      background-color: #f8f9fa;
-    }
-    
-    .pdf-upload-box.has-file {
-      border-style: solid;
-      border-color: #28a745;
-      background-color: #f8fff8;
-      cursor: default;
-    }
-    
-    .pdf-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    
-    .pdf-icon {
-      font-size: 2rem;
-    }
-    
-    .pdf-hint {
-      font-size: 0.85rem;
-      color: #666;
-    }
-    
-    .pdf-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      margin-bottom: 0.5rem;
-    }
-    
-    .pdf-remove {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: #666;
-      padding: 0.25rem;
-    }
-    
-    .pdf-remove:hover {
-      color: #dc3545;
-    }
-    
-    .pdf-data {
-      text-align: left;
-      width: 100%;
-      font-size: 0.9rem;
-    }
-    
-    .pdf-data p {
-      margin: 0.25rem 0;
-    }
-    
-    .link-button {
-      background: none;
-      border: none;
-      color: #333;
-      cursor: pointer;
-      text-decoration: underline;
-      font-size: 0.9rem;
-      padding: 0;
-      margin-bottom: 1rem;
-    }
-    
-    .link-button:hover {
-      color: #000;
-    }
-    
-    .tooltip-trigger {
-      display: inline-block;
-      cursor: help;
-      color: #666;
-      font-size: 0.85em;
-      margin-left: 0.25rem;
-      vertical-align: middle;
-    }
-    
-    .tooltip-trigger:hover {
-      color: #333;
-    }
-    
-    .tooltip {
-      position: absolute;
-      background: #333;
-      color: white;
-      padding: 0.5rem 0.75rem;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      max-width: 250px;
-      z-index: 1000;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    
-    .tooltip.is-visible {
-      opacity: 1;
-    }
-    
-    .tooltip p {
-      margin: 0.25rem 0;
-    }
-    
-    .tooltip p:first-child {
-      margin-top: 0;
-    }
-    
-    .tooltip p:last-child {
-      margin-bottom: 0;
-    }
-    
-    /* Topbar */
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 60px;
-      padding: 0 1rem;
-      background: white;
-      margin-bottom: 2rem;
-    }
-    
-    .topbar-logo {
-      font-weight: bold;
-      font-size: 1.25rem;
-      text-decoration: none;
-      color: #333;
-    }
-    
-    .topbar-logo:hover {
-      color: #000;
-    }
-    
-    .topbar-nav {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-    
-    .topbar-nav a {
-      text-decoration: none;
-      color: #333;
-      font-size: 0.95rem;
-    }
-    
-    .topbar-nav a:hover {
-      color: #000;
-    }
-    
-    .dropdown {
-      position: relative;
-    }
-    
-    .dropdown-button {
-      background: none;
-      border: none;
-      color: #333;
-      font-size: 0.95rem;
-      cursor: pointer;
-      padding: 0.25rem 0;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    
-    .dropdown-button:hover {
-      color: #000;
-    }
+    /* .tab.active - kept for JS logic, no styling needed */
     
     .dropdown-menu {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      margin-top: 0.5rem;
-      background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      min-width: 180px;
       display: none;
-      z-index: 100;
     }
     
     .dropdown-menu.is-open {
       display: block;
     }
     
-    .dropdown-menu a {
+    .tooltip {
+      display: none;
+    }
+    
+    .tooltip.is-visible {
       display: block;
-      padding: 0.75rem 1rem;
-      text-decoration: none;
-      color: #333;
-      font-size: 0.9rem;
     }
     
-    .dropdown-menu a:hover {
-      background: #f5f5f5;
+    #pdf-loaded {
+      display: none;
     }
     
-    .dropdown-menu a:first-child {
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
+    #precise-form {
+      display: none;
     }
     
-    .dropdown-menu a:last-child {
-      border-bottom-left-radius: 4px;
-      border-bottom-right-radius: 4px;
+    #result {
+      display: none;
     }
     
-    /* Footer */
-    footer {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-      color: #999;
-      text-align: left;
-      font-size: 0.9rem;
+    /* Functional cursor styles */
+    button,
+    .tooltip-trigger,
+    #pdf-upload-box {
+      cursor: pointer;
     }
     
-    footer p {
-      margin: 0.5rem 0;
+    /* Hidden file input */
+    #pdf-input {
+      display: none;
     }
     
-    footer a {
-      color: #999;
-      text-decoration: underline;
+    /* Accessibility: visually hidden but available to screen readers */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
     }
     
-    footer a:hover {
-      color: #666;
+    /* Accessibility: ensure focusable elements are visible */
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
     }
   </style>
 </head>
 <body>
-  <!-- Topbar -->
-  <header class="topbar">
-    <a href="./" class="topbar-logo">GuessWatt</a>
-    <nav class="topbar-nav">
-      <a href="sobre.html">Sobre</a>
-      <div class="dropdown">
-        <button type="button" class="dropdown-button" id="copy-page-button">
-          Copy Page ▾
-        </button>
-        <div class="dropdown-menu" id="copy-page-menu">
-          <a href="#" id="copy-markdown">Copy as Markdown</a>
-          <a href="llms.txt" target="_blank">View llms.txt</a>
-          <a href="#" id="open-chatgpt">Open in ChatGPT</a>
-          <a href="#" id="open-claude">Open in Claude</a>
+  <div id="app-root">
+    <!-- Header -->
+    <header>
+      <a href="./" id="topbar-logo">GuessWatt</a>
+      <nav>
+        <a href="sobre.html">Sobre</a>
+        <div class="dropdown">
+          <button type="button" id="copy-page-button">
+            Copy Page ▾
+          </button>
+          <div class="dropdown-menu" id="copy-page-menu">
+            <a href="#" id="copy-markdown">Copy as Markdown</a>
+            <a href="llms.txt" target="_blank">View llms.txt</a>
+            <a href="#" id="open-chatgpt">Open in ChatGPT</a>
+            <a href="#" id="open-claude">Open in Claude</a>
+          </div>
         </div>
-      </div>
-    </nav>
-  </header>
-  
-  <main class="main-content">
-    <!-- Tabs -->
-  <div class="tabs">
-    <button type="button" class="tab active" data-mode="estimate">Estimativa</button>
-    <button type="button" class="tab" data-mode="precise">Preciso</button>
+      </nav>
+    </header>
+
+    <!-- Main content -->
+    <main>
+      <!-- Page title section -->
+      <section aria-labelledby="page-title">
+        <h1 id="page-title">Quanto pagas de electricidade por mês?</h1>
+      </section>
+
+      <!-- Calculator section -->
+      <section aria-label="calculator">
+        <!-- 
+          AppCard: Main container for calculator
+          Uses slots to project existing content into the component structure
+        -->
+        <app-card aria-label="Simulador de energia">
+          <!-- Header slot: Tab navigation -->
+          <header slot="header">
+            <app-tabs>
+              <div class="tabs" role="tablist">
+                <button type="button" class="tab active" data-mode="estimate" role="tab" aria-selected="true">Estimativa</button>
+                <button type="button" class="tab" data-mode="precise" role="tab" aria-selected="false">Preciso</button>
+              </div>
+            </app-tabs>
+          </header>
+
+          <!-- Tab content -->
+          <div>
+            <!-- Tab: Estimativa -->
+            <app-form-section>
+              <form id="estimate-form" class="mode-form active" role="tabpanel">
+                <div>
+                  <label for="monthly-bill" class="visually-hidden">Valor mensal da factura</label>
+                  <span>€</span>
+                  <input type="number" id="monthly-bill" placeholder="80" min="20" max="500" required>
+                  <span>/mês</span>
+                  <button type="submit">Calcular</button>
+                </div>
+              </form>
+            </app-form-section>
+
+            <!-- Tab: Preciso -->
+            <div id="precise-mode" class="mode-form" role="tabpanel">
+              <!-- PDF dropzone (initial state) -->
+              <div id="pdf-upload-box">
+                <input type="file" id="pdf-input" accept=".pdf">
+                <div id="pdf-empty">
+                  <span>📄</span>
+                  <p>Arrasta a tua fatura ou clica para selecionar</p>
+                </div>
+                <!-- PDF loaded state -->
+                <div id="pdf-loaded">
+                  <div>
+                    <span>✓ Factura carregada</span>
+                    <button type="button" id="pdf-remove" aria-label="Remover PDF">✕</button>
+                  </div>
+                  <div id="pdf-extracted-data">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Manual data entry button -->
+              <button type="button" id="toggle-manual">
+                Introduzir dados manualmente
+              </button>
+
+              <!-- Manual form -->
+              <app-form-section>
+                <form id="precise-form">
+                <div class="field">
+                  <div class="field-label">
+                    <label for="power">Potencia contratada</label>
+                    <span class="tooltip-trigger" data-tooltip="potencia-contratada" aria-label="Informação sobre potência contratada">ⓘ</span>
+                  </div>
+                  <select id="power" required>
+                    <option value="1.15">1.15 kVA</option>
+                    <option value="2.3">2.3 kVA</option>
+                    <option value="3.45">3.45 kVA</option>
+                    <option value="4.6" selected>4.6 kVA</option>
+                    <option value="5.75">5.75 kVA</option>
+                    <option value="6.9">6.9 kVA</option>
+                    <option value="10.35">10.35 kVA</option>
+                    <option value="13.8">13.8 kVA</option>
+                    <option value="17.25">17.25 kVA</option>
+                    <option value="20.7">20.7 kVA</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <div class="field-label">
+                    <label for="consumption">Consumo geral</label>
+                    <span class="tooltip-trigger" data-tooltip="consumo-mensal" aria-label="Informação sobre consumo mensal">ⓘ</span>
+                  </div>
+                  <input type="number" id="consumption" placeholder="250" min="0" max="5000" required>
+                  <span>kWh</span>
+                  <span class="tooltip-trigger" data-tooltip="kwh" aria-label="Informação sobre kWh">ⓘ</span>
+                </div>
+
+                <div class="field">
+                  <div class="field-label">
+                    <label for="tariff-type">Tipo de tarifa</label>
+                    <span class="tooltip-trigger" data-tooltip="tarifa-simples" aria-label="Informação sobre tipo de tarifa">ⓘ</span>
+                  </div>
+                  <select id="tariff-type" required>
+                    <option value="1" selected>Simples</option>
+                    <option value="2">Bi-horária</option>
+                    <option value="3">Tri-horária</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <div class="field-label">
+                    <label for="current-provider">Operador actual</label>
+                  </div>
+                  <select id="current-provider">
+                    <option value="">-- Seleccionar --</option>
+                    <!-- Populated from PROVIDERS dynamically -->
+                  </select>
+                </div>
+
+                <button type="submit">Calcular</button>
+              </form>
+              </app-form-section>
+            </div>
+          </div>
+        </app-card>
+
+        <!-- Results section -->
+        <app-result-section>
+          <div id="result" role="status" aria-live="polite">
+            <!-- Populated dynamically -->
+          </div>
+        </app-result-section>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer">
+      <p>Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia.</p>
+      <p>Não vendemos nada. Dados: <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (atualizado mensalmente)</p>
+      <p>↻ Última actualização foi em <span id="last-update-month"></span> de <span id="last-update-year"></span></p>
+      <p><a href="llms.txt">llms.txt</a></p>
+    </footer>
   </div>
-  
-  <!-- Modo Estimativa (form existente) -->
-  <form id="estimate-form" class="mode-form active">
-    <p>Quanto pagas de electricidade por mês?</p>
-    <input type="number" id="monthly-bill" placeholder="80" min="20" max="500" required>
-    <span>€/mês</span>
-    <button type="submit">Calcular</button>
-  </form>
-  
-  <!-- Modo Preciso -->
-  <div id="precise-mode" class="mode-form">
-    <!-- Caixa de upload PDF -->
-    <div id="pdf-upload-box" class="pdf-upload-box">
-      <input type="file" id="pdf-input" accept=".pdf" hidden>
-      <div id="pdf-empty" class="pdf-state">
-        <span class="pdf-icon">📄</span>
-        <p>Arrasta a tua factura PDF</p>
-        <p class="pdf-hint">ou clica para seleccionar</p>
-      </div>
-      <div id="pdf-loaded" class="pdf-state" style="display: none;">
-        <div class="pdf-header">
-          <span>✓ Factura carregada</span>
-          <button type="button" id="pdf-remove" class="pdf-remove" aria-label="Remover PDF">✕</button>
-        </div>
-        <div id="pdf-extracted-data" class="pdf-data">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-    </div>
-    
-    <!-- Link para modo manual -->
-    <button type="button" id="toggle-manual" class="link-button">
-      Introduzir dados manualmente
-    </button>
-    
-    <!-- Form existente (agora escondido por defeito) -->
-    <form id="precise-form" style="display: none;">
-      <div class="field">
-        <label for="power">Potência contratada<span class="tooltip-trigger" data-tooltip="potencia-contratada">ⓘ</span></label>
-        <select id="power">
-          <option value="1.15">1.15 kVA</option>
-          <option value="2.3">2.3 kVA</option>
-          <option value="3.45">3.45 kVA</option>
-          <option value="4.6" selected>4.6 kVA</option>
-          <option value="5.75">5.75 kVA</option>
-          <option value="6.9">6.9 kVA</option>
-          <option value="10.35">10.35 kVA</option>
-          <option value="13.8">13.8 kVA</option>
-          <option value="17.25">17.25 kVA</option>
-          <option value="20.7">20.7 kVA</option>
-        </select>
-      </div>
-      
-      <div class="field">
-        <label for="consumption">Consumo mensal<span class="tooltip-trigger" data-tooltip="consumo-mensal">ⓘ</span> (kWh<span class="tooltip-trigger" data-tooltip="kwh">ⓘ</span>)</label>
-        <input type="number" id="consumption" placeholder="250" min="0" max="5000" required>
-      </div>
-      
-      <div class="field">
-        <label for="tariff-type">Tipo de tarifa<span class="tooltip-trigger" data-tooltip="tarifa-simples">ⓘ</span></label>
-        <select id="tariff-type">
-          <option value="1" selected>Simples</option>
-          <option value="2">Bi-horária</option>
-          <option value="3">Tri-horária</option>
-        </select>
-      </div>
-      
-      <div class="field">
-        <label for="current-provider">Operador actual (opcional)</label>
-        <select id="current-provider">
-          <option value="">-- Seleccionar --</option>
-          <!-- Populated from PROVIDERS dynamically -->
-        </select>
-      </div>
-      
-      <button type="submit">Calcular</button>
-    </form>
-  </div>
-  
-    <div id="result"></div>
-  </main>
-  
-  <!-- Footer -->
-  <footer id="footer">
-    <p>Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia.</p>
-    <p>Não vendemos nada. Dados: <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (atualizado mensalmente)</p>
-    <p>↻ Última actualização foi em <span id="last-update-month"></span> de <span id="last-update-year"></span></p>
-    <p><a href="llms.txt">llms.txt</a></p>
-  </footer>
-  
+
+  <script type="module" src="components.js"></script>
   <script type="module" src="app.js"></script>
   <script>
     // Load last update date

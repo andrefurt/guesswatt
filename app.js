@@ -438,10 +438,7 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
   ` : '';
   
   // Só mostrar consumo e potência no modo Estimativa (no Preciso já estão no formulário)
-  const consumptionHtml = isEstimate ? `
-    <p><strong>Consumo estimado:</strong> ${consumption} kWh<span class="tooltip-trigger" data-tooltip="kwh">ⓘ</span>/mês</p>
-    <p><strong>Potência:</strong> ${power} kVA<span class="tooltip-trigger" data-tooltip="kva">ⓘ</span></p>
-  ` : '';
+  const consumptionHtml = isEstimate;
   
   // Guia de mudança (sempre presente quando há resultado)
   const switchGuideHtml = `
@@ -465,17 +462,93 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
     </div>
   `;
   
+  // Proposal card structure
+  const proposalCardHTML = `
+    <article aria-label="Proposta de tarifa">
+      <header>
+        <div>
+          <span>${providerName}</span>
+        </div>
+        <div>
+          ${formattedPhone ? `<button type="button" class="copy-phone-btn" data-phone="${String(enrichedBest.phone || '').replace(/\D/g, '')}">Copiar telefone</button>` : ''}
+          ${enrichedBest.website ? `<a href="${enrichedBest.website}" target="_blank" rel="noopener" aria-label="Abrir website da ${providerName}">🌐</a>` : ''}
+        </div>
+      </header>
+      
+      <div>
+        <table>
+          <tbody>
+            <tr>
+              <td>Tarifa</td>
+              <td>${enrichedBest.tariffName}</td>
+            </tr>
+            <tr>
+              <td>Custo mensal</td>
+              <td>€${enrichedBest.monthlyCost.toFixed(2)}</td>
+            </tr>
+            ${consumptionHtml ? `
+            <tr>
+              <td>Consumo estimado</td>
+              <td>${consumption} kWh<span class="tooltip-trigger" data-tooltip="kwh">ⓘ</span>/mês</td>
+            </tr>
+            <tr>
+              <td>Potência</td>
+              <td>${power} kVA<span class="tooltip-trigger" data-tooltip="kva">ⓘ</span></td>
+            </tr>
+            ` : ''}
+          </tbody>
+        </table>
+      </div>
+      
+      ${displaySavings ? `
+      <div role="status">
+        <span>💰</span>
+        <p>Poupas €${displaySavings.monthly.toFixed(2)} por mês e €${displaySavings.yearly.toFixed(2)} por ano${savings?.vsProvider ? ` vs ${savings.vsProvider}` : ''}</p>
+      </div>
+      ` : ''}
+    </article>
+  `;
+  
+  // How to change info block
+  const howToChangeHTML = `
+    <div>
+      <h3>Como mudar para ${providerName}</h3>
+      <table>
+        <tbody>
+          <tr>
+            <td>Diz que queres aderir à</td>
+            <td>"${enrichedBest.tariffName}"</td>
+          </tr>
+          <tr>
+            <td>Vão pedir-te</td>
+            <td>
+              <ul>
+                <li>CPE<span class="tooltip-trigger" data-tooltip="cpe">ⓘ</span> (está na tua factura)</li>
+                <li>NIF</li>
+                <li>Morada</li>
+                <li>Telefone ou email</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Eles tratam do resto. Demora cerca de uma semana.</p>
+      <p><strong>Não precisas de:</strong></p>
+      <ul>
+        <li>Avisar o fornecedor actual</li>
+        <li>Mudar nada físico</li>
+        <li>Pagar nada</li>
+      </ul>
+    </div>
+  `;
+  
   const resultHTML = `
-    <h2>Resultado</h2>
-    ${consumptionHtml}
-    <h3>${providerName}</h3>
-    <p>${enrichedBest.tariffName}</p>
-    <p><strong>Custo mensal:</strong> €${enrichedBest.monthlyCost.toFixed(2)}</p>
-    ${displaySavings ? `<p><strong>Poupança:</strong> €${displaySavings.monthly.toFixed(2)}/mês · €${displaySavings.yearly.toFixed(2)}/ano${savings?.vsProvider ? ` vs ${savings.vsProvider}` : ''}</p>` : ''}
-    ${formattedPhone ? `<p><strong>Telefone:</strong> <a href="tel:${String(enrichedBest.phone || '').replace(/\D/g, '')}">${formattedPhone}</a></p>` : ''}
-    ${enrichedBest.website ? `<p><a href="${enrichedBest.website}" target="_blank" rel="noopener">Ver oferta no site →</a></p>` : ''}
-    ${contextHtml}
-    ${switchGuideHtml}
+    <section aria-labelledby="result-title">
+      <h2 id="result-title">Resultado</h2>
+      ${contextHtml}
+      ${proposalCardHTML}
+      ${howToChangeHTML}
+    </section>
   `;
   
   // Guardar resultado na tab atual
@@ -484,6 +557,26 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
   // Mostrar resultado
   resultDiv.innerHTML = resultHTML;
   resultDiv.style.display = 'block';
+  
+  // Add copy phone button handler
+  const copyPhoneBtn = resultDiv.querySelector('.copy-phone-btn');
+  if (copyPhoneBtn) {
+    copyPhoneBtn.addEventListener('click', async () => {
+      const phone = copyPhoneBtn.dataset.phone;
+      if (phone) {
+        try {
+          await navigator.clipboard.writeText(phone);
+          const originalText = copyPhoneBtn.textContent;
+          copyPhoneBtn.textContent = '✓ Copiado!';
+          setTimeout(() => {
+            copyPhoneBtn.textContent = originalText;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy phone:', err);
+        }
+      }
+    });
+  }
   
   // Reinicializar tooltips após renderizar resultado
   initTooltips();

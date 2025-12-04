@@ -2,13 +2,16 @@
  * Base Styles
  * Typography, body defaults, links, and basic element styles
  * Uses design tokens from tokens.css
+ * 
+ * CSS Layers: base layer for foundational styles
  */
 
-/* Root */
-:root {
-  font-size: 100%; /* Respect user font-size preferences */
-  scroll-behavior: smooth;
-}
+@layer base {
+  /* Root */
+  :root {
+    font-size: 100%; /* Respect user font-size preferences */
+    scroll-behavior: smooth;
+  }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -118,8 +121,8 @@ pre code {
 
 /* Blockquote */
 blockquote {
-  padding-left: var(--space-4);
-  border-left: 3px solid var(--color-accent);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 3px solid var(--color-accent);
   font-style: italic;
   color: var(--color-text-secondary);
 }
@@ -133,11 +136,11 @@ hr {
 
 /* Lists */
 ul, ol {
-  padding-left: var(--space-6);
+  padding-inline-start: var(--space-6);
 }
 
 li {
-  margin-bottom: var(--space-1);
+  margin-block-end: var(--space-1);
 }
 
 li::marker {
@@ -150,7 +153,7 @@ dt {
 }
 
 dd {
-  margin-left: 0;
+  margin-inline-start: 0;
   color: var(--color-text-secondary);
 }
 
@@ -225,5 +228,6 @@ summary:hover {
 }
 
 details[open] summary {
-  margin-bottom: var(--space-3);
+  margin-block-end: var(--space-3);
+}
 }

@@ -7,7 +7,11 @@
  * 3. base - Typography and element defaults
  * 4. components - UI components
  * 5. utilities - Utility classes last (highest specificity)
+ * 
+ * CSS Layers: Define layer order for cascade management
  */
+
+@layer base, components, utilities, app;
 
 @import 'tokens.css';
 @import 'reset.css';
@@ -19,11 +23,14 @@
  * App-specific styles
  * These are custom styles for the GuestWatt app layout
  * that don't fit neatly into components or utilities
+ * 
+ * CSS Layers: app layer for application-specific styles
  */
 
-/* =============================================================================
-   APP LAYOUT
-   ============================================================================= */
+@layer app {
+  /* =============================================================================
+     APP LAYOUT
+     ============================================================================= */
 
 .app {
   min-height: 100vh;
@@ -55,7 +62,7 @@ body.is-initial .app-footer {
 }
 
 .app-tagline {
-  margin-top: var(--space-1);
+  margin-block-start: var(--space-1);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
@@ -103,10 +110,10 @@ body.is-initial .app-footer {
 /* Estado collapsed: input no topo */
 .hero[data-state="collapsed"] {
   position: sticky;
-  top: 0;
+  inset-block-start: 0;
   z-index: 10;
   background-color: var(--color-bg);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-block-end: 1px solid var(--color-border-subtle);
   padding: var(--space-3) var(--space-4);
   min-height: auto;
 }
@@ -132,13 +139,13 @@ body.is-initial .app-footer {
 
 .hero-text {
   text-align: center;
-  margin-bottom: var(--space-12); /* More breathing room */
+  margin-block-end: var(--space-12); /* More breathing room */
 }
 
 .hero-title {
   font-size: 24px; /* Matches Figma design */
   font-weight: var(--font-medium); /* Inter Medium */
-  margin-bottom: 0;
+  margin-block-end: 0;
   line-height: 1.15;
   letter-spacing: -0.72px; /* -0.03em * 24px */
   color: #18181b; /* zinc-800 */
@@ -298,11 +305,11 @@ body.is-initial .app-footer {
 
 .hero[data-state="collapsed"] .input-mode-estimate .input-prefix {
   font-size: var(--text-lg);
-  left: var(--space-3);
+  inset-inline-start: var(--space-3);
 }
 
 .hero[data-state="collapsed"] .input-mode-estimate .input-group:has(.input-prefix) .input {
-  padding-left: var(--space-10);
+  padding-inline-start: var(--space-10);
 }
 
 /* Modo Details - formulário expandido */
@@ -340,7 +347,7 @@ body.is-initial .app-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-2);
+  margin-block-end: var(--space-2);
 }
 
 .pdf-card-header span {
@@ -409,7 +416,7 @@ body.is-collapsed #results-wrapper {
    ============================================================================= */
 
 .social-proof {
-  margin-top: var(--space-12);
+  margin-block-start: var(--space-12);
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -420,13 +427,13 @@ body.is-collapsed #results-wrapper {
 }
 
 .social-proof-item {
-  border-top: 0.5px solid rgba(0, 0, 0, 0.14);
-  border-bottom: 0.5px solid rgba(255, 255, 255, 1);
+  border-block-start: 0.5px solid rgba(0, 0, 0, 0.14);
+  border-block-end: 0.5px solid rgba(255, 255, 255, 1);
   padding: 20px 12px;
 }
 
 .social-proof-item:first-child {
-  border-top: 0.5px solid rgba(0, 0, 0, 0.14);
+  border-block-start: 0.5px solid rgba(0, 0, 0, 0.14);
 }
 
 .social-proof-text {
@@ -476,7 +483,7 @@ body.is-collapsed #results-wrapper {
   font-size: var(--text-base);
   color: var(--color-text-secondary);
   text-align: center;
-  margin-bottom: var(--space-8); /* More space before loss highlight */
+  margin-block-end: var(--space-8); /* More space before loss highlight */
 }
 
 .result-current strong {
@@ -486,7 +493,7 @@ body.is-collapsed #results-wrapper {
 .result-loss {
   text-align: center;
   padding: 0;
-  margin-bottom: var(--space-10); /* Generous space after */
+  margin-block-end: var(--space-10); /* Generous space after */
   /* No background - let the large number speak */
 }
 
@@ -494,7 +501,7 @@ body.is-collapsed #results-wrapper {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   font-weight: var(--font-medium);
-  margin-bottom: var(--space-3);
+  margin-block-end: var(--space-3);
 }
 
 .result-loss-value {
@@ -521,9 +528,9 @@ body.is-collapsed #results-wrapper {
   /* No background - clean and minimal */
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  border-top: 1px solid var(--color-border-subtle);
-  padding-top: var(--space-6);
-  margin-top: var(--space-6);
+  border-block-start: 1px solid var(--color-border-subtle);
+  padding-block-start: var(--space-6);
+  margin-block-start: var(--space-6);
 }
 
 .estimate-notice-icon {
@@ -539,9 +546,9 @@ body.is-collapsed #results-wrapper {
   padding: var(--space-4);
   /* No background - clean text */
   text-align: center;
-  border-top: 1px solid var(--color-border-subtle);
-  margin-top: var(--space-8);
-  padding-top: var(--space-6);
+  border-block-start: 1px solid var(--color-border-subtle);
+  margin-block-start: var(--space-8);
+  padding-block-start: var(--space-6);
 }
 
 .social-proof p {
@@ -551,7 +558,7 @@ body.is-collapsed #results-wrapper {
 
 .social-proof small {
   display: block;
-  margin-top: var(--space-2);
+  margin-block-start: var(--space-2);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
 }
@@ -570,7 +577,7 @@ body.is-collapsed #results-wrapper {
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-block-end: 1px solid var(--color-border-subtle);
   transition: var(--transition-colors);
   cursor: pointer;
 }
@@ -634,4 +641,5 @@ body.is-collapsed #results-wrapper {
     box-shadow: none;
     border: 1px solid #ddd;
   }
+}
 }

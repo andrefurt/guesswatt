@@ -2,11 +2,14 @@
  * UI Components
  * Button, input, card, modal, toast, tooltip
  * All components use design tokens
+ * 
+ * CSS Layers: components layer for reusable UI components
  */
 
-/* =============================================================================
-   BUTTONS
-   ============================================================================= */
+@layer components {
+  /* =============================================================================
+     BUTTONS
+     ============================================================================= */
 
 .button {
   display: inline-flex;
@@ -204,11 +207,11 @@
 }
 
 .input-prefix {
-  left: var(--space-3);
+  inset-inline-start: var(--space-3);
 }
 
 .input-suffix {
-  right: var(--space-3);
+  inset-inline-end: var(--space-3);
 }
 
 .input-group .input {
@@ -216,11 +219,11 @@
 }
 
 .input-group:has(.input-prefix) .input {
-  padding-left: var(--space-10);
+  padding-inline-start: var(--space-10);
 }
 
 .input-group:has(.input-suffix) .input {
-  padding-right: var(--space-10);
+  padding-inline-end: var(--space-10);
 }
 
 /* Clickable suffix (PDF button) */
@@ -265,8 +268,8 @@
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right var(--space-3) center;
-  padding-right: var(--space-10);
+  background-position: inset-inline-end var(--space-3) center;
+  padding-inline-end: var(--space-10);
 }
 
 /* Textarea */
@@ -364,13 +367,13 @@
 }
 
 .card-header {
-  margin-bottom: var(--space-4);
+  margin-block-end: var(--space-4);
 }
 
 .card-title {
   font-size: var(--text-lg);
   font-weight: var(--font-semibold);
-  margin-bottom: var(--space-1);
+  margin-block-end: var(--space-1);
 }
 
 .card-subtitle {
@@ -379,14 +382,14 @@
 }
 
 .card-body {
-  margin-bottom: var(--space-4);
+  margin-block-end: var(--space-4);
 }
 
 .card-footer {
   display: flex;
   gap: var(--space-3);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border-subtle);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-border-subtle);
 }
 
 /* Offer card specific */
@@ -432,7 +435,7 @@
 .offer-details {
   border: none;
   padding: 0;
-  margin-top: var(--space-4);
+  margin-block-start: var(--space-4);
 }
 
 .offer-details summary {
@@ -441,7 +444,7 @@
 }
 
 .offer-specs {
-  margin-top: var(--space-3);
+  margin-block-start: var(--space-3);
   display: grid;
   gap: var(--space-2);
 }
@@ -546,8 +549,8 @@
 
 .toast-container {
   position: fixed;
-  bottom: var(--space-6);
-  left: 50%;
+  inset-block-end: var(--space-6);
+  inset-inline-start: 50%;
   transform: translateX(-50%);
   z-index: var(--z-toast);
   
@@ -657,11 +660,11 @@
 }
 
 .tooltip p {
-  margin-bottom: var(--space-2);
+  margin-block-end: var(--space-2);
 }
 
 .tooltip p:last-child {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 /* =============================================================================
@@ -797,7 +800,7 @@
 
 .step-content p {
   font-weight: var(--font-medium);
-  margin-bottom: var(--space-1);
+  margin-block-end: var(--space-1);
 }
 
 .step-content small {
@@ -805,10 +808,11 @@
 }
 
 .step-content ul {
-  margin-top: var(--space-2);
-  padding-left: var(--space-4);
+  margin-block-start: var(--space-2);
+  padding-inline-start: var(--space-4);
 }
 
 .step-content li {
   color: var(--color-text-secondary);
+}
 }
