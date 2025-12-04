@@ -15,7 +15,7 @@
      ═══════════════════════════════════════════════════════════ */
   
   /* Background - matches Figma design */
-  --color-bg: #f0f0f0;
+  --color-bg: #EBEBEB;
   --color-bg: oklch(94% 0 0);
   
   /* Surface - white for cards/inputs */
@@ -51,32 +51,66 @@
      TYPOGRAPHY
      ═══════════════════════════════════════════════════════════ */
   
-  /* Font stacks - Inter to match Figma design */
+  /* Font stacks - Inter from Google Fonts */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
                "Helvetica Neue", Arial, sans-serif;
   --font-mono: "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   
-  /* Fluid type scale */
-  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
-  --text-sm: clamp(0.875rem, 0.825rem + 0.25vw, 0.9375rem);
-  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
-  --text-lg: clamp(1.125rem, 1.05rem + 0.375vw, 1.25rem);
-  --text-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
-  --text-2xl: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
-  --text-3xl: clamp(2rem, 1.5rem + 2.5vw, 3rem);
+  /* Typography Scale - XS */
+  --text-xs-size: 0.6875rem;        /* 11px */
+  --text-xs-weight: 500;
+  --text-xs-leading: 1.25rem;       /* 20px */
+  --text-xs-tracking: 0;             /* No letter spacing */
   
-  /* Line heights */
-  --leading-none: 1;
-  --leading-tight: 1.25;
-  --leading-snug: 1.375;
-  --leading-normal: 1.5;
-  --leading-relaxed: 1.625;
+  /* Typography Scale - SM */
+  --text-sm-size: 0.75rem;           /* 12px */
+  --text-sm-weight: 500;
+  --text-sm-leading: 1.2;           /* 120% */
+  --text-sm-tracking: 0;
   
-  /* Font weights */
+  /* Typography Scale - MD */
+  --text-md-size: 0.875rem;          /* 14px */
+  --text-md-weight: 500;
+  --text-md-leading: 1.25rem;       /* 20px */
+  --text-md-tracking: -0.00525rem;   /* -0.084px */
+  
+  /* Typography Scale - Default (Base) */
+  --text-default-size: 1rem;         /* 16px */
+  --text-default-weight: 500;
+  --text-default-leading: 1.15;     /* 115% */
+  --text-default-tracking: -0.011rem; /* -0.176px */
+  
+  /* Typography Scale - LG */
+  --text-lg-size: 1.25rem;           /* 20px */
+  --text-lg-weight: 500;
+  --text-lg-leading: 1.15;          /* 115% */
+  --text-lg-tracking: -0.02125rem;   /* -0.34px */
+  
+  /* Typography Scale - XL */
+  --text-xl-size: 1.5rem;           /* 24px */
+  --text-xl-weight: 500;
+  --text-xl-leading: 1.15;          /* 115% */
+  --text-xl-tracking: -0.0285rem;    /* -0.456px */
+  
+  /* Font weights (kept for backward compatibility) */
   --font-normal: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
+  
+  /* Backward compatibility aliases - map old variable names to new scale */
+  --text-xs: var(--text-xs-size);
+  --text-sm: var(--text-sm-size);
+  --text-base: var(--text-default-size);
+  --text-lg: var(--text-lg-size);
+  --text-xl: var(--text-xl-size);
+  --text-2xl: var(--text-xl-size);  /* Map 2xl to xl for now */
+  --text-3xl: var(--text-xl-size);  /* Map 3xl to xl for now (can be adjusted later) */
+  
+  /* Backward compatibility for line heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
   
   /* ═══════════════════════════════════════════════════════════
      SPACING

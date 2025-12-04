@@ -121,27 +121,64 @@
    TYPOGRAPHY UTILITIES
    ============================================================================= */
 
-.text-xs { font-size: var(--text-xs); }
-.text-sm { font-size: var(--text-sm); }
-.text-base { font-size: var(--text-base); }
-.text-lg { font-size: var(--text-lg); }
-.text-xl { font-size: var(--text-xl); }
-.text-2xl { font-size: var(--text-2xl); }
-.text-3xl { font-size: var(--text-3xl); }
+/* Typography Scale Utilities - Apply complete type scale (size, weight, leading, tracking) */
 
+.text-xs {
+  font-size: var(--text-xs-size);
+  font-weight: var(--text-xs-weight);
+  line-height: var(--text-xs-leading);
+  letter-spacing: var(--text-xs-tracking);
+  font-variant-numeric: lining-nums tabular-nums;
+  text-transform: uppercase;
+}
+
+.text-sm {
+  font-size: var(--text-sm-size);
+  font-weight: var(--text-sm-weight);
+  line-height: var(--text-sm-leading);
+  letter-spacing: var(--text-sm-tracking);
+}
+
+.text-md {
+  font-size: var(--text-md-size);
+  font-weight: var(--text-md-weight);
+  line-height: var(--text-md-leading);
+  letter-spacing: var(--text-md-tracking);
+}
+
+.text-base {
+  font-size: var(--text-default-size);
+  font-weight: var(--text-default-weight);
+  line-height: var(--text-default-leading);
+  letter-spacing: var(--text-default-tracking);
+}
+
+.text-lg {
+  font-size: var(--text-lg-size);
+  font-weight: var(--text-lg-weight);
+  line-height: var(--text-lg-leading);
+  letter-spacing: var(--text-lg-tracking);
+}
+
+.text-xl {
+  font-size: var(--text-xl-size);
+  font-weight: var(--text-xl-weight);
+  line-height: var(--text-xl-leading);
+  letter-spacing: var(--text-xl-tracking);
+}
+
+/* Font weight utilities (kept for backward compatibility) */
 .font-normal { font-weight: var(--font-normal); }
 .font-medium { font-weight: var(--font-medium); }
 .font-semibold { font-weight: var(--font-semibold); }
 .font-bold { font-weight: var(--font-bold); }
 
-.leading-tight { line-height: var(--leading-tight); }
-.leading-normal { line-height: var(--leading-normal); }
-.leading-relaxed { line-height: var(--leading-relaxed); }
-
+/* Text alignment */
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
 
+/* Text transform */
 .uppercase { text-transform: uppercase; }
 .lowercase { text-transform: lowercase; }
 .capitalize { text-transform: capitalize; }
