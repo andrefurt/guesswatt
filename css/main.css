@@ -7,7 +7,11 @@
  * 3. base - Typography and element defaults
  * 4. components - UI components
  * 5. utilities - Utility classes last (highest specificity)
+ * 
+ * CSS Layers: Define layer order for cascade management
  */
+
+@layer base, components, utilities, app;
 
 @import 'tokens.css';
 @import 'reset.css';
@@ -19,11 +23,14 @@
  * App-specific styles
  * These are custom styles for the GuestWatt app layout
  * that don't fit neatly into components or utilities
+ * 
+ * CSS Layers: app layer for application-specific styles
  */
 
-/* =============================================================================
-   APP LAYOUT
-   ============================================================================= */
+@layer app {
+  /* =============================================================================
+     APP LAYOUT
+     ============================================================================= */
 
 .app {
   min-height: 100vh;
@@ -44,20 +51,21 @@ body.is-initial .app-footer {
 }
 
 .app-logo {
-  font-size: var(--text-xl);
+  font-family: var(--font-sans);
+  font-size: var(--text-xl-size);
   font-weight: var(--font-bold);
-  letter-spacing: -0.03em;
-  color: var(--color-text);
+  letter-spacing: var(--text-xl-tracking);
+  color: var(--foreground);
 }
 
 .app-logo span {
-  color: var(--color-accent);
+  color: var(--foreground-accent);
 }
 
 .app-tagline {
-  margin-top: var(--space-1);
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  margin-block-start: var(--space-1);
+  font-size: var(--text-sm-size);
+  color: var(--foreground-tertiary);
 }
 
 .app-main {
@@ -68,12 +76,12 @@ body.is-initial .app-footer {
 .app-footer {
   padding: var(--space-8) 0;
   text-align: center;
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  font-size: var(--text-sm-size);
+  color: var(--foreground-tertiary);
 }
 
 .app-footer a {
-  color: var(--color-text-secondary);
+  color: var(--foreground-secondary);
 }
 
 /* =============================================================================
@@ -103,10 +111,10 @@ body.is-initial .app-footer {
 /* Estado collapsed: input no topo */
 .hero[data-state="collapsed"] {
   position: sticky;
-  top: 0;
+  inset-block-start: 0;
   z-index: 10;
-  background-color: var(--color-bg);
-  border-bottom: 1px solid var(--color-border-subtle);
+  background-color: var(--bg);
+  border-block-end: 1px solid var(--border);
   padding: var(--space-3) var(--space-4);
   min-height: auto;
 }
@@ -132,23 +140,23 @@ body.is-initial .app-footer {
 
 .hero-text {
   text-align: center;
-  margin-bottom: var(--space-12); /* More breathing room */
+  margin-block-end: var(--space-12); /* More breathing room */
 }
 
 .hero-title {
-  font-size: 24px; /* Matches Figma design */
-  font-weight: var(--font-medium); /* Inter Medium */
-  margin-bottom: 0;
-  line-height: 1.15;
-  letter-spacing: -0.72px; /* -0.03em * 24px */
-  color: #18181b; /* zinc-800 */
+  font-family: var(--font-sans);
+  font-size: var(--text-xl-size);
+  font-weight: var(--text-xl-weight);
+  margin-block-end: 0;
+  line-height: var(--text-xl-leading);
+  letter-spacing: var(--text-xl-tracking);
+  color: var(--foreground);
 }
 
 .hero-tagline {
-  font-size: var(--text-lg);
-  color: var(--color-text);
-  font-weight: var(--font-normal);
-  opacity: 0.44; /* Matches Figma design */
+  font-size: var(--text-lg-size);
+  color: var(--foreground-tertiary);
+  font-weight: var(--text-lg-weight);
 }
 
 /* Input Container - Gerencia os 3 modos */
@@ -159,7 +167,7 @@ body.is-initial .app-footer {
 
 .input-container.is-dragover {
   background-color: var(--color-accent-soft);
-  border: 2px dashed var(--color-accent);
+  border: 2px dashed var(--foreground-accent);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
 }
@@ -175,7 +183,7 @@ body.is-initial .app-footer {
 }
 
 .hero[data-state="collapsed"] .input-container[role="button"]:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--foreground-accent);
   outline-offset: 4px;
 }
 
@@ -196,16 +204,16 @@ body.is-initial .app-footer {
 }
 
 .input-mode-estimate .input-group {
-  font-size: var(--text-xl);
+  font-size: var(--text-xl-size);
   /* Figma-style input container */
-  border: 0.5px solid rgba(0, 0, 0, 0.14);
-  border-radius: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   padding: 2px;
   background: transparent;
   position: relative;
   display: flex;
   align-items: stretch;
-  gap: 10px;
+  gap: var(--space-2);
   overflow: hidden;
 }
 
@@ -213,11 +221,11 @@ body.is-initial .app-footer {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
-  border-radius: 14px;
-  background: white;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
   position: relative;
 }
 
@@ -229,12 +237,11 @@ body.is-initial .app-footer {
 }
 
 .input-mode-estimate .input-postfix {
-  font-family: "Roboto Mono", monospace;
-  font-size: 16px;
-  font-weight: 400;
-  color: #404043;
-  opacity: 0.5;
-  letter-spacing: -0.48px;
+  font-family: var(--font-mono);
+  font-size: var(--text-default-size);
+  font-weight: var(--font-normal);
+  color: var(--foreground-tertiary);
+  letter-spacing: var(--text-default-tracking);
   white-space: nowrap;
 }
 
@@ -250,10 +257,10 @@ body.is-initial .app-footer {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   box-shadow: 
-    2px -2px 8px 0px inset rgba(255, 255, 255, 0.25),
-    -2px 2px 8px 0px inset rgba(0, 0, 0, 0.04);
+    2px -2px 8px 0px inset color-mix(in srgb, var(--color-white), transparent 75%),
+    -2px 2px 8px 0px inset color-mix(in oklch, var(--color-black), transparent 96%);
 }
 
 .input-mode-estimate .input-group .input {
@@ -262,11 +269,12 @@ body.is-initial .app-footer {
   padding: 0;
   flex: 1;
   min-height: auto;
-  font-size: 24px;
-  font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.72px;
-  color: #18181b;
+  font-family: var(--font-sans);
+  font-size: var(--text-xl-size);
+  font-weight: var(--text-xl-weight);
+  line-height: var(--text-xl-leading);
+  letter-spacing: var(--text-xl-tracking);
+  color: var(--foreground);
   text-align: left;
 }
 
@@ -275,11 +283,12 @@ body.is-initial .app-footer {
 }
 
 .input-mode-estimate .input-prefix {
-  font-size: 24px;
-  font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.72px;
-  color: #18181b;
+  font-family: var(--font-sans);
+  font-size: var(--text-xl-size);
+  font-weight: var(--text-xl-weight);
+  line-height: var(--text-xl-leading);
+  letter-spacing: var(--text-xl-tracking);
+  color: var(--foreground);
   position: static;
 }
 
@@ -298,11 +307,11 @@ body.is-initial .app-footer {
 
 .hero[data-state="collapsed"] .input-mode-estimate .input-prefix {
   font-size: var(--text-lg);
-  left: var(--space-3);
+  inset-inline-start: var(--space-3);
 }
 
 .hero[data-state="collapsed"] .input-mode-estimate .input-group:has(.input-prefix) .input {
-  padding-left: var(--space-10);
+  padding-inline-start: var(--space-10);
 }
 
 /* Modo Details - formulário expandido */
@@ -340,13 +349,14 @@ body.is-initial .app-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-2);
+  margin-block-end: var(--space-2);
 }
 
 .pdf-card-header span {
-  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  font-size: var(--text-default-size);
   font-weight: var(--font-medium);
-  color: var(--color-text);
+  color: var(--foreground);
 }
 
 .hero[data-state="initial"] .pdf-card-header span {
@@ -357,8 +367,8 @@ body.is-initial .app-footer {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  font-size: var(--text-sm-size);
+  color: var(--foreground-secondary);
 }
 
 .hero[data-state="initial"] .pdf-data {
@@ -409,7 +419,7 @@ body.is-collapsed #results-wrapper {
    ============================================================================= */
 
 .social-proof {
-  margin-top: var(--space-12);
+  margin-block-start: var(--space-12);
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -420,24 +430,23 @@ body.is-collapsed #results-wrapper {
 }
 
 .social-proof-item {
-  border-top: 0.5px solid rgba(0, 0, 0, 0.14);
-  border-bottom: 0.5px solid rgba(255, 255, 255, 1);
-  padding: 20px 12px;
+  border-block-start: 1px solid var(--border);
+  border-block-end: 1px solid var(--border);
+  padding: var(--space-5) var(--space-3);
 }
 
 .social-proof-item:first-child {
-  border-top: 0.5px solid rgba(0, 0, 0, 0.14);
+  border-block-start: 1px solid var(--border);
 }
 
 .social-proof-text {
-  font-size: 14px;
-  line-height: 1.2;
-  letter-spacing: -0.42px;
-  color: #000;
-  opacity: 0.44;
-  margin: 0;
   font-family: var(--font-sans);
-  font-weight: 500;
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-leading);
+  letter-spacing: var(--text-md-tracking);
+  color: var(--foreground-tertiary);
+  margin: 0;
+  font-weight: var(--text-md-weight);
 }
 
 .social-proof-source {
@@ -473,40 +482,40 @@ body.is-collapsed #results-wrapper {
 }
 
 .result-current {
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
+  font-size: var(--text-default-size);
+  color: var(--foreground-secondary);
   text-align: center;
-  margin-bottom: var(--space-8); /* More space before loss highlight */
+  margin-block-end: var(--space-8); /* More space before loss highlight */
 }
 
 .result-current strong {
-  color: var(--color-text);
+  color: var(--foreground);
 }
 
 .result-loss {
   text-align: center;
   padding: 0;
-  margin-bottom: var(--space-10); /* Generous space after */
+  margin-block-end: var(--space-10); /* Generous space after */
   /* No background - let the large number speak */
 }
 
 .result-loss-label {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  font-size: var(--text-sm-size);
+  color: var(--foreground-secondary);
   font-weight: var(--font-medium);
-  margin-bottom: var(--space-3);
+  margin-block-end: var(--space-3);
 }
 
 .result-loss-value {
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl-size);
   font-weight: var(--font-bold);
-  color: var(--color-text);
+  color: var(--foreground);
 }
 
 .result-loss-period {
-  font-size: var(--text-lg);
+  font-size: var(--text-lg-size);
   font-weight: var(--font-normal);
-  color: var(--color-text-secondary);
+  color: var(--foreground-secondary);
 }
 
 /* =============================================================================
@@ -519,11 +528,11 @@ body.is-collapsed #results-wrapper {
   gap: var(--space-3);
   padding: var(--space-4);
   /* No background - clean and minimal */
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  border-top: 1px solid var(--color-border-subtle);
-  padding-top: var(--space-6);
-  margin-top: var(--space-6);
+  font-size: var(--text-sm-size);
+  color: var(--foreground-secondary);
+  border-block-start: 1px solid var(--border);
+  padding-block-start: var(--space-6);
+  margin-block-start: var(--space-6);
 }
 
 .estimate-notice-icon {
@@ -539,21 +548,21 @@ body.is-collapsed #results-wrapper {
   padding: var(--space-4);
   /* No background - clean text */
   text-align: center;
-  border-top: 1px solid var(--color-border-subtle);
-  margin-top: var(--space-8);
-  padding-top: var(--space-6);
+  border-block-start: 1px solid var(--border);
+  margin-block-start: var(--space-8);
+  padding-block-start: var(--space-6);
 }
 
 .social-proof p {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  font-size: var(--text-sm-size);
+  color: var(--foreground-secondary);
 }
 
 .social-proof small {
   display: block;
-  margin-top: var(--space-2);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  margin-block-start: var(--space-2);
+  font-size: var(--text-xs-size);
+  color: var(--foreground-tertiary);
 }
 
 /* =============================================================================
@@ -570,13 +579,13 @@ body.is-collapsed #results-wrapper {
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-block-end: 1px solid var(--border);
   transition: var(--transition-colors);
   cursor: pointer;
 }
 
 .offer-row:hover {
-  background-color: var(--color-gray-0);
+  background-color: var(--bg-high);
 }
 
 .offer-row.is-best {
@@ -585,34 +594,36 @@ body.is-collapsed #results-wrapper {
 
 .offer-rank {
   width: 24px;
-  font-size: var(--text-sm);
+  font-size: var(--text-sm-size);
   font-weight: var(--font-medium);
-  color: var(--color-text-muted);
+  color: var(--foreground-tertiary);
   text-align: center;
 }
 
 .offer-row.is-best .offer-rank {
-  color: var(--color-accent);
+  color: var(--foreground-accent);
 }
 
 .offer-row-provider {
   flex: 1;
   font-weight: var(--font-medium);
+  color: var(--foreground);
 }
 
 .offer-row-price {
   font-weight: var(--font-semibold);
+  color: var(--foreground);
 }
 
 .offer-row-diff {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  font-size: var(--text-sm-size);
+  color: var(--foreground-tertiary);
   min-width: 60px;
   text-align: right;
 }
 
 .offer-row.is-best .offer-row-diff {
-  color: var(--color-accent);
+  color: var(--foreground-accent);
   font-weight: var(--font-medium);
 }
 
@@ -632,6 +643,7 @@ body.is-collapsed #results-wrapper {
   
   .card {
     box-shadow: none;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
   }
+}
 }

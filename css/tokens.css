@@ -11,39 +11,100 @@
      ═══════════════════════════════════════════════════════════ */
   
   /* ═══════════════════════════════════════════════════════════
-     SEMANTIC COLORS - Simplified palette (Dieter Rams inspired)
+     PRIMITIVE COLORS - 12-Step Warm Gray Scale
+     Based on HSL(48, 2%) - Warm Gray aesthetic
      ═══════════════════════════════════════════════════════════ */
   
-  /* Background - matches Figma design */
-  --color-bg: #f0f0f0;
-  --color-bg: oklch(94% 0 0);
+  /* Warm Gray Scale - Interpolated from lightest to darkest */
+  --color-1: oklch(95% 0.005 48);   /* #F0F0EF - Lightest */
+  --color-2: oklch(92% 0.005 48);
+  --color-3: oklch(88% 0.006 48);
+  --color-4: oklch(82% 0.007 48);
+  --color-5: oklch(75% 0.008 48);
+  --color-6: oklch(65% 0.009 48);
+  --color-7: oklch(55% 0.01 48);
+  --color-8: oklch(45% 0.01 48);
+  --color-9: oklch(35% 0.01 48);
+  --color-10: oklch(25% 0.01 48);
+  --color-11: oklch(15% 0.01 48);
+  --color-12: oklch(8% 0.01 48);    /* Almost black - Darkest */
   
-  /* Surface - white for cards/inputs */
-  --color-surface: #ffffff;
-  --color-surface: oklch(100% 0 0);
+  /* Sage Green Accents - Converted from hex to OKLCH */
+  --color-accent-base: oklch(35% 0.02 155);   /* #40594C */ 
+  --color-accent-dark: oklch(28% 0.02 155);    /* #36453D */
+  --color-accent-light: oklch(60% 0.03 155);  /* #719883 */
   
-  /* Text hierarchy - matches Figma */
-  --color-text: #18181b;                  /* zinc-800 - matches Figma fg-base */
-  --color-text-secondary: oklch(45% 0 0); /* Medium gray */
-  --color-text-muted: oklch(44% 0 0);     /* 44% opacity in Figma */
+  /* Neutrals */
+  --color-white: oklch(100% 0 0);
+  --color-black: oklch(0% 0 0);
   
-  /* Borders - subtle */
-  --color-border: oklch(88% 0 0);         /* Light border */
-  --color-border-subtle: oklch(94% 0 0);  /* Very light border */
-  --color-border-hover: oklch(70% 0 0);   /* Hover state */
+  /* ═══════════════════════════════════════════════════════════
+     SEMANTIC COLOR TOKENS
+     Mapped to the Warm Gray scale and Sage Green accents
+     ═══════════════════════════════════════════════════════════ */
   
-  /* Accent - single green for CTAs and highlights */
-  --color-accent: oklch(55% 0.17 145);    /* Green */
-  --color-accent-hover: oklch(48% 0.17 145);
-  --color-accent-soft: oklch(96% 0.02 145); /* Very subtle green tint */
+  /* Backgrounds */
+  --bg-high: #F0F0EF;                   /* Matches #F0F0EF */
+  --bg: #EBEBEA;                        /* Slightly darker than high */
+  --bg-low: color-mix(in oklch, var(--color-11), transparent 98%);
+  --bg-muted: color-mix(in oklch, var(--color-11), transparent 92%);
+  --bg-accent: var(--color-accent-dark);       /* #36453D */
   
-  /* Utility grays (only when needed) */
-  --color-gray-1: oklch(95% 0 0);  /* Lightest */
-  --color-gray-2: oklch(88% 0 0);  /* Light */
-  --color-gray-3: oklch(60% 0 0);  /* Medium */
-  --color-gray-4: oklch(45% 0 0);  /* Dark */
+  /* Foregrounds */
+  --foreground: #363634;
+  --foreground-secondary: #8E8D8A;
+  --foreground-tertiary: #9F9F9F;
+  --foreground-accent: var(--color-accent-base); /* #40594C */
   
-  /* Danger - kept minimal, only for errors */
+  /* Borders */
+  --border: #DBDAD9;
+  --border-hard: #C7C7C5;
+  --border-accent: color-mix(in oklch, var(--color-accent-base), transparent 70%);
+  
+  /* Gradients */
+  --gradient-subtle: linear-gradient(to bottom, var(--color-1), var(--color-2));
+  --gradient-accent: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--color-accent-light), transparent 96%),
+    color-mix(in oklch, var(--color-accent-light), transparent 90%)
+  );
+  
+  /* ═══════════════════════════════════════════════════════════
+     BACKWARD COMPATIBILITY ALIASES
+     Map old variable names to new semantic tokens
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Backgrounds */
+  --color-bg: var(--bg);
+  --color-surface: var(--color-white);
+  
+  /* Text */
+  --color-text: var(--foreground);
+  --color-text-secondary: var(--foreground-secondary);
+  --color-text-muted: var(--foreground-tertiary);
+  
+  /* Borders */
+  --color-border: var(--border);
+  --color-border-subtle: var(--border);
+  --color-border-hover: var(--border-hard);
+  
+  /* Accents */
+  --color-accent: var(--foreground-accent);
+  --color-accent-hover: var(--color-accent-dark);
+  --color-accent-soft: color-mix(in oklch, var(--color-accent-light), transparent 96%);
+  
+  /* Utility grays (mapped to warm gray scale) */
+  --color-gray-0: var(--color-1);  /* Lightest - for subtle backgrounds */
+  --color-gray-1: var(--color-1);
+  --color-gray-2: var(--color-3);
+  --color-gray-3: var(--color-6);
+  --color-gray-4: var(--color-9);
+  
+  /* Warning (kept minimal, warm amber tone) */
+  --color-warning: oklch(65% 0.15 75);      /* Warm amber */
+  --color-warning-soft: oklch(96% 0.02 75); /* Very subtle amber tint */
+  
+  /* Danger (kept minimal, only for errors) */
   --color-danger: oklch(55% 0.2 25);
   --color-danger-soft: oklch(96% 0.02 25);
   
@@ -51,32 +112,66 @@
      TYPOGRAPHY
      ═══════════════════════════════════════════════════════════ */
   
-  /* Font stacks - Inter to match Figma design */
+  /* Font stacks - Inter from Google Fonts */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
                "Helvetica Neue", Arial, sans-serif;
   --font-mono: "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   
-  /* Fluid type scale */
-  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
-  --text-sm: clamp(0.875rem, 0.825rem + 0.25vw, 0.9375rem);
-  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
-  --text-lg: clamp(1.125rem, 1.05rem + 0.375vw, 1.25rem);
-  --text-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
-  --text-2xl: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
-  --text-3xl: clamp(2rem, 1.5rem + 2.5vw, 3rem);
+  /* Typography Scale - XS */
+  --text-xs-size: 0.6875rem;        /* 11px */
+  --text-xs-weight: 500;
+  --text-xs-leading: 1.25rem;       /* 20px */
+  --text-xs-tracking: 0;             /* No letter spacing */
   
-  /* Line heights */
-  --leading-none: 1;
-  --leading-tight: 1.25;
-  --leading-snug: 1.375;
-  --leading-normal: 1.5;
-  --leading-relaxed: 1.625;
+  /* Typography Scale - SM */
+  --text-sm-size: 0.75rem;           /* 12px */
+  --text-sm-weight: 500;
+  --text-sm-leading: 1.2;           /* 120% */
+  --text-sm-tracking: 0;
   
-  /* Font weights */
+  /* Typography Scale - MD */
+  --text-md-size: 0.875rem;          /* 14px */
+  --text-md-weight: 500;
+  --text-md-leading: 1.25rem;       /* 20px */
+  --text-md-tracking: -0.00525rem;   /* -0.084px */
+  
+  /* Typography Scale - Default (Base) */
+  --text-default-size: 1rem;         /* 16px */
+  --text-default-weight: 500;
+  --text-default-leading: 1.15;     /* 115% */
+  --text-default-tracking: -0.011rem; /* -0.176px */
+  
+  /* Typography Scale - LG */
+  --text-lg-size: 1.25rem;           /* 20px */
+  --text-lg-weight: 500;
+  --text-lg-leading: 1.15;          /* 115% */
+  --text-lg-tracking: -0.02125rem;   /* -0.34px */
+  
+  /* Typography Scale - XL */
+  --text-xl-size: 1.5rem;           /* 24px */
+  --text-xl-weight: 500;
+  --text-xl-leading: 1.15;          /* 115% */
+  --text-xl-tracking: -0.0285rem;    /* -0.456px */
+  
+  /* Font weights (kept for backward compatibility) */
   --font-normal: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
+  
+  /* Backward compatibility aliases - map old variable names to new scale */
+  --text-xs: var(--text-xs-size);
+  --text-sm: var(--text-sm-size);
+  --text-base: var(--text-default-size);
+  --text-lg: var(--text-lg-size);
+  --text-xl: var(--text-xl-size);
+  --text-2xl: var(--text-xl-size);  /* Map 2xl to xl for now */
+  --text-3xl: var(--text-xl-size);  /* Map 3xl to xl for now (can be adjusted later) */
+  
+  /* Backward compatibility for line heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
   
   /* ═══════════════════════════════════════════════════════════
      SPACING

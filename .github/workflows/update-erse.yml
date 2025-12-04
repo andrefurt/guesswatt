@@ -1,0 +1,87 @@
+# GitHub Actions Workflow - Auto Update ERSE Data
+# 
+# This workflow automatically downloads the latest CSV data from ERSE,
+# builds offers.json, validates it, and commits only when data changes.
+#
+# Schedule: Weekly (every Monday at 09:00 UTC)
+# - Weekly is safer than monthly: catches ERSE updates faster
+# - Monday gives ERSE time to publish weekend updates
+# - 09:00 UTC = 10:00 WET / 11:00 CEST (business hours in Portugal)
+#
+# Manual trigger: Actions tab → "Update ERSE Data" → "Run workflow"
+
+name: Update ERSE Data
+
+on:
+  schedule:
+    # Runs every Monday at 09:00 UTC
+    - cron: '0 9 * * 1'
+  
+  # Allows manual trigger from GitHub UI
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install playwright
+      
+      - name: Install Chromium
+        run: npx playwright install chromium
+      
+      - name: Download ERSE CSV
+        run: node scripts/download-erse.js
+      
+      - name: Build offers.json
+        run: node scripts/build-offers.js
+      
+      - name: Run self-tests
+        run: node scripts/selftest.js
+      
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv 2>/dev/null || echo "changed=true" >> $GITHUB_OUTPUT
+          if [ "${{ steps.changes.outputs.changed }}" != "true" ]; then
+            echo "No changes detected in data files"
+          else
+            echo "Changes detected in data files"
+            git status --short data/
+          fi
+      
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv
+          git commit -m "chore: update ERSE data $(date +%Y-%m-%d)" || exit 0
+          git push
+      
+      - name: No changes detected
+        if: steps.changes.outputs.changed != 'true'
+        run: echo "✅ No changes in CSV data - skipping commit"
+

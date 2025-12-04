@@ -5,280 +5,118 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sobre - GuessWatt</title>
   <style>
-    html, body {
-      height: 100%;
-    }
-    
-    body { 
-      font-family: system-ui, sans-serif; 
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    
-    .main-content {
-      max-width: 50rem; /* 800px */
-      margin: 0 auto;
-      padding: 0 1rem 2rem 1rem;
-      flex: 1;
-    }
-    
-    /* Topbar */
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 3.75rem; /* 60px */
-      padding: 0 1rem;
-      background: white;
-      margin-bottom: 2rem;
-    }
-    
-    .topbar-logo {
-      font-weight: bold;
-      font-size: 1.25rem;
-      text-decoration: none;
-      color: #333;
-    }
-    
-    .topbar-logo:hover {
-      color: #000;
-    }
-    
-    .topbar-nav {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-    
-    .topbar-nav a {
-      text-decoration: none;
-      color: #333;
-      font-size: 0.95rem;
-    }
-    
-    .topbar-nav a:hover {
-      color: #000;
-    }
-    
-    .dropdown {
-      position: relative;
-    }
-    
-    .dropdown-button {
-      background: none;
-      border: none;
-      color: #333;
-      font-size: 0.95rem;
-      cursor: pointer;
-      padding: 0.25rem 0;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    
-    .dropdown-button:hover {
-      color: #000;
-    }
+    /* Minimal functional styles only - no visual decoration */
     
     .dropdown-menu {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      margin-top: 0.5rem;
-      background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      min-width: 11.25rem; /* 180px */
       display: none;
-      z-index: 100;
     }
     
     .dropdown-menu.is-open {
       display: block;
     }
     
-    .dropdown-menu a {
-      display: block;
-      padding: 0.75rem 1rem;
-      text-decoration: none;
-      color: #333;
-      font-size: 0.9rem;
+    /* Functional cursor styles */
+    button {
+      cursor: pointer;
     }
     
-    .dropdown-menu a:hover {
-      background: #f5f5f5;
-    }
-    
-    .dropdown-menu a:first-child {
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
-    }
-    
-    .dropdown-menu a:last-child {
-      border-bottom-left-radius: 4px;
-      border-bottom-right-radius: 4px;
-    }
-    
-    /* Footer */
-    footer {
-      max-width: 50rem; /* 800px */
-      margin: 0 auto;
-      padding: 2rem 1rem;
-      color: #999;
-      text-align: left;
-      font-size: 0.9rem;
-    }
-    
-    footer p {
-      margin: 0.5rem 0;
-    }
-    
-    footer a {
-      color: #999;
-      text-decoration: underline;
-    }
-    
-    footer a:hover {
-      color: #666;
-    }
-    
-    /* About content styles */
-    .about-content {
-      line-height: 1.6;
-    }
-    
-    .about-content h1 {
-      margin-bottom: 2rem;
-    }
-    
-    .about-content h2 {
-      margin-top: 2rem;
-      margin-bottom: 0.75rem;
-      font-size: 1.25rem;
-    }
-    
-    .about-content p {
-      margin-bottom: 1rem;
-    }
-    
-    .about-content ul {
-      margin: 1rem 0;
-      padding-left: 1.5rem;
-    }
-    
-    .about-content li {
-      margin-bottom: 0.5rem;
-    }
-    
-    .about-content a {
-      color: #333;
-    }
-    
-    .about-content a:hover {
-      color: #000;
-    }
-    
-    .back-link {
-      display: inline-block;
-      margin-bottom: 1.5rem;
-      color: #666;
-      text-decoration: none;
-    }
-    
-    .back-link:hover {
-      color: #333;
+    /* Accessibility: ensure focusable elements are visible */
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
     }
   </style>
 </head>
 <body>
-  <!-- Topbar -->
-  <header class="topbar">
-    <a href="index.html" class="topbar-logo">GuessWatt</a>
-    <nav class="topbar-nav">
-      <a href="sobre.html">Sobre</a>
-      <div class="dropdown">
-        <button type="button" class="dropdown-button" id="copy-page-button">
-          Copy Page ▾
-        </button>
-        <div class="dropdown-menu" id="copy-page-menu">
-          <a href="#" id="copy-markdown">Copy as Markdown</a>
-          <a href="llms.txt" target="_blank">View llms.txt</a>
-          <a href="#" id="open-chatgpt">Open in ChatGPT</a>
-          <a href="#" id="open-claude">Open in Claude</a>
+  <div id="app-root">
+    <!-- Header -->
+    <header>
+      <a href="index.html" id="topbar-logo">GuessWatt</a>
+      <nav>
+        <a href="sobre.html">Sobre</a>
+        <div class="dropdown">
+          <button type="button" id="copy-page-button">
+            Copy Page ▾
+          </button>
+          <div class="dropdown-menu" id="copy-page-menu">
+            <a href="#" id="copy-markdown">Copy as Markdown</a>
+            <a href="llms.txt" target="_blank">View llms.txt</a>
+            <a href="#" id="open-chatgpt">Open in ChatGPT</a>
+            <a href="#" id="open-claude">Open in Claude</a>
+          </div>
         </div>
-      </div>
-    </nav>
-  </header>
+      </nav>
+    </header>
   
-  <main class="main-content about-content">
-    <a href="index.html" class="back-link">← Voltar</a>
-    
-    <h1>Sobre o GuessWatt</h1>
-    
-    <section>
-      <h2>O que é</h2>
-      <p>O GuessWatt compara tarifas de eletricidade em Portugal. Mostras quanto pagas, nós dizemos se estás a pagar demais e qual a melhor alternativa.</p>
-      <p>Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.</p>
-    </section>
-    
-    <section>
-      <h2>Porquê</h2>
-      <p>Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem comparar — e perde dinheiro.</p>
-      <p>Mudar de fornecedor é gratuito, demora menos de uma semana, e não requer qualquer intervenção técnica. Mas quase ninguém o faz.</p>
-      <p>O GuessWatt existe para quebrar essa inércia.</p>
-    </section>
-    
-    <section>
-      <h2>Como calculamos</h2>
-      <p>Usamos os dados oficiais da <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (Entidade Reguladora dos Serviços Energéticos), a mesma fonte usada pelo simulador oficial.</p>
-      <p>Para cada tarifa, calculamos:</p>
-      <ul>
-        <li>Termo fixo (€/dia) × 30 dias</li>
-        <li>Termo variável (€/kWh) × consumo mensal</li>
-        <li>Taxas (audiovisual, IEC)</li>
-        <li>IVA a 23%</li>
-      </ul>
-      <p>Comparamos todas as ofertas disponíveis para o teu perfil e ordenamos por custo mensal.</p>
-    </section>
-    
-    <section>
-      <h2>Fonte dos dados</h2>
-      <p>Os dados vêm directamente da <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a>:</p>
-      <ul>
-        <li>Preços por tarifa, potência e tipo de contagem</li>
-        <li>Condições comerciais (fidelização, contactos, links)</li>
-      </ul>
-      <p>Actualizamos mensalmente quando a <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> publica novos dados.</p>
-    </section>
-    
-    <section>
-      <h2>Limitações</h2>
-      <ul>
-        <li>Estimativas baseadas em consumo médio podem variar ±15% do real</li>
-        <li>Tarifas indexadas (preço variável) não são comparáveis directamente</li>
-        <li>Algumas ofertas têm condições especiais não reflectidas nos dados</li>
-      </ul>
-      <p>Para maior precisão, usa a tua factura real.</p>
-    </section>
-    
-    <section>
-      <h2>Quem faz isto</h2>
-      <p>Projecto pessoal de Andrefurt. Código aberto, sem fins lucrativos.</p>
-      <p>Sugestões ou correcções: <a href="https://github.com/andrefurt/guesswatt" target="_blank" rel="noopener">github.com/andrefurt/guesswatt</a></p>
-    </section>
-  </main>
+    <!-- Main content -->
+    <main>
+      <section aria-labelledby="page-title">
+        <a href="index.html">← Voltar</a>
+        <h1 id="page-title">Sobre o GuessWatt</h1>
+      </section>
+
+      <section aria-labelledby="what-is">
+        <h2 id="what-is">O que é</h2>
+        <p>O GuessWatt compara tarifas de eletricidade em Portugal. Mostras quanto pagas, nós dizemos se estás a pagar demais e qual a melhor alternativa.</p>
+        <p>Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.</p>
+      </section>
+      
+      <section aria-labelledby="why">
+        <h2 id="why">Porquê</h2>
+        <p>Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem comparar — e perde dinheiro.</p>
+        <p>Mudar de fornecedor é gratuito, demora menos de uma semana, e não requer qualquer intervenção técnica. Mas quase ninguém o faz.</p>
+        <p>O GuessWatt existe para quebrar essa inércia.</p>
+      </section>
+      
+      <section aria-labelledby="how-calculate">
+        <h2 id="how-calculate">Como calculamos</h2>
+        <p>Usamos os dados oficiais da <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (Entidade Reguladora dos Serviços Energéticos), a mesma fonte usada pelo simulador oficial.</p>
+        <p>Para cada tarifa, calculamos:</p>
+        <ul>
+          <li>Termo fixo (€/dia) × 30 dias</li>
+          <li>Termo variável (€/kWh) × consumo mensal</li>
+          <li>Taxas (audiovisual, IEC)</li>
+          <li>IVA a 23%</li>
+        </ul>
+        <p>Comparamos todas as ofertas disponíveis para o teu perfil e ordenamos por custo mensal.</p>
+      </section>
+      
+      <section aria-labelledby="data-source">
+        <h2 id="data-source">Fonte dos dados</h2>
+        <p>Os dados vêm directamente da <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a>:</p>
+        <ul>
+          <li>Preços por tarifa, potência e tipo de contagem</li>
+          <li>Condições comerciais (fidelização, contactos, links)</li>
+        </ul>
+        <p>Actualizamos mensalmente quando a <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> publica novos dados.</p>
+      </section>
+      
+      <section aria-labelledby="limitations">
+        <h2 id="limitations">Limitações</h2>
+        <ul>
+          <li>Estimativas baseadas em consumo médio podem variar ±15% do real</li>
+          <li>Tarifas indexadas (preço variável) não são comparáveis directamente</li>
+          <li>Algumas ofertas têm condições especiais não reflectidas nos dados</li>
+        </ul>
+        <p>Para maior precisão, usa a tua factura real.</p>
+      </section>
+      
+      <section aria-labelledby="who">
+        <h2 id="who">Quem faz isto</h2>
+        <p>Projecto pessoal de Andrefurt. Código aberto, sem fins lucrativos.</p>
+        <p>Sugestões ou correcções: <a href="https://github.com/andrefurt/guesswatt" target="_blank" rel="noopener">github.com/andrefurt/guesswatt</a></p>
+      </section>
+    </main>
   
-  <!-- Footer -->
-  <footer id="footer">
-    <p>Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia.</p>
-    <p>Não vendemos nada. Dados: <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (atualizado mensalmente)</p>
-    <p>↻ Última actualização foi em <span id="last-update-month"></span> de <span id="last-update-year"></span></p>
-    <p><a href="llms.txt">llms.txt</a></p>
-  </footer>
+    <!-- Footer -->
+    <footer id="footer">
+      <p>Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia.</p>
+      <p>Não vendemos nada. Dados: <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (atualizado mensalmente)</p>
+      <p>↻ Última actualização foi em <span id="last-update-month"></span> de <span id="last-update-year"></span></p>
+      <p><a href="llms.txt">llms.txt</a></p>
+    </footer>
+  </div>
   
   <script>
     // Load last update date

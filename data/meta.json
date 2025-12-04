@@ -1,0 +1,542 @@
+{
+  "build": {
+    "builtAt": "2025-12-04T16:07:22.506Z",
+    "sourceUpdatedAt": null,
+    "offersCount": 7164,
+    "rowCounts": {
+      "prices": 13517,
+      "conditions": 708
+    },
+    "filtersApplied": {
+      "fornecimento": "ELE only (excluded GN and DUAL)",
+      "lockInExcluded": false
+    },
+    "statistics": {
+      "lockInCount": 1410,
+      "lockInBySourceTotals": {
+        "field": 921,
+        "text": 489
+      },
+      "activeOffersCount": 2705,
+      "promotionsWithMetadataCount": 306,
+      "promotionsWithKnownActiveStatusCount": 0,
+      "promotionsActiveCount": 0,
+      "promotionsAppliedCount": 0
+    },
+    "scriptVersion": "2.1.0"
+  },
+  "discovery": {
+    "promotionFieldHits": [
+      {
+        "column": "TxTOferta",
+        "hits": 1799
+      },
+      {
+        "column": "TxTReembolsos",
+        "hits": 1649
+      },
+      {
+        "column": "TxTERSE",
+        "hits": 1470
+      },
+      {
+        "column": "TxTFaturacao",
+        "hits": 1069
+      },
+      {
+        "column": "DetalheOutrosDesc/benefi",
+        "hits": 1019
+      },
+      {
+        "column": "TxTServicoAdic",
+        "hits": 876
+      },
+      {
+        "column": "TxTFatura",
+        "hits": 707
+      },
+      {
+        "column": "TxTAtualizaPrecos",
+        "hits": 482
+      },
+      {
+        "column": "LinkOfertaCom",
+        "hits": 347
+      },
+      {
+        "column": "TxToutrosServicoAdic",
+        "hits": 344
+      },
+      {
+        "column": "TxTRestricoesAdic",
+        "hits": 279
+      },
+      {
+        "column": "NomeProposta",
+        "hits": 270
+      },
+      {
+        "column": "LinkCondicoesGerais",
+        "hits": 242
+      },
+      {
+        "column": "TxTModalidade",
+        "hits": 219
+      },
+      {
+        "column": "TxTFidelização",
+        "hits": 141
+      }
+    ],
+    "samplePromotionSnippets": [
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_04",
+        "snippet": "Tarifário aplicável para contratos de clientes domésticos em Baixa Pressão < 10.000 m3.Tarifa aplicada para novas Adesões a partir de 01/10/2025.A aplicação des",
+        "columnName": "TxTOferta"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_05",
+        "snippet": "Este tarifário é indexado ao mercado e aplicável a clientes BTN não doméstico.O preço com referência aos preços OMIE de outubro 2025, supondo CGS= 18,09 €/MWh e",
+        "columnName": "TxTOferta"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_03",
+        "snippet": "Este tarifário é indexado ao mercado e aplicável a clientes BTN Residencial.O preço com referência aos preços OMIE de outubro 2025, supondo CGS= 18,09 €/MWh e p",
+        "columnName": "TxTOferta"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_01",
+        "snippet": "Tarifário aplicável para contratos de clientes domésticos e Empresariais em BTN com horário simples, bi-horário ou tri-horário.Tarifa aplicada para novas Adesõe",
+        "columnName": "TxTOferta"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_02",
+        "snippet": "Tarifário aplicável para contratos de clientes domésticos e empresariais em Baixa Pressão < 10.000 m3.Tarifa aplicada para novas Adesões até 31/12/2025A aplicaç",
+        "columnName": "TxTOferta"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_06",
+        "snippet": "25% de desconto já aplicado nos preços comunicados na tabela das Condições Económicas.",
+        "columnName": "TxTReembolsos"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_05",
+        "snippet": "25% de desconto já aplicado nos preços comunicados na tabela das Condições Económicas.",
+        "columnName": "TxTReembolsos"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_08",
+        "snippet": "25% de desconto já aplicado nos preços comunicados na tabela das Condições Económicas.",
+        "columnName": "TxTReembolsos"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_07",
+        "snippet": "25% de desconto já aplicado nos preços comunicados na tabela das Condições Económicas.",
+        "columnName": "TxTReembolsos"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_02",
+        "snippet": "25% de desconto já aplicado nos preços comunicados na tabela das Condições Económicas.",
+        "columnName": "TxTReembolsos"
+      },
+      {
+        "COM": "ACCIONA",
+        "COD_Proposta": "ACCIONA_01",
+        "snippet": "A oferta apresenta condições de energia elétrica proveniente de fontes 100% renováveis. Esta oferta está indexada ao Mercado Spot de eletricidade (OMIE), estand",
+        "columnName": "TxTERSE"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_05",
+        "snippet": "Esta oferta está indexada ao Mercado Spot de eletricidade (OMIE), estando sujeita à volatilidade de preços do mercado grossista. Os preços de energia são calcul",
+        "columnName": "TxTERSE"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_03",
+        "snippet": "Esta oferta está indexada ao Mercado Spot de eletricidade (OMIE), estando sujeita à volatilidade de preços do mercado grossista. Os preços de energia são calcul",
+        "columnName": "TxTERSE"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_06",
+        "snippet": "A oferta comercial apresenta condições de fidelização associada à adesão ao contrato. O valor da fatura inclui um reembolso/desconto aplicável a todos os client",
+        "columnName": "TxTERSE"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_05",
+        "snippet": "A oferta comercial apresenta condições de fidelização associada à adesão ao contrato. O valor da fatura inclui um reembolso/desconto aplicável a todos os client",
+        "columnName": "TxTERSE"
+      },
+      {
+        "COM": "EDPSU",
+        "COD_Proposta": "TUR",
+        "snippet": "Mensal, Bi-mestral",
+        "columnName": "TxTFaturacao"
+      },
+      {
+        "COM": "CUR",
+        "COD_Proposta": "CUR",
+        "snippet": "Mensal, Bi-mestral",
+        "columnName": "TxTFaturacao"
+      },
+      {
+        "COM": "ACCIONA",
+        "COD_Proposta": "ACCIONA_01",
+        "snippet": "Faturação Mensal",
+        "columnName": "TxTFaturacao"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_04",
+        "snippet": "Faturação Mensal ou Bimensal",
+        "columnName": "TxTFaturacao"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_05",
+        "snippet": "Faturação Mensal",
+        "columnName": "TxTFaturacao"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_01",
+        "snippet": "Desconto no termo de potência para consumos inferiores a 20MWh/ano.",
+        "columnName": "DetalheOutrosDesc/benefi"
+      },
+      {
+        "COM": "EDPC",
+        "COD_Proposta": "EDPC_94",
+        "snippet": "O cliente terá direito ao dobro dos dados móveis num dos cartões associado ao seu pacote NOS 4Pro ou NOS Central Pro e a um voucher de 25€ para aquisição de equ",
+        "columnName": "DetalheOutrosDesc/benefi"
+      },
+      {
+        "COM": "EDPC",
+        "COD_Proposta": "EDPC_95",
+        "snippet": "O cliente terá direito ao dobro dos dados móveis num dos cartões associado ao seu pacote NOS 4Pro ou NOS Central Pro e a um voucher de 25€ para aquisição de equ",
+        "columnName": "DetalheOutrosDesc/benefi"
+      },
+      {
+        "COM": "EDPC",
+        "COD_Proposta": "EDPC_149",
+        "snippet": "O cliente terá direito ao dobro dos dados móveis num dos cartões associado ao seu pacote NOS 4Pro ou NOS Central Pro e a um voucher de 25€ para aquisição de equ",
+        "columnName": "DetalheOutrosDesc/benefi"
+      },
+      {
+        "COM": "EDPC",
+        "COD_Proposta": "EDPC_150",
+        "snippet": "O cliente terá direito ao dobro dos dados móveis num dos cartões associado ao seu pacote NOS 4Pro ou NOS Central Pro e a um voucher de 25€ para aquisição de equ",
+        "columnName": "DetalheOutrosDesc/benefi"
+      }
+    ],
+    "lockInSamples": [
+      {
+        "COM": "EDPSU",
+        "COD_Proposta": "TUR",
+        "NomeProposta": "Condições de preço regulado",
+        "lockInSource": "text",
+        "lockInMonths": null,
+        "snippet": "Não tem fidelização Tarifa Regulada de Último Recurso e Tarifas em regime equiparado -"
+      },
+      {
+        "COM": "CUR",
+        "COD_Proposta": "CUR",
+        "NomeProposta": "Tarifa Mercado Regulado",
+        "lockInSource": "text",
+        "lockInMonths": null,
+        "snippet": "Não tem fidelização Tarifa Transitória -"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_02",
+        "NomeProposta": "Tarifa ALFA GÁS FIXO BP< PIONEIROS 2025",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "O cliente tem um desconto mínimo de 10% face à tarifa Base.Fidelização de 12 mesesA denúncia do contrato por parte do Cliente implica uma compensação à ALFA ENE"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_06",
+        "NomeProposta": "TOP T0 - Fixo de 12 meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização de 12 meses (prevista nas Condições Gerais do contrato) Campanha Tarifa Fixa.Possibilidade de solicitar energia 100% renovável mediante um preço adi"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_05",
+        "NomeProposta": "TOP T1 - Fixo de 12 meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização de 12 meses (prevista nas Condições Gerais do contrato) Campanha Tarifa Fixa.Possibilidade de solicitar energia 100% renovável mediante um preço adi"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_08",
+        "NomeProposta": "TOP T2 - Fixo de 12 meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização de 12 meses (prevista nas Condições Gerais do contrato) Campanha Tarifa Fixa.Possibilidade de solicitar energia 100% renovável mediante um preço adi"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_07",
+        "NomeProposta": "TOP T3 - Fixo de 12 meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização de 12 meses (prevista nas Condições Gerais do contrato) Campanha Tarifa Fixa.Possibilidade de solicitar energia 100% renovável mediante um preço adi"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_02",
+        "NomeProposta": "TOP T4 - Fixo de 12 meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização de 12 meses (prevista nas Condições Gerais do contrato) Campanha Tarifa Fixa.Possibilidade de solicitar energia 100% renovável mediante um preço adi"
+      },
+      {
+        "COM": "AUDAX",
+        "COD_Proposta": "AUDAX_03",
+        "NomeProposta": "TOP - Fixo de 12 meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização de 12 meses (prevista nas Condições Gerais do contrato) Campanha Tarifa Fixa. Escalão 0 - 10 000"
+      },
+      {
+        "COM": "AXPO",
+        "COD_Proposta": "AXPO_03",
+        "NomeProposta": "Tarifa EASY 12m",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Para as modalidades de contratação em Preço Fixo, que tenham um período de fidelização nos termos da cláusula 19 do RRC, a denúncia antecipada do Contrato pelo"
+      },
+      {
+        "COM": "AXPO",
+        "COD_Proposta": "AXPO_04",
+        "NomeProposta": "Tarifa EASY 100% VERDE 12m",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Para as modalidades de contratação em Preço Fixo, que tenham um período de fidelização nos termos da cláusula 19 do RRC, a denúncia antecipada do Contrato pelo"
+      },
+      {
+        "COM": "AXPO",
+        "COD_Proposta": "AXPO_01",
+        "NomeProposta": "Tarifa Livre 12m",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Para a modalidades de contratação em Preço Indexado que tenham um período de fidelização nos termos da cláusula 19 do RRC, a denúncia antecipada do Contrato pel"
+      },
+      {
+        "COM": "AXPO",
+        "COD_Proposta": "AXPO_02",
+        "NomeProposta": "Tarifa Livre 100% Verde 12m",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Para a modalidades de contratação em Preço Indexado que tenham um período de fidelização nos termos da cláusula 19 do RRC, a denúncia antecipada do Contrato pel"
+      },
+      {
+        "COM": "DOUROGAS",
+        "COD_Proposta": "DOUROGAS_03",
+        "NomeProposta": "Gás Natural - MAIS POUPANÇA",
+        "lockInSource": "text",
+        "lockInMonths": null,
+        "snippet": "Adesão 100% online com Débito direto, fatura eletrónica e sem fidelização. Atualizado com tarifas acesso a 01 Outubro 2025."
+      },
+      {
+        "COM": "ELERGONE",
+        "COD_Proposta": "ELERGONE_01",
+        "NomeProposta": "Elergone Corporate",
+        "lockInSource": "text",
+        "lockInMonths": null,
+        "snippet": "Oferta para BTN Empresarial, Tarifa Simples, Bi-Horária e Tri-Horária, para todas as classes de potência, preço indexado ao mercado diário OMIE (média mensal),"
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_03",
+        "NomeProposta": "Tarifa A Sua Empresa",
+        "lockInSource": "text",
+        "lockInMonths": null,
+        "snippet": "Com a Tarifa A Sua Empresa tem um desconto sobre o termo de energia permanente de 8% + 10% aplicável durante os 3 primeiros meses sem complicações nem fidelizaç"
+      },
+      {
+        "COM": "EZUENERGIA",
+        "COD_Proposta": "EZUENERGIA_08",
+        "NomeProposta": "Tarifa EZU Outono Multibanco Empresas",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      },
+      {
+        "COM": "EZUENERGIA",
+        "COD_Proposta": "EZUENERGIA_10",
+        "NomeProposta": "Tarifa Outono Premium Empresas",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      },
+      {
+        "COM": "EZUENERGIA",
+        "COD_Proposta": "EZUENERGIA_09",
+        "NomeProposta": "Tarifa fixa Outono Maxi",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      },
+      {
+        "COM": "EZUENERGIA",
+        "COD_Proposta": "EZUENERGIA_02",
+        "NomeProposta": "Tarifa EZU Indexada Empresas",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      }
+    ],
+    "lockInBySource": {
+      "field": 15,
+      "text": 5
+    },
+    "promotionParsedSamples": [
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      },
+      {
+        "COM": "END",
+        "COD_Proposta": "END_25",
+        "NomeProposta": "Quero+ Luz + Plano Amigo",
+        "sourceColumn": "TxTOferta",
+        "snippet": "Desconto permanente de 3% sobre o total da fatura + Desconto promocional de 8% durante 1 ano, sobre o total da fatura luz e/ou gás + Desconto de 1% sobre o tota",
+        "parsed": {
+          "fixedEuroMonth": 1,
+          "durationMonthsExtracted": 12,
+          "durationMonthsApplied": 12,
+          "durationAssumed": false
+        }
+      }
+    ]
+  }
+}
