@@ -414,7 +414,7 @@ class AppGlassButton extends HTMLElement {
           border-radius: calc(var(--radius-md) - 0.5px);
           background: color-mix(in srgb, var(--color-surface), transparent 60%);
           backdrop-filter: blur(8px);
-          transition: var(--transition-colors);
+          transition: var(--transition-colors), transform 0.1s ease-out;
           font-family: var(--font-sans);
           font-size: var(--text-sm-size);
           font-weight: var(--font-medium);
