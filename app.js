@@ -438,7 +438,16 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
   ` : '';
   
   // Só mostrar consumo e potência no modo Estimativa (no Preciso já estão no formulário)
-  const consumptionHtml = isEstimate;
+  const consumptionHtml = isEstimate ? `
+            <tr>
+              <td>Consumo estimado</td>
+              <td>${consumption} kWh<span class="tooltip-trigger" data-tooltip="kwh">ⓘ</span>/mês</td>
+            </tr>
+            <tr>
+              <td>Potência</td>
+              <td>${power} kVA<span class="tooltip-trigger" data-tooltip="kva">ⓘ</span></td>
+            </tr>
+            ` : '';
   
   // Guia de mudança (sempre presente quando há resultado)
   const switchGuideHtml = `
@@ -486,16 +495,7 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
               <td>Custo mensal</td>
               <td>€${enrichedBest.monthlyCost.toFixed(2)}</td>
             </tr>
-            ${consumptionHtml ? `
-            <tr>
-              <td>Consumo estimado</td>
-              <td>${consumption} kWh<span class="tooltip-trigger" data-tooltip="kwh">ⓘ</span>/mês</td>
-            </tr>
-            <tr>
-              <td>Potência</td>
-              <td>${power} kVA<span class="tooltip-trigger" data-tooltip="kva">ⓘ</span></td>
-            </tr>
-            ` : ''}
+            ${consumptionHtml}
           </tbody>
         </table>
       </div>
