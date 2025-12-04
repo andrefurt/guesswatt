@@ -56,9 +56,14 @@
       cursor: pointer;
     }
     
-    /* Hidden file input */
+    /* Hidden file input - visually hidden but accessible for programmatic clicks */
     #pdf-input {
-      display: none;
+      position: absolute;
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      z-index: -1;
     }
     
     /* Accessibility: visually hidden but available to screen readers */
