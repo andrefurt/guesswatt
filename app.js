@@ -558,26 +558,6 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
   resultDiv.innerHTML = resultHTML;
   resultDiv.style.display = 'block';
   
-  // Add copy phone button handler
-  const copyPhoneBtn = resultDiv.querySelector('.copy-phone-btn');
-  if (copyPhoneBtn) {
-    copyPhoneBtn.addEventListener('click', async () => {
-      const phone = copyPhoneBtn.dataset.phone;
-      if (phone) {
-        try {
-          await navigator.clipboard.writeText(phone);
-          const originalText = copyPhoneBtn.textContent;
-          copyPhoneBtn.textContent = '✓ Copiado!';
-          setTimeout(() => {
-            copyPhoneBtn.textContent = originalText;
-          }, 2000);
-        } catch (err) {
-          console.error('Failed to copy phone:', err);
-        }
-      }
-    });
-  }
-  
   // Reinicializar tooltips após renderizar resultado
   initTooltips();
 }
@@ -1056,6 +1036,27 @@ function init() {
   const resultDiv = document.getElementById('result');
   if (resultDiv) {
     resultDiv.style.display = 'none';
+    
+    // Event delegation for copy phone button (works for both new and cached results)
+    resultDiv.addEventListener('click', async (e) => {
+      const copyPhoneBtn = e.target.closest('.copy-phone-btn');
+      if (copyPhoneBtn) {
+        e.preventDefault();
+        const phone = copyPhoneBtn.dataset.phone;
+        if (phone) {
+          try {
+            await navigator.clipboard.writeText(phone);
+            const originalText = copyPhoneBtn.textContent;
+            copyPhoneBtn.textContent = '✓ Copiado!';
+            setTimeout(() => {
+              copyPhoneBtn.textContent = originalText;
+            }, 2000);
+          } catch (err) {
+            console.error('Failed to copy phone:', err);
+          }
+        }
+      }
+    });
   }
   
   // Inicializar tabs
