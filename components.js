@@ -238,6 +238,7 @@ class AppCopySplitButton extends HTMLElement {
           font-weight: var(--text-sm-weight);
           line-height: var(--text-sm-leading);
           color: var(--foreground);
+          text-decoration: none;
         }
         
         .segment-copy:hover {
@@ -269,7 +270,7 @@ class AppCopySplitButton extends HTMLElement {
         }
         
         .segment-trigger:hover {
-          background-color: color-mix(in srgb, var(--color-surface), transparent 70%);
+          background-color: color-mix(in srgb, var(--color-surface), transparent 75%);
         }
         
         /* Icons */
@@ -394,7 +395,7 @@ class AppGlassButton extends HTMLElement {
         /* Outer Wrapper - The Structure */
         .outer-shell {
           display: block;
-          border: 0.5px solid var(--border);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
           padding: 0;
           background: transparent;
@@ -408,8 +409,8 @@ class AppGlassButton extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 36px;
-          padding: 0 12px;
+          height: 32px;
+          padding-inline: var(--space-3);
           border: 0.5px solid var(--color-surface);
           border-radius: calc(var(--radius-md) - 0.5px);
           background: color-mix(in srgb, var(--color-surface), transparent 60%);
@@ -427,16 +428,28 @@ class AppGlassButton extends HTMLElement {
         }
         
         :host(:hover) .inner-glass {
-          background-color: var(--color-surface);
+          background-color: color-mix(in srgb, var(--color-surface), transparent 75%);
         }
         
         :host(:active) .inner-glass {
           transform: scale(0.98);
         }
         
-        /* Ensure slot content inherits styles */
+        /* Ensure slot content inherits styles and removes link underlines */
         ::slotted(*) {
           color: inherit;
+          text-decoration: none;
+        }
+        
+        ::slotted(a) {
+          text-decoration: none;
+        }
+        
+        /* Remove underline from any nested links */
+        .outer-shell,
+        .outer-shell:visited,
+        .outer-shell:hover,
+        .outer-shell:active {
           text-decoration: none;
         }
       </style>
