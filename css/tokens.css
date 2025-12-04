@@ -30,7 +30,7 @@
   --color-12: oklch(8% 0.01 48);    /* Almost black - Darkest */
   
   /* Sage Green Accents - Converted from hex to OKLCH */
-  --color-accent-base: oklch(35% 0.02 155);   /* #40594C */
+  --color-accent-base: oklch(35% 0.02 155);   /* #40594C */ 
   --color-accent-dark: oklch(28% 0.02 155);    /* #36453D */
   --color-accent-light: oklch(60% 0.03 155);  /* #719883 */
   
@@ -44,21 +44,21 @@
      ═══════════════════════════════════════════════════════════ */
   
   /* Backgrounds */
-  --bg-high: var(--color-1);                    /* Matches #F0F0EF */
-  --bg: var(--color-2);                        /* Slightly darker than high */
+  --bg-high: #F0F0EF;                   /* Matches #F0F0EF */
+  --bg: #EBEBEA;                        /* Slightly darker than high */
   --bg-low: color-mix(in oklch, var(--color-11), transparent 98%);
   --bg-muted: color-mix(in oklch, var(--color-11), transparent 92%);
   --bg-accent: var(--color-accent-dark);       /* #36453D */
   
   /* Foregrounds */
-  --foreground: var(--color-11);
-  --foreground-secondary: var(--color-6);
-  --foreground-tertiary: var(--color-5);
+  --foreground: #363634;
+  --foreground-secondary: #8E8D8A;
+  --foreground-tertiary: #9F9F9F;
   --foreground-accent: var(--color-accent-base); /* #40594C */
   
   /* Borders */
-  --border: var(--color-2);
-  --border-hard: var(--color-3);
+  --border: #DBDAD9;
+  --border-hard: #C7C7C5;
   --border-accent: color-mix(in oklch, var(--color-accent-base), transparent 70%);
   
   /* Gradients */

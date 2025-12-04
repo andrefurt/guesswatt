@@ -5,7 +5,7 @@
 
 import { PROVIDERS } from './config.js';
 import { findBestOfferForTariff, calculateMonthlyCost, enrichOffer } from './calculator.js';
-import { loadCSV } from './utils.js';
+import { loadOffers } from './utils.js';
 import { initTooltips } from './ui-components.js';
 
 // PDF data state (managed by this module)
@@ -278,13 +278,23 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
       resultDiv.style.display = 'block';
     }
     
-    // Carregar dados
-    const prices = await loadCSV('data/Precos_ELEGN.csv');
-    const conditions = await loadCSV('data/CondComerciais.csv');
+    // Carregar dados (prefers offers.json, falls back to CSV)
+    const { prices, conditions } = await loadOffers();
+    
+    // Filtrar apenas electricidade (excluir DUAL e GN)
+    const electricityOnly = prices.filter(p => {
+      const condition = conditions.find(c => 
+        c.COM === p.COM && c.COD_Proposta === p.COD_Proposta
+      );
+      if (condition && condition.Fornecimento) {
+        return condition.Fornecimento === 'ELE';
+      }
+      return true; // Backward compatibility
+    });
     
     // Encontrar melhor oferta
     const best = findBestOfferForTariff(
-      prices, 
+      electricityOnly, 
       pdfData.consumption, 
       pdfData.power, 
       pdfData.tariffType

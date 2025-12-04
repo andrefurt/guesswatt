@@ -47,6 +47,87 @@ export async function loadCSV(url) {
 }
 
 /**
+ * Load offers.json (preferred) or fallback to CSV files
+ * @returns {Promise<{prices: Array<Object>, conditions: Array<Object>}>} Parsed data
+ */
+export async function loadOffers() {
+  try {
+    // Try to load offers.json first
+    const response = await fetch('data/offers.json');
+    if (response.ok) {
+      const offers = await response.json();
+      console.log(`✅ Loaded ${offers.length} offers from offers.json`);
+      
+      // Convert offers.json format back to prices/conditions format for compatibility
+      // This allows existing calculator functions to work without changes
+      const prices = offers.map(offer => ({
+        COM: offer.COM,
+        COD_Proposta: offer.COD_Proposta,
+        Pot_Cont: offer.Pot_Cont,
+        Contagem: offer.Contagem,
+        TF: offer.TF,
+        'TV|TVFV|TVP': offer['TV|TVFV|TVP'],
+        'TVV|TVC': offer['TVV|TVC'],
+        TVVz: offer.TVVz
+      }));
+      
+      // Create conditions lookup from offers
+      const conditionsMap = new Map();
+      offers.forEach(offer => {
+        const key = `${offer.COM}|${offer.COD_Proposta}`;
+        if (!conditionsMap.has(key)) {
+          conditionsMap.set(key, {
+            COM: offer.COM,
+            COD_Proposta: offer.COD_Proposta,
+            NomeProposta: offer.tariffName,
+            ContactoComercialTel: offer.phone,
+            LinkOfertaCom: offer.website,
+            LinkCOM: offer.website,
+            Fornecimento: offer.fornecimento,
+            Segmento: offer.segmento,
+            'Data ini': offer.validFrom,
+            'Data fim': offer.validTo,
+            FiltroFidelização: offer.hasLockIn ? 'S' : 'N',
+            FiltroPrecosIndex: offer.isIndexed ? 'S' : 'N',
+            // Store enriched metadata for enrichOffer to use
+            _enriched: {
+              tariffName: offer.tariffName,
+              website: offer.website,
+              phone: offer.phone,
+              fornecimento: offer.fornecimento,
+              segmento: offer.segmento,
+              validFrom: offer.validFrom,
+              validTo: offer.validTo,
+              isIndexed: offer.isIndexed,
+              hasLockIn: offer.hasLockIn,
+              lockInMonths: offer.lockInMonths,
+              lockInSource: offer.lockInSource,
+              promotion: offer.promotion,
+              newCustomerOnly: offer.newCustomerOnly,
+              requiresDirectDebit: offer.requiresDirectDebit,
+              requiresEBill: offer.requiresEBill,
+              campaignSummary: offer.campaignSummary,
+              isCampaignActive: offer.isCampaignActive
+            }
+          });
+        }
+      });
+      const conditions = Array.from(conditionsMap.values());
+      
+      return { prices, conditions, offers }; // Include raw offers for new code
+    }
+  } catch (error) {
+    console.warn('⚠️  Could not load offers.json, falling back to CSV:', error.message);
+  }
+  
+  // Fallback to CSV loading
+  const prices = await loadCSV('data/Precos_ELEGN.csv');
+  const conditions = await loadCSV('data/CondComerciais.csv');
+  console.log(`✅ Loaded ${prices.length} prices and ${conditions.length} conditions from CSV`);
+  return { prices, conditions, offers: null };
+}
+
+/**
  * Format phone number to Portuguese format (XXX XXX XXX)
  * @param {string|number} phone - Phone number to format
  * @returns {string|null} Formatted phone number or null if invalid

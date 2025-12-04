@@ -4,7 +4,7 @@
  */
 
 import { DEFAULT_POWER, PROVIDERS } from './config.js';
-import { loadCSV } from './utils.js';
+import { loadOffers } from './utils.js';
 import { 
   estimateConsumption, 
   calculateMonthlyCost, 
@@ -115,20 +115,54 @@ async function handleEstimateSubmit(e) {
   resultDiv.innerHTML = '<p>A calcular...</p>';
   
   try {
-    // 1. Estimar consumo
-    const consumption = estimateConsumption(monthlyBill);
+    // 1. Carregar dados (prefers offers.json, falls back to CSV)
+    const { prices, conditions, offers } = await loadOffers();
     
-    // 2. Carregar dados
-    const prices = await loadCSV('data/Precos_ELEGN.csv');
-    const conditions = await loadCSV('data/CondComerciais.csv');
+    // 2. Estimar consumo (data-driven if offers available)
+    const consumption = estimateConsumption(monthlyBill, offers);
     
-    // 3. Encontrar melhor oferta
-    const best = findBestOffer(prices, consumption, DEFAULT_POWER);
+    // 3. Use offers.json if available (already filtered to ELE-only at build time)
+    // Otherwise filter CSV data to ELE-only
+    let offersToSearch;
+    if (offers && offers.length > 0) {
+      // offers.json already contains ELE-only offers with all metadata
+      offersToSearch = offers;
+    } else {
+      // CSV fallback: filter to ELE-only
+      const electricityOnly = prices.filter(p => {
+        const condition = conditions.find(c => 
+          c.COM === p.COM && c.COD_Proposta === p.COD_Proposta
+        );
+        if (condition && condition.Fornecimento) {
+          return condition.Fornecimento === 'ELE';
+        }
+        // If no condition data, assume electricity (backward compatibility)
+        return true;
+      });
+      // Convert to offer-like format for compatibility
+      offersToSearch = electricityOnly.map(p => ({
+        ...p,
+        tariffName: '',
+        website: '',
+        phone: '',
+        fornecimento: '',
+        segmento: '',
+        validFrom: '',
+        validTo: '',
+        isIndexed: false,
+        hasLockIn: false,
+        promotion: null,
+        isCampaignActive: null
+      }));
+    }
     
-    // 4. Enriquecer com nome da tarifa
-    const enrichedBest = enrichOffer(best, conditions);
+    // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
+    const best = findBestOffer(offersToSearch, consumption, DEFAULT_POWER);
     
-    // 5. Renderizar resultado (usa monthlyBill para calcular poupança)
+    // 5. Enriquecer com nome da tarifa e metadata (if not already enriched)
+    const enrichedBest = offers ? best : enrichOffer(best, conditions);
+    
+    // 6. Renderizar resultado (usa monthlyBill para calcular poupança)
     renderResult(enrichedBest, consumption, DEFAULT_POWER, monthlyBill, null, true, getCurrentMode(), setTabResult);
     
   } catch (error) {
@@ -161,21 +195,55 @@ async function handlePreciseSubmit(e) {
       throw new Error('Introduz um consumo válido');
     }
     
-    // 2. Carregar dados
-    const prices = await loadCSV('data/Precos_ELEGN.csv');
-    const conditions = await loadCSV('data/CondComerciais.csv');
+    // 2. Carregar dados (prefers offers.json, falls back to CSV)
+    const { prices, conditions, offers } = await loadOffers();
     
-    // 3. Encontrar melhor oferta (usando tipo de tarifa)
-    const best = findBestOfferForTariff(prices, consumption, power, tariffType);
+    // 3. Use offers.json if available (already filtered to ELE-only at build time)
+    // Otherwise filter CSV data to ELE-only
+    let offersToSearch;
+    if (offers && offers.length > 0) {
+      // offers.json already contains ELE-only offers with all metadata
+      offersToSearch = offers;
+    } else {
+      // CSV fallback: filter to ELE-only
+      const electricityOnly = prices.filter(p => {
+        const condition = conditions.find(c => 
+          c.COM === p.COM && c.COD_Proposta === p.COD_Proposta
+        );
+        if (condition && condition.Fornecimento) {
+          return condition.Fornecimento === 'ELE';
+        }
+        // If no condition data, assume electricity (backward compatibility)
+        return true;
+      });
+      // Convert to offer-like format for compatibility
+      offersToSearch = electricityOnly.map(p => ({
+        ...p,
+        tariffName: '',
+        website: '',
+        phone: '',
+        fornecimento: '',
+        segmento: '',
+        validFrom: '',
+        validTo: '',
+        isIndexed: false,
+        hasLockIn: false,
+        promotion: null,
+        isCampaignActive: null
+      }));
+    }
     
-    // 4. Enriquecer com nome da tarifa
-    const enrichedBest = enrichOffer(best, conditions);
+    // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
+    const best = findBestOfferForTariff(offersToSearch, consumption, power, tariffType);
     
-    // 5. Calcular poupança se houver operador actual
+    // 5. Enriquecer com nome da tarifa e metadata (if not already enriched)
+    const enrichedBest = offers ? best : enrichOffer(best, conditions);
+    
+    // 6. Calcular poupança se houver operador actual
     let savings = null;
     if (currentProvider) {
       // Encontrar ofertas do operador actual com mesma potência e tarifa
-      const currentProviderOffers = prices.filter(o => {
+      const currentProviderOffers = offersToSearch.filter(o => {
         const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
         const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
         return o.COM === currentProvider && 

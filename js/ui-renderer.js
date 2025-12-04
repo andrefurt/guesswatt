@@ -66,6 +66,28 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
             </tr>
             ` : '';
   
+  // Build campaign badges/info
+  const campaignBadges = [];
+  if (enrichedBest.isCampaignActive === true) {
+    campaignBadges.push('<span class="campaign-badge active">Oferta activa</span>');
+  }
+  if (enrichedBest.hasLockIn) {
+    campaignBadges.push('<span class="campaign-badge">Fidelização</span>');
+  }
+  if (enrichedBest.isIndexed) {
+    campaignBadges.push('<span class="campaign-badge">Preços indexados</span>');
+  }
+  if (enrichedBest.validFrom && enrichedBest.validTo) {
+    campaignBadges.push(`<span class="campaign-badge">Válida: ${enrichedBest.validFrom} - ${enrichedBest.validTo}</span>`);
+  }
+  
+  const campaignInfoHTML = campaignBadges.length > 0 || enrichedBest.campaignSummary ? `
+    <div class="campaign-info">
+      ${campaignBadges.length > 0 ? `<div class="campaign-badges">${campaignBadges.join('')}</div>` : ''}
+      ${enrichedBest.campaignSummary ? `<p class="campaign-summary">${enrichedBest.campaignSummary}</p>` : ''}
+    </div>
+  ` : '';
+  
   // Proposal card structure
   const proposalCardHTML = `
     <article aria-label="Proposta de tarifa">
@@ -94,6 +116,8 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
           </tbody>
         </table>
       </div>
+      
+      ${campaignInfoHTML}
       
       ${displaySavings ? `
       <div role="status">

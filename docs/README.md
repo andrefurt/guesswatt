@@ -43,8 +43,64 @@ One output: "You're losing €X/year. Here's the best tariff and how to switch."
 
 | Source | What | Update |
 |--------|------|--------|
-| ERSE CSVs | Tariff prices, commercial conditions | Monthly (automated) |
+| ERSE CSVs | Tariff prices, commercial conditions | Weekly (automated via GitHub Actions) |
 | ERSE Reports | Market statistics, social proof | Every 4 months (automated) |
+
+## Data Update Pipeline
+
+The app uses a two-stage data pipeline:
+
+1. **Download** (`scripts/download-erse.js`): Downloads latest CSVs from ERSE simulator
+   - Uses Playwright to handle JavaScript-rendered page
+   - Retries with exponential backoff
+   - Validates both required CSVs after extraction
+   - Writes `data/meta.json` with timestamp, row counts, source URL
+
+2. **Build** (`scripts/build-offers.js`): Joins CSVs and creates optimized `offers.json`
+   - Joins `Precos_ELEGN.csv` + `CondComerciais.csv` on `COM` + `COD_Proposta`
+   - Normalizes numbers (comma decimals) and trims strings
+   - Extracts campaign/conditions metadata
+   - Filters electricity-only offers (excludes GN/DUAL)
+   - Outputs `data/offers.json` for runtime use
+
+3. **Validate** (`scripts/selftest.js`): Runs validation checks
+   - Ensures offers exist and have required fields
+   - Validates no GN-only offers
+   - Tests calculation samples (no NaN, positive totals)
+
+### Running Locally
+
+```bash
+# Download latest ERSE data
+node scripts/download-erse.js
+
+# Build offers.json from CSVs
+node scripts/build-offers.js
+
+# Run validation tests
+node scripts/selftest.js
+
+# Or run all three in sequence
+node scripts/download-erse.js && node scripts/build-offers.js && node scripts/selftest.js
+```
+
+### GitHub Actions
+
+The `.github/workflows/update-erse.yml` workflow:
+- Runs weekly (every Monday at 09:00 UTC)
+- Can be manually triggered from Actions tab
+- Downloads → Builds → Validates → Commits only when data changes
+- Logs row counts and timestamps in action output
+
+### Data Files
+
+- `data/Precos_ELEGN.csv`: Raw price data from ERSE
+- `data/CondComerciais.csv`: Raw commercial conditions from ERSE
+- `data/offers.json`: Built/optimized offers for runtime (preferred by frontend)
+- `data/meta.json`: Metadata (update timestamp, row counts, build info)
+- `data/last-update.json`: Legacy format for footer display
+
+The frontend prefers `offers.json` but falls back to CSV loading for backward compatibility.
 
 ## Tech Stack
 
