@@ -190,77 +190,121 @@ class AppCopySplitButton extends HTMLElement {
         @import url('https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css');
         
         :host {
-          display: inline-flex;
-          height: 36px;
-          align-items: stretch;
-          border: 1px solid var(--color-border-subtle);
+          display: inline-block;
+          box-sizing: border-box;
+        }
+        
+        * {
+          box-sizing: border-box;
+        }
+        
+        /* Outer Wrapper - The Structure */
+        .outer-shell {
+          display: block;
+          border: 0.5px solid var(--border);
           border-radius: var(--radius-md);
+          padding: 0;
+          background: transparent;
+          overflow: hidden;
+        }
+        
+        /* Inner Wrapper - The Glass Container */
+        .inner-glass {
+          display: flex;
+          flex-direction: row;
+          align-items: stretch;
+          height: 36px;
+          border: 0.5px solid var(--color-surface);
+          border-radius: calc(var(--radius-md) - 0.5px);
           background: color-mix(in srgb, var(--color-surface), transparent 60%);
           backdrop-filter: blur(8px);
-          overflow: hidden;
-          box-shadow: inset 0 0 0 1px var(--color-surface);
           transition: var(--transition-colors);
         }
         
-        :host(:hover) {
+        :host(:hover) .inner-glass {
           background-color: var(--color-surface);
         }
         
-        .copy-segment {
+        /* Copy Segment */
+        .segment-copy {
           display: inline-flex;
           align-items: center;
           gap: var(--space-2);
           padding: 0 12px;
-          border-right: 1px solid var(--color-border-subtle);
+          background: none;
+          border: none;
           cursor: pointer;
           user-select: none;
           transition: var(--transition-colors);
+          font-family: var(--font-sans);
+          font-size: var(--text-sm-size);
+          font-weight: var(--text-sm-weight);
+          line-height: var(--text-sm-leading);
+          color: var(--foreground);
         }
         
-        .copy-segment:hover {
-          background-color: var(--color-surface);
+        .segment-copy:hover {
+          background-color: color-mix(in srgb, var(--color-surface), transparent 20%);
         }
         
-        .trigger-segment {
+        /* Separator */
+        .separator {
+          width: 1px;
+          background-color: var(--border);
+          flex-shrink: 0;
+        }
+        
+        /* Trigger Segment */
+        .segment-trigger {
           display: inline-flex;
           align-items: center;
           justify-content: center;
           width: 32px;
+          background: none;
+          border: none;
           cursor: pointer;
           user-select: none;
           transition: var(--transition-colors);
+          color: var(--foreground);
         }
         
-        .trigger-segment:hover {
-          background-color: var(--color-surface);
+        .segment-trigger:hover {
+          background-color: color-mix(in srgb, var(--color-surface), transparent 20%);
         }
         
-        .copy-segment i,
-        .trigger-segment i {
+        /* Icons */
+        .segment-copy i,
+        .segment-trigger i {
           font-size: 16px;
           line-height: 1;
-          vertical-align: middle;
+          display: block;
         }
         
-        .copy-segment span {
+        .segment-copy span {
           font-size: var(--text-sm-size);
           font-weight: var(--text-sm-weight);
           line-height: var(--text-sm-leading);
         }
       </style>
-      <div class="copy-segment" part="copy-segment">
-        <i class="ph ph-copy" part="copy-icon"></i>
-        <span part="copy-text">Copy page</span>
-      </div>
-      <div class="trigger-segment" part="trigger-segment">
-        <i class="ph ph-caret-down" part="trigger-icon"></i>
+      <div class="outer-shell">
+        <div class="inner-glass">
+          <button type="button" class="segment-copy" part="copy-button">
+            <i class="ph ph-copy" part="copy-icon"></i>
+            <span part="copy-text">Copy page</span>
+          </button>
+          <div class="separator" part="separator"></div>
+          <button type="button" class="segment-trigger" part="trigger-button">
+            <i class="ph ph-caret-down" part="trigger-icon"></i>
+          </button>
+          <slot name="menu"></slot>
+        </div>
       </div>
     `;
     
-    this.copySegment = shadowRoot.querySelector('.copy-segment');
-    this.triggerSegment = shadowRoot.querySelector('.trigger-segment');
-    this.copyIcon = shadowRoot.querySelector('.copy-segment i');
-    this.copyText = shadowRoot.querySelector('.copy-segment span');
+    this.copySegment = shadowRoot.querySelector('.segment-copy');
+    this.triggerSegment = shadowRoot.querySelector('.segment-trigger');
+    this.copyIcon = shadowRoot.querySelector('.segment-copy i');
+    this.copyText = shadowRoot.querySelector('.segment-copy span');
     
     this.isCopied = false;
     this.copyTimeout = null;
