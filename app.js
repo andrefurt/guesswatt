@@ -449,28 +449,6 @@ function renderResult(enrichedBest, consumption, power, monthlyBill = null, savi
             </tr>
             ` : '';
   
-  // Guia de mudança (sempre presente quando há resultado)
-  const switchGuideHtml = `
-    <div class="switch-guide">
-      <h4>Como mudar para ${providerName}</h4>
-      <p>Diz que queres aderir à "${enrichedBest.tariffName}"</p>
-      <p>Vão pedir-te:</p>
-      <ul>
-        <li>CPE<span class="tooltip-trigger" data-tooltip="cpe">ⓘ</span> (está na tua factura)</li>
-        <li>NIF</li>
-        <li>Morada</li>
-        <li>Telefone ou email</li>
-      </ul>
-      <p>Eles tratam do resto. Demora cerca de uma semana.</p>
-      <p><strong>Não precisas de:</strong></p>
-      <ul>
-        <li>Avisar o fornecedor actual</li>
-        <li>Mudar nada físico</li>
-        <li>Pagar nada</li>
-      </ul>
-    </div>
-  `;
-  
   // Proposal card structure
   const proposalCardHTML = `
     <article aria-label="Proposta de tarifa">
