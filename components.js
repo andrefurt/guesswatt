@@ -201,7 +201,7 @@ class AppCopySplitButton extends HTMLElement {
         /* Outer Wrapper - The Structure */
         .outer-shell {
           display: block;
-          border: 0.5px solid var(--border);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
           padding: 0;
           background: transparent;
@@ -213,16 +213,12 @@ class AppCopySplitButton extends HTMLElement {
           display: flex;
           flex-direction: row;
           align-items: stretch;
-          height: 36px;
+          height: 32px;
           border: 0.5px solid var(--color-surface);
           border-radius: calc(var(--radius-md) - 0.5px);
-          background: color-mix(in srgb, var(--color-surface), transparent 60%);
+          background: color-mix(in srgb, var(--color-surface), transparent 80%);
           backdrop-filter: blur(8px);
           transition: var(--transition-colors);
-        }
-        
-        :host(:hover) .inner-glass {
-          background-color: var(--color-surface);
         }
         
         /* Copy Segment */
@@ -230,7 +226,8 @@ class AppCopySplitButton extends HTMLElement {
           display: inline-flex;
           align-items: center;
           gap: var(--space-2);
-          padding: 0 12px;
+          padding-inline: var(--space-2);
+          padding-block: var(--space-2);
           background: none;
           border: none;
           cursor: pointer;
@@ -244,12 +241,14 @@ class AppCopySplitButton extends HTMLElement {
         }
         
         .segment-copy:hover {
-          background-color: color-mix(in srgb, var(--color-surface), transparent 20%);
+          background-color: color-mix(in srgb, var(--color-surface), transparent 75%);
         }
         
         /* Separator */
         .separator {
-          width: 1px;
+          width: 0.5px;
+          margin-block: auto;
+          height: calc(100% - 12px);
           background-color: var(--border);
           flex-shrink: 0;
         }
@@ -259,7 +258,8 @@ class AppCopySplitButton extends HTMLElement {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 32px;
+          padding-inline: var(--space-2);
+          padding-block: var(--space-2);
           background: none;
           border: none;
           cursor: pointer;
@@ -269,13 +269,13 @@ class AppCopySplitButton extends HTMLElement {
         }
         
         .segment-trigger:hover {
-          background-color: color-mix(in srgb, var(--color-surface), transparent 20%);
+          background-color: color-mix(in srgb, var(--color-surface), transparent 70%);
         }
         
         /* Icons */
         .segment-copy i,
         .segment-trigger i {
-          font-size: 16px;
+          font-size: 14px;
           line-height: 1;
           display: block;
         }
@@ -354,10 +354,145 @@ class AppCopySplitButton extends HTMLElement {
   }
 }
 
+/**
+ * AppGlassButton Component
+ * Generic glass button/link with double border effect
+ * 
+ * Attributes:
+ * - href: If present, renders as <a> tag, otherwise renders as <button>
+ * 
+ * Slots:
+ * - default: Button/link text content
+ * 
+ * Visual: Matches AppCopySplitButton double border glass aesthetic
+ */
+class AppGlassButton extends HTMLElement {
+  constructor() {
+    super();
+    
+    const shadowRoot = this.attachShadow({ mode: 'open' });
+    const href = this.getAttribute('href');
+    const isLink = href !== null;
+    
+    // Determine tag type and attributes
+    const tagName = isLink ? 'a' : 'button';
+    const tagAttrs = isLink 
+      ? `href="${href}"` 
+      : `type="button"`;
+    
+    shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: inline-flex;
+          box-sizing: border-box;
+        }
+        
+        * {
+          box-sizing: border-box;
+        }
+        
+        /* Outer Wrapper - The Structure */
+        .outer-shell {
+          display: block;
+          border: 0.5px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 0;
+          background: transparent;
+          overflow: hidden;
+          text-decoration: none;
+          color: inherit;
+        }
+        
+        /* Inner Wrapper - The Glass Container */
+        .inner-glass {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 36px;
+          padding: 0 12px;
+          border: 0.5px solid var(--color-surface);
+          border-radius: calc(var(--radius-md) - 0.5px);
+          background: color-mix(in srgb, var(--color-surface), transparent 60%);
+          backdrop-filter: blur(8px);
+          transition: var(--transition-colors);
+          font-family: var(--font-sans);
+          font-size: var(--text-sm-size);
+          font-weight: var(--font-medium);
+          line-height: var(--text-sm-leading);
+          letter-spacing: var(--text-sm-tracking);
+          color: var(--foreground);
+          text-decoration: none;
+          cursor: pointer;
+          user-select: none;
+        }
+        
+        :host(:hover) .inner-glass {
+          background-color: var(--color-surface);
+        }
+        
+        :host(:active) .inner-glass {
+          transform: scale(0.98);
+        }
+        
+        /* Ensure slot content inherits styles */
+        ::slotted(*) {
+          color: inherit;
+          text-decoration: none;
+        }
+      </style>
+      <${tagName} class="outer-shell" ${tagAttrs} part="container">
+        <span class="inner-glass" part="glass">
+          <slot></slot>
+        </span>
+      </${tagName}>
+    `;
+  }
+  
+  static get observedAttributes() {
+    return ['href'];
+  }
+  
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'href') {
+      // Re-render if href changes
+      const shadowRoot = this.shadowRoot;
+      const slot = shadowRoot.querySelector('slot');
+      const content = slot.assignedNodes().map(node => node.textContent).join('');
+      
+      const isLink = newValue !== null;
+      const tagName = isLink ? 'a' : 'button';
+      const tagAttrs = isLink 
+        ? `href="${newValue}"` 
+        : `type="button"`;
+      
+      const outerShell = shadowRoot.querySelector('.outer-shell');
+      const newElement = document.createElement(tagName);
+      newElement.className = 'outer-shell';
+      newElement.setAttribute('part', 'container');
+      if (isLink) {
+        newElement.setAttribute('href', newValue);
+      } else {
+        newElement.setAttribute('type', 'button');
+      }
+      
+      const innerGlass = document.createElement('span');
+      innerGlass.className = 'inner-glass';
+      innerGlass.setAttribute('part', 'glass');
+      
+      const newSlot = document.createElement('slot');
+      innerGlass.appendChild(newSlot);
+      newElement.appendChild(innerGlass);
+      
+      outerShell.replaceWith(newElement);
+    }
+  }
+}
+
 // Register custom elements
 customElements.define('app-card', AppCard);
 customElements.define('app-tabs', AppTabs);
 customElements.define('app-form-section', AppFormSection);
 customElements.define('app-result-section', AppResultSection);
 customElements.define('app-copy-split-button', AppCopySplitButton);
+customElements.define('app-glass-button', AppGlassButton);
 
