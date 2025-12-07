@@ -141,17 +141,23 @@
   
   /* Typography Scale - Base/Default (14px → 15px) */
   --text-base: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem); /* 14px → 15px */
-  --text-default-size: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem);
-  --text-default-weight: 500;
-  --text-default-leading: 1.25rem;
-  --text-default-tracking: -0.005em;
+  --text-base-size: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem); /* Same as --text-base for consistency */
+  --text-base-weight: 500;
+  --text-base-leading: 1.25rem;
+  --text-base-tracking: -0.005em;
+  
+  /* Legacy aliases for backward compatibility */
+  --text-default-size: var(--text-base-size);
+  --text-default-weight: var(--text-base-weight);
+  --text-default-leading: var(--text-base-leading);
+  --text-default-tracking: var(--text-base-tracking);
 
   /* Typography Scale - MD (16px → 17px) */
   --text-md: clamp(1rem, 0.9rem + 0.5vw, 1.0625rem); /* 16px → 17px */
-  --text-default-size: clamp(1rem, 0.9rem + 0.5vw, 1.0625rem);
-  --text-default-weight: 500;
-  --text-default-leading: 1.25rem;
-  --text-default-tracking: -0.005em;
+  --text-md-size: clamp(1rem, 0.9rem + 0.5vw, 1.0625rem);
+  --text-md-weight: 500;
+  --text-md-leading: 1.25rem;
+  --text-md-tracking: -0.005em;
   
   /* Typography Scale - LG (20px → 22px) */
   --text-lg: clamp(1.25rem, 1.1rem + 0.75vw, 1.375rem); /* 20px → 22px */
