@@ -3,70 +3,116 @@
  * 
  * Complete design system tokens.
  * All visual decisions derive from these tokens.
- * Hex values for simplicity and browser compatibility.
+ * 
+ * Color Format: OKLCH with hex fallback for browser compatibility
+ * Typography: Fluid clamp() values for responsive scaling
+ * Spacing: Fluid clamp() values for responsive spacing
  */
 
 :root {
   /* ═══════════════════════════════════════════════════════════
-     COLORS - Primary Palette
+     COLORS - Primary Palette (OKLCH with hex fallback)
      ═══════════════════════════════════════════════════════════ */
   
   /* Foreground (text) - Primary naming */
-  --color-foreground-primary: #35443D;
-  --color-foreground-secondary: #8E8C89;
-  --color-text-muted: #9E9E9E;
-  --color-text-white: #F3F3F2;
-  --color-text-black: #000000;
+  --color-foreground-primary: #35443D; /* Fallback for older browsers */
+  --color-foreground-primary: oklch(25% 0.02 145); /* #35443D - Primary text color, dark green-gray */
+  
+  --color-foreground-secondary: #8E8C89; /* Fallback */
+  --color-foreground-secondary: oklch(58% 0.01 0); /* #8E8C89 - Secondary text, medium gray */
+  
+  --color-text-muted: #9E9E9E; /* Fallback */
+  --color-text-muted: oklch(65% 0 0); /* #9E9E9E - Muted text, light gray */
+  
+  --color-text-white: #F3F3F2; /* Fallback */
+  --color-text-white: oklch(96% 0 0); /* #F3F3F2 - White text on dark backgrounds */
+  
+  --color-text-black: #000000; /* Fallback */
+  --color-text-black: oklch(0% 0 0); /* #000000 - Pure black */
   
   /* Semantic foreground aliases (used by base.css) */
-  --foreground: #35443D;
-  --foreground-secondary: #8E8C89;
-  --foreground-tertiary: #9E9E9E;
-  --foreground-accent: #40594c;
+  --foreground: #35443D; /* Fallback */
+  --foreground: oklch(25% 0.02 145); /* #35443D - Primary foreground */
+  
+  --foreground-secondary: #8E8C89; /* Fallback */
+  --foreground-secondary: oklch(58% 0.01 0); /* #8E8C89 - Secondary foreground */
+  
+  --foreground-tertiary: #9E9E9E; /* Fallback */
+  --foreground-tertiary: oklch(65% 0 0); /* #9E9E9E - Tertiary foreground */
+  
+  --foreground-accent: #40594c; /* Fallback */
+  --foreground-accent: oklch(35% 0.05 145); /* #40594c - Accent foreground, green */
   
   /* Backgrounds - Primary naming */
-  --color-background-primary: #EAEAEA;
-  --color-background-card: linear-gradient(90deg, #F0F0F0 1.07%, #EDEDED 99.89%);
-  --color-bg-dropdown: #F3F3F2;
-  --color-bg-tabs: rgba(0, 0, 0, 0.03);
-  --color-bg-tabs-active: #f0f0f0;
-  --color-bg-drop-area: #e8e8e8;
-  --color-bg-drop-area-dragging: #e0e0e0;
-  --color-bg-form-input: #f5f5f5;
+  --color-background-primary: #EAEAEA; /* Fallback */
+  --color-background-primary: oklch(93% 0 0); /* #EAEAEA - Primary background, light gray */
+  
+  --color-background-card: linear-gradient(90deg, #F0F0F0 1.07%, #EDEDED 99.89%); /* Fallback */
+  --color-background-card: linear-gradient(90deg, oklch(95% 0 0) 1.07%, oklch(94% 0 0) 99.89%); /* Card background gradient */
+  
+  --color-bg-dropdown: #F3F3F2; /* Fallback */
+  --color-bg-dropdown: oklch(96% 0 0); /* #F3F3F2 - Dropdown background */
+  
+  --color-bg-tabs: rgba(0, 0, 0, 0.03); /* Tabs inactive background */
+  --color-bg-tabs-active: #f0f0f0; /* Fallback */
+  --color-bg-tabs-active: oklch(95% 0 0); /* #f0f0f0 - Active tab background */
+  
+  --color-bg-drop-area: #e8e8e8; /* Fallback */
+  --color-bg-drop-area: oklch(92% 0 0); /* #e8e8e8 - PDF drop area background */
+  
+  --color-bg-drop-area-dragging: #e0e0e0; /* Fallback */
+  --color-bg-drop-area-dragging: oklch(89% 0 0); /* #e0e0e0 - Drop area dragging state */
+  
+  --color-bg-form-input: #f5f5f5; /* Fallback */
+  --color-bg-form-input: oklch(97% 0 0); /* #f5f5f5 - Form input background */
   
   /* Semantic background aliases (used by base.css) */
-  --bg: #EAEAEA;
-  --bg-high: #F0F0EF;
-  --color-surface: #FFFFFF;
+  --bg: #EAEAEA; /* Fallback */
+  --bg: oklch(93% 0 0); /* #EAEAEA - Primary background */
+  
+  --bg-high: #F0F0EF; /* Fallback */
+  --bg-high: oklch(95% 0 0); /* #F0F0EF - Elevated background */
+  
+  --color-surface: #FFFFFF; /* Fallback */
+  --color-surface: oklch(100% 0 0); /* #FFFFFF - Surface color, pure white */
   
   /* Accent Colors */
-  --color-accent-green: #40594c;
-  --color-accent-green-light: rgba(113, 152, 131, 0.08);
-  --color-accent: #40594c;
-  --color-accent-hover: #36453D;
-  --color-accent-soft: rgba(113, 152, 131, 0.08);
+  --color-accent-green: #40594c; /* Fallback */
+  --color-accent-green: oklch(35% 0.05 145); /* #40594c - Primary accent, green */
+  
+  --color-accent-green-light: rgba(113, 152, 131, 0.08); /* Light green tint */
+  --color-accent: #40594c; /* Fallback */
+  --color-accent: oklch(35% 0.05 145); /* #40594c - Accent color */
+  
+  --color-accent-hover: #36453D; /* Fallback */
+  --color-accent-hover: oklch(23% 0.02 145); /* #36453D - Accent hover state, darker */
+  
+  --color-accent-soft: rgba(113, 152, 131, 0.08); /* Soft accent background */
   
   /* Borders */
-  --color-border-default: rgba(0, 0, 0, 0.12);
-  --color-border-subtle: rgba(0, 0, 0, 0.06);
-  --color-border-dashed: rgba(0, 0, 0, 0.16);
-  --color-border-accent: rgba(64, 89, 76, 0.3);
-  --border: rgba(0, 0, 0, 0.12);
-  --border-hard: rgba(0, 0, 0, 0.16);
+  --color-border-default: rgba(0, 0, 0, 0.12); /* Default border, 12% opacity */
+  --color-border-subtle: rgba(0, 0, 0, 0.06); /* Subtle border, 6% opacity */
+  --color-border-dashed: rgba(0, 0, 0, 0.16); /* Dashed border, 16% opacity */
+  --color-border-accent: rgba(64, 89, 76, 0.3); /* Accent border, 30% opacity */
+  --border: rgba(0, 0, 0, 0.12); /* Default border alias */
+  --border-hard: rgba(0, 0, 0, 0.16); /* Hard border, 16% opacity */
   
   /* Utility colors */
-  --color-gray-1: #F0F0EF;
-  --color-warning-soft: rgba(255, 193, 7, 0.1);
+  --color-gray-1: #F0F0EF; /* Fallback */
+  --color-gray-1: oklch(95% 0 0); /* #F0F0EF - Light gray utility */
+  
+  --color-warning-soft: rgba(255, 193, 7, 0.1); /* Warning background, 10% opacity */
   
   /* PDF icon */
-  --color-pdf-red: #E53935;
+  --color-pdf-red: #E53935; /* Fallback */
+  --color-pdf-red: oklch(55% 0.2 25); /* #E53935 - PDF icon red */
   
   /* Savings bar */
-  --color-savings-bar-bg: rgba(113, 152, 131, 0.08);
-  --color-savings-bar-shadow: rgba(113, 152, 131, 0.08);
+  --color-savings-bar-bg: rgba(113, 152, 131, 0.08); /* Savings bar background, 8% opacity */
+  --color-savings-bar-shadow: rgba(113, 152, 131, 0.08); /* Savings bar shadow, 8% opacity */
   
   /* ═══════════════════════════════════════════════════════════
-     TYPOGRAPHY
+     TYPOGRAPHY - Fluid scaling with clamp()
      ═══════════════════════════════════════════════════════════ */
   
   /* Font families */
@@ -74,149 +120,149 @@
   --font-mono: 'Roboto Mono', 'SF Mono', Consolas, monospace;
   
   /* Font weights */
-  --font-normal: 400;
-  --font-medium: 500;
-  --font-semibold: 600;
-  --font-bold: 700;
+  --font-normal: 400; /* Regular weight */
+  --font-medium: 500; /* Medium weight, default for UI */
+  --font-semibold: 600; /* Semibold for emphasis */
+  --font-bold: 700; /* Bold for headings */
   
-  /* Typography Scale - XS (11px) */
-  --text-xs: 0.6875rem;
-  --text-xs-size: 0.6875rem;
+  /* Typography Scale - XS (11px → 12px) */
+  --text-xs: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem); /* 11px → 12px */
+  --text-xs-size: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem);
   --text-xs-weight: 500;
-  --text-xs-leading: 1.25rem;
+  --text-xs-leading: 1.25rem; /* Fixed line-height for small text */
   --text-xs-tracking: 0;
   
-  /* Typography Scale - SM (12px) */
-  --text-sm: 0.75rem;
-  --text-sm-size: 0.75rem;
+  /* Typography Scale - SM (12px → 13px) */
+  --text-sm: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem); /* 12px → 13px */
+  --text-sm-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
   --text-sm-weight: 500;
   --text-sm-leading: 1.2;
   --text-sm-tracking: 0;
   
-  /* Typography Scale - Base/Default (14px) */
-  --text-base: 0.875rem;
-  --text-default-size: 0.875rem;
+  /* Typography Scale - Base/Default (14px → 15px) */
+  --text-base: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem); /* 14px → 15px */
+  --text-default-size: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem);
   --text-default-weight: 500;
   --text-default-leading: 1.25rem;
   --text-default-tracking: -0.005em;
 
-    /* Typography Scale - md (16px) */
-    --text-md: 1rem;
-    --text-default-size: 1rem;
-    --text-default-weight: 500;
-    --text-default-leading: 1.25rem;
-    --text-default-tracking: -0.005em;
+  /* Typography Scale - MD (16px → 17px) */
+  --text-md: clamp(1rem, 0.9rem + 0.5vw, 1.0625rem); /* 16px → 17px */
+  --text-default-size: clamp(1rem, 0.9rem + 0.5vw, 1.0625rem);
+  --text-default-weight: 500;
+  --text-default-leading: 1.25rem;
+  --text-default-tracking: -0.005em;
   
-  /* Typography Scale - LG (20px) */
-  --text-lg: 1.25rem;
-  --text-lg-size: 1.25rem;
+  /* Typography Scale - LG (20px → 22px) */
+  --text-lg: clamp(1.25rem, 1.1rem + 0.75vw, 1.375rem); /* 20px → 22px */
+  --text-lg-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.375rem);
   --text-lg-weight: 500;
   --text-lg-leading: 1.15;
   --text-lg-tracking: -0.017em;
   
-  /* Typography Scale - XL (24px) */
-  --text-xl: 1.5rem;
-  --text-xl-size: 1.5rem;
+  /* Typography Scale - XL (24px → 26px) */
+  --text-xl: clamp(1.5rem, 1.2rem + 1.5vw, 1.625rem); /* 24px → 26px */
+  --text-xl-size: clamp(1.5rem, 1.2rem + 1.5vw, 1.625rem);
   --text-xl-weight: 500;
   --text-xl-leading: 1.15;
   --text-xl-tracking: -0.022em;
   
   /* Line heights */
-  --leading-none: 1;
-  --leading-tight: 1.15;
-  --leading-normal: 1.2;
-  --leading-relaxed: 1.34;
+  --leading-none: 1; /* No line-height */
+  --leading-tight: 1.15; /* Tight for headings */
+  --leading-normal: 1.2; /* Normal for body text */
+  --leading-relaxed: 1.34; /* Relaxed for long-form content */
   
   /* Letter spacing */
-  --tracking-tight: -0.022em;
-  --tracking-normal: -0.011em;
-  --tracking-tighter: -0.03em;
+  --tracking-tight: -0.022em; /* Tight tracking for large text */
+  --tracking-normal: -0.011em; /* Normal tracking */
+  --tracking-tighter: -0.03em; /* Tighter tracking for emphasis */
   
   /* ═══════════════════════════════════════════════════════════
-     SPACING
+     SPACING - Fluid scaling with clamp()
      ═══════════════════════════════════════════════════════════ */
   
   --space-0: 0;
-  --space-1: 0.25rem;   /* 4px */
-  --space-2: 0.5rem;    /* 8px */
-  --space-3: 0.75rem;   /* 12px */
-  --space-4: 1rem;      /* 16px */
-  --space-5: 1.25rem;   /* 20px */
-  --space-6: 1.5rem;    /* 24px */
-  --space-8: 2rem;      /* 32px */
+  --space-1: clamp(0.25rem, 0.2rem + 0.25vw, 0.3125rem); /* 4px → 5px */
+  --space-2: clamp(0.5rem, 0.45rem + 0.25vw, 0.5625rem); /* 8px → 9px */
+  --space-3: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem); /* 12px → 13px */
+  --space-4: clamp(1rem, 0.9rem + 0.5vw, 1.125rem); /* 16px → 18px */
+  --space-5: clamp(1.25rem, 1.15rem + 0.5vw, 1.375rem); /* 20px → 22px */
+  --space-6: clamp(1.5rem, 1.4rem + 0.5vw, 1.625rem); /* 24px → 26px */
+  --space-8: clamp(2rem, 1.8rem + 1vw, 2.25rem); /* 32px → 36px */
   
   /* ═══════════════════════════════════════════════════════════
-     LAYOUT
+     LAYOUT - Fluid scaling
      ═══════════════════════════════════════════════════════════ */
   
-  --content-width: 36.25rem;    /* 580px */
-  --space-top-card: 8.6875rem;  /* 139px */
-  --max-width-prose: 65ch;
+  --content-width: clamp(20rem, 90vw, 36.25rem); /* 320px → 580px, responsive */
+  --space-top-card: clamp(4rem, 8vw, 8.6875rem); /* 64px → 139px, responsive */
+  --max-width-prose: 65ch; /* Optimal reading width */
   
   /* ═══════════════════════════════════════════════════════════
      BORDERS & RADIUS
      ═══════════════════════════════════════════════════════════ */
   
-  --radius-sm: 0.375rem;  /* 6px */
-  --radius-md: 0.5rem;    /* 8px */
-  --radius-lg: 0.75rem;   /* 12px */
-  --radius-xl: 1rem;      /* 16px */
+  --radius-sm: 0.375rem; /* 6px - Small radius for buttons, badges, pills */
+  --radius-md: 0.5rem; /* 8px - Medium radius for cards, inputs */
+  --radius-lg: 0.75rem; /* 12px - Large radius for containers */
+  --radius-xl: 1rem; /* 16px - Extra large radius for main cards */
   
   /* ═══════════════════════════════════════════════════════════
      SHADOWS
      ═══════════════════════════════════════════════════════════ */
   
-  --shadow-xs: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
-  --shadow-sm: 0px 2px 4px 0px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0px 4px 8px 0px rgba(0, 0, 0, 0.04);
+  --shadow-xs: 0px 2px 4px 0px rgba(0, 0, 0, 0.02); /* Extra small shadow, subtle elevation */
+  --shadow-sm: 0px 2px 4px 0px rgba(0, 0, 0, 0.04); /* Small shadow, buttons */
+  --shadow-md: 0px 4px 8px 0px rgba(0, 0, 0, 0.04); /* Medium shadow, cards */
   --shadow-lg: 0px 4px 16px -2px rgba(0, 0, 0, 0.12),
-               0px 2px 4px -1px rgba(0, 0, 0, 0.04);
+               0px 2px 4px -1px rgba(0, 0, 0, 0.04); /* Large shadow, modals, dropdowns */
   
   --shadow-inset-light: -2px 2px 8px 0px rgba(0, 0, 0, 0.04) inset,
-                        2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset;
-  --shadow-inset-dark: -1px 1px 4px 0px rgba(113, 152, 131, 0.04) inset;
+                        2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset; /* Light inset shadow, cards */
+  --shadow-inset-dark: -1px 1px 4px 0px rgba(113, 152, 131, 0.04) inset; /* Dark inset shadow, savings bar */
   
   --shadow-button: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
-                   0px 0px 0px 1px #35443D;
-  --shadow-button-inset: 0px 1px 0px 0px rgba(255, 255, 255, 0.25) inset;
+                   0px 0px 0px 1px #35443D; /* Submit button shadow */
+  --shadow-button-inset: 0px 1px 0px 0px rgba(255, 255, 255, 0.25) inset; /* Button inset highlight */
   
   --shadow-icon: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.12),
-                 0px 1px 4px 0px rgba(0, 0, 0, 0.08);
+                 0px 1px 4px 0px rgba(0, 0, 0, 0.08); /* Icon container shadow */
   --shadow-icon-inset: 1px -1px 2px 0px rgba(255, 255, 255, 0.5) inset,
-                       -1px 1px 2px 0px rgba(0, 0, 0, 0.04) inset;
+                       -1px 1px 2px 0px rgba(0, 0, 0, 0.04) inset; /* Icon inset shadow */
   
   /* ═══════════════════════════════════════════════════════════
-     ANIMATION
+     ANIMATION - Timing and easing
      ═══════════════════════════════════════════════════════════ */
   
-  --duration-instant: 0ms;
-  --duration-fast: 50ms;
-  --duration-normal: 150ms;
-  --duration-slow: 200ms;
-  --duration-slower: 250ms;
-  --duration-slowest: 300ms;
+  --duration-instant: 0ms; /* No animation */
+  --duration-fast: 50ms; /* Micro-interactions, hover states */
+  --duration-normal: 150ms; /* Standard transitions */
+  --duration-slow: 200ms; /* Smooth transitions, reveals */
+  --duration-slower: 250ms; /* Slower transitions, modals */
+  --duration-slowest: 300ms; /* Slowest transitions, complex animations */
   
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-bounce: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-tabs: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* Decelerate, default easing */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* Symmetric, smooth */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Spring effect, bouncy */
+  --ease-bounce: cubic-bezier(0.22, 1, 0.36, 1); /* Bounce effect, playful */
+  --ease-tabs: cubic-bezier(0.25, 1, 0.5, 1); /* Tab indicator animation */
   
-  --stagger-delay: 20ms;
+  --stagger-delay: 20ms; /* Delay between staggered animations */
   
   /* Transitions */
   --transition-colors: color 150ms ease-out,
                        background-color 150ms ease-out,
-                       border-color 150ms ease-out;
+                       border-color 150ms ease-out; /* Standard color transitions */
   
   /* ═══════════════════════════════════════════════════════════
-     Z-INDEX
+     Z-INDEX - Layering system
      ═══════════════════════════════════════════════════════════ */
   
-  --z-base: 0;
-  --z-tabs-indicator: 0;
-  --z-tabs-buttons: 1;
-  --z-dropdown: 1000;
+  --z-base: 0; /* Base layer */
+  --z-tabs-indicator: 0; /* Tab indicator, behind buttons */
+  --z-tabs-buttons: 1; /* Tab buttons, above indicator */
+  --z-dropdown: 1000; /* Dropdown menus, top layer */
 }
 
 /* Respect reduced motion preference */

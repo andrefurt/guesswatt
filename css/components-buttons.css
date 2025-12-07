@@ -23,7 +23,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    padding: 0.375rem 0.625rem 0.375rem 0.5rem; /* 6px 10px 6px 8px */
+    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4); /* 12px 20px 12px 16px */
     border: 0.5px solid white;
     border-radius: var(--radius-sm);
     background: transparent;
@@ -31,10 +31,10 @@
     cursor: pointer;
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-base, 0.875rem);
-    line-height: 1.25rem; /* 20px */
-    color: var(--color-foreground-primary, #35443D);
-    transition: transform var(--duration-normal, 150ms) var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1));
+    font-size: var(--text-base);
+    line-height: var(--text-default-leading);
+    color: var(--color-foreground-primary);
+    transition: transform var(--duration-normal) var(--ease-bounce);
     -webkit-tap-highlight-color: transparent;
     text-decoration: none;
     user-select: none;
@@ -60,16 +60,16 @@
   }
   
   .btn-icon {
-    width: 0.875rem; /* 14px */
-    height: 0.875rem;
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: flex;
     align-items: center;
     justify-content: center;
   }
   
   .btn-icon svg {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: var(--text-base-size);
+    height: var(--text-base-size);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -81,14 +81,14 @@
     display: flex;
     align-items: center;
     border: 0.5px solid white;
-    border-radius: 6px;
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-xs);
     position: relative;
   }
   
   /* Copy button inside segmented - needs FULL padding */
   .segmented-btn .copy-btn {
-    padding: 6px 10px 6px 8px; /* CRITICAL: Full padding, not reduced */
+    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4); /* Full padding, not reduced */
     border: none;
     box-shadow: none;
   }
@@ -99,8 +99,8 @@
   /* Divider */
   .segmented-divider {
     width: 0.5px;
-    height: 20px;
-    background: rgba(0, 0, 0, 0.12);
+    height: var(--text-default-leading);
+    background: var(--color-border-default);
   }
   
   /* Dropdown trigger suffix button - square */
@@ -108,8 +108,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: var(--space-8);
+    height: var(--space-8);
     padding: 0;
     border: none;
     box-shadow: none;
@@ -122,7 +122,7 @@
   .copy-btn {
     position: relative;
     overflow: hidden;
-    min-width: 6.25rem; /* 100px */
+    min-width: 6.25rem; /* 100px - fixed width for consistency */
     user-select: none;
     -webkit-user-select: none;
   }
@@ -130,18 +130,18 @@
   .copy-btn-content {
     display: flex;
     align-items: center;
-    gap: 0.25rem; /* 4px - exact from design.html */
+    gap: var(--space-1);
     transition: 
-      opacity var(--duration-normal, 150ms) var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1)),
-      filter var(--duration-normal, 150ms) var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1)),
-      transform var(--duration-normal, 150ms) var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1));
+      opacity var(--duration-normal) var(--ease-bounce),
+      filter var(--duration-normal) var(--ease-bounce),
+      transform var(--duration-normal) var(--ease-bounce);
   }
   
   .copy-btn-default,
   .copy-btn-copied {
     display: flex;
     align-items: center;
-    gap: 0.25rem; /* 4px - exact from design.html */
+    gap: var(--space-1);
   }
   
   .copy-btn-default span,
@@ -156,19 +156,19 @@
     left: 50%;
     transform: translate(-50%, -50%);
     opacity: 0;
-    filter: blur(4px);
-    color: var(--color-accent-green, #40594c);
+    filter: blur(var(--space-1)); /* 4px blur */
+    color: var(--color-accent-green);
   }
   
   .copy-btn-copied .btn-icon svg path,
   .copy-btn-copied .btn-icon svg polyline {
-    stroke: var(--color-accent-green, #40594c);
+    stroke: var(--color-accent-green);
   }
   
   /* Copied state */
   .copy-btn.copied .copy-btn-default {
     opacity: 0;
-    filter: blur(4px);
+    filter: blur(var(--space-1)); /* 4px blur */
     transform: scale(0.95);
   }
   
@@ -187,7 +187,7 @@
   }
   
   .dropdown-trigger {
-    transition: transform var(--duration-normal, 150ms) var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1));
+    transition: transform var(--duration-normal) var(--ease-bounce);
   }
   
   .dropdown-trigger:active {
@@ -196,7 +196,7 @@
   
   /* Chevron rotation */
   .dropdown-trigger .btn-icon {
-    transition: transform var(--duration-slower, 250ms) var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+    transition: transform var(--duration-slower) var(--ease-spring);
   }
   
   .dropdown-wrapper.open .dropdown-trigger .btn-icon {
@@ -205,24 +205,22 @@
   
   .dropdown-menu {
     position: absolute;
-    top: calc(100% + 0.375rem); /* 6px */
+    top: calc(100% + var(--space-3));
     right: 0;
-    min-width: 11.25rem; /* 180px */
-    background: var(--color-bg-dropdown, #b3b3b3);
-    border: 0.5px solid var(--color-border-subtle, rgba(0, 0, 0, 0.08));
-    border-radius: 6px; /* 10px */
-    box-shadow: var(--shadow-lg, 
-      0 4px 16px -2px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.02));
+    min-width: 11.25rem; /* 180px - fixed width for dropdown */
+    background: var(--color-bg-dropdown);
+    border: 0.5px solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
     padding: var(--space-1);
     opacity: 0;
     pointer-events: none;
     transform: scale(0.95);
     transform-origin: top right;
     transition: 
-      opacity var(--duration-slow, 200ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
-      transform var(--duration-slow, 200ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
-    z-index: var(--z-dropdown, 1000);
+      opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slow) var(--ease-out);
+    z-index: var(--z-dropdown);
   }
   
   .dropdown-wrapper.open .dropdown-menu {
@@ -236,17 +234,17 @@
     align-items: center;
     gap: var(--space-2);
     width: 100%;
-    padding: 0.5rem 0.625rem; /* 8px 10px */
+    padding: var(--space-4) var(--space-5);
     border: none;
     background: transparent;
     border-radius: var(--radius-sm);
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: 0.8125rem; /* 13px */
-    color: var(--color-foreground-primary, #35443D);
+    font-size: var(--text-sm-size);
+    color: var(--color-foreground-primary);
     cursor: pointer;
     text-align: left;
-    transition: background var(--duration-fast, 50ms) var(--ease-out);
+    transition: background var(--duration-fast) var(--ease-out);
     user-select: none;
     -webkit-user-select: none;
   }
@@ -257,17 +255,17 @@
   }
   
   .dropdown-item:hover {
-    background: var(--color-border-subtle, rgba(0, 0, 0, 0.03));
+    background: var(--color-border-subtle);
   }
   
   .dropdown-item:active {
     background: rgba(0, 0, 0, 0.1);
-    transition: background var(--duration-instant, 0ms);
+    transition: background var(--duration-instant);
   }
   
   .dropdown-item .item-icon {
-    width: 1rem; /* 16px */
-    height: 1rem;
+    width: var(--space-4);
+    height: var(--space-4);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -275,8 +273,8 @@
   }
   
   .dropdown-item .item-icon svg {
-    width: 1rem;
-    height: 1rem;
+    width: var(--space-4);
+    height: var(--space-4);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -287,23 +285,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background-color: #35443D; /* REMOVED !important */
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-6);
+    background-color: var(--color-foreground-primary);
     border: none;
-    border-radius: 6px;
-    box-shadow: 
-      0px 1px 2px 0px rgba(0, 0, 0, 0.3), 
-      0px 0px 0px 1px #35443D;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-button);
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    color: #F3F3F2; /* REMOVED !important */
+    font-family: var(--font-sans);
+    font-weight: var(--font-medium);
+    font-size: var(--text-base-size);
+    line-height: var(--text-default-leading);
+    color: var(--color-text-white);
     position: relative;
     overflow: hidden;
-    transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform var(--duration-normal) var(--ease-bounce);
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
