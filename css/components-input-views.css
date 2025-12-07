@@ -11,11 +11,11 @@
      ═══════════════════════════════════════════════════════════ */
   
   .card {
-    width: var(--content-width, 36.25rem); /* 580px */
+    width: var(--content-width);
     display: flex;
     flex-direction: column;
-    gap: 2rem; /* 32px */
-    margin-top: var(--space-top-card, 8.6875rem); /* 139px */
+    gap: var(--space-8);
+    margin-top: var(--space-top-card);
   }
   
   .title-section {
@@ -25,19 +25,19 @@
   .title {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-xl, 1.5rem); /* 24px */
+    font-size: var(--text-xl-size);
     line-height: var(--leading-tight);
-    letter-spacing: -0.022em; /* -0.528px */
-    color: var(--color-foreground-primary, #35443D);
+    letter-spacing: var(--text-xl-tracking);
+    color: var(--color-foreground-primary);
   }
   
   .subtitle {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-xl, 1.5rem); /* 24px */
+    font-size: var(--text-xl-size);
     line-height: var(--leading-tight);
-    letter-spacing: -0.022em;
-    color: var(--color-foreground-secondary, #8E8C89);
+    letter-spacing: var(--text-xl-tracking);
+    color: var(--color-foreground-secondary);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -45,21 +45,21 @@
      ═══════════════════════════════════════════════════════════ */
   
   .input-slot {
-    border: 0.5px solid var(--color-border-default, rgba(0, 0, 0, 0.12));
-    border-radius: 16px;
-    transition: border 100ms ease-out; /* FASTER: was 200ms */
+    border: 0.5px solid var(--color-border-default);
+    border-radius: var(--radius-xl);
+    transition: border var(--duration-fast) var(--ease-out);
   }
   
   .input-content {
     border: 1px solid white;
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-md, 0px 4px 8px 0px rgba(0, 0, 0, 0.04));
+    box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
     transition: 
-      background var(--duration-slow, 200ms) var(--ease-bounce),
-      border-color var(--duration-slow, 200ms) var(--ease-bounce),
-      box-shadow var(--duration-slow, 200ms) var(--ease-bounce);
+      background var(--duration-slow) var(--ease-bounce),
+      border-color var(--duration-slow) var(--ease-bounce),
+      box-shadow var(--duration-slow) var(--ease-bounce);
   }
   
   .input-content::after {
@@ -67,21 +67,19 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    box-shadow: var(--shadow-inset-light,
-      -2px 2px 8px 0px rgba(0, 0, 0, 0.04) inset,
-      2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset);
+    box-shadow: var(--shadow-inset-light);
     border-radius: var(--radius-xl);
-    transition: opacity var(--duration-slow, 200ms) var(--ease-bounce);
+    transition: opacity var(--duration-slow) var(--ease-bounce);
   }
   
   /* Preciso mode - dashed border */
   .input-slot.preciso-mode {
-    border: 1px dashed var(--color-border-dashed, rgba(0, 0, 0, 0.16));
-    transition: border 50ms ease-out; /* Even faster for visual feedback */
+    border: 1px dashed var(--color-border-dashed);
+    transition: border var(--duration-fast) var(--ease-out);
   }
   
   .input-slot.preciso-mode .input-content {
-    background: var(--color-bg-drop-area, #e8e8e8);
+    background: var(--color-bg-drop-area);
     border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: none;
   }
@@ -92,11 +90,11 @@
   
   /* Dragging state */
   .input-slot.preciso-mode.dragging {
-    border-color: rgba(0, 0, 0, 0.32);
+    border-color: rgba(0, 0, 0, 0.32); /* 32% opacity - specific interaction state */
   }
   
   .input-slot.preciso-mode.dragging .input-content {
-    background: var(--color-bg-drop-area-dragging, #e0e0e0);
+    background: var(--color-bg-drop-area-dragging);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -110,16 +108,16 @@
   .input-group,
   .drop-area {
     transition: 
-      opacity var(--duration-slow, 200ms) var(--ease-bounce),
-      transform var(--duration-slow, 200ms) var(--ease-bounce),
-      filter var(--duration-slow, 200ms) var(--ease-bounce);
+      opacity var(--duration-slow) var(--ease-bounce),
+      transform var(--duration-slow) var(--ease-bounce),
+      filter var(--duration-slow) var(--ease-bounce);
   }
   
   /* Estimado view - default visible, RELATIVE position */
   .input-group {
     display: flex;
     align-items: center;
-    height: 56px;
+    height: 3.5rem; /* 56px - fixed height for input field */
     opacity: 1;
     transform: translateY(0);
     filter: blur(0);
@@ -133,13 +131,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 32px 12px 82px 12px; /* DESIGN.HTML: asymmetric padding, more space at bottom */
+    gap: var(--space-3);
+    padding: var(--space-8) var(--space-3) calc(var(--space-8) * 2.5625) var(--space-3); /* Asymmetric padding, more space at bottom */
     width: 100%;
     cursor: pointer;
     opacity: 0;
-    transform: translateY(8px);
-    filter: blur(2px);
+    transform: translateY(var(--space-2));
+    filter: blur(var(--space-2));
     pointer-events: none;
     position: absolute;
     top: 0;
@@ -152,8 +150,8 @@
   /* Preciso mode - swap visibility */
   .preciso-mode .input-group {
     opacity: 0;
-    transform: translateY(-8px);
-    filter: blur(2px);
+    transform: translateY(calc(var(--space-2) * -1));
+    filter: blur(var(--space-2));
     pointer-events: none;
     position: absolute; /* NOW becomes absolute */
     top: 0;
@@ -190,8 +188,8 @@
     flex: 1;
     display: flex;
     align-items: baseline;
-    gap: 0.75rem; /* 12px - exact from design.html */
-    padding: 0.75rem; /* 12px - exact from design.html */
+    gap: var(--space-3);
+    padding: var(--space-3);
   }
   
   .input-value {
@@ -203,20 +201,20 @@
   
   .currency {
     font-family: var(--font-sans);
-    font-weight: 400; /* CRITICAL: Must be 400, not var(--font-normal) */
-    font-size: 24px; /* CRITICAL: Must be 24px exactly */
-    line-height: 1.15;
-    letter-spacing: -0.72px; /* CRITICAL: Exact from design.html */
-    color: #8E8C89; /* Exact from design.html */
+    font-weight: var(--font-normal); /* 400 */
+    font-size: var(--text-xl-size); /* 24px - large input size */
+    line-height: var(--leading-tight);
+    letter-spacing: calc(var(--text-xl-size) * -0.03); /* -0.72px relative to font size */
+    color: var(--color-foreground-secondary);
   }
   
   .value-input {
     font-family: var(--font-sans);
-    font-weight: 400; /* CRITICAL: Must be 400 */
-    font-size: 24px; /* CRITICAL: Must be 24px exactly */
-    line-height: 1.15;
-    letter-spacing: -0.72px; /* CRITICAL: Exact from design.html */
-    color: #35443D; /* Exact from design.html */
+    font-weight: var(--font-normal); /* 400 */
+    font-size: var(--text-xl-size); /* 24px - large input size */
+    line-height: var(--leading-tight);
+    letter-spacing: calc(var(--text-xl-size) * -0.03); /* -0.72px relative to font size */
+    color: var(--color-foreground-primary);
     border: none;
     outline: none;
     background: transparent;
@@ -240,26 +238,26 @@
   }
   
   .value-input::placeholder {
-    color: #8E8C89; /* FIXED: exact from design.html */
-    font-size: 24px; /* FIXED: same as value-input */
-    font-weight: 400;
-    letter-spacing: -0.72px;
+    color: var(--color-foreground-secondary);
+    font-size: var(--text-xl-size); /* Same as value-input */
+    font-weight: var(--font-normal);
+    letter-spacing: calc(var(--text-xl-size) * -0.03);
     opacity: 1; /* Ensure placeholder is fully visible */
   }
   
   .period {
-    font-family: 'Roboto Mono', var(--font-mono); /* CRITICAL: Roboto Mono first */
-    font-weight: 400;
-    font-size: 14px; /* CRITICAL: Must be 14px exactly */
-    line-height: 1.2;
-    letter-spacing: -0.42px; /* CRITICAL: Exact from design.html */
-    color: #8E8C89; /* Exact from design.html */
+    font-family: 'Roboto Mono', var(--font-mono); /* Roboto Mono first */
+    font-weight: var(--font-normal);
+    font-size: var(--text-base-size); /* 14px */
+    line-height: var(--leading-normal);
+    letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
+    color: var(--color-foreground-secondary);
   }
   
   .input-divider {
     width: 0.5px;
-    height: 1.5rem; /* 24px */
-    background: var(--color-border-default, rgba(0, 0, 0, 0.12));
+    height: var(--space-6);
+    background: var(--color-border-default);
   }
   
   .submit-slot {
@@ -271,24 +269,22 @@
      ═══════════════════════════════════════════════════════════ */
   
   .drop-area-icon {
-    width: 2rem; /* 32px */
-    height: 2rem;
+    width: var(--space-8);
+    height: var(--space-8);
     display: flex;
     align-items: center;
     justify-content: center;
     border: 0.5px solid white;
-    border-radius: var(--radius-sm, 6px);
-    background: var(--color-bg-drop-area, #e8e8e8);
-    box-shadow: 
-      0px 0px 0px 0.5px rgba(74, 74, 79, 0.12),
-      0px 1px 4px 0px rgba(0, 0, 0, 0.08); /* FIXED: exact from design.html */
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-drop-area);
+    box-shadow: var(--shadow-icon);
     position: relative;
     overflow: hidden;
     opacity: 0;
-    transform: translateY(0.25rem); /* 4px */
+    transform: translateY(var(--space-1));
     transition: 
-      opacity 180ms var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1)) 0ms,
-      transform 180ms var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1)) 0ms;
+      opacity var(--duration-slow) var(--ease-bounce),
+      transform var(--duration-slow) var(--ease-bounce);
   }
   
   .preciso-mode .drop-area-icon {
@@ -305,8 +301,8 @@
   }
   
   .drop-area-icon svg {
-    width: 1.25rem; /* 20px */
-    height: 1.25rem;
+    width: var(--text-lg-size);
+    height: var(--text-lg-size);
   }
   
   /* Drop area text - contains paragraph and manual link */
@@ -314,14 +310,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    width: 532px; /* Exact from design.html */
+    gap: var(--space-1);
+    width: clamp(20rem, 90vw, 33.25rem); /* 320px → 532px, responsive */
     text-align: center;
     opacity: 0;
-    transform: translateY(0.25rem);
+    transform: translateY(var(--space-1));
     transition: 
-      opacity 180ms var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1)) 50ms,
-      transform 180ms var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1)) 50ms;
+      opacity var(--duration-slow) var(--ease-bounce) calc(var(--stagger-delay) * 2.5),
+      transform var(--duration-slow) var(--ease-bounce) calc(var(--stagger-delay) * 2.5);
   }
   
   .preciso-mode .drop-area-text {
@@ -332,19 +328,19 @@
   .drop-area-text p {
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
-    font-size: var(--text-base, 0.875rem);
+    font-size: var(--text-base-size);
     line-height: var(--leading-tight);
-    letter-spacing: -0.005em; /* -0.07px */
-    color: var(--color-foreground-primary, #35443D);
+    letter-spacing: var(--text-default-tracking);
+    color: var(--color-foreground-primary);
   }
   
   .drop-area-text a {
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
-    font-size: var(--text-base, 0.875rem);
+    font-size: var(--text-base-size);
     line-height: var(--leading-tight);
-    letter-spacing: -0.005em;
-    color: var(--color-foreground-secondary, #8E8C89);
+    letter-spacing: var(--text-default-tracking);
+    color: var(--color-foreground-secondary);
     text-decoration: underline;
     cursor: pointer;
   }
@@ -363,21 +359,21 @@
   
   /* Manual form - hidden by default */
   .manual-form {
-    display: flex; /* or block */
+    display: flex;
     flex-direction: column;
-    padding-top: 12px;
+    padding-top: var(--space-3);
     opacity: 0;
     pointer-events: none;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    transform: translateY(8px);
-    filter: blur(2px);
+    transform: translateY(var(--space-2));
+    filter: blur(var(--space-2));
     transition: 
-      opacity 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 200ms cubic-bezier(0.22, 1, 0.36, 1);
+      opacity var(--duration-slow) var(--ease-bounce),
+      transform var(--duration-slow) var(--ease-bounce),
+      filter var(--duration-slow) var(--ease-bounce);
   }
   
   /* Show manual form when manual-mode is active */
@@ -393,20 +389,20 @@
     opacity: 0;
     pointer-events: none;
     position: absolute;
-    transform: translateY(-8px);
-    filter: blur(2px);
+    transform: translateY(calc(var(--space-2) * -1));
+    filter: blur(var(--space-2));
   }
   
   .form-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.625rem; /* 10px */
+    gap: var(--space-5);
     padding: var(--space-3);
   }
   
   .form-field {
     flex: 1;
-    min-width: 7.5rem; /* 120px */
+    min-width: 7.5rem; /* 120px - fixed minimum for form fields */
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
@@ -419,10 +415,10 @@
   .form-label {
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
-    font-size: var(--text-base, 0.875rem);
+    font-size: var(--text-base-size);
     line-height: var(--leading-tight);
-    letter-spacing: -0.03em; /* -0.42px */
-    color: var(--color-text-black, #000);
+    letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
+    color: var(--color-text-black);
     opacity: 0.44;
   }
   
@@ -434,15 +430,15 @@
   .form-input-content {
     display: flex;
     align-items: center;
-    height: 2.75rem; /* 44px */
+    height: 2.75rem; /* 44px - fixed height for form inputs */
     border: 1px solid white;
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-md);
     position: relative;
-    background: var(--color-bg-form-input, #f5f5f5);
+    background: var(--color-bg-form-input);
     transition: 
-      border-color var(--duration-normal, 150ms) ease,
-      box-shadow var(--duration-normal, 150ms) ease;
+      border-color var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
   }
   
   .form-input-content::after {
@@ -455,8 +451,8 @@
   }
   
   .form-input-content:focus-within {
-    border-color: var(--color-border-accent, rgba(64, 89, 76, 0.3));
-    box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.06);
+    border-color: var(--color-border-accent);
+    box-shadow: var(--shadow-md);
   }
   
   .form-input {
@@ -467,25 +463,25 @@
     background: transparent;
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
-    font-size: var(--text-base, 0.875rem);
+    font-size: var(--text-base-size);
     line-height: var(--leading-tight);
-    letter-spacing: -0.03em;
-    color: var(--color-text-black, #000);
+    letter-spacing: calc(var(--text-base-size) * -0.03);
+    color: var(--color-text-black);
     outline: none;
   }
   
   .form-input::placeholder {
-    color: var(--color-text-black, #000);
+    color: var(--color-text-black);
     opacity: 0.44;
   }
   
   .form-input-suffix {
     font-family: var(--font-mono);
     font-weight: var(--font-normal);
-    font-size: var(--text-base, 0.875rem);
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    color: var(--color-text-black, #000);
+    font-size: var(--text-base-size);
+    line-height: var(--leading-normal);
+    letter-spacing: calc(var(--text-base-size) * -0.03);
+    color: var(--color-text-black);
     opacity: 0.44;
     padding-right: var(--space-3);
     flex-shrink: 0;
@@ -502,21 +498,21 @@
     flex: 1;
     height: 100%;
     padding: var(--space-3);
-    padding-right: 2rem; /* 32px */
+    padding-right: var(--space-8);
     border: none;
     background: transparent;
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
-    font-size: var(--text-base, 0.875rem);
+    font-size: var(--text-base-size);
     line-height: var(--leading-tight);
-    letter-spacing: -0.03em;
-    color: var(--color-text-black, #000);
+    letter-spacing: calc(var(--text-base-size) * -0.03);
+    color: var(--color-text-black);
     opacity: 0.44;
     outline: none;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
-    transition: opacity var(--duration-normal, 150ms) ease;
+    transition: opacity var(--duration-normal) var(--ease-out);
   }
   
   .form-select:valid:not(:placeholder-shown),
@@ -531,7 +527,7 @@
     transform: translateY(-50%);
     pointer-events: none;
     opacity: 0.44;
-    transition: transform var(--duration-slow, 200ms) var(--ease-bounce);
+    transition: transform var(--duration-slow) var(--ease-bounce);
   }
   
   .form-select:focus + .form-select-icon {
@@ -549,15 +545,15 @@
   .form-link {
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
-    font-size: var(--text-base, 0.875rem);
+    font-size: var(--text-base-size);
     line-height: var(--leading-tight);
-    letter-spacing: -0.005em; /* -0.07px */
-    color: var(--color-text-black, #000);
+    letter-spacing: var(--text-default-tracking);
+    color: var(--color-text-black);
     opacity: 0.44;
     text-decoration: underline;
-    text-underline-offset: 0.125rem; /* 2px */
+    text-underline-offset: var(--space-1);
     cursor: pointer;
-    transition: opacity var(--duration-normal, 150ms) ease;
+    transition: opacity var(--duration-normal) var(--ease-out);
     background: none;
     border: none;
     padding: 0;

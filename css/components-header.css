@@ -16,7 +16,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: var(--color-background-primary, #EAEAEA);
+    background-color: var(--color-background-primary);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -38,12 +38,12 @@
     gap: var(--space-1);
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-md);
-    color: var(--color-foreground-primary, #35443D);
-    letter-spacing: -0.03px; /* -0.48px / 16px */
+    font-size: var(--text-md-size);
+    color: var(--color-foreground-primary);
+    letter-spacing: calc(var(--text-md-size) * -0.03); /* -0.48px relative to font size */
     line-height: var(--leading-tight);
-    height: 2rem; /* 32px */
-    padding: 0.375rem 0.75rem; /* 6px 12px */
+    height: var(--space-8);
+    padding: var(--space-3) var(--space-6);
     text-decoration: none;
   }
   
@@ -61,22 +61,22 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    top: 0.625rem; /* 10px */
-    width: var(--input-pill-width, 17.5rem); /* 280px */
-    border: 0.5px solid var(--color-border-default, rgba(0, 0, 0, 0.12));
+    top: var(--space-5);
+    width: var(--input-pill-width, 17.5rem); /* 280px - fixed width for pill */
+    border: 0.5px solid var(--color-border-default);
     border-radius: var(--radius-lg);
     display: none;
   }
   
   .results-view .input-pill {
     display: block;
-    animation: pillAppear var(--duration-slower, 250ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) forwards;
+    animation: pillAppear var(--duration-slower) var(--ease-out) forwards;
   }
   
   @keyframes pillAppear {
     0% {
       opacity: 0;
-      transform: translateX(-50%) translateY(-0.375rem) scale(0.97);
+      transform: translateX(-50%) translateY(calc(var(--space-3) * -1)) scale(0.97);
     }
     100% {
       opacity: 1;
@@ -87,11 +87,11 @@
   .input-pill-inner {
     display: flex;
     align-items: center;
-    gap: 0.375rem; /* 6px */
-    padding: 0.375rem 0.375rem 0.375rem 0.75rem; /* 6px 6px 6px 12px */
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
     border: 0.5px solid white;
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-xs, 0px 2px 4px 0px rgba(0, 0, 0, 0.02));
+    box-shadow: var(--shadow-xs);
   }
   
   .input-pill-mode {
@@ -101,55 +101,55 @@
   }
   
   .input-pill-mode svg {
-    width: 0.875rem; /* 14px */
-    height: 0.875rem;
+    width: var(--text-base-size);
+    height: var(--text-base-size);
   }
   
   .input-pill-mode span {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-base, 0.875rem);
-    line-height: 1.25rem; /* 20px */
-    color: var(--color-foreground-primary, #35443D);
+    font-size: var(--text-base-size);
+    line-height: var(--text-default-leading);
+    color: var(--color-foreground-primary);
   }
   
   .input-pill-value {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 0.125rem; /* 2px */
-    padding: 0.375rem 0;
+    gap: var(--space-1);
+    padding: var(--space-3) 0;
   }
   
   .input-pill-value .amount {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-base, 0.875rem);
-    line-height: 1.25rem;
-    color: var(--color-foreground-primary, #35443D);
+    font-size: var(--text-base-size);
+    line-height: var(--text-default-leading);
+    color: var(--color-foreground-primary);
   }
   
   .input-pill-value .period {
     font-family: var(--font-mono);
     font-weight: var(--font-normal);
-    font-size: var(--text-base, 0.875rem);
-    line-height: 1.2;
-    letter-spacing: -0.03px; /* -0.42px / 14px */
-    color: var(--color-foreground-secondary, #8E8C89);
+    font-size: var(--text-base-size);
+    line-height: var(--leading-normal);
+    letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
+    color: var(--color-foreground-secondary);
   }
   
   .input-pill-delete {
-    width: 2rem; /* 32px */
-    height: 2rem;
+    width: var(--space-8);
+    height: var(--space-8);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 0.5px solid var(--color-border-default, rgba(0, 0, 0, 0.12));
-    border-radius: var(--radius-sm, 0.375rem);
+    border: 0.5px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
     background: transparent;
     cursor: pointer;
-    box-shadow: var(--shadow-icon-delete, 2px 2px 6px 0px rgba(0, 0, 0, 0.02));
-    transition: transform var(--duration-normal, 150ms) var(--ease-bounce, cubic-bezier(0.22, 1, 0.36, 1));
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--duration-normal) var(--ease-bounce);
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
@@ -160,8 +160,8 @@
   }
   
   .input-pill-delete-inner {
-    width: 2rem;
-    height: 2rem;
+    width: var(--space-8);
+    height: var(--space-8);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -171,8 +171,8 @@
   }
   
   .input-pill-delete svg {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: var(--text-base-size);
+    height: var(--text-base-size);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -183,7 +183,7 @@
   .input-pill-content {
     display: flex;
     align-items: center;
-    gap: 0.25rem; /* 4px */
+    gap: var(--space-1);
   }
   
   /* Estimado mode - shown by default */
@@ -208,35 +208,33 @@
   /* Make input-pill wider when in preciso mode */
   .input-pill.preciso-mode {
     width: auto;
-    min-width: 17.5rem; /* 280px minimum */
-    max-width: calc(100vw - 360px); /* Leave room for logo and actions */
+    min-width: 17.5rem; /* 280px minimum - fixed width for preciso mode */
+    max-width: calc(100vw - 22.5rem); /* Leave room for logo and actions */
   }
   
   /* Responsive: reduce on smaller screens */
-  @media (max-width: 768px) {
+  @media (max-width: 48rem) { /* 768px */
     .input-pill.preciso-mode {
-      max-width: calc(100vw - 200px);
+      max-width: calc(100vw - 12.5rem);
     }
     
     .input-pill-data {
       flex-wrap: wrap;
-      gap: 0.25rem;
+      gap: var(--space-1);
     }
   }
   
   /* Preciso pill icon (PDF icon) */
   .input-pill-icon {
-    width: 2rem; /* 32px */
-    height: 2rem;
+    width: var(--space-8);
+    height: var(--space-8);
     display: flex;
     align-items: center;
     justify-content: center;
     border: 0.5px solid white;
-    border-radius: var(--radius-sm, 0.375rem);
+    border-radius: var(--radius-sm);
     background: white;
-    box-shadow: 
-      0px 0px 0px 0.5px rgba(74, 74, 79, 0.12),
-      0px 1px 4px 0px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-icon);
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
@@ -246,24 +244,22 @@
     content: '';
     position: absolute;
     inset: 0;
-    box-shadow: 
-      1px -1px 2px 0px rgba(255, 255, 255, 0.5) inset,
-      -1px 1px 2px 0px rgba(0, 0, 0, 0.04) inset;
+    box-shadow: var(--shadow-icon-inset);
     pointer-events: none;
   }
   
   .input-pill-icon svg {
-    width: 1.25rem; /* 20px */
-    height: 1.25rem;
+    width: var(--text-lg-size);
+    height: var(--text-lg-size);
   }
   
   /* Preciso pill data */
   .input-pill-data {
     display: flex;
     align-items: center;
-    gap: 0.5rem; /* 8px */
-    height: 0.75rem; /* 12px - matches Figma */
-    padding: 0.375rem 0; /* 6px vertical padding */
+    gap: var(--space-2);
+    height: var(--space-3);
+    padding: var(--space-3) 0;
   }
   
   .pill-provider,
@@ -271,32 +267,32 @@
   .pill-label {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-base, 0.875rem);
-    line-height: 1.25rem; /* 20px */
+    font-size: var(--text-base-size);
+    line-height: var(--text-default-leading);
     white-space: nowrap;
   }
   
   .pill-provider {
-    color: var(--color-foreground-primary, #35443D);
+    color: var(--color-foreground-primary);
     opacity: 0.9;
   }
   
   .pill-label {
-    color: var(--color-foreground-primary, #35443D);
+    color: var(--color-foreground-primary);
     opacity: 0.6;
   }
   
   .pill-value {
-    color: var(--color-foreground-primary, #35443D);
+    color: var(--color-foreground-primary);
     opacity: 0.9;
   }
   
   .pill-separator {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-base, 0.875rem);
-    line-height: 1.25rem;
-    color: var(--color-foreground-primary, #35443D);
+    font-size: var(--text-base-size);
+    line-height: var(--text-default-leading);
+    color: var(--color-foreground-primary);
     opacity: 0.2;
   }
 }
