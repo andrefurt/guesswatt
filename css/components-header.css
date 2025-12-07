@@ -35,16 +35,31 @@
   .logo {
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: var(--radius-sm); /* 6px gap - matches Figma design */
+    padding: var(--radius-sm) var(--space-5); /* 6px vertical, 20px horizontal - matches button-like styling */
+    border: 0.5px solid white; /* Same border as secondary button */
+    border-radius: var(--radius-sm); /* 6px - same as buttons */
+    background: var(--bg-high); /* More prominent background - oklch(95% 0 0) #F0F0EF */
+    box-shadow: var(--shadow-icon); /* Same shadow as icon containers */
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-md-size);
     color: var(--color-foreground-primary);
     letter-spacing: calc(var(--text-md-size) * -0.03); /* -0.48px relative to font size */
     line-height: var(--leading-tight);
-    height: var(--space-8);
-    padding: var(--space-3) var(--space-6);
     text-decoration: none;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Inset shadow for logo container - matches Figma design */
+  .logo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-icon-inset);
+    pointer-events: none;
   }
   
   .top-bar-actions {
