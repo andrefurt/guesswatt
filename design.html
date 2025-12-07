@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guesswatt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;1,500&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #EAEAEA;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ==================== TOP BAR ==================== */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      position: relative;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 16px;
+      color: #35443D;
+      letter-spacing: -0.48px;
+      line-height: 1.15;
+      height: 32px;
+      padding: 6px 12px;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Input Pill (results page) */
+    .input-pill {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 10px;
+      width: 280px;
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      border-radius: 12px;
+      display: none;
+    }
+
+    .results-view .input-pill {
+      display: block;
+      animation: pillAppear 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pillAppear {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-6px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+      }
+    }
+
+    .input-pill-inner {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 6px 6px 12px;
+      border: 0.5px solid white;
+      border-radius: 12px;
+      box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+    }
+
+    .input-pill-mode {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .input-pill-mode svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .input-pill-mode span {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #35443D;
+    }
+
+    .input-pill-value {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 0;
+    }
+
+    .input-pill-value .amount {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #35443D;
+    }
+
+    .input-pill-value .period {
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.2;
+      letter-spacing: -0.42px;
+      color: #8E8C89;
+    }
+
+    .input-pill-delete {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+      background: transparent;
+      cursor: pointer;
+      box-shadow: 2px 2px 6px 0px rgba(0, 0, 0, 0.02);
+      transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .input-pill-delete:active {
+      transform: scale(0.94);
+    }
+
+    .input-pill-delete-inner {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0.5px solid white;
+      border-radius: 6px;
+      box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+    }
+
+    .input-pill-delete svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .btn-slot {
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px 6px 8px;
+      border: 0.5px solid white;
+      border-radius: 6px;
+      background: transparent;
+      box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #35443D;
+      transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-icon {
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .segmented-btn {
+      display: flex;
+      align-items: center;
+      border: 0.5px solid white;
+      border-radius: 6px;
+      box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+      position: relative;
+    }
+
+    .segmented-btn .btn {
+      border: none;
+      box-shadow: none;
+      padding: 6px 8px;
+    }
+
+    .segmented-divider {
+      width: 0.5px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .btn-suffix {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+    }
+
+    /* ================================
+       COPY BUTTON - Blur transition
+       Emil Kowalski style
+       ================================ */
+    
+    .copy-btn {
+      position: relative;
+      overflow: hidden;
+      min-width: 100px;
+    }
+
+    .copy-btn-content {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: 
+        opacity 150ms cubic-bezier(0.22, 1, 0.36, 1),
+        filter 150ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .copy-btn-default,
+    .copy-btn-copied {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .copy-btn-copied {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      filter: blur(4px);
+      color: #40594c;
+    }
+
+    .copy-btn-copied .btn-icon svg path,
+    .copy-btn-copied .btn-icon svg polyline {
+      stroke: #40594c;
+    }
+
+    /* Copied state */
+    .copy-btn.copied .copy-btn-default {
+      opacity: 0;
+      filter: blur(4px);
+      transform: scale(0.95);
+    }
+
+    .copy-btn.copied .copy-btn-copied {
+      opacity: 1;
+      filter: blur(0);
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* ================================
+       DROPDOWN - Emil Kowalski style
+       Smooth ease-out, instant hover
+       ================================ */
+    
+    .dropdown-wrapper {
+      position: relative;
+    }
+
+    .dropdown-trigger {
+      transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .dropdown-trigger:active {
+      transform: scale(0.94);
+    }
+
+    /* Chevron rotation */
+    .dropdown-trigger .btn-icon {
+      transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .dropdown-wrapper.open .dropdown-trigger .btn-icon {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 180px;
+      background: #F3F3F2;
+      border: 0.5px solid rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
+      box-shadow: 
+        0 4px 16px -2px rgba(0, 0, 0, 0.12),
+        0 2px 4px -1px rgba(0, 0, 0, 0.04);
+      padding: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95);
+      transform-origin: top right;
+      transition: 
+        opacity 200ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+    }
+
+    .dropdown-wrapper.open .dropdown-menu {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 10px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      color: #35443D;
+      cursor: pointer;
+      text-align: left;
+      transition: background 50ms ease-out;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .dropdown-item:active {
+      background: rgba(0, 0, 0, 0.1);
+      transition: background 0ms;
+    }
+
+    .dropdown-item .item-icon {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .dropdown-item .item-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    @supports (corner-shape: squircle) {
+      .dropdown-menu {
+        corner-shape: squircle;
+      }
+      .dropdown-item {
+        corner-shape: squircle;
+      }
+    }
+
+    /* ==================== VIEWS ==================== */
+    .page-wrapper {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .content-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 139px;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Results view layout */
+    .results-view .content-wrapper {
+      gap: 0;
+    }
+
+    .results-view .results-content {
+      flex: 0 0 auto;
+    }
+
+    /* Input View */
+    .input-view {
+      display: block;
+    }
+
+    .results-view .input-view {
+      display: none;
+    }
+
+    /* Results View */
+    .results-content {
+      display: none;
+    }
+
+    .results-view .results-content {
+      display: flex;
+    }
+
+    .results-view .content-wrapper {
+      gap: 0;
+    }
+
+    /* ================================
+       APPEAR ANIMATIONS
+       Emil Kowalski style:
+       - Blur + translateY + opacity
+       - Staggered delays
+       - < 300ms, snappy ease-out
+       ================================ */
+    
+    /* Results view appear animation */
+    .results-title-section,
+    .result-card-container,
+    .result-info,
+    .info-row {
+      opacity: 0;
+      transform: translateY(8px);
+      filter: blur(3px);
+    }
+
+    .results-view .results-title-section {
+      animation: appearIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 0ms;
+    }
+
+    .results-view .result-card-container {
+      animation: cardAppear 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 20ms;
+    }
+
+    @keyframes cardAppear {
+      0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+        filter: blur(4px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+    /* Savings bar inside card - subtle bounce */
+    .savings-bar {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    .results-view .savings-bar {
+      animation: savingsAppear 200ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation-delay: 0ms;
+    }
+
+    @keyframes savingsAppear {
+      0% {
+        opacity: 0;
+        transform: translateY(4px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .results-view .result-info {
+      animation: appearIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 50ms;
+    }
+
+    .results-view .info-row:nth-child(1) {
+      animation: appearIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 70ms;
+    }
+
+    .results-view .info-row:nth-child(2) {
+      animation: appearIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 90ms;
+    }
+
+    .results-view .info-row:nth-child(3) {
+      animation: appearIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 110ms;
+    }
+
+    /* Disclaimer row */
+    .disclaimer-row {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    .results-view .disclaimer-row {
+      animation: appearIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 130ms;
+    }
+
+    @keyframes appearIn {
+      0% {
+        opacity: 0;
+        transform: translateY(8px);
+        filter: blur(3px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    /* Input view appear animation (when returning from results) */
+    .input-view .title-section,
+    .input-view .input-slot,
+    .input-view .highlights,
+    .input-view .highlight-row {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    /* Initial hidden state when returning */
+    .input-view.returning .title-section,
+    .input-view.returning .input-slot,
+    .input-view.returning .highlights,
+    .input-view.returning .highlight-row {
+      opacity: 0;
+      transform: translateY(8px);
+      filter: blur(3px);
+    }
+
+    .input-view.returning .title-section {
+      animation: appearIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 0ms;
+    }
+
+    .input-view.returning .input-slot {
+      animation: appearIn 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 20ms;
+    }
+
+    .input-view.returning .highlights {
+      animation: appearIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 50ms;
+    }
+
+    .input-view.returning .highlight-row:nth-child(1) {
+      animation: appearIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 70ms;
+    }
+
+    .input-view.returning .highlight-row:nth-child(2) {
+      animation: appearIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 90ms;
+    }
+
+    .input-view.returning .highlight-row:nth-child(3) {
+      animation: appearIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 110ms;
+    }
+
+    /* ==================== INPUT VIEW STYLES ==================== */
+    .card {
+      width: 580px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      margin-top: 139px;
+    }
+
+    .title-section {
+      padding: 12px;
+    }
+
+    .title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: -0.528px;
+      color: #35443D;
+    }
+
+    .subtitle {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: -0.528px;
+      color: #8E8C89;
+    }
+
+    /* Input Card */
+    .input-slot {
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      border-radius: 16px;
+      transition: border 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .input-content::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      box-shadow: -2px 2px 8px 0px rgba(0, 0, 0, 0.04) inset, 2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset;
+      border-radius: 16px;
+      transition: opacity 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ================================
+       BUTTON INTERACTIONS (Emil Kowalski style)
+       - Scale 0.97 on active
+       - 150ms custom ease-out
+       ================================ */
+    
+    /* Squircle support with fallback */
+    @supports (corner-shape: squircle) {
+      .input-slot,
+      .result-card,
+      .result-card-container,
+      .submit-btn,
+      .tab-btn,
+      .tabs-wrapper,
+      .tabs-indicator,
+      .btn-slot,
+      .btn,
+      .input-pill-delete,
+      .input-pill-delete-inner,
+      .savings-bar,
+      .savings-bar-inner,
+      .pill-slot,
+      .pill-content,
+      .drop-area {
+        corner-shape: squircle;
+      }
+    }
+
+    /* Tab Buttons - Sliding Indicator Animation */
+    .input-top {
+      display: flex;
+      align-items: center;
+      padding: 12px 12px 6px 12px;
+    }
+
+    .tabs-wrapper {
+      position: relative;
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 6px;
+    }
+
+    .tabs-list {
+      display: flex;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Sliding indicator background */
+    .tabs-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: #f0f0f0;
+      border: 0.5px solid white;
+      border-radius: 6px;
+      box-shadow: 
+        0px 0px 0px 0.5px rgba(0, 0, 0, 0.12),
+        0px 2px 6px 0px rgba(0, 0, 0, 0.04);
+      transition: transform 200ms cubic-bezier(0.25, 1, 0.5, 1), width 200ms cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 0;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px 6px 8px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #35443D;
+      transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+      z-index: 1;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tab-btn:active {
+      transform: scale(0.97);
+    }
+
+    .tab-btn span {
+      color: inherit;
+    }
+
+    /* Preciso State - Drop Area */
+    .input-slot.preciso-mode {
+      border: 1px dashed rgba(0, 0, 0, 0.16);
+    }
+
+    .input-slot.preciso-mode .input-content {
+      background: #e8e8e8;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: none;
+    }
+
+    .input-slot.preciso-mode .input-content::after {
+      opacity: 0;
+    }
+
+    /* ================================
+       VIEW TRANSITION ANIMATIONS
+       Emil Kowalski style:
+       - Blur to mask imperfections
+       - Slide + fade for natural feel
+       - < 300ms, ease-out
+       - Hidden view uses absolute to not affect height
+       ================================ */
+    
+    /* Container for views */
+    .views-container {
+      position: relative;
+    }
+
+    .input-group,
+    .drop-area {
+      transition: 
+        opacity 200ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+        filter 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Estimado view (input-group) - default visible */
+    .input-group {
+      display: flex;
+      align-items: center;
+      height: 56px;
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+      pointer-events: auto;
+    }
+
+    /* Drop area - default hidden (absolute = no height contribution) */
+    .drop-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 32px 12px 82px 12px;
+      width: 100%;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(8px);
+      filter: blur(2px);
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    /* Preciso mode - swap visibility with animation */
+    .preciso-mode .input-group {
+      opacity: 0;
+      transform: translateY(-8px);
+      filter: blur(2px);
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .preciso-mode .drop-area {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+      pointer-events: auto;
+      position: relative;
+    }
+
+    /* Card content styling */
+    .input-content {
+      border: 1px solid white;
+      border-radius: 16px;
+      box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+      transition: 
+        background 200ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .drop-area-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0.5px solid white;
+      border-radius: 6px;
+      background: #e8e8e8;
+      box-shadow: 
+        0px 0px 0px 0.5px rgba(74, 74, 79, 0.12),
+        0px 1px 4px 0px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+      /* Staggered animation */
+      opacity: 0;
+      transform: translateY(4px);
+      transition: 
+        opacity 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .drop-area-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 532px;
+      /* Staggered animation - delayed */
+      opacity: 0;
+      transform: translateY(4px);
+      transition: 
+        opacity 180ms cubic-bezier(0.22, 1, 0.36, 1) 50ms,
+        transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 50ms;
+    }
+
+    /* Show children when drop-area is visible */
+    .preciso-mode .drop-area-icon,
+    .preciso-mode .drop-area-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .drop-area-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      box-shadow: 
+        1px -1px 2px 0px rgba(255, 255, 255, 0.5) inset,
+        -1px 1px 2px 0px rgba(0, 0, 0, 0.04) inset;
+      pointer-events: none;
+    }
+
+    .drop-area-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .drop-area-text p {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.15;
+      letter-spacing: -0.07px;
+      color: #35443D;
+    }
+
+    .drop-area-text a {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.15;
+      letter-spacing: -0.07px;
+      color: #8E8C89;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .drop-area-text a:hover {
+      opacity: 0.6;
+    }
+
+    /* ================================
+       MANUAL FORM - Preciso mode
+       Pixel-perfect from Figma
+       ================================ */
+    
+    .manual-form {
+      display: flex;
+      flex-direction: column;
+      padding-top: 12px;
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      transform: translateY(8px);
+      filter: blur(2px);
+      transition: 
+        opacity 200ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+        filter 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .preciso-mode.manual-mode .manual-form {
+      opacity: 1;
+      pointer-events: auto;
+      position: relative;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    .preciso-mode.manual-mode .drop-area {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      transform: translateY(-8px);
+      filter: blur(2px);
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .form-field {
+      flex: 1;
+      min-width: 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-field.full-width {
+      flex: 1 1 100%;
+    }
+
+    .form-label {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.15;
+      letter-spacing: -0.42px;
+      color: #000;
+      opacity: 0.44;
+    }
+
+    .form-input-slot {
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+    }
+
+    .form-input-content {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      border: 1px solid white;
+      border-radius: 6px;
+      box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.04);
+      position: relative;
+      background: #f5f5f5;
+      transition: 
+        border-color 150ms ease,
+        box-shadow 150ms ease;
+    }
+
+    .form-input-content::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 6px;
+      box-shadow: 
+        -2px 2px 8px 0px rgba(0, 0, 0, 0.04) inset,
+        2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset;
+      pointer-events: none;
+    }
+
+    .form-input-content:focus-within {
+      border-color: rgba(64, 89, 76, 0.3);
+      box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.06);
+    }
+
+    .form-input {
+      flex: 1;
+      height: 100%;
+      padding: 12px;
+      border: none;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.15;
+      letter-spacing: -0.42px;
+      color: #000;
+      outline: none;
+    }
+
+    .form-input::placeholder {
+      color: #000;
+      opacity: 0.44;
+    }
+
+    .form-input-suffix {
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.2;
+      letter-spacing: -0.42px;
+      color: #000;
+      opacity: 0.44;
+      padding-right: 12px;
+      flex-shrink: 0;
+    }
+
+    /* Select dropdown styling */
+    .form-select {
+      flex: 1;
+      height: 100%;
+      padding: 12px;
+      padding-right: 32px;
+      border: none;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.15;
+      letter-spacing: -0.42px;
+      color: #000;
+      opacity: 0.44;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: opacity 150ms ease;
+    }
+
+    .form-select:valid:not(:placeholder-shown),
+    .form-select.has-value {
+      opacity: 1;
+    }
+
+    .form-select-wrapper {
+      position: relative;
+      flex: 1;
+      display: flex;
+    }
+
+    .form-select-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      opacity: 0.44;
+      transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .form-select:focus + .form-select-icon {
+      opacity: 0.7;
+    }
+
+    .form-select option {
+      font-family: 'Inter', sans-serif;
+      color: #000;
+    }
+
+    .form-select option:disabled {
+      color: rgba(0, 0, 0, 0.44);
+    }
+
+    /* Form footer with link and submit */
+    .form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+    }
+
+    .form-link {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.15;
+      letter-spacing: -0.07px;
+      color: #000;
+      opacity: 0.44;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      transition: opacity 150ms ease;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    .form-link:hover {
+      opacity: 0.7;
+    }
+
+    @supports (corner-shape: squircle) {
+      .form-input-slot,
+      .form-input-content {
+        corner-shape: squircle;
+      }
+    }
+
+    .input-slot.preciso-mode.dragging {
+      border-color: rgba(0, 0, 0, 0.32);
+    }
+
+    .input-slot.preciso-mode.dragging .input-content {
+      background: #e0e0e0;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .input-field {
+      flex: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .input-value {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .currency {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: -0.72px;
+      color: #8E8C89;
+    }
+
+    .value-input {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: -0.72px;
+      color: #35443D;
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+    }
+
+    .value-input::placeholder {
+      color: #8E8C89;
+    }
+
+    .period {
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.2;
+      letter-spacing: -0.42px;
+      color: #8E8C89;
+    }
+
+    .input-divider {
+      width: 0.5px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .submit-slot {
+      padding: 12px;
+    }
+
+    .submit-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #35443D;
+      border: none;
+      border-radius: 6px;
+      box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 0px 0px 1px #35443D;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #F3F3F2;
+      position: relative;
+      overflow: hidden;
+      transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .submit-btn:active {
+      transform: scale(0.97);
+    }
+
+    .submit-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.25) inset;
+      pointer-events: none;
+    }
+
+    /* Highlights */
+    .highlights {
+      padding: 12px;
+    }
+
+    .highlight-row {
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .highlight-row-inner {
+      padding: 20px 0;
+      border-bottom: 0.5px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .highlight-text {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 1.2;
+      letter-spacing: -0.42px;
+      color: #8E8C89;
+    }
+
+    .highlight-text em {
+      font-style: italic;
+    }
+
+    .highlight-text a {
+      font-style: italic;
+      text-decoration: underline;
+      color: inherit;
+    }
+
+    /* ==================== RESULTS VIEW STYLES ==================== */
+    .results-content {
+      flex-direction: column;
+      align-items: center;
+      width: 580px;
+      margin-top: 64px;
+    }
+
+    .results-title-section {
+      padding: 32px 12px;
+      width: 100%;
+    }
+
+    .results-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: -0.528px;
+      color: #35443D;
+      margin-bottom: 8px;
+    }
+
+    .results-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.34;
+      letter-spacing: -0.352px;
+      color: #8E8C89;
+    }
+
+    /* Result Card Container */
+    .result-card-container {
+      width: 100%;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 64.03%, rgba(0, 0, 0, 0.016) 100%);
+      border-radius: 16px;
+      padding-bottom: 12px;
+    }
+
+    /* Result Card */
+    .result-card-slot {
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      border-radius: 16px;
+    }
+
+    .result-card {
+      background: white;
+      border: 1px solid white;
+      border-radius: 16px;
+      box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      box-shadow: -2px 2px 8px 0px rgba(0, 0, 0, 0.04) inset, 2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset;
+      border-radius: 16px;
+    }
+
+    /* Result Card Header */
+    .result-card-header {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .result-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .provider-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0.5px solid white;
+      border-radius: 6px;
+      box-shadow: 
+        0px 0px 0px 0.5px rgba(74, 74, 79, 0.12),
+        0px 1px 4px 0px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+      background: white;
+    }
+
+    .provider-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      box-shadow: 
+        1px -1px 2px 0px rgba(255, 255, 255, 0.5) inset,
+        -1px 1px 2px 0px rgba(0, 0, 0, 0.04) inset;
+      pointer-events: none;
+    }
+
+    .provider-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .result-card-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .result-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .provider-name {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.15;
+      letter-spacing: -0.34px;
+      color: #35443D;
+    }
+
+    .provider-plan {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.15;
+      letter-spacing: -0.34px;
+      color: #8E8C89;
+    }
+
+    /* Result Data Rows */
+    .result-data {
+      padding: 0 12px 12px;
+    }
+
+    .data-row {
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .data-row-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .data-row-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .data-row-label svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.6;
+    }
+
+    .data-row-label span {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #8E8C89;
+    }
+
+    .data-row-label .muted {
+      color: #9E9E9E;
+    }
+
+    .data-row-value {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #35443D;
+    }
+
+    .data-row-value-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Campaign Badge */
+    .badge {
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+    }
+
+    .badge-inner {
+      padding: 2px 8px;
+      border: 0.5px solid white;
+      border-radius: 6px;
+      box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      line-height: 20px;
+      text-transform: uppercase;
+      color: #40594c;
+    }
+
+    /* Savings Bar */
+    .savings-bar {
+      border: 0.5px solid rgba(64, 89, 76, 0.3);
+      border-radius: 6px;
+      height: 44px;
+      margin-top: 12px;
+    }
+
+    .savings-bar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 44px;
+      padding: 4px 8px;
+      border: 0.5px solid white;
+      border-radius: 6px;
+      background: rgba(113, 152, 131, 0.08);
+      box-shadow: 0px 4px 8px 0px rgba(113, 152, 131, 0.08);
+      position: relative;
+    }
+
+    .savings-bar-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      box-shadow: -1px 1px 4px 0px rgba(113, 152, 131, 0.04) inset;
+      pointer-events: none;
+      border-radius: 6px;
+    }
+
+    .savings-bar svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .savings-bar span {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #40594c;
+    }
+
+    /* Result Info Section */
+    .result-info {
+      padding: 0 12px;
+    }
+
+    .info-row {
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .info-row-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .info-row-label {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #8E8C89;
+    }
+
+    .info-row-value {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      color: #35443D;
+    }
+
+    /* Tags */
+    .tags-group {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .tag {
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+    }
+
+    .tag-inner {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border: 0.5px solid white;
+      border-radius: 6px;
+      box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+    }
+
+    .tag-inner svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .tag-inner span {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      line-height: 20px;
+      text-transform: uppercase;
+      color: #35443D;
+    }
+
+    /* Disclaimer */
+    .disclaimer-row {
+      padding: 16px 0;
+    }
+
+    .disclaimer-text {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 1.2;
+      color: #8E8C89;
+    }
+
+    /* ==================== FOOTER ==================== */
+    .footer {
+      width: 580px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: auto;
+      padding-bottom: 24px;
+    }
+
+    .footer-text {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 1.2;
+      color: #8E8C89;
+    }
+
+    .footer-text a {
+      text-decoration: underline;
+      color: inherit;
+    }
+
+    .footer-updated {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 14px;
+    }
+
+    .footer-updated svg {
+      width: 12px;
+      height: 12px;
+      opacity: 0.8;
+    }
+
+    .footer-updated span {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 1.2;
+      color: #35443D;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page-wrapper" id="page-wrapper">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="logo">
+        <span>Ω</span>
+        <span>Guesswatt</span>
+      </div>
+
+      <!-- Input Pill (visible in results) -->
+      <div class="input-pill" id="input-pill">
+        <div class="input-pill-inner">
+          <div class="input-pill-mode">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 1.75C7 1.75 3.5 4.375 3.5 7C3.5 8.933 5.067 10.5 7 10.5C8.933 10.5 10.5 8.933 10.5 7C10.5 4.375 7 1.75 7 1.75Z" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 10.5V12.25" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M4.8125 12.25H9.1875" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            <span>Estimado</span>
+          </div>
+          <div class="input-pill-value">
+            <span class="amount" id="pill-amount">€120</span>
+            <span class="period">/Mês</span>
+          </div>
+          <button class="input-pill-delete" id="delete-btn">
+            <div class="input-pill-delete-inner">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 3L3 11M3 3L11 11" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="top-bar-actions">
+        <div class="btn-slot">
+          <button class="btn">
+            <span class="btn-icon">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 1.75V12.25" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                <path d="M4.375 4.375L7 1.75L9.625 4.375" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="7" cy="7" r="5.25" stroke="#35443D" stroke-width="1.2"/>
+              </svg>
+            </span>
+            <span>Sobre</span>
+          </button>
+        </div>
+        <div class="btn-slot">
+          <div class="segmented-btn">
+            <button class="btn copy-btn" id="copy-btn">
+              <!-- Default state -->
+              <div class="copy-btn-content copy-btn-default">
+                <span class="btn-icon">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="10" height="10" rx="2" stroke="#35443D" stroke-width="1.2"/>
+                    <path d="M5 5H9" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                    <path d="M5 7H9" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                    <path d="M5 9H7" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span>Copy page</span>
+              </div>
+              <!-- Copied state -->
+              <div class="copy-btn-content copy-btn-copied">
+                <span class="btn-icon">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <polyline points="3,7 6,10 11,4" stroke="#40594c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  </svg>
+                </span>
+                <span>Copied</span>
+              </div>
+            </button>
+            <div class="segmented-divider"></div>
+            <div class="dropdown-wrapper" id="dropdown-wrapper">
+              <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger">
+                <span class="btn-icon">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="dropdown-menu" id="dropdown-menu">
+                <button class="dropdown-item" data-action="markdown">
+                  <span class="item-icon">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="#35443D" stroke-width="1.2"/>
+                      <path d="M4 9.5V6.5L5.5 8.5L7 6.5V9.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M10 9.5L12 7.5M12 7.5L12 9.5M12 7.5L10 7.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span>Copy as markdown</span>
+                </button>
+                <button class="dropdown-item" data-action="chatgpt">
+                  <span class="item-icon">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="8" cy="8" r="6.5" stroke="#35443D" stroke-width="1.2"/>
+                      <path d="M5 8.5C5.5 9.5 6.5 10 8 10C9.5 10 10.5 9.5 11 8.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                      <circle cx="6" cy="6.5" r="0.75" fill="#35443D"/>
+                      <circle cx="10" cy="6.5" r="0.75" fill="#35443D"/>
+                    </svg>
+                  </span>
+                  <span>Open in ChatGPT</span>
+                </button>
+                <button class="dropdown-item" data-action="claude">
+                  <span class="item-icon">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" stroke="#35443D" stroke-width="1.2" stroke-linejoin="round"/>
+                      <path d="M8 7V10" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                      <circle cx="8" cy="5" r="0.75" fill="#35443D"/>
+                    </svg>
+                  </span>
+                  <span>Open in Claude</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <!-- ==================== INPUT VIEW ==================== -->
+      <main class="card input-view" id="input-view">
+        <!-- Title -->
+        <div class="title-section">
+          <h1 class="title">Quanto pagas de eletricidade por mês?</h1>
+          <p class="subtitle">Descobre se estás a pagar demais.</p>
+        </div>
+
+        <!-- Input Card -->
+        <div class="input-slot" id="input-slot">
+          <div class="input-content">
+            <!-- Tabs with sliding indicator animation -->
+            <div class="input-top">
+              <div class="tabs-wrapper" id="tabs-wrapper">
+                <!-- Sliding indicator -->
+                <div class="tabs-indicator" id="tabs-indicator"></div>
+                
+                <!-- Tab buttons -->
+                <div class="tabs-list">
+                  <button class="tab-btn" data-tab="estimado" id="tab-estimado">
+                    <span class="btn-icon">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 1.75C7 1.75 3.5 4.375 3.5 7C3.5 8.933 5.067 10.5 7 10.5C8.933 10.5 10.5 8.933 10.5 7C10.5 4.375 7 1.75 7 1.75Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7 10.5V12.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                        <path d="M4.8125 12.25H9.1875" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                    <span>Estimado</span>
+                  </button>
+                  <button class="tab-btn" data-tab="preciso" id="tab-preciso">
+                    <span class="btn-icon">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.2"/>
+                        <circle cx="7" cy="7" r="2.625" stroke="currentColor" stroke-width="1.2"/>
+                        <circle cx="7" cy="7" r="0.875" fill="currentColor"/>
+                      </svg>
+                    </span>
+                    <span>Preciso</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Views Container -->
+            <div class="views-container">
+              <!-- Input Group (Estimado view) -->
+              <div class="input-group" id="input-group">
+                <div class="input-field">
+                  <div class="input-value">
+                    <span class="currency">€</span>
+                    <input type="text" class="value-input" id="value-input" value="120" placeholder="0">
+                  </div>
+                  <span class="period">/Mês</span>
+                </div>
+                <div class="input-divider"></div>
+                <div class="submit-slot">
+                  <button class="submit-btn" id="submit-btn">Submeter</button>
+                </div>
+              </div>
+
+              <!-- Drop Area (Preciso view) -->
+              <div class="drop-area" id="drop-area">
+                <input type="file" class="file-input" id="file-input" accept=".pdf">
+                <div class="drop-area-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2.5H12.5L16 6V17.5H4V2.5Z" stroke="#E53935" stroke-width="1.2" stroke-linejoin="round"/>
+                    <path d="M12.5 2.5V6H16" stroke="#E53935" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <text x="10" y="13" font-family="Inter" font-size="4" font-weight="600" fill="#E53935" text-anchor="middle">PDF</text>
+                  </svg>
+                </div>
+                <div class="drop-area-text">
+                  <p>Clica ou arrasta a tua fatura PDF</p>
+                  <a href="#" id="manual-link">Adicionar dados manualmente</a>
+                </div>
+              </div>
+
+              <!-- Manual Form (Preciso view - manual mode) -->
+              <div class="manual-form" id="manual-form">
+                <!-- Row 1: Operador, Tarifa, Potência -->
+                <div class="form-row">
+                  <div class="form-field">
+                    <label class="form-label">Operador</label>
+                    <div class="form-input-slot">
+                      <div class="form-input-content">
+                        <div class="form-select-wrapper">
+                          <select class="form-select" id="form-operador">
+                            <option value="" disabled selected>Selecionar</option>
+                            <option value="edp">EDP</option>
+                            <option value="endesa">Endesa</option>
+                            <option value="galp">Galp</option>
+                            <option value="iberdrola">Iberdrola</option>
+                            <option value="goldenergy">Gold Energy</option>
+                            <option value="luzboa">Luzboa</option>
+                          </select>
+                          <span class="form-select-icon">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-field">
+                    <label class="form-label">Tarifa</label>
+                    <div class="form-input-slot">
+                      <div class="form-input-content">
+                        <div class="form-select-wrapper">
+                          <select class="form-select" id="form-tarifa">
+                            <option value="" disabled selected>Selecionar</option>
+                            <option value="simples">Simples</option>
+                            <option value="bi-horario">Bi-horário</option>
+                            <option value="tri-horario">Tri-horário</option>
+                          </select>
+                          <span class="form-select-icon">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-field">
+                    <label class="form-label">Potência contratada</label>
+                    <div class="form-input-slot">
+                      <div class="form-input-content">
+                        <input type="text" class="form-input" id="form-potencia" placeholder="4.5">
+                        <span class="form-input-suffix">kVA</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Row 2: Consumo mensal -->
+                <div class="form-row">
+                  <div class="form-field full-width">
+                    <label class="form-label">Consumo mensal</label>
+                    <div class="form-input-slot">
+                      <div class="form-input-content">
+                        <input type="text" class="form-input" id="form-consumo" placeholder="250">
+                        <span class="form-input-suffix">kWh/Mês</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Row 3: Link + Submit -->
+                <div class="form-footer">
+                  <button class="form-link" id="pdf-link">Adicionar fatura em pdf</button>
+                  <button class="submit-btn" id="manual-submit-btn">Submeter</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Highlights -->
+        <div class="highlights">
+          <div class="highlight-row">
+            <div class="highlight-row-inner">
+              <p class="highlight-text">87% das pessoas já estão no mercado livre. <em>Fonte:</em> <a href="#">Eurostats</a></p>
+            </div>
+          </div>
+          <div class="highlight-row">
+            <div class="highlight-row-inner">
+              <p class="highlight-text">55% dos das pessoas pagam mais 200€/ano por inercia . <em>Fonte:</em> <a href="#">ERSE, 2025</a></p>
+            </div>
+          </div>
+          <div class="highlight-row">
+            <div class="highlight-row-inner">
+              <p class="highlight-text">60% das pessoas no mercado livre nunca mudou de operador. <em>Fonte:</em> <a href="#">ERSE, 2025</a></p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- ==================== RESULTS VIEW ==================== -->
+      <div class="results-content" id="results-view">
+        <!-- Results Title -->
+        <div class="results-title-section">
+          <h1 class="results-title">Melhor proposta</h1>
+          <p class="results-subtitle">Estimativa feita tendo por base uma tarifa simples, uma família de 2 adultos e 1 criança, com uma potência contratada de 4.6 kVA,</p>
+        </div>
+
+        <!-- Result Card Container -->
+        <div class="result-card-container">
+          <!-- Result Card -->
+          <div class="result-card-slot">
+            <div class="result-card">
+              <!-- Card Header -->
+              <div class="result-card-header">
+                <div class="result-card-top">
+                  <div class="provider-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 2C10 2 4 6 4 11C4 14.5 6.5 17 10 17C13.5 17 16 14.5 16 11C16 6 10 2 10 2Z" fill="#0066CC"/>
+                      <path d="M10 8C10 8 7 10 7 12.5C7 14.5 8.5 16 10 16C11.5 16 13 14.5 13 12.5C13 10 10 8 10 8Z" fill="#00AAFF"/>
+                    </svg>
+                  </div>
+                  <div class="result-card-actions">
+                    <div class="btn-slot">
+                      <button class="btn">
+                        <span class="btn-icon">
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.5 9.625V11.375C10.5 11.6511 10.2761 11.875 10 11.875H4C3.72386 11.875 3.5 11.6511 3.5 11.375V9.625" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                            <path d="M7 2.125V8.75M7 8.75L9.625 6.125M7 8.75L4.375 6.125" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </span>
+                        <span>800 101 030</span>
+                      </button>
+                    </div>
+                    <div class="btn-slot">
+                      <button class="btn btn-suffix" style="padding: 8px;">
+                        <span class="btn-icon">
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="7" cy="7" r="5.25" stroke="#35443D" stroke-width="1.2"/>
+                            <path d="M9.5 7H7V4.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="result-card-info">
+                  <p class="provider-name">Endesa</p>
+                  <p class="provider-plan">Tarifa digital luz e Gás</p>
+                </div>
+              </div>
+
+              <!-- Card Data -->
+              <div class="result-data">
+                <div class="data-row">
+                  <div class="data-row-inner">
+                    <div class="data-row-label">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 8H14" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                        <path d="M5 4V12" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                        <path d="M11 4V12" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                      </svg>
+                      <span>Consumo estimado <span class="muted">(mês)</span></span>
+                    </div>
+                    <span class="data-row-value">545 kWh</span>
+                  </div>
+                </div>
+                <div class="data-row">
+                  <div class="data-row-inner">
+                    <div class="data-row-label">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 2L8 14" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                        <path d="M5 5L8 2L11 5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5 11L8 14L11 11" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span>Potência</span>
+                    </div>
+                    <span class="data-row-value">4.6 kVA</span>
+                  </div>
+                </div>
+                <div class="data-row">
+                  <div class="data-row-inner">
+                    <div class="data-row-label">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="4" width="12" height="9" rx="1" stroke="#35443D" stroke-width="1.2"/>
+                        <path d="M5 2V4" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                        <path d="M11 2V4" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                        <path d="M2 7H14" stroke="#35443D" stroke-width="1.2"/>
+                      </svg>
+                      <span>Custo mensal</span>
+                    </div>
+                    <div class="data-row-value-group">
+                      <div class="badge">
+                        <div class="badge-inner">CAMPANHA 20%</div>
+                      </div>
+                      <span class="data-row-value">€96.91</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Savings Bar -->
+                <div class="savings-bar">
+                  <div class="savings-bar-inner">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8 3C8 3 4.5 5.5 4.5 8.5C4.5 10.5 6 12 8 12C10 12 11.5 10.5 11.5 8.5C11.5 5.5 8 3 8 3Z" stroke="#40594c" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M8 12V14" stroke="#40594c" stroke-width="1.2" stroke-linecap="round"/>
+                      <path d="M6 14H10" stroke="#40594c" stroke-width="1.2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Poupas</span>
+                    <span>€23.09/mês,</span>
+                    <span>€277.06/ano</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Result Info -->
+          <div class="result-info">
+            <div class="info-row">
+              <div class="info-row-inner">
+                <span class="info-row-label">Como mudar</span>
+                <span class="info-row-value">Diz que queres aderir à "Tarifa Digital luz e gás"</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-row-inner">
+                <span class="info-row-label">Dados necessários</span>
+                <div class="tags-group">
+                  <div class="tag">
+                    <div class="tag-inner">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="1.5" y="2.5" width="9" height="7" rx="1" stroke="#35443D" stroke-width="1"/>
+                        <path d="M4 5H8" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
+                        <path d="M4 7H6" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
+                      </svg>
+                      <span>CPE</span>
+                    </div>
+                  </div>
+                  <div class="tag">
+                    <div class="tag-inner">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="1.5" width="8" height="9" rx="1" stroke="#35443D" stroke-width="1"/>
+                        <path d="M4 4H8" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
+                        <path d="M4 6H8" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
+                        <path d="M4 8H6" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
+                      </svg>
+                      <span>NIF</span>
+                    </div>
+                  </div>
+                  <div class="tag">
+                    <div class="tag-inner">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 10.5C6 10.5 10 7.5 10 5C10 3.067 8.209 1.5 6 1.5C3.791 1.5 2 3.067 2 5C2 7.5 6 10.5 6 10.5Z" stroke="#35443D" stroke-width="1"/>
+                        <circle cx="6" cy="5" r="1.5" stroke="#35443D" stroke-width="1"/>
+                      </svg>
+                      <span>MORADA</span>
+                    </div>
+                  </div>
+                  <div class="tag">
+                    <div class="tag-inner">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.5 8.5V10C10.5 10.276 10.276 10.5 10 10.5H8.5C4.634 10.5 1.5 7.366 1.5 3.5V2C1.5 1.724 1.724 1.5 2 1.5H4L5 4L3.5 5C4.214 6.571 5.429 7.786 7 8.5L8 7L10.5 8.5Z" stroke="#35443D" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span>TELEFONE</span>
+                    </div>
+                  </div>
+                  <div class="tag">
+                    <div class="tag-inner">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="1" y="2.5" width="10" height="7" rx="1" stroke="#35443D" stroke-width="1"/>
+                        <path d="M1 3.5L6 6.5L11 3.5" stroke="#35443D" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span>EMAIL</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-row-inner">
+                <span class="info-row-label">Quanto tempo demora</span>
+                <span class="info-row-value">4 a 5 dias</span>
+              </div>
+            </div>
+            <div class="disclaimer-row">
+              <p class="disclaimer-text">Não precisas de notificar o teu operado actual ou pagar qualquer valor. O novo operador trada do processo do inicio ao fim com o teu operador actual</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p class="footer-text">Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a> (atualizado mensalmente)</p>
+        <div class="footer-updated">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1.5 6C1.5 8.48528 3.51472 10.5 6 10.5C8.48528 10.5 10.5 8.48528 10.5 6C10.5 3.51472 8.48528 1.5 6 1.5" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
+            <path d="M3 3.5L1.5 1.5" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
+            <path d="M1.5 4V1.5H4" stroke="#35443D" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Actualizado em Agosto de 2025</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // Elements
+    const pageWrapper = document.getElementById('page-wrapper');
+    const tabsWrapper = document.getElementById('tabs-wrapper');
+    const tabsIndicator = document.getElementById('tabs-indicator');
+    const tabEstimado = document.getElementById('tab-estimado');
+    const tabPreciso = document.getElementById('tab-preciso');
+    const inputSlot = document.getElementById('input-slot');
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const manualLink = document.getElementById('manual-link');
+    const manualForm = document.getElementById('manual-form');
+    const pdfLink = document.getElementById('pdf-link');
+    const manualSubmitBtn = document.getElementById('manual-submit-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const valueInput = document.getElementById('value-input');
+    const deleteBtn = document.getElementById('delete-btn');
+    const pillAmount = document.getElementById('pill-amount');
+
+    let activeTab = 'estimado';
+    let isManualMode = false;
+
+    // Move indicator to active tab
+    function moveIndicator(tabElement) {
+      const wrapperRect = tabsWrapper.getBoundingClientRect();
+      const tabRect = tabElement.getBoundingClientRect();
+      
+      const left = tabRect.left - wrapperRect.left;
+      const width = tabRect.width;
+      
+      tabsIndicator.style.transform = `translateX(${left}px)`;
+      tabsIndicator.style.width = `${width}px`;
+    }
+
+    // Tab switching functionality
+    function setEstimadoActive() {
+      activeTab = 'estimado';
+      isManualMode = false;
+      inputSlot.classList.remove('preciso-mode');
+      inputSlot.classList.remove('manual-mode');
+      moveIndicator(tabEstimado);
+    }
+
+    function setPrecisoActive() {
+      activeTab = 'preciso';
+      inputSlot.classList.add('preciso-mode');
+      inputSlot.classList.remove('manual-mode');
+      isManualMode = false;
+      moveIndicator(tabPreciso);
+    }
+
+    function setManualMode() {
+      isManualMode = true;
+      inputSlot.classList.add('manual-mode');
+    }
+
+    function setPdfMode() {
+      isManualMode = false;
+      inputSlot.classList.remove('manual-mode');
+    }
+
+    // Add click handlers
+    tabEstimado.addEventListener('click', setEstimadoActive);
+    tabPreciso.addEventListener('click', setPrecisoActive);
+
+    // Initialize indicator position on load
+    requestAnimationFrame(() => {
+      moveIndicator(tabEstimado);
+    });
+
+    // Show results view
+    function showResults() {
+      const value = valueInput.value || '120';
+      pillAmount.textContent = '€' + value;
+      pageWrapper.classList.add('results-view');
+    }
+
+    // Hide results view
+    function hideResults() {
+      pageWrapper.classList.remove('results-view');
+      
+      // Add returning class for appear animation
+      const inputView = document.getElementById('input-view');
+      inputView.classList.add('returning');
+      
+      // Remove returning class after animations complete
+      setTimeout(() => {
+        inputView.classList.remove('returning');
+      }, 350);
+    }
+
+    // Form submission
+    submitBtn.addEventListener('click', function() {
+      showResults();
+    });
+
+    // Delete button - go back to input
+    deleteBtn.addEventListener('click', function() {
+      hideResults();
+    });
+
+    // Drop area click to open file picker
+    dropArea.addEventListener('click', function(e) {
+      if (e.target !== manualLink) {
+        fileInput.click();
+      }
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file && file.type === 'application/pdf') {
+        handleFile(file);
+      }
+    });
+
+    // Drag and drop handlers
+    dropArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      inputSlot.classList.add('dragging');
+    });
+
+    dropArea.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      inputSlot.classList.remove('dragging');
+    });
+
+    dropArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      inputSlot.classList.remove('dragging');
+      
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'application/pdf') {
+        handleFile(file);
+      }
+    });
+
+    // Handle file
+    function handleFile(file) {
+      console.log('PDF uploaded:', file.name);
+      showResults();
+    }
+
+    // Manual link - switch to manual form mode
+    manualLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      setManualMode();
+    });
+
+    // PDF link - switch back to PDF upload mode
+    pdfLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      setPdfMode();
+    });
+
+    // Manual form submit
+    manualSubmitBtn.addEventListener('click', function() {
+      // Get form values for potential use
+      const consumo = document.getElementById('form-consumo').value || '250';
+      pillAmount.textContent = '€' + Math.round(consumo * 0.16); // Demo calculation
+      pageWrapper.classList.add('results-view');
+    });
+
+    // Handle select change to update opacity
+    document.querySelectorAll('.form-select').forEach(select => {
+      select.addEventListener('change', function() {
+        if (this.value) {
+          this.classList.add('has-value');
+        } else {
+          this.classList.remove('has-value');
+        }
+      });
+    });
+
+    // ================================
+    // COPY BUTTON - Emil Kowalski blur transition
+    // ================================
+    const copyBtn = document.getElementById('copy-btn');
+    let copyTimeout = null;
+
+    copyBtn.addEventListener('click', function() {
+      // Prevent multiple clicks during animation
+      if (copyBtn.classList.contains('copied')) return;
+      
+      // Copy to clipboard (demo - in real app would copy actual content)
+      const textToCopy = 'Guesswatt - Comparador de tarifas de eletricidade';
+      navigator.clipboard.writeText(textToCopy).catch(() => {
+        // Fallback for browsers without clipboard API
+        console.log('Copied:', textToCopy);
+      });
+      
+      // Add copied state with blur transition
+      copyBtn.classList.add('copied');
+      
+      // Reset after 2 seconds
+      clearTimeout(copyTimeout);
+      copyTimeout = setTimeout(() => {
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    });
+
+    // ================================
+    // DROPDOWN - Emil Kowalski animations
+    // Transform origin, staggered items, blur
+    // ================================
+    const dropdownWrapper = document.getElementById('dropdown-wrapper');
+    const dropdownTrigger = document.getElementById('dropdown-trigger');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
+
+    // Toggle dropdown
+    dropdownTrigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dropdownWrapper.classList.toggle('open');
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+      if (!dropdownWrapper.contains(e.target)) {
+        dropdownWrapper.classList.remove('open');
+      }
+    });
+
+    // Close on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        dropdownWrapper.classList.remove('open');
+      }
+    });
+
+    // Handle dropdown item clicks
+    dropdownItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const action = this.dataset.action;
+        
+        // Close dropdown with slight delay for click feedback
+        setTimeout(() => {
+          dropdownWrapper.classList.remove('open');
+        }, 100);
+        
+        // Handle actions
+        switch(action) {
+          case 'markdown':
+            const markdown = '# Guesswatt\n\nComparador de tarifas de eletricidade em Portugal.';
+            navigator.clipboard.writeText(markdown).catch(() => {
+              console.log('Copied markdown');
+            });
+            // Show copied feedback on main button
+            copyBtn.classList.add('copied');
+            clearTimeout(copyTimeout);
+            copyTimeout = setTimeout(() => {
+              copyBtn.classList.remove('copied');
+            }, 2000);
+            break;
+            
+          case 'chatgpt':
+            window.open('https://chat.openai.com/', '_blank');
+            break;
+            
+          case 'claude':
+            window.open('https://claude.ai/', '_blank');
+            break;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -152,6 +152,37 @@ export function initTabs(setCurrentMode, getTabResult) {
   const tabs = document.querySelectorAll('.tab');
   const forms = document.querySelectorAll('.mode-form');
   const resultDiv = document.getElementById('result');
+  const tabsWrapper = document.getElementById('tabs-wrapper');
+  const tabsIndicator = document.getElementById('tabs-indicator');
+  const tabEstimado = document.getElementById('tab-estimado');
+  const tabPreciso = document.getElementById('tab-preciso');
+  
+  /**
+   * Move indicator to active tab
+   * @param {HTMLElement} tabElement - Active tab element
+   */
+  function moveIndicator(tabElement) {
+    if (!tabsIndicator || !tabElement || !tabsWrapper) return;
+    
+    const wrapperRect = tabsWrapper.getBoundingClientRect();
+    const tabRect = tabElement.getBoundingClientRect();
+    
+    const left = tabRect.left - wrapperRect.left;
+    const width = tabRect.width;
+    
+    tabsIndicator.style.transform = `translateX(${left}px)`;
+    tabsIndicator.style.width = `${width}px`;
+  }
+  
+  // Initialize indicator position on load
+  if (tabEstimado && tabsIndicator) {
+    requestAnimationFrame(() => {
+      moveIndicator(tabEstimado);
+    });
+  }
+  
+  // Get input-slot element for preciso-mode class toggle
+  const inputSlot = document.getElementById('input-slot');
   
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
@@ -159,25 +190,29 @@ export function initTabs(setCurrentMode, getTabResult) {
       setCurrentMode(mode);
       
       // Update tab active state
-      tabs.forEach(t => t.classList.remove('active'));
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
       tab.classList.add('active');
-      
-      // Update aria-selected
-      tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
       tab.setAttribute('aria-selected', 'true');
       
-      // Show/hide forms
-      forms.forEach(form => {
-        form.classList.remove('active');
-      });
+      // Move indicator
+      moveIndicator(tab);
       
-      if (mode === 'estimate') {
-        const estimateForm = document.getElementById('estimate-form');
-        if (estimateForm) estimateForm.classList.add('active');
-      } else if (mode === 'precise') {
-        const preciseMode = document.getElementById('precise-mode');
-        if (preciseMode) preciseMode.classList.add('active');
+      // CRITICAL: Toggle preciso-mode class on input-slot
+      if (inputSlot) {
+        if (mode === 'estimate') {
+          inputSlot.classList.remove('preciso-mode');
+          inputSlot.classList.remove('manual-mode');
+        } else if (mode === 'precise') {
+          inputSlot.classList.add('preciso-mode');
+          // Don't add manual-mode here - that's only for the manual form link
+        }
       }
+      
+      // CSS now handles all visibility via parent .preciso-mode and .manual-mode classes
+      // No need to toggle .active on individual elements
       
       // Mostrar/esconder resultado da tab atual
       const cachedResult = getTabResult(mode);

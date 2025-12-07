@@ -32,8 +32,68 @@ class AppCard extends HTMLElement {
           container-type: inline-size;
         }
         
+        :host([borderless]) {
+          background-color: transparent;
+          border: none;
+          padding: 0;
+        }
+        
+        /* Card structure matching Figma: nested borders and shadows */
+        :host([card-style]) {
+          border: 0.5px solid rgba(0, 0, 0, 0.12);
+          border-radius: 16px;
+          padding: 0;
+          background: transparent;
+          position: relative;
+          width: 100%;
+        }
+        
+        /* Inner white border container */
+        :host([card-style])::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border: 1px solid white;
+          border-radius: 16px;
+          box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.04);
+          pointer-events: none;
+          z-index: 0;
+        }
+        
+        /* Inset shadows for depth */
+        :host([card-style])::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 16px;
+          box-shadow: 
+            -2px 2px 8px 0px inset rgba(0, 0, 0, 0.04),
+            2px -2px 8px 0px inset rgba(255, 255, 255, 0.3);
+          pointer-events: none;
+          z-index: 1;
+        }
+        
+        :host([card-style]) > * {
+          position: relative;
+          z-index: 2;
+        }
+        
+        /* Remove default padding from card-style */
+        :host([card-style][borderless]) {
+          padding: 0;
+        }
+        
+        /* Header slot should have no margin when in card */
+        :host([card-style]) ::slotted([slot="header"]) {
+          margin-block-end: 0;
+        }
+        
         ::slotted([slot="header"]) {
           margin-block-end: var(--space-4);
+        }
+        
+        :host([borderless]) ::slotted([slot="header"]) {
+          margin-block-end: var(--space-6);
         }
         
         /* Container query: stack content vertically on narrow cards */
@@ -68,29 +128,50 @@ class AppTabs extends HTMLElement {
           display: block;
         }
         
-        /* Style the tabs container and buttons via slotted content */
+        /* Style the tabs container and buttons via slotted content - Matching Figma exactly */
         ::slotted(.tabs) {
           display: flex;
-          gap: var(--space-2);
+          gap: 0;
+          background: transparent;
+          padding: 0;
+          align-items: center;
         }
         
         ::slotted(.tabs button) {
-          display: inline-block;
-          padding: var(--space-2) var(--space-4);
+          padding: 6px 10px;
           background-color: transparent;
-          border: 1px solid var(--color-border-subtle);
-          border-radius: var(--radius-md);
+          border: none;
+          border-radius: 6px;
           cursor: pointer;
           transition: var(--transition-colors);
+          font-family: var(--font-sans);
+          font-size: 14px;
+          font-weight: var(--font-medium);
+          line-height: 20px;
+          color: var(--foreground);
+          position: relative;
         }
         
-        ::slotted(.tabs button:hover) {
-          background-color: var(--color-gray-1);
-        }
-        
+        /* Active tab - white background with shadows */
         ::slotted(.tabs button.active) {
-          background-color: var(--color-accent-soft);
-          border-color: var(--color-accent);
+          background-color: #f0f0f0;
+          border: 0.5px solid white;
+          box-shadow: 
+            2px 2px 6px 0px rgba(0, 0, 0, 0.02),
+            0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+          opacity: 0.9;
+          z-index: 2;
+        }
+        
+        /* Inactive tab - subtle background */
+        ::slotted(.tabs button:not(.active)) {
+          background-color: rgba(0, 0, 0, 0.02);
+          border: 0.5px solid #eaeaea;
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+          border-top-right-radius: 6px;
+          border-bottom-right-radius: 6px;
+          z-index: 1;
         }
       </style>
       <slot></slot>

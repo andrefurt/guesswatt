@@ -1,0 +1,112 @@
+/**
+ * Animation Utilities - Emil Kowalski Style
+ * 
+ * Extracted from design.html
+ * All animations follow the principles:
+ * - Blur + translateY for appear effects
+ * - < 300ms duration
+ * - Snappy ease-out curves
+ * - Staggered delays for lists
+ */
+
+@layer utilities {
+  /* ═══════════════════════════════════════════════════════════
+     APPEAR ANIMATION - Core pattern
+     ═══════════════════════════════════════════════════════════ */
+  
+  @keyframes appearIn {
+    0% {
+      opacity: 0;
+      transform: translateY(0.5rem);
+      filter: blur(3px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+  }
+  
+  @keyframes cardAppear {
+    0% {
+      opacity: 0;
+      transform: translateY(0.625rem) scale(0.98);
+      filter: blur(4px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+  
+  @keyframes savingsAppear {
+    0% {
+      opacity: 0;
+      transform: translateY(0.25rem) scale(0.97);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes pillAppear {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-0.375rem) scale(0.97);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+  }
+  
+  /* ═══════════════════════════════════════════════════════════
+     UTILITY CLASSES
+     ═══════════════════════════════════════════════════════════ */
+  
+  .animate-appear {
+    animation: appearIn var(--duration-slower) var(--ease-out) forwards;
+  }
+  
+  .animate-card-appear {
+    animation: cardAppear var(--duration-slowest) var(--ease-out) forwards;
+  }
+  
+  .animate-savings-appear {
+    animation: savingsAppear var(--duration-slow) var(--ease-spring) forwards;
+  }
+  
+  .animate-pill-appear {
+    animation: pillAppear var(--duration-slower) var(--ease-out) forwards;
+  }
+  
+  /* Staggered animation delays */
+  .stagger-1 { animation-delay: calc(1 * var(--stagger-delay)); }
+  .stagger-2 { animation-delay: calc(2 * var(--stagger-delay)); }
+  .stagger-3 { animation-delay: calc(3 * var(--stagger-delay)); }
+  .stagger-4 { animation-delay: calc(4 * var(--stagger-delay)); }
+  .stagger-5 { animation-delay: calc(5 * var(--stagger-delay)); }
+  
+  /* ═══════════════════════════════════════════════════════════
+     REDUCED MOTION - Respect user preferences
+     ═══════════════════════════════════════════════════════════ */
+  
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    
+    /* Disable blur on reduced motion for performance */
+    * {
+      filter: none !important;
+    }
+  }
+}
+

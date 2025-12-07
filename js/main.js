@@ -18,6 +18,7 @@ import {
 } from './pdf-service.js';
 import { initTooltips, initTabs, populateProvidersDropdown } from './ui-components.js';
 import { renderResult } from './ui-renderer.js';
+import { initUIHandlers, showResults, hideResults, setEstimadoData, setInvoiceData } from './ui-handlers.js';
 
 // =============================================================================
 // STATE MANAGEMENT
@@ -114,6 +115,9 @@ async function handleEstimateSubmit(e) {
   
   resultDiv.innerHTML = '<p>A calcular...</p>';
   
+  // Set estimado mode data for input pill
+  setEstimadoData(monthlyBill);
+  
   try {
     // 1. Carregar dados (prefers offers.json, falls back to CSV)
     const { prices, conditions, offers } = await loadOffers();
@@ -188,6 +192,21 @@ async function handlePreciseSubmit(e) {
   if (!resultDiv) return;
   
   resultDiv.innerHTML = '<p>A calcular...</p>';
+  
+  // Get tariff name for pill
+  const tariffNames = { 1: 'Simples', 2: 'Bi-horária', 3: 'Tri-horária' };
+  const tariffName = tariffNames[tariffType] || 'Simples';
+  
+  // Get provider name for pill
+  const providerName = currentProvider ? (PROVIDERS[currentProvider] || currentProvider) : 'Manual';
+  
+  // Set invoice data for input pill (manual entry)
+  setInvoiceData({
+    provider: providerName,
+    tariff: tariffName,
+    consumption: consumption,
+    power: power
+  });
   
   try {
     // 1. Validar inputs
@@ -306,15 +325,15 @@ async function calculateFromPDFWrapper() {
  * Initialize application
  */
 function init() {
+  // Inicializar UI handlers (copy, dropdown, delete button)
+  initUIHandlers();
+  
   // Popular dropdown de operadores
   populateProvidersDropdown();
   
-  // Esconder resultado inicialmente
+  // Event delegation for copy phone button (works for both new and cached results)
   const resultDiv = document.getElementById('result');
   if (resultDiv) {
-    resultDiv.style.display = 'none';
-    
-    // Event delegation for copy phone button (works for both new and cached results)
     resultDiv.addEventListener('click', async (e) => {
       const copyPhoneBtn = e.target.closest('.copy-phone-btn');
       if (copyPhoneBtn) {
@@ -342,6 +361,43 @@ function init() {
   // Inicializar PDF upload (pass calculateFromPDFWrapper as callback for auto-calculation)
   initPDFUpload(clearTabResult, setManualFormVisible, getManualFormVisible, calculateFromPDFWrapper);
   
+  // Event delegation for manual-link (can be recreated dynamically)
+  const inputSlot = document.getElementById('input-slot');
+  const pdfLink = document.getElementById('pdf-link');
+  
+  // Use event delegation on document for manual-link
+  document.addEventListener('click', (e) => {
+    const manualLink = e.target.closest('#manual-link');
+    if (manualLink) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Show manual form - need BOTH preciso-mode AND manual-mode on input-slot
+      if (inputSlot) {
+        inputSlot.classList.add('preciso-mode');
+        inputSlot.classList.add('manual-mode');
+      }
+      // CSS handles visibility via .preciso-mode.manual-mode .manual-form
+      
+      setManualFormVisible(true);
+    }
+  });
+  
+  if (pdfLink) {
+    pdfLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Hide manual form, show PDF upload
+      // CSS handles visibility via .preciso-mode.manual-mode selectors
+      if (inputSlot) {
+        inputSlot.classList.remove('manual-mode');
+        // Keep preciso-mode class - CSS shows drop-area when manual-mode is removed
+      }
+      
+      setManualFormVisible(false);
+    });
+  }
+  
   // Inicializar tooltips
   initTooltips();
   
@@ -365,4 +421,3 @@ if (document.readyState === 'loading') {
   // DOM já está pronto
   init();
 }
-

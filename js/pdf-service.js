@@ -7,6 +7,7 @@ import { PROVIDERS } from './config.js';
 import { findBestOfferForTariff, calculateMonthlyCost, enrichOffer } from './calculator.js';
 import { loadOffers } from './utils.js';
 import { initTooltips } from './ui-components.js';
+import { setInvoiceData } from './ui-handlers.js';
 
 // PDF data state (managed by this module)
 let pdfData = null;
@@ -131,9 +132,10 @@ export function parseInvoiceText(text) {
  * Show PDF loading state
  */
 export function showPDFLoading() {
-  const emptyState = document.getElementById('pdf-empty');
-  if (emptyState) {
-    emptyState.innerHTML = '<p>A processar PDF...</p>';
+  const dropArea = document.getElementById('precise-mode');
+  const dropAreaText = dropArea?.querySelector('.drop-area-text p');
+  if (dropAreaText) {
+    dropAreaText.textContent = 'A processar PDF...';
   }
 }
 
@@ -143,39 +145,35 @@ export function showPDFLoading() {
  * @param {Function} onDataShown - Callback to call after showing data (for auto-calculation)
  */
 export function showPDFData(data, onDataShown) {
-  const uploadBox = document.getElementById('pdf-upload-box');
-  const emptyState = document.getElementById('pdf-empty');
-  const loadedState = document.getElementById('pdf-loaded');
-  const dataContainer = document.getElementById('pdf-extracted-data');
-  const toggleManual = document.getElementById('toggle-manual');
-  const preciseForm = document.getElementById('precise-form');
+  const dropArea = document.getElementById('precise-mode');
+  const dropAreaText = dropArea?.querySelector('.drop-area-text');
+  const manualLink = document.getElementById('manual-link');
   
-  if (!uploadBox || !emptyState || !loadedState || !dataContainer) return;
+  if (!dropArea || !dropAreaText) return;
   
-  // Esconder estado vazio, mostrar estado carregado
-  emptyState.style.display = 'none';
-  loadedState.style.display = 'flex';
-  uploadBox.classList.add('has-file');
-  
-  // Mostrar dados extraídos
+  // Mostrar dados extraídos no drop area
   const providerName = data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detectado';
   const tariffName = data.tariffType === 1 ? 'Simples' : data.tariffType === 2 ? 'Bi-horária' : 'Tri-horária';
   
-  const tariffTooltip = data.tariffType === 1 ? 'tarifa-simples' : data.tariffType === 2 ? 'tarifa-bihoraria' : 'tarifa-trihoraria';
-  
-  dataContainer.innerHTML = `
-    <p><strong>Operador:</strong> ${providerName}</p>
-    <p><strong>Consumo:</strong> ${data.consumption} kWh<span class="tooltip-trigger" data-tooltip="kwh">ⓘ</span></p>
-    <p><strong>Potência:</strong> ${data.power} kVA<span class="tooltip-trigger" data-tooltip="kva">ⓘ</span></p>
-    <p><strong>Tarifa:</strong> ${tariffName}<span class="tooltip-trigger" data-tooltip="${tariffTooltip}">ⓘ</span></p>
+  // Update drop area text to show loaded state
+  dropAreaText.innerHTML = `
+    <p>✓ Factura carregada</p>
+    <p class="pdf-data-summary">${providerName} · ${tariffName} · ${data.consumption} kWh · ${data.power} kVA</p>
   `;
   
-  // Reinicializar tooltips após mostrar dados do PDF
-  initTooltips();
+  // Hide manual link
+  if (manualLink) manualLink.style.display = 'none';
   
-  // Esconder link manual e form
-  if (toggleManual) toggleManual.style.display = 'none';
-  if (preciseForm) preciseForm.style.display = 'none';
+  // Mark drop area as having file
+  dropArea.classList.add('has-file');
+  
+  // Update input pill with invoice data
+  setInvoiceData({
+    provider: providerName,
+    tariff: tariffName,
+    consumption: data.consumption,
+    power: data.power
+  });
   
   // Calcular automaticamente após mostrar dados
   if (onDataShown) {
@@ -188,10 +186,9 @@ export function showPDFData(data, onDataShown) {
  * @param {Function} clearTabResult - Function to clear tab result
  */
 export function clearPDF(clearTabResult) {
-  const uploadBox = document.getElementById('pdf-upload-box');
-  const emptyState = document.getElementById('pdf-empty');
-  const loadedState = document.getElementById('pdf-loaded');
-  const toggleManual = document.getElementById('toggle-manual');
+  const dropArea = document.getElementById('precise-mode');
+  const dropAreaText = dropArea?.querySelector('.drop-area-text');
+  const manualLink = document.getElementById('manual-link');
   const pdfInput = document.getElementById('pdf-input');
   
   // Reset estado
@@ -199,22 +196,18 @@ export function clearPDF(clearTabResult) {
   if (pdfInput) pdfInput.value = '';
   
   // Restaurar UI
-  if (emptyState) {
-    emptyState.style.display = 'flex';
-    emptyState.innerHTML = `
-      <span class="pdf-icon">📄</span>
-      <p>Arrasta a tua factura PDF</p>
-      <p class="pdf-hint">ou clica para seleccionar</p>
+  if (dropAreaText) {
+    dropAreaText.innerHTML = `
+      <p>Clica ou arrasta a tua fatura PDF</p>
+      <a href="#" id="manual-link" aria-label="Introduzir dados da fatura manualmente">Adicionar dados manualmente</a>
     `;
   }
-  if (loadedState) loadedState.style.display = 'none';
-  if (uploadBox) uploadBox.classList.remove('has-file');
   
-  // Mostrar link manual
-  if (toggleManual) {
-    toggleManual.style.display = 'block';
-    toggleManual.textContent = 'Introduzir dados manualmente';
-  }
+  // Remove has-file class
+  if (dropArea) dropArea.classList.remove('has-file');
+  
+  // Show manual link
+  if (manualLink) manualLink.style.display = 'inline';
   
   // Esconder resultado quando PDF é removido
   const resultDiv = document.getElementById('result');
@@ -361,6 +354,13 @@ export function getPDFData() {
 }
 
 /**
+ * Reset PDF data state (called when returning to input view)
+ */
+export function resetPDFData() {
+  pdfData = null;
+}
+
+/**
  * Initialize PDF upload functionality
  * @param {Function} clearTabResult - Function to clear tab result
  * @param {Function} setManualFormVisible - Function to set manual form visibility
@@ -368,34 +368,35 @@ export function getPDFData() {
  * @param {Function} onDataShown - Callback to call after showing PDF data
  */
 export function initPDFUpload(clearTabResult, setManualFormVisible, getManualFormVisible, onDataShown) {
-  const uploadBox = document.getElementById('pdf-upload-box');
+  const dropArea = document.getElementById('precise-mode');
   const pdfInput = document.getElementById('pdf-input');
-  const toggleManual = document.getElementById('toggle-manual');
-  const preciseForm = document.getElementById('precise-form');
-  const pdfRemove = document.getElementById('pdf-remove');
+  const inputSlot = document.getElementById('input-slot');
   
-  if (!uploadBox || !pdfInput) return;
+  if (!dropArea || !pdfInput) return;
   
-  // Clicar na caixa abre file picker
-  uploadBox.addEventListener('click', (e) => {
-    if (!pdfData && e.target !== pdfRemove && !e.target.closest('#pdf-loaded')) {
+  // Clicar na drop area abre file picker (exceto no link manual)
+  dropArea.addEventListener('click', (e) => {
+    const manualLink = e.target.closest('#manual-link');
+    if (!pdfData && !manualLink) {
       pdfInput.click();
     }
   });
   
   // Drag and drop
-  uploadBox.addEventListener('dragover', (e) => {
+  dropArea.addEventListener('dragover', (e) => {
     e.preventDefault();
-    if (!pdfData) uploadBox.classList.add('drag-over');
+    if (!pdfData && inputSlot) {
+      inputSlot.classList.add('dragging');
+    }
   });
   
-  uploadBox.addEventListener('dragleave', () => {
-    uploadBox.classList.remove('drag-over');
+  dropArea.addEventListener('dragleave', (e) => {
+    if (inputSlot) inputSlot.classList.remove('dragging');
   });
   
-  uploadBox.addEventListener('drop', (e) => {
+  dropArea.addEventListener('drop', (e) => {
     e.preventDefault();
-    uploadBox.classList.remove('drag-over');
+    if (inputSlot) inputSlot.classList.remove('dragging');
     if (!pdfData && e.dataTransfer.files.length) {
       handlePDFFile(e.dataTransfer.files[0], clearTabResult, onDataShown);
     }
@@ -407,27 +408,4 @@ export function initPDFUpload(clearTabResult, setManualFormVisible, getManualFor
       handlePDFFile(e.target.files[0], clearTabResult, onDataShown);
     }
   });
-  
-  // Toggle manual form
-  if (toggleManual) {
-    toggleManual.addEventListener('click', () => {
-      const isVisible = !getManualFormVisible();
-      setManualFormVisible(isVisible);
-      if (preciseForm) {
-        preciseForm.style.display = isVisible ? 'block' : 'none';
-      }
-      toggleManual.textContent = isVisible 
-        ? 'Esconder formulário' 
-        : 'Introduzir dados manualmente';
-    });
-  }
-  
-  // Remove PDF
-  if (pdfRemove) {
-    pdfRemove.addEventListener('click', (e) => {
-      e.stopPropagation();
-      clearPDF(clearTabResult);
-    });
-  }
 }
-

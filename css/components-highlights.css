@@ -1,0 +1,40 @@
+/**
+ * Highlights/Social Proof Component - Design System Implementation
+ * 
+ * Pixel-perfect match to design.html highlights section
+ */
+
+@layer components {
+  .highlights {
+    padding: var(--space-3); /* 12px */
+  }
+  
+  .highlight-row {
+    border-bottom: 0.5px solid var(--color-border-default, rgba(0, 0, 0, 0.12));
+  }
+  
+  .highlight-row-inner {
+    padding: var(--space-5) 0; /* 20px 0 */
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.5);
+  }
+  
+  .highlight-text {
+    font-family: var(--font-sans);
+    font-weight: var(--font-medium);
+    font-size: var(--text-base, 0.875rem); /* 14px */
+    line-height: 1.2;
+    letter-spacing: -0.03em; /* -0.42px */
+    color: var(--color-foreground-secondary, #8E8C89);
+  }
+  
+  .highlight-text em {
+    font-style: italic;
+  }
+  
+  .highlight-text a {
+    font-style: italic;
+    text-decoration: underline;
+    color: inherit;
+  }
+}
+
