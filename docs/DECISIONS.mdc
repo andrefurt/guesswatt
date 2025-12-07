@@ -4,7 +4,7 @@ globs:
   alwaysApply: true
 ---
 
-# LessWatt v2 - Architecture Decision Records
+# GuessWatt - Architecture Decision Records
 
 Decisões técnicas e de produto documentadas. Cada ADR segue o formato: contexto → opções → decisão → consequências.
 
@@ -633,7 +633,7 @@ Encodar estado no URL como base64.
 
 **Formato:**
 ```
-lesswatt.pt/?s=eyJwIjo0LjYsImMiOjM1MCwiYiI6NzF9
+guesswatt.pt/?s=eyJwIjo0LjYsImMiOjM1MCwiYiI6NzF9
 ```
 
 **Decoded:**

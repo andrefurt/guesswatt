@@ -4,13 +4,13 @@ globs:
   alwaysApply: false
 ---
 
-# LessWatt v2 - Concept Validation
+# GuessWatt - Concept Validation
 
 ## Mission
 
 Break consumer inertia in the Portuguese energy market. Help people realize they're losing money and make switching effortless.
 
-> The problem isn't information. It's inertia. LessWatt's job is to break it.
+> The problem isn't information. It's inertia. GuessWatt's job is to break it.
 
 ---
 
@@ -80,7 +80,7 @@ Break consumer inertia in the Portuguese energy market. Help people realize they
 │       │                             │  - No lock-in│            │
 │       ▼                             │  - Can switch│            │
 │  ┌──────────────────┐               │    monthly   │            │
-│  │    LESSWATT      │               └──────────────┘            │
+│  │    GUESSWATT     │               └──────────────┘            │
 │  │                  │                      ▲                    │
 │  │  Transforms data │                      │                    │
 │  │  into insight    │──────────────────────┘                    │
@@ -300,7 +300,7 @@ Value  =  ───────────────────────�
 │                                                                  │
 │   Portugal has ~4 million households.                            │
 │                                                                  │
-│   If 1% use LessWatt and switch → €8-16M saved collectively.    │
+│   If 1% use GuessWatt and switch → €8-16M saved collectively.    │
 │                                                                  │
 │   That's impact without being a business.                        │
 │                                                                  │
@@ -336,7 +336,7 @@ Value  =  ───────────────────────�
 
 ## Summary
 
-LessWatt is a **wake-up call tool**, not a comparison engine.
+GuessWatt is a **wake-up call tool**, not a comparison engine.
 
 The job is to:
 1. **Shock** → "You're losing €288/year"

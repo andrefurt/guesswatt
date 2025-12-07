@@ -4,7 +4,7 @@ globs:
   alwaysApply: false
 ---
 
-# LessWatt v2 - Implementation Phases
+# GuessWatt - Implementation Phases
 
 Each phase is a discrete unit of work with clear deliverables, documented decisions, and a11y validation.
 
@@ -17,7 +17,7 @@ Each phase is a discrete unit of work with clear deliverables, documented decisi
 ### Deliverables
 
 ```
-lesswatt/
+guesswatt/
 ├── index.html              # Semantic structure
 ├── css/
 │   ├── tokens.css          # Design tokens
@@ -66,7 +66,7 @@ lesswatt/
 ```html
 <main class="center stack">
   <header>
-    <h1>LessWatt</h1>
+    <h1>GuessWatt</h1>
     <p>Descobre quanto perdes em eletricidade</p>
   </header>
   
@@ -786,7 +786,7 @@ function generateICS({ months, currentCost, bestCost, savings, url }) {
 
 ```javascript
 const shareText = `Descobri que perdia €${savings}/ano em eletricidade. Vê quanto perdes tu:`;
-const shareUrl = `https://lesswatt.pt/?s=${encodedState}`;
+const shareUrl = `https://guesswatt.pt/?s=${encodedState}`;
 ```
 
 ---

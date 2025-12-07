@@ -1,14 +1,14 @@
 ---
-description: "AI assistant behaviour, project context, and coding standards for LessWatt v2"
+description: "AI assistant behaviour, project context, and coding standards for GuessWatt"
 globs:
   alwaysApply: true
 ---
 
-# LessWatt v2 - Cursor Rules
+# GuessWatt - Cursor Rules
 
 ## Project Context
 
-LessWatt is a Portuguese electricity tariff comparison tool. Zero backend, zero framework, zero build step. Pure client-side vanilla JS with modern CSS.
+GuessWatt is a Portuguese electricity tariff comparison tool. Zero backend, zero framework, zero build step. Pure client-side vanilla JS with modern CSS.
 
 **Mission:** Break consumer inertia by showing people how much they're losing, not how much they could save.
 

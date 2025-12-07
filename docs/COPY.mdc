@@ -4,7 +4,7 @@ globs:
   alwaysApply: false
 ---
 
-# LessWatt v2 - Copy Guidelines
+# GuessWatt - Copy Guidelines
 
 ## Tom de Voz
 
@@ -531,7 +531,7 @@ Default: **2 meses**
 ```
 Título:     Verificar tarifa de eletricidade
 Descrição:  Última vez pagavas €95/mês e podias poupar €288/ano.
-            Vê se há ofertas melhores: lesswatt.pt/r/abc123
+            Vê se há ofertas melhores: guesswatt.pt/r/abc123
 ```
 
 ---
@@ -551,7 +551,7 @@ paga luz a mais.
 
 ```
 Descobri que podia poupar €288/ano em eletricidade. 
-Vê quanto perdes tu: lesswatt.pt
+Vê quanto perdes tu: guesswatt.pt
 ```
 
 **Confirmação:**
@@ -631,7 +631,7 @@ A calcular poupança...      (não "Por favor aguarde...")
 
 ### Micro-copy
 
-| Contexto | ❌ Genérico | ✅ LessWatt |
+| Contexto | ❌ Genérico | ✅ GuessWatt |
 |----------|------------|-------------|
 | Submeter | "Submeter" | "Ver quanto perco" |
 | Cancelar | "Cancelar" | "Voltar" |
@@ -646,7 +646,7 @@ A calcular poupança...      (não "Por favor aguarde...")
 ### Footer / Meta
 
 ```
-LessWatt compara tarifas de eletricidade em Portugal.
+GuessWatt compara tarifas de eletricidade em Portugal.
 Não somos uma empresa de energia. Não vendemos nada.
 
 Dados: ERSE (atualizado mensalmente)
