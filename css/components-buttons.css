@@ -175,16 +175,21 @@
     background: var(--color-border-default);
   }
   
-  /* Dropdown trigger suffix button - square */
+  /* Icon button (suffix) - square, matches secondary button visual style */
   .btn-suffix {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--space-8);
-    height: var(--space-8);
-    padding: 0;
-    border: none;
-    box-shadow: none;
+    /* Calculate padding to make square button matching button height */
+    /* Button height = var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) = ~32px */
+    /* For square: padding = (height - icon size) / 2 */
+    padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-base-size)) / 2);
+    border: 0.5px solid white; /* Same border as secondary button */
+    border-radius: var(--radius-sm);
+    background: transparent; /* Same background as secondary button */
+    box-shadow: var(--shadow-xs); /* Same shadow as secondary button */
+    /* Remove gap since icon-only button doesn't need spacing */
+    gap: 0;
   }
   
   /* ═══════════════════════════════════════════════════════════

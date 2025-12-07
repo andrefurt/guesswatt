@@ -103,7 +103,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   if (enrichedBest.website) {
     websiteButtonHTML = `
       <div class="btn-slot">
-        <a href="${enrichedBest.website}" target="_blank" rel="noopener" class="btn btn-suffix" style="padding: 8px;" aria-label="Visitar website da ${providerName}">
+        <a href="${enrichedBest.website}" target="_blank" rel="noopener" class="btn btn-suffix" aria-label="Visitar website da ${providerName}">
           <span class="btn-icon">
             <i class="ph-duotone ph-globe"></i>
           </span>
