@@ -107,7 +107,7 @@
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
   }
   
   /* Legacy SVG support */
