@@ -289,8 +289,8 @@
      ═══════════════════════════════════════════════════════════ */
   
   .savings-bar {
-    border: 0.5px solid var(--color-border-accent); /* Green outer border */
-    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--color-border-accent); /* Green outer border rgba(64,89,76,0.3) */
+    border-radius: var(--radius-sm); /* 6px */
     height: 2.75rem; /* 44px - fixed height for savings bar */
     margin-top: var(--space-3);
     position: relative;
@@ -300,14 +300,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-1);
+    gap: var(--space-1); /* 4px gap */
     height: calc(2.75rem - 1px); /* 44px - 1px (0.5px margin top + 0.5px margin bottom) */
     margin: 0.5px; /* Inset from outer border to create inner border effect */
-    padding: var(--space-1) var(--space-2);
+    padding: var(--space-1) var(--space-2); /* 4px vertical, 8px horizontal */
     border: 0.5px solid white; /* White inner border */
-    border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
+    border-radius: var(--radius-sm); /* 6px - same as parent, margin creates inset */
     background: var(--color-savings-bar-bg);
-    box-shadow: var(--shadow-xs);
+    box-shadow: var(--shadow-savings-bar); /* 0px 4px 8px 0px rgba(113,152,131,0.08) */
     position: relative;
   }
   
@@ -315,8 +315,8 @@
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: calc(var(--radius-sm) - 0.5px);
-    box-shadow: var(--shadow-inset-dark);
+    border-radius: var(--radius-sm); /* 6px - matches inner border-radius */
+    box-shadow: var(--shadow-inset-dark); /* -1px 1px 4px 0px rgba(113,152,131,0.04) inset */
     pointer-events: none;
   }
   

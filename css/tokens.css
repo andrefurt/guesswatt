@@ -231,6 +231,7 @@
   --shadow-inset-light: -2px 2px 8px 0px rgba(0, 0, 0, 0.04) inset,
                         2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset; /* Light inset shadow, cards */
   --shadow-inset-dark: -1px 1px 4px 0px rgba(113, 152, 131, 0.04) inset; /* Dark inset shadow, savings bar */
+  --shadow-savings-bar: 0px 4px 8px 0px rgba(113, 152, 131, 0.08); /* Savings bar outer shadow */
   
   --shadow-button: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
                    0px 0px 0px 1px #35443D; /* Submit button shadow */
