@@ -301,14 +301,13 @@
     align-items: center;
     justify-content: center;
     gap: var(--space-1); /* 4px gap */
-    height: calc(2.75rem - 1px); /* 44px - 1px (0.5px margin top + 0.5px margin bottom) */
-    margin: 0.5px; /* Inset from outer border to create inner border effect */
+    position: absolute;
+    inset: 0; /* Fill parent completely */
     padding: var(--space-1) var(--space-2); /* 4px vertical, 8px horizontal */
     border: 0.5px solid white; /* White inner border */
-    border-radius: var(--radius-sm); /* 6px - same as parent, margin creates inset */
+    border-radius: var(--radius-sm); /* 6px - same as parent */
     background: var(--color-savings-bar-bg);
     box-shadow: var(--shadow-savings-bar); /* 0px 4px 8px 0px rgba(113,152,131,0.08) */
-    position: relative;
   }
   
   .savings-bar-inner::after {
