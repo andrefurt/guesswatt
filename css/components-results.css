@@ -285,29 +285,10 @@
      ═══════════════════════════════════════════════════════════ */
   
   .savings-bar {
-    /* Extends .interactive-base structure */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-1);
-    padding: var(--space-1) var(--space-2);
     border: 0.5px solid var(--color-border-accent);
     border-radius: var(--radius-sm);
-    background: var(--color-savings-bar-bg);
-    box-shadow: var(--shadow-xs);
     height: 2.75rem; /* 44px - fixed height for savings bar */
     margin-top: var(--space-3);
-    position: relative;
-  }
-  
-  .savings-bar::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 0.5px solid white;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-inset-dark);
-    pointer-events: none;
   }
   
   /* Phosphor Duotone icons styling */
