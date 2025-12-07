@@ -118,13 +118,13 @@
   }
   
   .provider-icon {
-    width: var(--space-8);
-    height: var(--space-8);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--radius-sm); /* 6px gap - matches Figma design */
-    padding: var(--radius-sm) var(--space-3); /* 6px vertical, 12px horizontal - matches Figma px-[12.5px] py-[0.5px] */
+    /* Calculate padding to make square container matching button height (~32px) */
+    /* Button height = var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) = ~32px */
+    /* For square: padding = (height - icon size) / 2 */
+    padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-lg-size)) / 2);
     border: 0.5px solid white; /* Same border as secondary button */
     border-radius: var(--radius-sm); /* 6px - same as buttons */
     background: var(--bg-high); /* More prominent background - oklch(95% 0 0) #F0F0EF */
