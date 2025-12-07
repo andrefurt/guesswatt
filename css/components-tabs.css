@@ -1,0 +1,104 @@
+/**
+ * Tabs Component - Design System Implementation
+ * 
+ * Pixel-perfect match to design.html tab switcher
+ * Includes: Sliding indicator animation, tab buttons, view transitions
+ */
+
+@layer components {
+  /* ═══════════════════════════════════════════════════════════
+     TABS CONTAINER
+     ═══════════════════════════════════════════════════════════ */
+  
+  .input-top {
+    display: flex;
+    align-items: center;
+    padding: var(--space-3) var(--space-3) 0.375rem var(--space-3); /* 12px 12px 6px 12px */
+  }
+  
+  .tabs-wrapper {
+    position: relative;
+    display: inline-flex;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 6px;
+    /* NO padding on wrapper - tabs have their own padding */
+  }
+  
+  .tabs-list {
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: var(--z-tabs-buttons, 1);
+  }
+  
+  /* ═══════════════════════════════════════════════════════════
+     SLIDING INDICATOR - Animated background
+     ═══════════════════════════════════════════════════════════ */
+  
+  .tabs-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: #f0f0f0; /* Exact from design.html */
+    border: 0.5px solid white;
+    border-radius: 0.375rem; /* 6px */
+    box-shadow: 
+      0px 0px 0px 0.5px rgba(0, 0, 0, 0.12),
+      0px 2px 6px 0px rgba(0, 0, 0, 0.04);
+    transition: 
+      transform 200ms cubic-bezier(0.25, 1, 0.5, 1),
+      width 200ms cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: var(--z-tabs-indicator, 0);
+  }
+  
+  /* ═══════════════════════════════════════════════════════════
+     TAB BUTTONS
+     ═══════════════════════════════════════════════════════════ */
+  
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* EXPLICIT: was 0.25rem */
+    padding: 6px 10px 6px 8px; /* EXPLICIT: was rem values */
+    border: none;
+    border-radius: 6px; /* EXPLICIT */
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px; /* EXPLICIT */
+    line-height: 20px; /* EXPLICIT */
+    color: #35443D;
+    transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    z-index: 1;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  .tab-btn:active {
+    transform: scale(0.97);
+  }
+  
+  .tab-btn span {
+    color: inherit;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  .tab-btn .btn-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .tab-btn .btn-icon svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+}
+

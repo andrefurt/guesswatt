@@ -1,0 +1,165 @@
+/**
+ * Layout and View State Management - Design System Implementation
+ * 
+ * Pixel-perfect match to design.html layout and view transitions
+ * Includes: Content wrapper, view states, appear animations
+ */
+
+@layer components {
+  /* ═══════════════════════════════════════════════════════════
+     CONTENT WRAPPER
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Content wrapper grows to fill space */
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 139px;
+    flex: 1;
+    width: 100%;
+  }
+  
+  /* Results view layout */
+  .results-view .content-wrapper {
+    gap: 0;
+  }
+  
+  .results-view .results-content {
+    flex: 0 0 auto;
+  }
+  
+  /* ═══════════════════════════════════════════════════════════
+     VIEW STATES
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Input View */
+  .input-view {
+    display: block;
+  }
+  
+  .results-view .input-view {
+    display: none;
+  }
+  
+  /* Results View */
+  .results-content {
+    display: none;
+  }
+  
+  .results-view .results-content {
+    display: flex;
+  }
+  
+  /* ═══════════════════════════════════════════════════════════
+     APPEAR ANIMATIONS - Results View
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Initial hidden state */
+  .results-title-section,
+  .result-card-container,
+  .result-info,
+  .info-row {
+    opacity: 0;
+    transform: translateY(0.5rem); /* 8px */
+    filter: blur(3px);
+  }
+  
+  /* Animate when results view is active */
+  .results-view .results-title-section {
+    animation: appearIn var(--duration-slower, 250ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) forwards;
+    animation-delay: 0ms;
+  }
+  
+  .results-view .result-card-container {
+    animation: cardAppear var(--duration-slowest, 300ms) var(--ease-out) forwards;
+    animation-delay: calc(1 * var(--stagger-delay, 20ms));
+  }
+  
+  /* Note: savings-bar animation is defined in components-results.css */
+  
+  .results-view .result-info {
+    animation: appearIn var(--duration-slower, 250ms) var(--ease-out) forwards;
+    animation-delay: calc(2.5 * var(--stagger-delay, 20ms)); /* 50ms */
+  }
+  
+  .results-view .info-row:nth-child(1) {
+    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation-delay: calc(3.5 * var(--stagger-delay, 20ms)); /* 70ms */
+  }
+  
+  .results-view .info-row:nth-child(2) {
+    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation-delay: calc(4.5 * var(--stagger-delay, 20ms)); /* 90ms */
+  }
+  
+  .results-view .info-row:nth-child(3) {
+    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation-delay: calc(5.5 * var(--stagger-delay, 20ms)); /* 110ms */
+  }
+  
+  /* Disclaimer row */
+  .disclaimer-row {
+    opacity: 0;
+    transform: translateY(0.25rem); /* 4px */
+  }
+  
+  .results-view .disclaimer-row {
+    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation-delay: calc(6.5 * var(--stagger-delay, 20ms)); /* 130ms */
+  }
+  
+  /* ═══════════════════════════════════════════════════════════
+     INPUT VIEW APPEAR ANIMATION (when returning from results)
+     ═══════════════════════════════════════════════════════════ */
+  
+  .input-view .title-section,
+  .input-view .input-slot,
+  .input-view .highlights,
+  .input-view .highlight-row {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+  
+  /* Initial hidden state when returning */
+  .input-view.returning .title-section,
+  .input-view.returning .input-slot,
+  .input-view.returning .highlights,
+  .input-view.returning .highlight-row {
+    opacity: 0;
+    transform: translateY(0.5rem);
+    filter: blur(3px);
+  }
+  
+  .input-view.returning .title-section {
+    animation: appearIn var(--duration-slower, 250ms) var(--ease-out) forwards;
+    animation-delay: 0ms;
+  }
+  
+  .input-view.returning .input-slot {
+    animation: appearIn var(--duration-slowest, 300ms) var(--ease-out) forwards;
+    animation-delay: calc(1 * var(--stagger-delay, 20ms));
+  }
+  
+  .input-view.returning .highlights {
+    animation: appearIn var(--duration-slower, 250ms) var(--ease-out) forwards;
+    animation-delay: calc(2.5 * var(--stagger-delay, 20ms));
+  }
+  
+  .input-view.returning .highlight-row:nth-child(1) {
+    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation-delay: calc(3.5 * var(--stagger-delay, 20ms));
+  }
+  
+  .input-view.returning .highlight-row:nth-child(2) {
+    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation-delay: calc(4.5 * var(--stagger-delay, 20ms));
+  }
+  
+  .input-view.returning .highlight-row:nth-child(3) {
+    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation-delay: calc(5.5 * var(--stagger-delay, 20ms));
+  }
+}
+

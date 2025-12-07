@@ -1,177 +1,136 @@
 /**
  * GuessWatt - Design Tokens
  * 
- * Systematic design values.
+ * Complete design system tokens.
  * All visual decisions derive from these tokens.
+ * Hex values for simplicity and browser compatibility.
  */
 
 :root {
   /* ═══════════════════════════════════════════════════════════
-     COLORS (OKLCH)
+     COLORS - Primary Palette
      ═══════════════════════════════════════════════════════════ */
   
-  /* ═══════════════════════════════════════════════════════════
-     PRIMITIVE COLORS - 12-Step Warm Gray Scale
-     Based on HSL(48, 2%) - Warm Gray aesthetic
-     ═══════════════════════════════════════════════════════════ */
+  /* Foreground (text) - Primary naming */
+  --color-foreground-primary: #35443D;
+  --color-foreground-secondary: #8E8C89;
+  --color-text-muted: #9E9E9E;
+  --color-text-white: #F3F3F2;
+  --color-text-black: #000000;
   
-  /* Warm Gray Scale - Interpolated from lightest to darkest */
-  --color-1: oklch(95% 0.005 48);   /* #F0F0EF - Lightest */
-  --color-2: oklch(92% 0.005 48);
-  --color-3: oklch(88% 0.006 48);
-  --color-4: oklch(82% 0.007 48);
-  --color-5: oklch(75% 0.008 48);
-  --color-6: oklch(65% 0.009 48);
-  --color-7: oklch(55% 0.01 48);
-  --color-8: oklch(45% 0.01 48);
-  --color-9: oklch(35% 0.01 48);
-  --color-10: oklch(25% 0.01 48);
-  --color-11: oklch(15% 0.01 48);
-  --color-12: oklch(8% 0.01 48);    /* Almost black - Darkest */
+  /* Semantic foreground aliases (used by base.css) */
+  --foreground: #35443D;
+  --foreground-secondary: #8E8C89;
+  --foreground-tertiary: #9E9E9E;
+  --foreground-accent: #40594c;
   
-  /* Sage Green Accents - Converted from hex to OKLCH */
-  --color-accent-base: oklch(35% 0.02 155);   /* #40594C */ 
-  --color-accent-dark: oklch(28% 0.02 155);    /* #36453D */
-  --color-accent-light: oklch(60% 0.03 155);  /* #719883 */
+  /* Backgrounds - Primary naming */
+  --color-background-primary: #EAEAEA;
+  --color-background-card: linear-gradient(90deg, #F0F0F0 1.07%, #EDEDED 99.89%);
+  --color-bg-dropdown: #F3F3F2;
+  --color-bg-tabs: rgba(0, 0, 0, 0.03);
+  --color-bg-tabs-active: #f0f0f0;
+  --color-bg-drop-area: #e8e8e8;
+  --color-bg-drop-area-dragging: #e0e0e0;
+  --color-bg-form-input: #f5f5f5;
   
-  /* Neutrals */
-  --color-white: oklch(100% 0 0);
-  --color-black: oklch(0% 0 0);
+  /* Semantic background aliases (used by base.css) */
+  --bg: #EAEAEA;
+  --bg-high: #F0F0EF;
+  --color-surface: #FFFFFF;
   
-  /* ═══════════════════════════════════════════════════════════
-     SEMANTIC COLOR TOKENS
-     Mapped to the Warm Gray scale and Sage Green accents
-     ═══════════════════════════════════════════════════════════ */
-  
-  /* Backgrounds */
-  --bg-high: #F0F0EF;                   /* Matches #F0F0EF */
-  --bg: #EBEBEA;                        /* Slightly darker than high */
-  --bg-low: color-mix(in oklch, var(--color-11), transparent 98%);
-  --bg-muted: color-mix(in oklch, var(--color-11), transparent 92%);
-  --bg-accent: var(--color-accent-dark);       /* #36453D */
-  
-  /* Foregrounds */
-  --foreground: #363634;
-  --foreground-secondary: #8E8D8A;
-  --foreground-tertiary: #9F9F9F;
-  --foreground-accent: var(--color-accent-base); /* #40594C */
+  /* Accent Colors */
+  --color-accent-green: #40594c;
+  --color-accent-green-light: rgba(113, 152, 131, 0.08);
+  --color-accent: #40594c;
+  --color-accent-hover: #36453D;
+  --color-accent-soft: rgba(113, 152, 131, 0.08);
   
   /* Borders */
-  --border: #DBDAD9;
-  --border-hard: #C7C7C5;
-  --border-accent: color-mix(in oklch, var(--color-accent-base), transparent 70%);
+  --color-border-default: rgba(0, 0, 0, 0.12);
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
+  --color-border-dashed: rgba(0, 0, 0, 0.16);
+  --color-border-accent: rgba(64, 89, 76, 0.3);
+  --border: rgba(0, 0, 0, 0.12);
+  --border-hard: rgba(0, 0, 0, 0.16);
   
-  /* Gradients */
-  --gradient-subtle: linear-gradient(to bottom, var(--color-1), var(--color-2));
-  --gradient-accent: linear-gradient(
-    to bottom,
-    color-mix(in oklch, var(--color-accent-light), transparent 96%),
-    color-mix(in oklch, var(--color-accent-light), transparent 90%)
-  );
+  /* Utility colors */
+  --color-gray-1: #F0F0EF;
+  --color-warning-soft: rgba(255, 193, 7, 0.1);
   
-  /* ═══════════════════════════════════════════════════════════
-     BACKWARD COMPATIBILITY ALIASES
-     Map old variable names to new semantic tokens
-     ═══════════════════════════════════════════════════════════ */
+  /* PDF icon */
+  --color-pdf-red: #E53935;
   
-  /* Backgrounds */
-  --color-bg: var(--bg);
-  --color-surface: var(--color-white);
-  
-  /* Text */
-  --color-text: var(--foreground);
-  --color-text-secondary: var(--foreground-secondary);
-  --color-text-muted: var(--foreground-tertiary);
-  
-  /* Borders */
-  --color-border: var(--border);
-  --color-border-subtle: var(--border);
-  --color-border-hover: var(--border-hard);
-  
-  /* Accents */
-  --color-accent: var(--foreground-accent);
-  --color-accent-hover: var(--color-accent-dark);
-  --color-accent-soft: color-mix(in oklch, var(--color-accent-light), transparent 96%);
-  
-  /* Utility grays (mapped to warm gray scale) */
-  --color-gray-0: var(--color-1);  /* Lightest - for subtle backgrounds */
-  --color-gray-1: var(--color-1);
-  --color-gray-2: var(--color-3);
-  --color-gray-3: var(--color-6);
-  --color-gray-4: var(--color-9);
-  
-  /* Warning (kept minimal, warm amber tone) */
-  --color-warning: oklch(65% 0.15 75);      /* Warm amber */
-  --color-warning-soft: oklch(96% 0.02 75); /* Very subtle amber tint */
-  
-  /* Danger (kept minimal, only for errors) */
-  --color-danger: oklch(55% 0.2 25);
-  --color-danger-soft: oklch(96% 0.02 25);
+  /* Savings bar */
+  --color-savings-bar-bg: rgba(113, 152, 131, 0.08);
+  --color-savings-bar-shadow: rgba(113, 152, 131, 0.08);
   
   /* ═══════════════════════════════════════════════════════════
      TYPOGRAPHY
      ═══════════════════════════════════════════════════════════ */
   
-  /* Font stacks - Inter from Google Fonts */
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
-               "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  /* Font families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Roboto Mono', 'SF Mono', Consolas, monospace;
   
-  /* Typography Scale - XS */
-  --text-xs-size: 0.6875rem;        /* 11px */
-  --text-xs-weight: 500;
-  --text-xs-leading: 1.25rem;       /* 20px */
-  --text-xs-tracking: 0;             /* No letter spacing */
-  
-  /* Typography Scale - SM */
-  --text-sm-size: 0.75rem;           /* 12px */
-  --text-sm-weight: 500;
-  --text-sm-leading: 1.2;           /* 120% */
-  --text-sm-tracking: 0;
-  
-  /* Typography Scale - MD */
-  --text-md-size: 0.875rem;          /* 14px */
-  --text-md-weight: 500;
-  --text-md-leading: 1.25rem;       /* 20px */
-  --text-md-tracking: -0.00525rem;   /* -0.084px */
-  
-  /* Typography Scale - Default (Base) */
-  --text-default-size: 1rem;         /* 16px */
-  --text-default-weight: 500;
-  --text-default-leading: 1.15;     /* 115% */
-  --text-default-tracking: -0.011rem; /* -0.176px */
-  
-  /* Typography Scale - LG */
-  --text-lg-size: 1.25rem;           /* 20px */
-  --text-lg-weight: 500;
-  --text-lg-leading: 1.15;          /* 115% */
-  --text-lg-tracking: -0.02125rem;   /* -0.34px */
-  
-  /* Typography Scale - XL */
-  --text-xl-size: 1.5rem;           /* 24px */
-  --text-xl-weight: 500;
-  --text-xl-leading: 1.15;          /* 115% */
-  --text-xl-tracking: -0.0285rem;    /* -0.456px */
-  
-  /* Font weights (kept for backward compatibility) */
+  /* Font weights */
   --font-normal: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
   
-  /* Backward compatibility aliases - map old variable names to new scale */
-  --text-xs: var(--text-xs-size);
-  --text-sm: var(--text-sm-size);
-  --text-base: var(--text-default-size);
-  --text-lg: var(--text-lg-size);
-  --text-xl: var(--text-xl-size);
-  --text-2xl: var(--text-xl-size);  /* Map 2xl to xl for now */
-  --text-3xl: var(--text-xl-size);  /* Map 3xl to xl for now (can be adjusted later) */
+  /* Typography Scale - XS (11px) */
+  --text-xs: 0.6875rem;
+  --text-xs-size: 0.6875rem;
+  --text-xs-weight: 500;
+  --text-xs-leading: 1.25rem;
+  --text-xs-tracking: 0;
   
-  /* Backward compatibility for line heights */
-  --leading-tight: 1.25;
-  --leading-normal: 1.5;
-  --leading-relaxed: 1.625;
+  /* Typography Scale - SM (12px) */
+  --text-sm: 0.75rem;
+  --text-sm-size: 0.75rem;
+  --text-sm-weight: 500;
+  --text-sm-leading: 1.2;
+  --text-sm-tracking: 0;
+  
+  /* Typography Scale - Base/Default (14px) */
+  --text-base: 0.875rem;
+  --text-default-size: 0.875rem;
+  --text-default-weight: 500;
+  --text-default-leading: 1.25rem;
+  --text-default-tracking: -0.005em;
+
+    /* Typography Scale - md (16px) */
+    --text-md: 1rem;
+    --text-default-size: 1rem;
+    --text-default-weight: 500;
+    --text-default-leading: 1.25rem;
+    --text-default-tracking: -0.005em;
+  
+  /* Typography Scale - LG (20px) */
+  --text-lg: 1.25rem;
+  --text-lg-size: 1.25rem;
+  --text-lg-weight: 500;
+  --text-lg-leading: 1.15;
+  --text-lg-tracking: -0.017em;
+  
+  /* Typography Scale - XL (24px) */
+  --text-xl: 1.5rem;
+  --text-xl-size: 1.5rem;
+  --text-xl-weight: 500;
+  --text-xl-leading: 1.15;
+  --text-xl-tracking: -0.022em;
+  
+  /* Line heights */
+  --leading-none: 1;
+  --leading-tight: 1.15;
+  --leading-normal: 1.2;
+  --leading-relaxed: 1.34;
+  
+  /* Letter spacing */
+  --tracking-tight: -0.022em;
+  --tracking-normal: -0.011em;
+  --tracking-tighter: -0.03em;
   
   /* ═══════════════════════════════════════════════════════════
      SPACING
@@ -185,82 +144,79 @@
   --space-5: 1.25rem;   /* 20px */
   --space-6: 1.5rem;    /* 24px */
   --space-8: 2rem;      /* 32px */
-  --space-10: 2.5rem;   /* 40px */
-  --space-12: 3rem;     /* 48px */
-  --space-16: 4rem;     /* 64px */
-  --space-20: 5rem;     /* 80px */
-  --space-24: 6rem;     /* 96px */
   
   /* ═══════════════════════════════════════════════════════════
      LAYOUT
      ═══════════════════════════════════════════════════════════ */
   
-  --max-width-sm: 24rem;   /* 384px */
-  --max-width-md: 28rem;   /* 448px */
-  --max-width-lg: 32rem;   /* 512px */
-  --max-width-xl: 36rem;   /* 576px */
-  --max-width-2xl: 40rem;  /* 640px - main content width */
+  --content-width: 36.25rem;    /* 580px */
+  --space-top-card: 8.6875rem;  /* 139px */
   --max-width-prose: 65ch;
   
   /* ═══════════════════════════════════════════════════════════
      BORDERS & RADIUS
      ═══════════════════════════════════════════════════════════ */
   
-  --radius-sm: 0.25rem;   /* 4px */
+  --radius-sm: 0.375rem;  /* 6px */
   --radius-md: 0.5rem;    /* 8px */
   --radius-lg: 0.75rem;   /* 12px */
   --radius-xl: 1rem;      /* 16px */
-  --radius-full: 9999px;
-  
-  --border-width: 1px;
   
   /* ═══════════════════════════════════════════════════════════
-     SHADOWS - Minimal, only when necessary
+     SHADOWS
      ═══════════════════════════════════════════════════════════ */
   
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
-  --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.06);
-  --shadow-lg: 0 4px 8px -2px rgb(0 0 0 / 0.08);
-  --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.1);
+  --shadow-xs: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0px 2px 4px 0px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0px 4px 8px 0px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0px 4px 16px -2px rgba(0, 0, 0, 0.12),
+               0px 2px 4px -1px rgba(0, 0, 0, 0.04);
+  
+  --shadow-inset-light: -2px 2px 8px 0px rgba(0, 0, 0, 0.04) inset,
+                        2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset;
+  --shadow-inset-dark: -1px 1px 4px 0px rgba(113, 152, 131, 0.04) inset;
+  
+  --shadow-button: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+                   0px 0px 0px 1px #35443D;
+  --shadow-button-inset: 0px 1px 0px 0px rgba(255, 255, 255, 0.25) inset;
+  
+  --shadow-icon: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.12),
+                 0px 1px 4px 0px rgba(0, 0, 0, 0.08);
+  --shadow-icon-inset: 1px -1px 2px 0px rgba(255, 255, 255, 0.5) inset,
+                       -1px 1px 2px 0px rgba(0, 0, 0, 0.04) inset;
   
   /* ═══════════════════════════════════════════════════════════
      ANIMATION
      ═══════════════════════════════════════════════════════════ */
   
-  /* Durations */
-  --duration-instant: 50ms;
-  --duration-fast: 150ms;
-  --duration-base: 250ms;
-  --duration-slow: 400ms;
-  --duration-slower: 600ms;
+  --duration-instant: 0ms;
+  --duration-fast: 50ms;
+  --duration-normal: 150ms;
+  --duration-slow: 200ms;
+  --duration-slower: 250ms;
+  --duration-slowest: 300ms;
   
-  /* Easing */
-  --ease-linear: linear;
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-tabs: cubic-bezier(0.25, 1, 0.5, 1);
   
-  /* Common transitions */
-  --transition-colors: 
-    color var(--duration-fast) var(--ease-out),
-    background-color var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out);
-  --transition-transform: transform var(--duration-fast) var(--ease-out);
-  --transition-shadow: box-shadow var(--duration-fast) var(--ease-out);
-  --transition-opacity: opacity var(--duration-fast) var(--ease-out);
+  --stagger-delay: 20ms;
+  
+  /* Transitions */
+  --transition-colors: color 150ms ease-out,
+                       background-color 150ms ease-out,
+                       border-color 150ms ease-out;
   
   /* ═══════════════════════════════════════════════════════════
-     Z-INDEX SCALE
+     Z-INDEX
      ═══════════════════════════════════════════════════════════ */
   
   --z-base: 0;
-  --z-dropdown: 10;
-  --z-sticky: 20;
-  --z-overlay: 30;
-  --z-modal: 40;
-  --z-toast: 50;
-  --z-tooltip: 60;
+  --z-tabs-indicator: 0;
+  --z-tabs-buttons: 1;
+  --z-dropdown: 1000;
 }
 
 /* Respect reduced motion preference */
@@ -268,8 +224,9 @@
   :root {
     --duration-instant: 0ms;
     --duration-fast: 0ms;
-    --duration-base: 0ms;
+    --duration-normal: 0ms;
     --duration-slow: 0ms;
     --duration-slower: 0ms;
+    --duration-slowest: 0ms;
   }
 }

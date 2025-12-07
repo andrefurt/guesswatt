@@ -10,27 +10,12 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <title>GuessWatt</title>
   <style>
-    /* Minimal functional styles only - no visual decoration */
+    /* Minimal functional styles only - visual styles are in modular CSS */
     
-    /* Required for functionality */
-    .mode-form {
-      display: none;
-    }
+    /* View visibility is controlled by .preciso-mode class on .input-slot via modular CSS */
+    /* Tab .active class kept for JS logic only */
     
-    .mode-form.active {
-      display: block;
-    }
-    
-    /* .tab.active - kept for JS logic, no styling needed */
-    
-    .dropdown-menu {
-      display: none;
-    }
-    
-    .dropdown-menu.is-open {
-      display: block;
-    }
-    
+    /* Tooltip visibility */
     .tooltip {
       display: none;
     }
@@ -39,15 +24,8 @@
       display: block;
     }
     
+    /* PDF loaded state (hidden until file uploaded) */
     #pdf-loaded {
-      display: none;
-    }
-    
-    #precise-form {
-      display: none;
-    }
-    
-    #result {
       display: none;
     }
     
@@ -83,7 +61,6 @@
     
     /* Accessibility: ensure focusable elements are visible */
     button:focus-visible,
-    input:focus-visible,
     select:focus-visible,
     a:focus-visible {
       outline: 2px solid currentColor;
@@ -92,166 +69,368 @@
   </style>
 </head>
 <body>
-  <div id="app-root">
-    <!-- Header -->
-    <header>
-      <a href="./" id="topbar-logo">Ω Guesswatt</a>
-      <nav>
-        <app-glass-button href="sobre.html">Sobre</app-glass-button>
-        <div class="dropdown">
-          <app-copy-split-button id="copy-page-button"></app-copy-split-button>
-          <div class="dropdown-menu" id="copy-page-menu">
-            <a href="#" id="copy-markdown">Copy as Markdown</a>
-            <a href="llms.txt" target="_blank">View llms.txt</a>
-            <a href="#" id="open-chatgpt">Open in ChatGPT</a>
-            <a href="#" id="open-claude">Open in Claude</a>
-          </div>
-        </div>
-      </nav>
-    </header>
+  <!-- Skip to main content link for keyboard users -->
+  <a href="#input-view" class="visually-hidden skip-link">Saltar para o conteúdo principal</a>
+  <div class="page-wrapper" id="page-wrapper">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="logo">
+        <span>Ω</span>
+        <span>Guesswatt</span>
+      </div>
 
-    <!-- Main content -->
-    <main>
-      <!-- Page title section -->
-      <section aria-labelledby="page-title">
-        <h1 id="page-title">Quanto pagas de electricidade por mês?</h1>
-      </section>
-
-      <!-- Calculator section -->
-      <section aria-label="calculator">
-        <!-- 
-          AppCard: Main container for calculator
-          Uses slots to project existing content into the component structure
-        -->
-        <app-card aria-label="Simulador de energia">
-          <!-- Header slot: Tab navigation -->
-          <header slot="header">
-            <app-tabs>
-              <div class="tabs" role="tablist">
-                <button type="button" class="tab active" data-mode="estimate" role="tab" aria-selected="true">Estimativa</button>
-                <button type="button" class="tab" data-mode="precise" role="tab" aria-selected="false">Preciso</button>
-              </div>
-            </app-tabs>
-          </header>
-
-          <!-- Tab content -->
-          <div>
-            <!-- Tab: Estimativa -->
-            <app-form-section>
-              <form id="estimate-form" class="mode-form active" role="tabpanel">
-                <div>
-                  <label for="monthly-bill" class="visually-hidden">Valor mensal da factura</label>
-                  <span>€</span>
-                  <input type="number" id="monthly-bill" placeholder="80" min="20" max="500" required>
-                  <span>/mês</span>
-                  <button type="submit">Calcular</button>
-                </div>
-              </form>
-            </app-form-section>
-
-            <!-- Tab: Preciso -->
-            <div id="precise-mode" class="mode-form" role="tabpanel">
-              <!-- PDF dropzone (initial state) -->
-              <div id="pdf-upload-box">
-                <input type="file" id="pdf-input" accept=".pdf">
-                <div id="pdf-empty">
-                  <span>📄</span>
-                  <p>Arrasta a tua fatura ou clica para selecionar</p>
-                </div>
-                <!-- PDF loaded state -->
-                <div id="pdf-loaded">
-                  <div>
-                    <span>✓ Factura carregada</span>
-                    <button type="button" id="pdf-remove" aria-label="Remover PDF">✕</button>
-                  </div>
-                  <div id="pdf-extracted-data">
-                    <!-- Populated dynamically -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- Manual data entry button -->
-              <button type="button" id="toggle-manual">
-                Introduzir dados manualmente
-              </button>
-
-              <!-- Manual form -->
-              <app-form-section>
-                <form id="precise-form">
-                <div class="field">
-                  <div class="field-label">
-                    <label for="power">Potencia contratada</label>
-                    <span class="tooltip-trigger" data-tooltip="potencia-contratada" aria-label="Informação sobre potência contratada">ⓘ</span>
-                  </div>
-                  <select id="power" required>
-                    <option value="1.15">1.15 kVA</option>
-                    <option value="2.3">2.3 kVA</option>
-                    <option value="3.45">3.45 kVA</option>
-                    <option value="4.6" selected>4.6 kVA</option>
-                    <option value="5.75">5.75 kVA</option>
-                    <option value="6.9">6.9 kVA</option>
-                    <option value="10.35">10.35 kVA</option>
-                    <option value="13.8">13.8 kVA</option>
-                    <option value="17.25">17.25 kVA</option>
-                    <option value="20.7">20.7 kVA</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <div class="field-label">
-                    <label for="consumption">Consumo geral</label>
-                    <span class="tooltip-trigger" data-tooltip="consumo-mensal" aria-label="Informação sobre consumo mensal">ⓘ</span>
-                  </div>
-                  <input type="number" id="consumption" placeholder="250" min="0" max="5000" required>
-                  <span>kWh</span>
-                  <span class="tooltip-trigger" data-tooltip="kwh" aria-label="Informação sobre kWh">ⓘ</span>
-                </div>
-
-                <div class="field">
-                  <div class="field-label">
-                    <label for="tariff-type">Tipo de tarifa</label>
-                    <span class="tooltip-trigger" data-tooltip="tarifa-simples" aria-label="Informação sobre tipo de tarifa">ⓘ</span>
-                  </div>
-                  <select id="tariff-type" required>
-                    <option value="1" selected>Simples</option>
-                    <option value="2">Bi-horária</option>
-                    <option value="3">Tri-horária</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <div class="field-label">
-                    <label for="current-provider">Operador actual</label>
-                  </div>
-                  <select id="current-provider">
-                    <option value="">-- Seleccionar --</option>
-                    <!-- Populated from PROVIDERS dynamically -->
-                  </select>
-                </div>
-
-                <button type="submit">Calcular</button>
-              </form>
-              </app-form-section>
+      <!-- Input Pill (visible in results) -->
+      <div class="input-pill" id="input-pill">
+        <div class="input-pill-inner">
+          <!-- ESTIMADO MODE (default) -->
+          <div class="input-pill-content input-pill-estimado" id="pill-estimado">
+            <div class="input-pill-mode">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 1.75C7 1.75 3.5 4.375 3.5 7C3.5 8.933 5.067 10.5 7 10.5C8.933 10.5 10.5 8.933 10.5 7C10.5 4.375 7 1.75 7 1.75Z" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 10.5V12.25" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                <path d="M4.8125 12.25H9.1875" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              <span>Estimado</span>
+            </div>
+            <div class="input-pill-value">
+              <span class="amount" id="pill-amount">€120</span>
+              <span class="period">/Mês</span>
             </div>
           </div>
-        </app-card>
-
-        <!-- Results section -->
-        <app-result-section>
-          <div id="result" role="status" aria-live="polite">
-            <!-- Populated dynamically -->
+          
+          <!-- PRECISO MODE (invoice data) -->
+          <div class="input-pill-content input-pill-preciso" id="pill-preciso">
+            <div class="input-pill-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 2.5H12.5L16 6V17.5H4V2.5Z" stroke="#E53935" stroke-width="1.2" stroke-linejoin="round"/>
+                <path d="M12.5 2.5V6H16" stroke="#E53935" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="10" y="13" font-family="Inter" font-size="4" font-weight="600" fill="#E53935" text-anchor="middle">PDF</text>
+              </svg>
+            </div>
+            <div class="input-pill-data">
+              <span class="pill-provider" id="pill-provider">Endesa</span>
+              <span class="pill-separator">·</span>
+              <span class="pill-label">Tarifa</span>
+              <span class="pill-value" id="pill-tariff">Bi-horária</span>
+              <span class="pill-separator">·</span>
+              <span class="pill-label">Consumo</span>
+              <span class="pill-value" id="pill-consumption">99 kWh</span>
+              <span class="pill-separator">·</span>
+              <span class="pill-label">Potência</span>
+              <span class="pill-value" id="pill-power">6.9 kVA</span>
+            </div>
           </div>
-        </app-result-section>
-      </section>
-    </main>
+          
+          <!-- Delete button (shared) -->
+          <button class="input-pill-delete" id="delete-btn" type="button" aria-label="Remover entrada e voltar ao formulário">
+            <div class="input-pill-delete-inner">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M11 3L3 11M3 3L11 11" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </button>
+        </div>
+      </div>
 
-    <!-- Footer -->
-    <footer id="footer">
-      <p>Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia.</p>
-      <p>Não vendemos nada. Dados: <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (atualizado mensalmente)</p>
-      <p>↻ Última actualização foi em <span id="last-update-month"></span> de <span id="last-update-year"></span></p>
-      <p><a href="llms.txt">llms.txt</a></p>
-    </footer>
+      <div class="top-bar-actions">
+        <div class="btn-slot">
+          <a href="sobre.html" class="btn" aria-label="Saber mais sobre Guesswatt">
+            <span class="btn-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 1.75V12.25" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                <path d="M4.375 4.375L7 1.75L9.625 4.375" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="7" cy="7" r="5.25" stroke="#35443D" stroke-width="1.2"/>
+              </svg>
+            </span>
+            <span>Sobre</span>
+          </a>
+        </div>
+        <div class="btn-slot">
+          <div class="segmented-btn">
+            <button class="btn copy-btn" id="copy-btn" type="button" aria-label="Copiar página">
+              <!-- Default state -->
+              <div class="copy-btn-content copy-btn-default">
+                <span class="btn-icon" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="10" height="10" rx="2" stroke="#35443D" stroke-width="1.2"/>
+                    <path d="M5 5H9" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                    <path d="M5 7H9" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                    <path d="M5 9H7" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span>Copy page</span>
+              </div>
+              <!-- Copied state -->
+              <div class="copy-btn-content copy-btn-copied">
+                <span class="btn-icon" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <polyline points="3,7 6,10 11,4" stroke="#40594c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  </svg>
+                </span>
+                <span>Copied</span>
+              </div>
+            </button>
+            <div class="segmented-divider"></div>
+            <div class="dropdown-wrapper" id="dropdown-wrapper">
+              <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-haspopup="true" aria-controls="dropdown-menu">
+                <span class="btn-icon" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu" aria-labelledby="dropdown-trigger">
+                <button class="dropdown-item" data-action="markdown" type="button" role="menuitem">
+                  <span class="item-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="#35443D" stroke-width="1.2"/>
+                      <path d="M4 9.5V6.5L5.5 8.5L7 6.5V9.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M10 9.5L12 7.5M12 7.5L12 9.5M12 7.5L10 7.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span>Copy as markdown</span>
+                </button>
+                <button class="dropdown-item" data-action="chatgpt" type="button" role="menuitem">
+                  <span class="item-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="8" cy="8" r="6.5" stroke="#35443D" stroke-width="1.2"/>
+                      <path d="M5 8.5C5.5 9.5 6.5 10 8 10C9.5 10 10.5 9.5 11 8.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                      <circle cx="6" cy="6.5" r="0.75" fill="#35443D"/>
+                      <circle cx="10" cy="6.5" r="0.75" fill="#35443D"/>
+                    </svg>
+                  </span>
+                  <span>Open in ChatGPT</span>
+                </button>
+                <button class="dropdown-item" data-action="claude" type="button" role="menuitem">
+                  <span class="item-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" stroke="#35443D" stroke-width="1.2" stroke-linejoin="round"/>
+                      <path d="M8 7V10" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
+                      <circle cx="8" cy="5" r="0.75" fill="#35443D"/>
+                    </svg>
+                  </span>
+                  <span>Open in Claude</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <!-- ==================== INPUT VIEW ==================== -->
+      <main class="card input-view" id="input-view" tabindex="-1">
+        <!-- Title -->
+        <div class="title-section">
+          <h1 class="title">Quanto pagas de eletricidade por mês?</h1>
+          <p class="subtitle">Descobre se estás a pagar demais.</p>
+        </div>
+
+        <!-- Input Card -->
+        <div class="input-slot" id="input-slot">
+          <div class="input-content">
+            <!-- Tabs with sliding indicator animation -->
+            <div class="input-top">
+              <div class="tabs-wrapper" id="tabs-wrapper" role="tablist" aria-label="Tipo de entrada">
+                <!-- Sliding indicator -->
+                <div class="tabs-indicator" id="tabs-indicator" aria-hidden="true"></div>
+                
+                <!-- Tab buttons -->
+                <div class="tabs-list">
+                  <button class="tab-btn tab active" data-tab="estimado" data-mode="estimate" id="tab-estimado" type="button" role="tab" aria-selected="true" aria-controls="estimate-form">
+                    <span class="btn-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 1.75C7 1.75 3.5 4.375 3.5 7C3.5 8.933 5.067 10.5 7 10.5C8.933 10.5 10.5 8.933 10.5 7C10.5 4.375 7 1.75 7 1.75Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7 10.5V12.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                        <path d="M4.8125 12.25H9.1875" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                    <span>Estimado</span>
+                  </button>
+                  <button class="tab-btn tab" data-tab="preciso" data-mode="precise" id="tab-preciso" type="button" role="tab" aria-selected="false" aria-controls="precise-mode">
+                    <span class="btn-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.2"/>
+                        <circle cx="7" cy="7" r="2.625" stroke="currentColor" stroke-width="1.2"/>
+                        <circle cx="7" cy="7" r="0.875" fill="currentColor"/>
+                      </svg>
+                    </span>
+                    <span>Preciso</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Views Container -->
+            <div class="views-container">
+              <!-- Input Group (Estimado view) -->
+              <div class="input-group" id="input-group">
+                <form id="estimate-form" role="tabpanel" aria-labelledby="tab-estimado">
+                  <div class="input-field">
+                    <label for="monthly-bill" class="visually-hidden">Valor mensal da fatura</label>
+                    <div class="input-value">
+                      <span class="currency" aria-hidden="true">€</span>
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" class="value-input" id="monthly-bill" name="monthly-bill" placeholder="80" min="20" max="500" required aria-label="Valor mensal da fatura em euros">
+                    </div>
+                    <span class="period" aria-hidden="true">/Mês</span>
+                  </div>
+                  <div class="input-divider"></div>
+                  <div class="submit-slot">
+                    <button class="submit-btn" id="submit-btn" type="submit">Submeter</button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Drop Area (Preciso view) -->
+              <div class="drop-area" id="precise-mode" role="tabpanel" aria-labelledby="tab-preciso">
+                <input type="file" class="file-input" id="pdf-input" accept=".pdf" aria-label="Selecionar ficheiro PDF da fatura">
+                <div class="drop-area-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2.5H12.5L16 6V17.5H4V2.5Z" stroke="#E53935" stroke-width="1.2" stroke-linejoin="round"/>
+                    <path d="M12.5 2.5V6H16" stroke="#E53935" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <text x="10" y="13" font-family="Inter" font-size="4" font-weight="600" fill="#E53935" text-anchor="middle">PDF</text>
+                  </svg>
+                </div>
+                <div class="drop-area-text">
+                  <p>Clica ou arrasta a tua fatura PDF</p>
+                  <a href="#" id="manual-link" aria-label="Introduzir dados da fatura manualmente">Adicionar dados manualmente</a>
+                </div>
+              </div>
+
+              <!-- Manual Form (Preciso view - manual mode) -->
+              <div class="manual-form" id="manual-form">
+                <form id="precise-form">
+                  <!-- Row 1: Operador, Tarifa, Potência -->
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="current-provider" class="form-label">Operador</label>
+                      <div class="form-input-slot">
+                        <div class="form-input-content">
+                          <div class="form-select-wrapper">
+                            <select class="form-select" id="current-provider">
+                              <option value="" disabled selected>Selecionar</option>
+                              <!-- Populated from PROVIDERS dynamically -->
+                            </select>
+                            <span class="form-select-icon">
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-field">
+                      <label for="tariff-type" class="form-label">Tarifa</label>
+                      <div class="form-input-slot">
+                        <div class="form-input-content">
+                          <div class="form-select-wrapper">
+                            <select class="form-select" id="tariff-type" required>
+                              <option value="1" selected>Simples</option>
+                              <option value="2">Bi-horária</option>
+                              <option value="3">Tri-horária</option>
+                            </select>
+                            <span class="form-select-icon">
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-field">
+                      <label for="power" class="form-label">Potência contratada</label>
+                      <div class="form-input-slot">
+                        <div class="form-input-content">
+                          <input type="text" class="form-input" id="power" placeholder="4.6" required>
+                          <span class="form-input-suffix">kVA</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Row 2: Consumo mensal -->
+                  <div class="form-row">
+                    <div class="form-field full-width">
+                      <label for="consumption" class="form-label">Consumo mensal</label>
+                      <div class="form-input-slot">
+                        <div class="form-input-content">
+                          <input type="number" class="form-input" id="consumption" placeholder="250" min="0" max="5000" required>
+                          <span class="form-input-suffix">kWh/Mês</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Row 3: Link + Submit -->
+                  <div class="form-footer">
+                    <button class="form-link" id="pdf-link" type="button" aria-label="Voltar para carregar fatura PDF">Adicionar fatura em pdf</button>
+                    <button class="submit-btn" id="manual-submit-btn" type="submit">Submeter</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Highlights -->
+        <div class="highlights">
+          <div class="highlight-row">
+            <div class="highlight-row-inner">
+              <p class="highlight-text">87% das pessoas já estão no mercado livre. <em>Fonte:</em> <a href="#">Eurostats</a></p>
+            </div>
+          </div>
+          <div class="highlight-row">
+            <div class="highlight-row-inner">
+              <p class="highlight-text">55% das pessoas pagam mais 200€/ano por inercia. <em>Fonte:</em> <a href="#">ERSE, 2025</a></p>
+            </div>
+          </div>
+          <div class="highlight-row">
+            <div class="highlight-row-inner">
+              <p class="highlight-text">60% das pessoas no mercado livre nunca mudou de operador. <em>Fonte:</em> <a href="#">ERSE, 2025</a></p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- ==================== RESULTS VIEW ==================== -->
+      <div class="results-content" id="results-view">
+        <!-- Results Title -->
+        <div class="results-title-section">
+          <h1 class="results-title">Melhor proposta</h1>
+          <p class="results-subtitle" id="results-subtitle">Estimativa feita tendo por base uma tarifa simples, uma família de 2 adultos e 1 criança, com uma potência contratada de 4.6 kVA,</p>
+        </div>
+
+        <!-- Result Card Container - matches design.html structure -->
+        <div class="result-card-container">
+          <!-- Result Card Slot + Card -->
+          <div class="result-card-slot">
+            <div class="result-card">
+              <!-- Card content populated dynamically by ui-renderer.js -->
+              <div id="result" role="status" aria-live="polite">
+                <!-- Card Header + Card Data populated here -->
+              </div>
+            </div>
+          </div>
+          <!-- Result Info Section inserted here by ui-renderer.js (after result-card-slot) -->
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p class="footer-text">Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a> (atualizado mensalmente)</p>
+        <div class="footer-updated">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1.5 6C1.5 8.48528 3.51472 10.5 6 10.5C8.48528 10.5 10.5 8.48528 10.5 6C10.5 3.51472 8.48528 1.5 6 1.5" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
+            <path d="M3 3.5L1.5 1.5" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
+            <path d="M1.5 4V1.5H4" stroke="#35443D" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Actualizado em <span id="last-update-month"></span> de <span id="last-update-year"></span></span>
+        </div>
+      </footer>
+    </div>
   </div>
 
   <script type="module" src="components.js"></script>
@@ -267,90 +446,6 @@
       } catch (error) {
         console.error('Error loading last update:', error);
       }
-    }
-    
-    // Dropdown toggle and copy functionality
-    const copyPageButton = document.getElementById('copy-page-button');
-    const copyPageMenu = document.getElementById('copy-page-menu');
-    
-    // Determine which markdown file to use based on current page
-    const isAboutPage = window.location.pathname.includes('sobre');
-    const markdownFile = isAboutPage ? 'sobre.md' : 'index.md';
-    
-    if (copyPageButton && copyPageMenu) {
-      // Listen to toggle event from component
-      copyPageButton.addEventListener('toggle', (e) => {
-        e.stopPropagation();
-        copyPageMenu.classList.toggle('is-open');
-      });
-      
-      // Listen to copy event from component
-      copyPageButton.addEventListener('copy', async (e) => {
-        try {
-          const response = await fetch(markdownFile);
-          const text = await response.text();
-          await navigator.clipboard.writeText(text);
-        } catch (err) {
-          console.error('Failed to copy:', err);
-        }
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.dropdown')) {
-          copyPageMenu.classList.remove('is-open');
-        }
-      });
-    }
-    
-    // Copy Page functionality
-    const copyMarkdown = document.getElementById('copy-markdown');
-    const openChatGPT = document.getElementById('open-chatgpt');
-    const openClaude = document.getElementById('open-claude');
-    
-    // Copy as Markdown - fetch and copy to clipboard
-    if (copyMarkdown && copyPageMenu) {
-      copyMarkdown.addEventListener('click', async (e) => {
-        e.preventDefault();
-        try {
-          const response = await fetch(markdownFile);
-          const text = await response.text();
-          await navigator.clipboard.writeText(text);
-          
-          // Visual feedback
-          const originalText = copyMarkdown.textContent;
-          copyMarkdown.textContent = '✓ Copied!';
-          setTimeout(() => {
-            copyMarkdown.textContent = originalText;
-          }, 2000);
-        } catch (err) {
-          console.error('Failed to copy:', err);
-        }
-        copyPageMenu.classList.remove('is-open');
-      });
-    }
-    
-    // Open in ChatGPT
-    let basePath = window.location.pathname.replace(/\/[^/]*$/, '') || '';
-    basePath = basePath.replace(/\/+$/, ''); // Remove trailing slashes
-    const llmsUrl = window.location.origin + basePath + '/llms.txt';
-    const prompt = encodeURIComponent(`Use this documentation to answer questions about GuessWatt: ${llmsUrl}`);
-    
-    if (openChatGPT && copyPageMenu) {
-      openChatGPT.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.open(`https://chatgpt.com/?q=${prompt}`, '_blank');
-        copyPageMenu.classList.remove('is-open');
-      });
-    }
-    
-    // Open in Claude
-    if (openClaude && copyPageMenu) {
-      openClaude.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.open(`https://claude.ai/new?q=${prompt}`, '_blank');
-        copyPageMenu.classList.remove('is-open');
-      });
     }
     
     // Load last update on page load
