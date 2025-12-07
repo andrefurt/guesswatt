@@ -273,7 +273,7 @@
     /* Shares same visual structure as buttons/pills */
     padding: var(--space-1) var(--space-2);
     border: 0.5px solid white;
-    border-radius: calc(var(--radius-sm) - var(--space-1)); /* Child radius = parent - padding */
+    border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
     box-shadow: var(--shadow-xs);
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
@@ -402,7 +402,7 @@
     gap: var(--space-1);
     padding: var(--space-1) var(--space-2);
     border: 0.5px solid white;
-    border-radius: calc(var(--radius-sm) - var(--space-1)); /* Child radius = parent - padding */
+    border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
     box-shadow: var(--shadow-xs);
   }
   
