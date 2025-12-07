@@ -129,6 +129,7 @@
     align-items: center;
     justify-content: center;
     color: inherit;
+    font-style: normal; /* Override base.css italic styling for icon elements */
   }
   
   /* Legacy SVG support (if any remain) */
@@ -353,6 +354,7 @@
     align-items: center;
     justify-content: center;
     color: inherit;
+    font-style: normal; /* Override base.css italic styling for icon elements */
   }
   
   /* Legacy SVG support */

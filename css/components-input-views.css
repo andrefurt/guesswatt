@@ -312,6 +312,7 @@
     align-items: center;
     justify-content: center;
     color: inherit;
+    font-style: normal; /* Override base.css italic styling for icon elements */
   }
   
   /* Legacy SVG support */
@@ -555,6 +556,7 @@
     align-items: center;
     justify-content: center;
     color: inherit;
+    font-style: normal; /* Override base.css italic styling for icon elements */
   }
   
   .form-select:focus + .form-select-icon {
