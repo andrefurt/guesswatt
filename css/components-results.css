@@ -123,8 +123,9 @@
     justify-content: center;
     /* Calculate padding to make square container matching button height (~32px) */
     /* Button height = var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) = ~32px */
+    /* Icon size is var(--text-base-size) (14px) for Phosphor icons */
     /* For square: padding = (height - icon size) / 2 */
-    padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-lg-size)) / 2);
+    padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-base-size)) / 2);
     border: 0.5px solid white; /* Same border as secondary button */
     border-radius: var(--radius-sm); /* 6px - same as buttons */
     background: var(--bg-high); /* More prominent background - oklch(95% 0 0) #F0F0EF */
