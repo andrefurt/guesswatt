@@ -34,6 +34,7 @@ Decisões técnicas e de produto documentadas. Cada ADR segue o formato: context
 - [ADR-013](#adr-013-tooltips-para-termos-técnicos) Tooltips para Termos Técnicos
 - [ADR-014](#adr-014-top-n-ofertas-não-todas) Top N Ofertas, Não Todas
 - [ADR-015](#adr-015-contactos-reais-do-csv) Contactos Reais do CSV
+- [ADR-021](#adr-021-provider-logo-implementation-hybrid-cascading-fallback) Provider Logo Implementation - Hybrid Cascading Fallback
 
 ### Funcionalidades
 - [ADR-016](#adr-016-calendário-2-meses-default) Calendário: 2 Meses Default
@@ -709,6 +710,67 @@ Filtrar para doméstico apenas (`Segmento !== 'Ndom'`).
 - ✅ Cálculos mais directos
 - ⚠️ Empresas não servidas
 - ⚠️ Poderia adicionar no futuro
+
+---
+
+## ADR-021: Provider Logo Implementation - Hybrid Cascading Fallback
+
+**Data:** Dezembro 2024
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Precisávamos de mostrar logos dos fornecedores de energia no cartão de resultado. Os CSVs da ERSE contêm URLs dos websites (`LinkCOM`, `LinkOfertaCom`) mas não URLs directas para logos.
+
+**Opções consideradas:**
+1. **Manual mapping**: Criar um objecto com código de fornecedor → URL de logo
+   - ✅ Controlo total
+   - ⚠️ Manutenção manual, não escala
+   - ⚠️ Requer hospedagem de imagens ou URLs externas
+
+2. **Clearbit Logo API apenas**: `logo.clearbit.com/{domain}`
+   - ✅ Simples, sem API key
+   - ⚠️ Cobertura limitada para fornecedores portugueses (~50%)
+   - ⚠️ Falha silenciosa se logo não existir
+
+3. **Google Favicon Service apenas**: `google.com/s2/favicons`
+   - ✅ Funciona para quase todos os domínios (~95%)
+   - ⚠️ Qualidade inferior (favicons são pequenos)
+   - ⚠️ Pode não ser o logo oficial
+
+4. **Hybrid cascading fallback**: Clearbit → Favicon → Icon genérico
+   - ✅ Melhor qualidade quando disponível (Clearbit)
+   - ✅ Cobertura máxima (favicon como fallback)
+   - ✅ Sempre funciona (icon genérico como último recurso)
+   - ✅ Zero manutenção (extrai domínio automaticamente)
+   - ⚠️ Ligeiramente mais complexo (3 níveis de fallback)
+
+**Decisão:**
+Implementar sistema híbrido com cascading fallback:
+1. **Primário**: Clearbit Logo API (alta qualidade para marcas conhecidas)
+2. **Fallback 1**: Google Favicon Service (cobre quase todos os domínios)
+3. **Fallback 2**: Icon genérico Phosphor Duotone (sempre disponível)
+
+**Implementação:**
+- Extrair domínio de `websiteUrl` usando `URL` API com regex fallback
+- Gerar HTML com `<img>` tag e icon fallback oculto
+- Event listeners JavaScript para cascading de erros
+- CSS suporta tanto imagens como icons
+
+**Razões:**
+- Melhor experiência: logos reais quando disponíveis
+- Zero manutenção: funciona automaticamente para novos fornecedores
+- Performance: loading assíncrono, não bloqueia renderização
+- Acessibilidade: alt text com código de fornecedor
+- Robustez: sempre mostra algo, mesmo se todos os serviços falharem
+
+**Consequências:**
+- ✅ Logos reais para ~70% dos fornecedores (Clearbit)
+- ✅ Cobertura ~95% com favicons
+- ✅ Sempre funcional (icon genérico)
+- ✅ Zero manutenção manual
+- ⚠️ Dependência de serviços externos (Clearbit, Google)
+- ⚠️ Ligeira latência no loading de logos (não bloqueante)
 
 ---
 

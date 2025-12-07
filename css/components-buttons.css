@@ -86,11 +86,17 @@
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--text-default-leading);
     color: var(--color-foreground-primary);
-    transition: transform var(--duration-normal) var(--ease-bounce);
+    transition: 
+      transform var(--duration-normal) var(--ease-bounce),
+      background var(--duration-fast) var(--ease-out);
     -webkit-tap-highlight-color: transparent;
     text-decoration: none;
     user-select: none;
     -webkit-user-select: none;
+  }
+  
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.4); /* Slightly lighter background on hover - white at 40% opacity */
   }
   
   .btn:active {
@@ -130,7 +136,7 @@
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
   /* Legacy SVG support (if any remain) */
@@ -151,6 +157,12 @@
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-xs);
     position: relative;
+    background: rgba(255, 255, 255, 0.1);
+    transition: background var(--duration-fast) var(--ease-out);
+  }
+  
+  .segmented-btn:hover {
+    background: rgba(255, 255, 255, 0.1); /* Slightly lighter background on hover - white at 40% opacity */
   }
   
   /* Child buttons inside segmented-btn inherit parent's border-radius calculation */
@@ -162,6 +174,13 @@
   .segmented-btn .copy-btn {
     padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
     border: none;
+    box-shadow: none;
+  }
+  
+  /* Icon button (suffix) inside segmented - no border, background, or shadow */
+  .segmented-btn .btn-suffix {
+    border: none;
+    background: none;
     box-shadow: none;
   }
   
@@ -282,13 +301,13 @@
   
   .dropdown-menu {
     position: absolute;
-    top: calc(100% + var(--space-3));
+    top: calc(100% + var(--space-1)); /* 4px gap between dropdown and segmented button */
     right: 0;
-    min-width: 11.25rem; /* 180px - fixed width for dropdown */
-    background: var(--color-bg-dropdown);
-    border: 0.5px solid var(--color-border-subtle);
+    width: fit-content; /* Fit content width */
+    background: rgba(255, 255, 255, 0.2); /* Match secondary button background */
+    border: 0.5px solid var(--color-border-default); /* Outer grey border */
     border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-xs); /* Match secondary button shadow */
     padding: var(--space-1);
     opacity: 0;
     pointer-events: none;
@@ -298,6 +317,16 @@
       opacity var(--duration-slow) var(--ease-out),
       transform var(--duration-slow) var(--ease-out);
     z-index: var(--z-dropdown);
+  }
+  
+  /* Inner white border using pseudo-element */
+  .dropdown-menu::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 0.5px solid white;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
   }
   
   .dropdown-wrapper.open .dropdown-menu {
@@ -311,8 +340,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    width: 100%;
-    padding: var(--space-4) var(--space-5);
+    width: 100%; /* Fill parent width */
+    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right - match button padding */
     border: none;
     background: transparent;
     border-radius: calc(var(--radius-sm) - var(--space-1)); /* Parent radius - padding */
@@ -322,6 +351,7 @@
     color: var(--color-foreground-primary);
     cursor: pointer;
     text-align: left;
+    white-space: nowrap; /* Prevent text from breaking into multiple lines */
     transition: background var(--duration-fast) var(--ease-out);
     user-select: none;
     -webkit-user-select: none;
@@ -333,12 +363,26 @@
   }
   
   .dropdown-item:hover {
-    background: var(--color-border-subtle);
+    background: oklch(from var(--color-foreground-primary) l c h / 0.04); /* Lighter hover background using foreground at 4% opacity */
+  }
+  
+  /* Fallback for browsers that don't support oklch() */
+  @supports not (color: oklch(0% 0 0)) {
+    .dropdown-item:hover {
+      background: rgba(53, 68, 61, 0.04); /* #35443D at 4% opacity */
+    }
   }
   
   .dropdown-item:active {
-    background: rgba(0, 0, 0, 0.1);
+    background: oklch(from var(--color-foreground-primary) l c h / 0.08); /* Slightly darker on active */
     transition: background var(--duration-instant);
+  }
+  
+  /* Fallback for browsers that don't support oklch() */
+  @supports not (color: oklch(0% 0 0)) {
+    .dropdown-item:active {
+      background: rgba(53, 68, 61, 0.08); /* #35443D at 8% opacity */
+    }
   }
   
   .dropdown-item .item-icon {
@@ -361,7 +405,17 @@
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
+  }
+  
+  /* Dropdown logo images (ChatGPT, Claude) - greyscale matching foreground color */
+  .dropdown-item .item-icon .dropdown-logo {
+    width: var(--text-base-size); /* 14px - same as icon size */
+    height: var(--text-base-size);
+    object-fit: contain;
+    display: block;
+    filter: grayscale(100%) brightness(0); /* Convert to greyscale black to match foreground */
+    opacity: 0.9; /* Match icon opacity */
   }
   
   /* Legacy SVG support */

@@ -144,9 +144,19 @@
     pointer-events: none;
   }
   
-  /* Phosphor Duotone icons styling */
+  /* Provider logo image styling */
+  .provider-icon .provider-logo {
+    width: var(--text-base-size); /* 14px - same as icon size */
+    height: var(--text-base-size);
+    object-fit: contain;
+    display: block;
+    mix-blend-mode: multiply; /* Blend logo with background using multiply mode */
+  }
+  
+  /* Phosphor Duotone icons styling - fallback */
   .provider-icon i,
-  .provider-icon .ph-duotone {
+  .provider-icon .ph-duotone,
+  .provider-icon .provider-icon-fallback {
     font-size: var(--text-base-size); /* 14px icon size */
     width: var(--text-base-size);
     height: var(--text-base-size);
@@ -155,7 +165,7 @@
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
   /* Legacy SVG support */
@@ -203,7 +213,7 @@
   }
   
   .data-row {
-    border-bottom: 0.5px solid var(--color-border-subtle);
+    border-bottom: 0.5px solid var(--color-border-default);
   }
   
   .data-row-inner {
@@ -211,7 +221,7 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--space-3) 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
   }
   
   .data-row-label {
@@ -232,7 +242,7 @@
     color: inherit;
     opacity: 0.6;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
   /* Legacy SVG support */
@@ -294,7 +304,7 @@
      ═══════════════════════════════════════════════════════════ */
   
   .savings-bar {
-    border: 0.5px solid var(--color-border-accent); /* Green outer border rgba(64,89,76,0.3) */
+    border: 0.5px solid var(--color-border-accent); /* Accent border - foreground at 30% opacity */
     border-radius: var(--radius-sm); /* 6px */
     height: 2.75rem; /* 44px - fixed height for savings bar */
     margin-top: var(--space-3);
@@ -335,7 +345,7 @@
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
   /* Legacy SVG support */
@@ -361,7 +371,7 @@
   }
   
   .info-row {
-    border-bottom: 0.5px solid var(--color-border-subtle);
+    border-bottom: 0.5px solid var(--color-border-default);
   }
   
   .info-row-inner {
@@ -405,10 +415,11 @@
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    padding: var(--space-1) var(--space-2);
+    padding: 2px var(--space-1);
     border: 0.5px solid white;
     border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
     box-shadow: var(--shadow-xs);
+    background-color: rgba(255, 255, 255, 0.1);
   }
   
   /* Phosphor Duotone icons styling */
@@ -422,7 +433,7 @@
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
   /* Legacy SVG support */
@@ -483,7 +494,7 @@
   .footer-updated {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-1); /* 4px gap between icon and text */
     height: var(--text-base-size);
   }
   
@@ -499,7 +510,7 @@
     color: inherit;
     opacity: 0.8;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
   /* Legacy SVG support */

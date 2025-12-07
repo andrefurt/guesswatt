@@ -116,6 +116,19 @@ function writeMeta(sourceUrl, precosPath, condPath) {
   fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
   console.log(`📝 Wrote metadata to ${metaPath}`);
   
+  // Also write last-update.json for footer sync
+  const now = new Date();
+  const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  const lastUpdate = {
+    month: months[now.getMonth()],
+    year: now.getFullYear().toString()
+  };
+  
+  const lastUpdatePath = path.join(DATA_DIR, 'last-update.json');
+  fs.writeFileSync(lastUpdatePath, JSON.stringify(lastUpdate, null, 2));
+  console.log(`📝 Wrote last update to ${lastUpdatePath}`);
+  
   return meta;
 }
 

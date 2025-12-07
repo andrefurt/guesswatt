@@ -96,7 +96,8 @@
           
           <!-- PRECISO MODE (invoice data) -->
           <div class="input-pill-content input-pill-preciso" id="pill-preciso">
-            <div class="input-pill-icon">
+            <!-- PDF icon - only shown when data comes from PDF -->
+            <div class="input-pill-icon input-pill-icon-pdf" id="pill-icon-pdf">
               <i class="ph-duotone ph-file-pdf" aria-hidden="true"></i>
             </div>
             <div class="input-pill-data">
@@ -115,21 +116,21 @@
           
           <!-- Delete button (shared) -->
           <button class="input-pill-delete" id="delete-btn" type="button" aria-label="Remover entrada e voltar ao formulário">
-            <div class="input-pill-delete-inner">
-              <i class="ph-duotone ph-x" aria-hidden="true"></i>
-            </div>
+            <span class="btn-icon" aria-hidden="true">
+              <i class="ph ph-x"></i>
+            </span>
           </button>
         </div>
       </div>
 
       <div class="top-bar-actions">
         <div class="btn-slot">
-          <a href="sobre.html" class="btn" aria-label="Saber mais sobre Guesswatt">
+          <button class="btn" id="about-btn" type="button" aria-label="Saber mais sobre Guesswatt" aria-expanded="false" aria-controls="about-panel">
             <span class="btn-icon" aria-hidden="true">
               <i class="ph-duotone ph-info"></i>
             </span>
             <span>Sobre</span>
-          </a>
+          </button>
         </div>
         <div class="btn-slot">
           <div class="segmented-btn">
@@ -153,7 +154,7 @@
             <div class="dropdown-wrapper" id="dropdown-wrapper">
               <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-haspopup="true" aria-controls="dropdown-menu">
                 <span class="btn-icon" aria-hidden="true">
-                  <i class="ph-duotone ph-caret-down"></i>
+                  <i class="ph ph-caret-down"></i>
                 </span>
               </button>
               <div class="dropdown-menu" id="dropdown-menu" role="menu" aria-labelledby="dropdown-trigger">
@@ -165,13 +166,15 @@
                 </button>
                 <button class="dropdown-item" data-action="chatgpt" type="button" role="menuitem">
                   <span class="item-icon" aria-hidden="true">
-                    <i class="ph-duotone ph-smiley"></i>
+                    <img src="https://www.google.com/s2/favicons?domain=chat.openai.com&sz=128" alt="ChatGPT" class="dropdown-logo" />
+                    <i class="ph-duotone ph-smiley dropdown-icon-fallback" style="display:none;"></i>
                   </span>
                   <span>Open in ChatGPT</span>
                 </button>
                 <button class="dropdown-item" data-action="claude" type="button" role="menuitem">
                   <span class="item-icon" aria-hidden="true">
-                    <i class="ph-duotone ph-hexagon"></i>
+                    <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=128" alt="Claude" class="dropdown-logo" />
+                    <i class="ph-duotone ph-hexagon dropdown-icon-fallback" style="display:none;"></i>
                   </span>
                   <span>Open in Claude</span>
                 </button>
@@ -265,7 +268,7 @@
                               <!-- Populated from PROVIDERS dynamically -->
                             </select>
                             <span class="form-select-icon">
-                              <i class="ph-duotone ph-caret-down"></i>
+                              <i class="ph ph-caret-down"></i>
                             </span>
                           </div>
                         </div>
@@ -282,7 +285,7 @@
                               <option value="3">Tri-horária</option>
                             </select>
                             <span class="form-select-icon">
-                              <i class="ph-duotone ph-caret-down"></i>
+                              <i class="ph ph-caret-down"></i>
                             </span>
                           </div>
                         </div>
@@ -327,17 +330,17 @@
         <div class="highlights">
           <div class="highlight-row">
             <div class="highlight-row-inner">
-              <p class="highlight-text">87% das pessoas já estão no mercado livre. <em>Fonte:</em> <a href="#">Eurostats</a></p>
+              <p class="highlight-text">87% das pessoas já estão no mercado livre. <em>Fonte:</em> <a href="https://ec.europa.eu/eurostat" target="_blank" rel="noopener">Eurostat</a></p>
             </div>
           </div>
           <div class="highlight-row">
             <div class="highlight-row-inner">
-              <p class="highlight-text">55% das pessoas pagam mais 200€/ano por inercia. <em>Fonte:</em> <a href="#">ERSE, 2025</a></p>
+              <p class="highlight-text">55% das pessoas pagam mais 200€/ano por inércia. <em>Fonte:</em> <a href="https://www.erse.pt/media/s2xluwec/202508_ele_rel_ml.pdf" target="_blank" rel="noopener">ERSE</a></p>
             </div>
           </div>
           <div class="highlight-row">
             <div class="highlight-row-inner">
-              <p class="highlight-text">60% das pessoas no mercado livre nunca mudou de operador. <em>Fonte:</em> <a href="#">ERSE, 2025</a></p>
+              <p class="highlight-text">60% das pessoas no mercado livre nunca mudaram de operador. <em>Fonte:</em> <a href="https://www.erse.pt/media/s2xluwec/202508_ele_rel_ml.pdf" target="_blank" rel="noopener">ERSE</a></p>
             </div>
           </div>
         </div>
@@ -377,6 +380,77 @@
     </div>
   </div>
 
+  <!-- About Panel -->
+  <div class="about-panel-overlay" id="about-panel-overlay" aria-hidden="true">
+    <div class="about-panel" id="about-panel" role="dialog" aria-modal="true" aria-labelledby="about-panel-title">
+      <div class="about-panel-header">
+        <h1 id="about-panel-title" class="about-title">Sobre o GuessWatt</h1>
+        <button class="about-panel-close" id="about-panel-close" type="button" aria-label="Fechar painel">
+          <span class="btn-icon" aria-hidden="true">
+            <i class="ph ph-x"></i>
+          </span>
+        </button>
+      </div>
+      <div class="about-panel-content">
+        <section aria-labelledby="what-is" class="about-section">
+          <h2 id="what-is" class="about-heading">O que é</h2>
+          <p class="about-text">O GuessWatt compara tarifas de eletricidade em Portugal. Mostras quanto pagas, nós dizemos se estás a pagar demais e qual a melhor alternativa.</p>
+          <p class="about-text">Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.</p>
+        </section>
+        
+        <section aria-labelledby="why" class="about-section">
+          <h2 id="why" class="about-heading">Porquê</h2>
+          <p class="about-text">Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem comparar — e perde dinheiro.</p>
+          <p class="about-text">Mudar de fornecedor é gratuito, demora menos de uma semana, e não requer qualquer intervenção técnica. Mas quase ninguém o faz.</p>
+          <p class="about-text">O GuessWatt existe para quebrar essa inércia.</p>
+        </section>
+        
+        <section aria-labelledby="how-it-works" class="about-section">
+          <h2 id="how-it-works" class="about-heading">Como funciona</h2>
+          <p class="about-text">O GuessWatt oferece duas formas de calcular:</p>
+          <p class="about-text"><strong>Modo Estimado:</strong> Introduzes apenas o valor que pagas por mês (em euros). O sistema estima o teu consumo com base nos dados médios do mercado e mostra-te a melhor oferta disponível.</p>
+          <p class="about-text"><strong>Modo Preciso:</strong> Podes fazer o upload da tua factura em PDF (o sistema extrai automaticamente os dados) ou introduzir manualmente o consumo, potência contratada e tipo de tarifa. Com estes dados, o cálculo é mais exacto.</p>
+          <p class="about-text">Em ambos os casos, o sistema compara todas as ofertas disponíveis no mercado português e apresenta-te a melhor opção, incluindo quanto poupas por ano e os contactos do comercializador.</p>
+        </section>
+        
+        <section aria-labelledby="how-calculate" class="about-section">
+          <h2 id="how-calculate" class="about-heading">Como calculamos</h2>
+          <p class="about-text">Usamos os dados oficiais da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a> (Entidade Reguladora dos Serviços Energéticos), a mesma fonte usada pelo simulador oficial.</p>
+          <p class="about-text">Para cada tarifa, calculamos:</p>
+          <ul class="about-list">
+            <li>Termo fixo (€/dia) × 30 dias</li>
+            <li>Termo variável (€/kWh) × consumo mensal (ajustado conforme o tipo de tarifa: simples, bi-horária ou tri-horária)</li>
+            <li>Taxas (taxa audiovisual e IEC)</li>
+            <li>IVA a 23%</li>
+          </ul>
+          <p class="about-text">Comparamos todas as ofertas disponíveis para o teu perfil (potência contratada e tipo de tarifa) e ordenamos por custo anual efectivo. Por predefinição, excluímos ofertas com fidelização obrigatória.</p>
+        </section>
+        
+        <section aria-labelledby="data-source" class="about-section">
+          <h2 id="data-source" class="about-heading">Fonte dos dados</h2>
+          <p class="about-text">Os dados vêm directamente da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a>:</p>
+          <ul class="about-list">
+            <li>Preços por tarifa, potência contratada e tipo de contagem</li>
+            <li>Condições comerciais (fidelização, contactos telefónicos, links para adesão)</li>
+            <li>Informações sobre comercializadores e logótipos</li>
+          </ul>
+          <p class="about-text">Actualizamos mensalmente quando a <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a> publica novos dados. O processamento é feito localmente no teu navegador — os teus dados nunca saem do teu dispositivo.</p>
+        </section>
+        
+        <section aria-labelledby="limitations" class="about-section">
+          <h2 id="limitations" class="about-heading">Limitações</h2>
+          <p class="about-text">O modo estimado baseia-se em médias do mercado e pode variar até ±15% do valor real. Para maior precisão, usa o modo preciso com a tua factura.</p>
+          <p class="about-text">Tarifas indexadas (com preço variável consoante o mercado) não são directamente comparáveis com tarifas fixas. Algumas ofertas podem ter condições especiais ou promoções não reflectidas nos dados oficiais.</p>
+          <p class="about-text">O cálculo assume que o teu perfil de consumo se mantém constante ao longo do ano. Se tens variações sazonais significativas, os resultados podem diferir.</p>
+        </section>
+        
+        <section aria-labelledby="who" class="about-section">
+          <p class="about-text">Sugestões, correcções ou contribuições: <a href="https://github.com/andrefurt/guesswatt" target="_blank" rel="noopener" class="about-link">github.com/andrefurt/guesswatt</a></p>
+        </section>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="components.js"></script>
   <script type="module" src="js/main.js"></script>
   <script>
@@ -390,6 +464,37 @@
       } catch (error) {
         console.error('Error loading last update:', error);
       }
+    }
+    
+    // Animated ASCII thunderbolt
+    function initThunderbolt() {
+      const thunderboltElement = document.querySelector('.thunderbolt-ascii');
+      if (!thunderboltElement) return;
+      
+      const frames = [
+        '    ⚡    ',
+        '   ⚡ ⚡   ',
+        '  ⚡   ⚡  ',
+        ' ⚡     ⚡ ',
+        '⚡       ⚡',
+        ' ⚡     ⚡ ',
+        '  ⚡   ⚡  ',
+        '   ⚡ ⚡   ',
+        '    ⚡    ',
+        '   ⚡ ⚡   ',
+        '  ⚡   ⚡  ',
+        ' ⚡     ⚡ ',
+        '⚡       ⚡',
+        ' ⚡     ⚡ ',
+        '  ⚡   ⚡  ',
+        '   ⚡ ⚡   '
+      ];
+      
+      let frameIndex = 0;
+      setInterval(() => {
+        thunderboltElement.textContent = frames[frameIndex];
+        frameIndex = (frameIndex + 1) % frames.length;
+      }, 150); // 150ms per frame for smooth animation
     }
     
     // Load last update on page load

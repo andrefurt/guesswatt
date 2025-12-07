@@ -3,15 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <title>Sobre - GuessWatt</title>
   <style>
-    /* Minimal functional styles only - no visual decoration */
+    /* Minimal functional styles only - visual styles are in modular CSS */
     
-    .dropdown-menu {
+    /* Tooltip visibility */
+    .tooltip {
       display: none;
     }
     
-    .dropdown-menu.is-open {
+    .tooltip.is-visible {
       display: block;
     }
     
@@ -29,96 +35,168 @@
   </style>
 </head>
 <body>
-  <div id="app-root">
-    <!-- Header -->
-    <header class="app-header">
-      <a href="index.html" id="app-logo">GuessWatt</a>
-      <nav>
-        <a href="sobre.html">Sobre</a>
-        <div class="dropdown">
-          <button type="button" id="copy-page-button">
-            Copy Page ▾
-          </button>
-          <div class="dropdown-menu" id="copy-page-menu">
-            <a href="#" id="copy-markdown">Copy as Markdown</a>
-            <a href="llms.txt" target="_blank">View llms.txt</a>
-            <a href="#" id="open-chatgpt">Open in ChatGPT</a>
-            <a href="#" id="open-claude">Open in Claude</a>
+  <div class="page-wrapper" id="page-wrapper">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <a href="index.html" class="logo" id="logo-link" aria-label="Voltar ao início">
+        <span>Ω</span>
+        <span>Guesswatt</span>
+      </a>
+
+      <div class="top-bar-actions">
+        <div class="btn-slot">
+          <a href="sobre.html" class="btn" aria-label="Saber mais sobre Guesswatt" aria-current="page">
+            <span class="btn-icon" aria-hidden="true">
+              <i class="ph-duotone ph-info"></i>
+            </span>
+            <span>Sobre</span>
+          </a>
+        </div>
+        <div class="btn-slot">
+          <div class="segmented-btn">
+            <button class="btn copy-btn" id="copy-btn" type="button" aria-label="Copiar página">
+              <!-- Default state -->
+              <div class="copy-btn-content copy-btn-default">
+                <span class="btn-icon" aria-hidden="true">
+                  <i class="ph-duotone ph-copy"></i>
+                </span>
+                <span>Copy page</span>
+              </div>
+              <!-- Copied state -->
+              <div class="copy-btn-content copy-btn-copied">
+                <span class="btn-icon" aria-hidden="true">
+                  <i class="ph-duotone ph-check"></i>
+                </span>
+                <span>Copied</span>
+              </div>
+            </button>
+            <div class="segmented-divider"></div>
+            <div class="dropdown-wrapper" id="dropdown-wrapper">
+              <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-haspopup="true" aria-controls="dropdown-menu">
+                <span class="btn-icon" aria-hidden="true">
+                  <i class="ph ph-caret-down"></i>
+                </span>
+              </button>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu" aria-labelledby="dropdown-trigger">
+                <button class="dropdown-item" data-action="markdown" type="button" role="menuitem">
+                  <span class="item-icon" aria-hidden="true">
+                    <i class="ph-duotone ph-code"></i>
+                  </span>
+                  <span>Copy as markdown</span>
+                </button>
+                <button class="dropdown-item" data-action="chatgpt" type="button" role="menuitem">
+                  <span class="item-icon" aria-hidden="true">
+                    <img src="https://www.google.com/s2/favicons?domain=chat.openai.com&sz=128" alt="ChatGPT" class="dropdown-logo" />
+                    <i class="ph-duotone ph-smiley dropdown-icon-fallback" style="display:none;"></i>
+                  </span>
+                  <span>Open in ChatGPT</span>
+                </button>
+                <button class="dropdown-item" data-action="claude" type="button" role="menuitem">
+                  <span class="item-icon" aria-hidden="true">
+                    <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=128" alt="Claude" class="dropdown-logo" />
+                    <i class="ph-duotone ph-hexagon dropdown-icon-fallback" style="display:none;"></i>
+                  </span>
+                  <span>Open in Claude</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </nav>
+      </div>
     </header>
-  
-    <!-- Main content -->
-    <main>
-      <section aria-labelledby="page-title">
-        <a href="index.html">← Voltar</a>
-        <h1 id="page-title">Sobre o GuessWatt</h1>
-      </section>
 
-      <section aria-labelledby="what-is">
-        <h2 id="what-is">O que é</h2>
-        <p>O GuessWatt compara tarifas de eletricidade em Portugal. Mostras quanto pagas, nós dizemos se estás a pagar demais e qual a melhor alternativa.</p>
-        <p>Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.</p>
-      </section>
-      
-      <section aria-labelledby="why">
-        <h2 id="why">Porquê</h2>
-        <p>Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem comparar — e perde dinheiro.</p>
-        <p>Mudar de fornecedor é gratuito, demora menos de uma semana, e não requer qualquer intervenção técnica. Mas quase ninguém o faz.</p>
-        <p>O GuessWatt existe para quebrar essa inércia.</p>
-      </section>
-      
-      <section aria-labelledby="how-calculate">
-        <h2 id="how-calculate">Como calculamos</h2>
-        <p>Usamos os dados oficiais da <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (Entidade Reguladora dos Serviços Energéticos), a mesma fonte usada pelo simulador oficial.</p>
-        <p>Para cada tarifa, calculamos:</p>
-        <ul>
-          <li>Termo fixo (€/dia) × 30 dias</li>
-          <li>Termo variável (€/kWh) × consumo mensal</li>
-          <li>Taxas (audiovisual, IEC)</li>
-          <li>IVA a 23%</li>
-        </ul>
-        <p>Comparamos todas as ofertas disponíveis para o teu perfil e ordenamos por custo mensal.</p>
-      </section>
-      
-      <section aria-labelledby="data-source">
-        <h2 id="data-source">Fonte dos dados</h2>
-        <p>Os dados vêm directamente da <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a>:</p>
-        <ul>
-          <li>Preços por tarifa, potência e tipo de contagem</li>
-          <li>Condições comerciais (fidelização, contactos, links)</li>
-        </ul>
-        <p>Actualizamos mensalmente quando a <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> publica novos dados.</p>
-      </section>
-      
-      <section aria-labelledby="limitations">
-        <h2 id="limitations">Limitações</h2>
-        <ul>
-          <li>Estimativas baseadas em consumo médio podem variar ±15% do real</li>
-          <li>Tarifas indexadas (preço variável) não são comparáveis directamente</li>
-          <li>Algumas ofertas têm condições especiais não reflectidas nos dados</li>
-        </ul>
-        <p>Para maior precisão, usa a tua factura real.</p>
-      </section>
-      
-      <section aria-labelledby="who">
-        <h2 id="who">Quem faz isto</h2>
-        <p>Projecto pessoal de Andrefurt. Código aberto, sem fins lucrativos.</p>
-        <p>Sugestões ou correcções: <a href="https://github.com/andrefurt/guesswatt" target="_blank" rel="noopener">github.com/andrefurt/guesswatt</a></p>
-      </section>
-    </main>
-  
+    <div class="content-wrapper">
+      <!-- Main content -->
+      <main class="card">
+        <div class="about-content">
+          <section aria-labelledby="page-title" class="about-section">
+            <a href="index.html" class="btn about-back-button">
+              <span class="btn-icon" aria-hidden="true">
+                <i class="ph ph-arrow-left"></i>
+              </span>
+              <span>Voltar</span>
+            </a>
+            <h1 id="page-title" class="about-title">Sobre o GuessWatt</h1>
+          </section>
+
+          <section aria-labelledby="what-is" class="about-section">
+            <h2 id="what-is" class="about-heading">O que é</h2>
+            <p class="about-text">O GuessWatt compara tarifas de eletricidade em Portugal. Mostras quanto pagas, nós dizemos se estás a pagar demais e qual a melhor alternativa.</p>
+            <p class="about-text">Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.</p>
+          </section>
+          
+          <section aria-labelledby="why" class="about-section">
+            <h2 id="why" class="about-heading">Porquê</h2>
+            <p class="about-text">Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem comparar — e perde dinheiro.</p>
+            <p class="about-text">Mudar de fornecedor é gratuito, demora menos de uma semana, e não requer qualquer intervenção técnica. Mas quase ninguém o faz.</p>
+            <p class="about-text">O GuessWatt existe para quebrar essa inércia.</p>
+          </section>
+          
+          <section aria-labelledby="how-it-works" class="about-section">
+            <h2 id="how-it-works" class="about-heading">Como funciona</h2>
+            <p class="about-text">O GuessWatt oferece duas formas de calcular:</p>
+            <p class="about-text"><strong>Modo Estimado:</strong> Introduzes apenas o valor que pagas por mês (em euros). O sistema estima o teu consumo com base nos dados médios do mercado e mostra-te a melhor oferta disponível.</p>
+            <p class="about-text"><strong>Modo Preciso:</strong> Podes fazer o upload da tua factura em PDF (o sistema extrai automaticamente os dados) ou introduzir manualmente o consumo, potência contratada e tipo de tarifa. Com estes dados, o cálculo é mais exacto.</p>
+            <p class="about-text">Em ambos os casos, o sistema compara todas as ofertas disponíveis no mercado português e apresenta-te a melhor opção, incluindo quanto poupas por ano e os contactos do comercializador.</p>
+          </section>
+          
+          <section aria-labelledby="how-calculate" class="about-section">
+            <h2 id="how-calculate" class="about-heading">Como calculamos</h2>
+            <p class="about-text">Usamos os dados oficiais da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a> (Entidade Reguladora dos Serviços Energéticos), a mesma fonte usada pelo simulador oficial.</p>
+            <p class="about-text">Para cada tarifa, calculamos:</p>
+            <ul class="about-list">
+              <li>Termo fixo (€/dia) × 30 dias</li>
+              <li>Termo variável (€/kWh) × consumo mensal (ajustado conforme o tipo de tarifa: simples, bi-horária ou tri-horária)</li>
+              <li>Taxas (taxa audiovisual e IEC)</li>
+              <li>IVA a 23%</li>
+            </ul>
+            <p class="about-text">Comparamos todas as ofertas disponíveis para o teu perfil (potência contratada e tipo de tarifa) e ordenamos por custo anual efectivo. Por predefinição, excluímos ofertas com fidelização obrigatória.</p>
+          </section>
+          
+          <section aria-labelledby="data-source" class="about-section">
+            <h2 id="data-source" class="about-heading">Fonte dos dados</h2>
+            <p class="about-text">Os dados vêm directamente da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a>:</p>
+            <ul class="about-list">
+              <li>Preços por tarifa, potência contratada e tipo de contagem</li>
+              <li>Condições comerciais (fidelização, contactos telefónicos, links para adesão)</li>
+              <li>Informações sobre comercializadores e logótipos</li>
+            </ul>
+            <p class="about-text">Actualizamos mensalmente quando a <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a> publica novos dados. O processamento é feito localmente no teu navegador — os teus dados nunca saem do teu dispositivo.</p>
+          </section>
+          
+          <section aria-labelledby="limitations" class="about-section">
+            <h2 id="limitations" class="about-heading">Limitações</h2>
+            <p class="about-text">O modo estimado baseia-se em médias do mercado e pode variar até ±15% do valor real. Para maior precisão, usa o modo preciso com a tua factura.</p>
+            <p class="about-text">Tarifas indexadas (com preço variável consoante o mercado) não são directamente comparáveis com tarifas fixas. Algumas ofertas podem ter condições especiais ou promoções não reflectidas nos dados oficiais.</p>
+            <p class="about-text">O cálculo assume que o teu perfil de consumo se mantém constante ao longo do ano. Se tens variações sazonais significativas, os resultados podem diferir.</p>
+          </section>
+          
+          <section aria-labelledby="who" class="about-section">
+            <h2 id="who" class="about-heading">Quem faz isto</h2>
+            <p class="about-text">Projecto pessoal de Andrefurt. Código aberto, sem fins lucrativos.</p>
+            <p class="about-text">Sugestões, correcções ou contribuições: <a href="https://github.com/andrefurt/guesswatt" target="_blank" rel="noopener" class="about-link">github.com/andrefurt/guesswatt</a></p>
+          </section>
+        </div>
+      </main>
+    </div>
+
     <!-- Footer -->
-    <footer id="footer">
-      <p>Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia.</p>
-      <p>Não vendemos nada. Dados: <a href="https://www.erse.pt" target="_blank" rel="noopener">ERSE</a> (atualizado mensalmente)</p>
-      <p>↻ Última actualização foi em <span id="last-update-month"></span> de <span id="last-update-year"></span></p>
-      <p><a href="llms.txt">llms.txt</a></p>
+    <footer class="footer">
+      <p class="footer-text">Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a> (atualizado mensalmente)</p>
+      <div class="footer-updated">
+        <i class="ph-duotone ph-clock" aria-hidden="true"></i>
+        <span>Actualizado em <span id="last-update-month"></span> de <span id="last-update-year"></span></span>
+      </div>
     </footer>
   </div>
-  
-  <script>
+
+  <script type="module" src="components.js"></script>
+  <script type="module">
+    import { initUIHandlers } from './js/ui-handlers.js';
+    
+    // Initialize UI handlers (copy button, dropdown)
+    initUIHandlers();
+    
     // Load last update date
     async function loadLastUpdate() {
       try {
@@ -129,78 +207,6 @@
       } catch (error) {
         console.error('Error loading last update:', error);
       }
-    }
-    
-    // Dropdown toggle
-    const copyPageButton = document.getElementById('copy-page-button');
-    const copyPageMenu = document.getElementById('copy-page-menu');
-    
-    if (copyPageButton && copyPageMenu) {
-      copyPageButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        copyPageMenu.classList.toggle('is-open');
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.dropdown')) {
-          copyPageMenu.classList.remove('is-open');
-        }
-      });
-    }
-    
-    // Copy Page functionality
-    const copyMarkdown = document.getElementById('copy-markdown');
-    const openChatGPT = document.getElementById('open-chatgpt');
-    const openClaude = document.getElementById('open-claude');
-    
-    // Determine which markdown file to use based on current page
-    const isAboutPage = window.location.pathname.includes('sobre');
-    const markdownFile = isAboutPage ? 'sobre.md' : 'index.md';
-    
-    // Copy as Markdown - fetch and copy to clipboard
-    if (copyMarkdown && copyPageMenu) {
-      copyMarkdown.addEventListener('click', async (e) => {
-        e.preventDefault();
-        try {
-          const response = await fetch(markdownFile);
-          const text = await response.text();
-          await navigator.clipboard.writeText(text);
-          
-          // Visual feedback
-          const originalText = copyMarkdown.textContent;
-          copyMarkdown.textContent = '✓ Copied!';
-          setTimeout(() => {
-            copyMarkdown.textContent = originalText;
-          }, 2000);
-        } catch (err) {
-          console.error('Failed to copy:', err);
-        }
-        copyPageMenu.classList.remove('is-open');
-      });
-    }
-    
-    // Open in ChatGPT
-    let basePath = window.location.pathname.replace(/\/[^/]*$/, '') || '';
-    basePath = basePath.replace(/\/+$/, ''); // Remove trailing slashes
-    const llmsUrl = window.location.origin + basePath + '/llms.txt';
-    const prompt = encodeURIComponent(`Use this documentation to answer questions about GuessWatt: ${llmsUrl}`);
-    
-    if (openChatGPT && copyPageMenu) {
-      openChatGPT.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.open(`https://chatgpt.com/?q=${prompt}`, '_blank');
-        copyPageMenu.classList.remove('is-open');
-      });
-    }
-    
-    // Open in Claude
-    if (openClaude && copyPageMenu) {
-      openClaude.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.open(`https://claude.ai/new?q=${prompt}`, '_blank');
-        copyPageMenu.classList.remove('is-open');
-      });
     }
     
     // Load last update on page load

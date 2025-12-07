@@ -79,9 +79,9 @@
     left: 50%;
     transform: translateX(-50%);
     top: var(--space-5);
-    width: var(--input-pill-width, 17.5rem); /* 280px - fixed width for pill */
+    width: fit-content; /* Fit content instead of fixed width */
     border: 0.5px solid var(--color-border-default);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-sm); /* Match btn-slot border-radius */
     display: none;
   }
   
@@ -104,17 +104,57 @@
   .input-pill-inner {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
     border: 0.5px solid white;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-sm); /* Match segmented-btn border-radius */
     box-shadow: var(--shadow-xs);
+    position: relative;
+    background: transparent;
+    transition: background var(--duration-fast) var(--ease-out);
   }
   
+  .input-pill:hover .input-pill-inner {
+    background: rgba(255, 255, 255, 0.2); /* Slightly lighter background on hover - white at 40% opacity */
+  }
+  
+  /* Estimate mode: asymmetric padding (12px left, 6px right, 6px top/bottom) */
+  .input-pill-inner:has(.input-pill-estimado) {
+    padding: var(--radius-sm) var(--radius-sm) var(--radius-sm) var(--space-3); /* 6px top/bottom/right, 12px left */
+    gap: var(--radius-sm); /* 6px gap between content and delete button - matches Figma gap-[6px] */
+  }
+  
+  /* Preciso mode: symmetric padding (6px all around) */
+  .input-pill-inner:has(.input-pill-preciso) {
+    padding: var(--radius-sm); /* 6px all around */
+    gap: var(--space-3); /* 12px gap between icon and content (default for PDF mode) */
+  }
+  
+  /* Preciso mode without PDF icon (manual): no gap, content starts immediately */
+  .input-pill:not(.pdf-source) .input-pill-inner:has(.input-pill-preciso) {
+    gap: 0; /* No gap when manual entry (no PDF icon) */
+  }
+  
+  /* Child elements inside input-pill-inner inherit parent's border-radius calculation */
+  .input-pill-inner > * {
+    border-radius: calc(var(--radius-sm) - 0.5px); /* Parent radius - border */
+  }
+  
+  .input-pill-content {
+    display: flex;
+    align-items: center;
+    border: none;
+    box-shadow: none;
+  }
+  
+  /* Estimate mode content: gap between mode and value */
+  .input-pill-estimado {
+    gap: var(--space-2); /* 8px gap between mode section and value section */
+  }
+  
+  /* Estimate mode section: gap between icon and text */
   .input-pill-mode {
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: var(--space-1); /* 4px gap between icon and "Estimado" text - matches Figma */
   }
   
   /* Phosphor Duotone icons styling */
@@ -128,7 +168,7 @@
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
   /* Legacy SVG support */
@@ -146,11 +186,9 @@
   }
   
   .input-pill-value {
-    flex: 1;
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    padding: var(--space-3) 0;
   }
   
   .input-pill-value .amount {
@@ -170,39 +208,35 @@
     color: var(--color-foreground-secondary);
   }
   
+  /* Delete button (suffix) - square, matches btn-suffix visual style */
   .input-pill-delete {
-    width: var(--space-8);
-    height: var(--space-8);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 0.5px solid var(--color-border-default);
-    border-radius: var(--radius-sm);
-    background: transparent;
+    /* Calculate padding to make square button matching button height */
+    /* Button height = var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) = ~32px */
+    /* For square: padding = (height - icon size) / 2 */
+    padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-base-size)) / 2);
+    border: none;
+    box-shadow: none;
+    /* Remove gap since icon-only button doesn't need spacing */
+    gap: 0;
     cursor: pointer;
-    box-shadow: var(--shadow-sm);
     transition: transform var(--duration-normal) var(--ease-bounce);
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
+    flex-shrink: 0; /* Prevent button from shrinking */
   }
   
   .input-pill-delete:active {
-    transform: scale(0.94);
+    transform: scale(0.97);
   }
   
-  .input-pill-delete-inner {
-    width: var(--space-8);
-    height: var(--space-8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 0.5px solid white;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-xs);
-  }
+  /* Remove input-pill-delete-inner wrapper - not needed with segmented button pattern */
   
-  /* Phosphor Duotone icons styling */
+  /* Phosphor Duotone icons styling - matches btn-icon pattern */
+  .input-pill-delete .btn-icon,
   .input-pill-delete i,
   .input-pill-delete .ph-duotone {
     font-size: var(--text-base-size); /* 14px icon size */
@@ -213,7 +247,7 @@
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
   /* Legacy SVG support */
@@ -226,12 +260,6 @@
      INPUT PILL - TWO MODES
      Estimado (simple) vs Preciso (invoice data)
      ═══════════════════════════════════════════════════════════ */
-  
-  .input-pill-content {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-  }
   
   /* Estimado mode - shown by default */
   .input-pill-estimado {
@@ -252,14 +280,12 @@
     display: flex;
   }
   
-  /* Make input-pill wider when in preciso mode */
+  /* Preciso mode: fit content with max-width constraint */
   .input-pill.preciso-mode {
-    width: auto;
-    min-width: 17.5rem; /* 280px minimum - fixed width for preciso mode */
     max-width: calc(100vw - 22.5rem); /* Leave room for logo and actions */
   }
   
-  /* Responsive: reduce on smaller screens */
+  /* Responsive: reduce max-width on smaller screens */
   @media (max-width: 48rem) { /* 768px */
     .input-pill.preciso-mode {
       max-width: calc(100vw - 12.5rem);
@@ -271,10 +297,10 @@
     }
   }
   
-  /* Preciso pill icon (PDF icon) */
+  /* Preciso pill icon container - 32px square, matches Figma design */
   .input-pill-icon {
-    width: var(--space-8);
-    height: var(--space-8);
+    width: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px - matches button height */
+    height: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px - matches button height */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -287,10 +313,21 @@
     flex-shrink: 0;
   }
   
+  /* PDF icon - hidden by default, shown only when data comes from PDF */
+  .input-pill-icon-pdf {
+    display: none;
+  }
+  
+  /* Show PDF icon when input-pill has pdf-source class (set when PDF is loaded) */
+  .input-pill.pdf-source .input-pill-icon-pdf {
+    display: flex;
+  }
+  
   .input-pill-icon::after {
     content: '';
     position: absolute;
     inset: 0;
+    border-radius: var(--radius-sm);
     box-shadow: var(--shadow-icon-inset);
     pointer-events: none;
   }
@@ -298,15 +335,15 @@
   /* Phosphor Duotone icons styling */
   .input-pill-icon i,
   .input-pill-icon .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
+    font-size: var(--text-lg-size); /* 20px icon size for PDF icon */
+    width: var(--text-lg-size);
+    height: var(--text-lg-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground at 8% opacity - matches token */
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
   /* Legacy SVG support */
@@ -315,13 +352,12 @@
     height: var(--text-lg-size);
   }
   
-  /* Preciso pill data */
+  /* Preciso pill data - matches Figma: py-[6px], gap-[8px] */
   .input-pill-data {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    height: var(--space-3);
-    padding: var(--space-3) 0;
+    gap: var(--space-2); /* 8px gap between items */
+    padding: var(--radius-sm) 0; /* 6px top/bottom padding */
   }
   
   .pill-provider,

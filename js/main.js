@@ -4,7 +4,7 @@
  */
 
 import { DEFAULT_POWER, PROVIDERS } from './config.js';
-import { loadOffers } from './utils.js';
+import { loadOffers, toTitleCase } from './utils.js';
 import { 
   estimateConsumption, 
   calculateMonthlyCost, 
@@ -195,10 +195,11 @@ async function handlePreciseSubmit(e) {
   
   // Get tariff name for pill
   const tariffNames = { 1: 'Simples', 2: 'Bi-horária', 3: 'Tri-horária' };
-  const tariffName = tariffNames[tariffType] || 'Simples';
+  const tariffName = toTitleCase(tariffNames[tariffType] || 'Simples');
   
   // Get provider name for pill
-  const providerName = currentProvider ? (PROVIDERS[currentProvider] || currentProvider) : 'Manual';
+  const providerNameRaw = currentProvider ? (PROVIDERS[currentProvider] || currentProvider) : 'Manual';
+  const providerName = toTitleCase(providerNameRaw);
   
   // Set invoice data for input pill (manual entry)
   setInvoiceData({
@@ -206,7 +207,7 @@ async function handlePreciseSubmit(e) {
     tariff: tariffName,
     consumption: consumption,
     power: power
-  });
+  }, false); // fromPDF = false (manual entry)
   
   try {
     // 1. Validar inputs
@@ -290,7 +291,7 @@ async function handlePreciseSubmit(e) {
           savings = {
             monthly: monthlySavings,
             yearly: monthlySavings * 12,
-            vsProvider: PROVIDERS[currentProvider] || currentProvider
+            vsProvider: toTitleCase(PROVIDERS[currentProvider] || currentProvider)
           };
         }
       }

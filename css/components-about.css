@@ -1,0 +1,220 @@
+/**
+ * About Page Component - Design System Implementation
+ * 
+ * Styles for the about page content and panel
+ */
+
+@layer components {
+  /* ═══════════════════════════════════════════════════════════
+     ABOUT PANEL (Slide-in from right)
+     ═══════════════════════════════════════════════════════════ */
+  
+  .about-panel-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-slower) var(--ease-out);
+  }
+  
+  .about-panel-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  .about-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 36.25rem; /* 580px - matches content-width */
+    height: 100vh;
+    background: var(--color-background-primary);
+    box-shadow: var(--shadow-sm);
+    transform: translateX(100%);
+    opacity: 0;
+    filter: blur(3px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .about-panel-overlay.is-open .about-panel {
+    animation: panelSlideIn var(--duration-slower) var(--ease-out) forwards;
+  }
+  
+  .about-panel-overlay:not(.is-open) .about-panel {
+    animation: panelSlideOut var(--duration-slower) var(--ease-in-out) forwards;
+  }
+  
+  @keyframes panelSlideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(100%);
+      filter: blur(3px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+      filter: blur(0);
+    }
+  }
+  
+  @keyframes panelSlideOut {
+    0% {
+      opacity: 1;
+      transform: translateX(0);
+      filter: blur(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(100%);
+      filter: blur(3px);
+    }
+  }
+  
+  .about-panel-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: var(--space-4) var(--space-8); /* 32px left/right padding */
+    border-bottom: 0.5px solid var(--color-border-default);
+    flex-shrink: 0;
+  }
+  
+  .about-panel-header .about-title {
+    margin: 0;
+    font-size: var(--text-xl-size);
+  }
+  
+  .about-panel-close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px */
+    height: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px */
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .about-panel-close:hover {
+    background: oklch(from var(--color-foreground-primary) l c h / 0.04);
+  }
+  
+  @supports not (color: oklch(0% 0 0)) {
+    .about-panel-close:hover {
+      background: rgba(53, 68, 61, 0.04);
+    }
+  }
+  
+  .about-panel-close:active {
+    transform: scale(0.97);
+  }
+  
+  .about-panel-close .btn-icon {
+    font-size: var(--text-base-size);
+    width: var(--text-base-size);
+    height: var(--text-base-size);
+  }
+  
+  .about-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4) var(--space-8); /* 32px left/right padding */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* ═══════════════════════════════════════════════════════════
+     ABOUT PAGE CONTENT (Legacy - for sobre.html)
+     ═══════════════════════════════════════════════════════════ */
+  
+  .about-content {
+    padding: var(--space-3);
+  }
+  
+  .about-section {
+    margin-bottom: var(--space-8); /* Increased space between topic blocks */
+  }
+  
+  .about-section:last-child {
+    margin-bottom: 0;
+  }
+  
+  .about-title {
+    font-family: var(--font-sans);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-xl-size);
+    line-height: var(--leading-tight);
+    color: var(--color-foreground-primary);
+    margin: 0 0 var(--space-4) 0;
+  }
+  
+  .about-heading {
+    font-family: var(--font-sans);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-base-size); /* 14px - token equivalent */
+    line-height: var(--leading-normal);
+    color: var(--color-foreground-primary);
+    margin: 0 0 var(--space-2) 0; /* Decreased gap between h2 and paragraph */
+  }
+  
+  .about-text {
+    font-family: var(--font-sans);
+    font-weight: var(--font-normal);
+    font-size: var(--text-base-size); /* 14px - token equivalent */
+    line-height: var(--leading-relaxed); /* Increased line height */
+    color: var(--color-foreground-primary);
+    margin: 0 0 var(--space-2) 0; /* Reduced space between paragraphs */
+  }
+  
+  .about-text:last-child {
+    margin-bottom: 0;
+  }
+  
+  .about-list {
+    font-family: var(--font-sans);
+    font-weight: var(--font-normal);
+    font-size: var(--text-base-size); /* 14px - same as paragraph */
+    line-height: var(--leading-relaxed); /* Match paragraph line-height */
+    color: var(--color-foreground-primary);
+    margin: 0 0 var(--space-2) 0; /* Match paragraph spacing */
+    padding-left: var(--space-5);
+  }
+  
+  .about-list:last-child {
+    margin-bottom: 0;
+  }
+  
+  .about-link {
+    color: var(--color-foreground-primary);
+    text-decoration: underline;
+  }
+  
+  .about-link:hover {
+    opacity: 0.8;
+  }
+  
+  .about-back-button {
+    margin-bottom: var(--space-4);
+    display: inline-flex;
+  }
+  
+  /* Responsive: smaller panel on mobile */
+  @media (max-width: 36.25rem) {
+    .about-panel {
+      max-width: 100%;
+    }
+  }
+}

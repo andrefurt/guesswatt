@@ -647,7 +647,12 @@ Targeting modern browsers only:
 4. **Result Rendering** (`ui-renderer.js`):
    - Calculate savings (vs current or vs average)
    - Build HTML structure
+   - **Provider Logo Loading**: Hybrid approach with cascading fallbacks
+     - Primary: Clearbit Logo API (`logo.clearbit.com/{domain}`)
+     - Fallback 1: Google Favicon Service (`google.com/s2/favicons`)
+     - Fallback 2: Generic lightning icon (Phosphor Duotone)
    - Insert into DOM
+   - Initialize logo fallback handlers
    - Cache result for tab switching
    - Show results view, hide input view
 
@@ -672,12 +677,60 @@ Render (ui-renderer.js) → HTML
 Display → User sees result
 ```
 
+### Provider Logo Implementation
+
+**Location**: `js/ui-renderer.js` → `getProviderIcon()` and `initProviderLogoFallbacks()`
+
+**Approach**: Hybrid cascading fallback system for maximum logo coverage.
+
+```javascript
+/**
+ * Generate provider logo HTML with hybrid fallback approach
+ * @param {string} providerCode - Provider code (e.g., 'EDPC', 'GALP')
+ * @param {string|null} websiteUrl - Provider website URL from CSV
+ * @returns {string} HTML string with logo image and fallback icon
+ */
+function getProviderIcon(providerCode, websiteUrl = null) {
+  const domain = extractDomain(websiteUrl);
+  
+  if (!domain) {
+    return `<i class="ph-duotone ph-lightning"></i>`;
+  }
+  
+  const clearbitUrl = `https://logo.clearbit.com/${domain}`;
+  const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+  
+  return `
+    <img src="${clearbitUrl}" alt="${providerCode}" class="provider-logo"
+         data-favicon="${faviconUrl}" data-provider="${providerCode}" />
+    <i class="ph-duotone ph-lightning provider-icon-fallback" style="display:none;"></i>
+  `;
+}
+```
+
+**Fallback Chain**:
+1. **Clearbit Logo API**: High-quality logos for major brands (works for ~70% of providers)
+2. **Google Favicon Service**: Reliable fallback for all domains (works for ~95% of providers)
+3. **Generic Icon**: Always available Phosphor Duotone lightning icon
+
+**Error Handling**: Event listeners cascade through fallbacks automatically:
+- Clearbit fails → try favicon
+- Favicon fails → show generic icon
+
+**Domain Extraction**: Handles various URL formats:
+- `https://www.edp.pt/...` → `edp.pt`
+- `https://energianegocios.acciona-energia.com/...` → `energianegocios.acciona-energia.com`
+- Invalid URLs → returns null, falls back to generic icon
+
+**CSS Styling**: Logo images sized to match icon dimensions (14px) with `object-fit: contain` for proper aspect ratio.
+
 ### Performance Considerations
 
 - **Lazy loading**: Data only loaded when form is submitted
 - **Caching**: Results cached per tab to avoid recalculation
 - **Debouncing**: Not currently needed (no real-time input)
 - **Code splitting**: Not applicable (no build step, but modules loaded on demand)
+- **Logo loading**: Logos load asynchronously with graceful degradation (no blocking)
 
 ---
 

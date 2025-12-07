@@ -147,3 +147,27 @@ export function formatPhone(phone) {
   return phoneStr;
 }
 
+/**
+ * Convert all-caps names to title case (e.g., "ENIPLENITUDE" → "Eniplenitude")
+ * @param {string} name - Name to convert
+ * @returns {string} Title case name
+ */
+export function toTitleCase(name) {
+  if (!name) return name;
+  
+  // Check if string is all uppercase (ignoring spaces and special chars)
+  const hasLowercase = /[a-záàâãéêíóôõúç]/.test(name);
+  
+  // If already has lowercase, return as-is (e.g., "Tárifa Tendência")
+  if (hasLowercase) {
+    return name;
+  }
+  
+  // Convert all-caps to title case: lowercase first, then capitalize each word
+  return name
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+

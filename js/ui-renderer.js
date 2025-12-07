@@ -5,18 +5,92 @@
  */
 
 import { PROVIDERS } from './config.js';
-import { formatPhone } from './utils.js';
+import { formatPhone, toTitleCase } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { showResults, getPillMode } from './ui-handlers.js';
 
 /**
- * Generate provider icon SVG
- * @param {string} providerCode - Provider code
- * @returns {string} SVG HTML string
+ * Extract domain from website URL
+ * @param {string} websiteUrl - Full website URL
+ * @returns {string|null} Domain name or null
  */
-function getProviderIcon(providerCode) {
-  // Default energy icon - using Phosphor Duotone
-  return `<i class="ph-duotone ph-lightning"></i>`;
+function extractDomain(websiteUrl) {
+  if (!websiteUrl) return null;
+  try {
+    const url = new URL(websiteUrl);
+    return url.hostname.replace(/^www\./, ''); // Remove www. prefix
+  } catch (e) {
+    // If URL parsing fails, try simple regex extraction
+    const match = websiteUrl.match(/https?:\/\/(?:www\.)?([^\/]+)/);
+    return match ? match[1] : null;
+  }
+}
+
+/**
+ * Generate provider logo HTML with hybrid fallback approach
+ * @param {string} providerCode - Provider code
+ * @param {string|null} websiteUrl - Provider website URL
+ * @returns {string} HTML string with logo image and fallback icon
+ */
+function getProviderIcon(providerCode, websiteUrl = null) {
+  const domain = extractDomain(websiteUrl);
+  
+  // If no domain, return default icon
+  if (!domain) {
+    return `<i class="ph-duotone ph-lightning"></i>`;
+  }
+  
+  // Generate logo URLs
+  const clearbitUrl = `https://logo.clearbit.com/${domain}`;
+  const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+  
+  // Return HTML with image and fallback chain
+  // Use data attributes to store fallback URLs for JavaScript handler
+  return `
+    <img 
+      src="${clearbitUrl}" 
+      alt="${providerCode}" 
+      class="provider-logo"
+      data-favicon="${faviconUrl}"
+      data-provider="${providerCode}"
+    />
+    <i class="ph-duotone ph-lightning provider-icon-fallback" style="display:none;"></i>
+  `;
+}
+
+/**
+ * Initialize provider logo fallback handlers
+ * Sets up error handlers for logo images to cascade through fallback options
+ */
+function initProviderLogoFallbacks() {
+  const logoImages = document.querySelectorAll('.provider-logo');
+  
+  logoImages.forEach(img => {
+    // First fallback: Clearbit fails -> try favicon
+    img.addEventListener('error', function handleClearbitError() {
+      const faviconUrl = this.dataset.favicon;
+      if (faviconUrl && this.src !== faviconUrl) {
+        this.src = faviconUrl;
+        // Remove this handler and add favicon error handler
+        this.removeEventListener('error', handleClearbitError);
+        this.addEventListener('error', function handleFaviconError() {
+          // Favicon also failed -> show fallback icon
+          this.style.display = 'none';
+          const fallback = this.nextElementSibling;
+          if (fallback && fallback.classList.contains('provider-icon-fallback')) {
+            fallback.style.display = 'inline-flex';
+          }
+        });
+      } else {
+        // No favicon URL or already tried -> show fallback icon
+        this.style.display = 'none';
+        const fallback = this.nextElementSibling;
+        if (fallback && fallback.classList.contains('provider-icon-fallback')) {
+          fallback.style.display = 'inline-flex';
+        }
+      }
+    });
+  });
 }
 
 /**
@@ -39,7 +113,8 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   
   if (!resultDiv) return;
   
-  const providerName = PROVIDERS[enrichedBest.COM] || enrichedBest.COM;
+  const providerNameRaw = PROVIDERS[enrichedBest.COM] || enrichedBest.COM;
+  const providerName = toTitleCase(providerNameRaw);
   const formattedPhone = formatPhone(enrichedBest.phone);
   const rawPhone = String(enrichedBest.phone || '').replace(/\D/g, '');
   
@@ -118,7 +193,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
     <div class="result-card-header">
       <div class="result-card-top">
         <div class="provider-icon">
-          ${getProviderIcon(enrichedBest.COM)}
+          ${getProviderIcon(enrichedBest.COM, enrichedBest.website)}
         </div>
         <div class="result-card-actions">
           ${phoneButtonHTML}
@@ -127,7 +202,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
       </div>
       <div class="result-card-info">
         <p class="provider-name">${providerName}</p>
-        <p class="provider-plan">${enrichedBest.tariffName || 'Tarifa Simples'}</p>
+        <p class="provider-plan">${toTitleCase(enrichedBest.tariffName || 'Tarifa Simples')}</p>
       </div>
     </div>
 
@@ -174,7 +249,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
       <div class="info-row">
         <div class="info-row-inner">
           <span class="info-row-label">Como mudar</span>
-          <span class="info-row-value">Diz que queres aderir à "${enrichedBest.tariffName || 'tarifa'}"</span>
+          <span class="info-row-value">Diz que queres aderir à "${toTitleCase(enrichedBest.tariffName || 'tarifa')}"</span>
         </div>
       </div>
       <div class="info-row">
@@ -270,4 +345,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   
   // Reinitialize tooltips after rendering
   initTooltips();
+  
+  // Initialize provider logo fallback handlers
+  initProviderLogoFallbacks();
 }

@@ -8,6 +8,8 @@
  * - Delete button: returns to input view with animation
  */
 
+import { toTitleCase } from './utils.js';
+
 import { resetPDFData } from './pdf-service.js';
 
 // =============================================================================
@@ -108,6 +110,30 @@ function initDropdown() {
       
       // Handle actions
       handleDropdownAction(action);
+    });
+  });
+  
+  // Initialize dropdown logo fallbacks
+  initDropdownLogoFallbacks();
+}
+
+/**
+ * Initialize dropdown logo fallback handlers
+ * Sets up error handlers for ChatGPT and Claude logos
+ * Since we're using favicon service directly (more reliable than Clearbit for these),
+ * we only need to handle favicon errors
+ */
+function initDropdownLogoFallbacks() {
+  const logoImages = document.querySelectorAll('.dropdown-logo');
+  
+  logoImages.forEach(img => {
+    // Handle favicon load errors - fallback to icon
+    img.addEventListener('error', function handleFaviconError() {
+      this.style.display = 'none';
+      const fallback = this.nextElementSibling;
+      if (fallback && fallback.classList.contains('dropdown-icon-fallback')) {
+        fallback.style.display = 'inline-flex';
+      }
     });
   });
 }
@@ -295,8 +321,9 @@ export function showResults() {
 /**
  * Set invoice data for the input pill (preciso mode)
  * @param {Object} data - Invoice data { provider, tariff, consumption, power }
+ * @param {boolean} fromPDF - Whether data comes from PDF (true) or manual entry (false)
  */
-export function setInvoiceData(data) {
+export function setInvoiceData(data, fromPDF = false) {
   invoiceData = data;
   currentPillMode = 'preciso';
   
@@ -305,18 +332,31 @@ export function setInvoiceData(data) {
   const pillTariff = document.getElementById('pill-tariff');
   const pillConsumption = document.getElementById('pill-consumption');
   const pillPower = document.getElementById('pill-power');
+  const inputPill = document.getElementById('input-pill');
+  const dropArea = document.getElementById('precise-mode');
   
   if (pillProvider && data.provider) {
-    pillProvider.textContent = data.provider;
+    pillProvider.textContent = toTitleCase(data.provider);
   }
   if (pillTariff && data.tariff) {
-    pillTariff.textContent = data.tariff;
+    pillTariff.textContent = toTitleCase(data.tariff);
   }
   if (pillConsumption && data.consumption) {
     pillConsumption.textContent = `${data.consumption} kWh`;
   }
   if (pillPower && data.power) {
     pillPower.textContent = `${data.power} kVA`;
+  }
+  
+  // Show/hide PDF icon based on source
+  // Check if drop area has has-file class (PDF) or if explicitly fromPDF
+  const isFromPDF = fromPDF || (dropArea && dropArea.classList.contains('has-file'));
+  if (inputPill) {
+    if (isFromPDF) {
+      inputPill.classList.add('pdf-source');
+    } else {
+      inputPill.classList.remove('pdf-source');
+    }
   }
 }
 
@@ -418,9 +458,89 @@ function initLogoLink() {
   });
 }
 
+// =============================================================================
+// ABOUT PANEL
+// =============================================================================
+
+/**
+ * Initialize about panel
+ */
+function initAboutPanel() {
+  const aboutBtn = document.getElementById('about-btn');
+  const aboutOverlay = document.getElementById('about-panel-overlay');
+  const aboutPanel = document.getElementById('about-panel');
+  const aboutClose = document.getElementById('about-panel-close');
+  
+  if (!aboutBtn || !aboutOverlay || !aboutPanel || !aboutClose) return;
+  
+  // Open panel
+  aboutBtn.addEventListener('click', () => {
+    aboutOverlay.setAttribute('aria-hidden', 'false');
+    aboutBtn.setAttribute('aria-expanded', 'true');
+    aboutOverlay.classList.add('is-open');
+    // Focus close button for accessibility
+    setTimeout(() => aboutClose.focus(), 100);
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+  });
+  
+  // Close panel
+  function closePanel() {
+    aboutOverlay.setAttribute('aria-hidden', 'true');
+    aboutBtn.setAttribute('aria-expanded', 'false');
+    aboutOverlay.classList.remove('is-open');
+    // Restore body scroll
+    document.body.style.overflow = '';
+    // Return focus to button
+    aboutBtn.focus();
+  }
+  
+  aboutClose.addEventListener('click', closePanel);
+  
+  // Close on overlay click
+  aboutOverlay.addEventListener('click', (e) => {
+    if (e.target === aboutOverlay) {
+      closePanel();
+    }
+  });
+  
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && aboutOverlay.classList.contains('is-open')) {
+      closePanel();
+    }
+  });
+  
+  // Trap focus within panel
+  aboutPanel.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    
+    const focusableElements = aboutPanel.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    if (e.shiftKey) {
+      // Shift + Tab
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      // Tab
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+}
+
 export function initUIHandlers() {
   initLogoLink();
   initCopyButton();
   initDropdown();
   initDeleteButton();
+  initAboutPanel();
 }

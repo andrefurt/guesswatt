@@ -5,7 +5,7 @@
 
 import { PROVIDERS } from './config.js';
 import { findBestOfferForTariff, calculateMonthlyCost, enrichOffer } from './calculator.js';
-import { loadOffers } from './utils.js';
+import { loadOffers, toTitleCase } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { setInvoiceData } from './ui-handlers.js';
 
@@ -152,8 +152,10 @@ export function showPDFData(data, onDataShown) {
   if (!dropArea || !dropAreaText) return;
   
   // Mostrar dados extraídos no drop area
-  const providerName = data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detectado';
-  const tariffName = data.tariffType === 1 ? 'Simples' : data.tariffType === 2 ? 'Bi-horária' : 'Tri-horária';
+  const providerNameRaw = data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detectado';
+  const providerName = toTitleCase(providerNameRaw);
+  const tariffNameRaw = data.tariffType === 1 ? 'Simples' : data.tariffType === 2 ? 'Bi-horária' : 'Tri-horária';
+  const tariffName = toTitleCase(tariffNameRaw);
   
   // Update drop area text to show loaded state
   dropAreaText.innerHTML = `
@@ -167,13 +169,13 @@ export function showPDFData(data, onDataShown) {
   // Mark drop area as having file
   dropArea.classList.add('has-file');
   
-  // Update input pill with invoice data
+  // Update input pill with invoice data (from PDF)
   setInvoiceData({
     provider: providerName,
     tariff: tariffName,
     consumption: data.consumption,
     power: data.power
-  });
+  }, true); // fromPDF = true
   
   // Calcular automaticamente após mostrar dados
   if (onDataShown) {
@@ -330,7 +332,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
           savings = {
             monthly: monthlySavings,
             yearly: monthlySavings * 12,
-            vsProvider: PROVIDERS[pdfData.provider] || pdfData.provider
+            vsProvider: toTitleCase(PROVIDERS[pdfData.provider] || pdfData.provider)
           };
         }
       }

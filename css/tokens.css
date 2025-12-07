@@ -16,10 +16,10 @@
   
   /* Foreground (text) - Primary naming */
   --color-foreground-primary: #35443D; /* Fallback for older browsers */
-  --color-foreground-primary: oklch(25% 0.02 145); /* #35443D - Primary text color, dark green-gray */
+  --color-foreground-primary: oklch(32% 0.02 135); /* #35443D - Primary text color */
   
   --color-foreground-secondary: #8E8C89; /* Fallback */
-  --color-foreground-secondary: oklch(58% 0.01 0); /* #8E8C89 - Secondary text, medium gray */
+  --color-foreground-secondary: oklch(64% 0.01 0); /* #8E8C89 - Secondary text, medium gray */
   
   --color-text-muted: #9E9E9E; /* Fallback */
   --color-text-muted: oklch(65% 0 0); /* #9E9E9E - Muted text, light gray */
@@ -40,8 +40,8 @@
   --foreground-tertiary: #9E9E9E; /* Fallback */
   --foreground-tertiary: oklch(65% 0 0); /* #9E9E9E - Tertiary foreground */
   
-  --foreground-accent: #40594c; /* Fallback */
-  --foreground-accent: oklch(35% 0.05 145); /* #40594c - Accent foreground, green */
+  --foreground-accent: #35443D; /* Fallback */
+  --foreground-accent: oklch(25% 0.02 145); /* #35443D - Accent foreground, matches foreground */
   
   /* Backgrounds - Primary naming */
   --color-background-primary: #EAEAEA; /* Fallback */
@@ -77,23 +77,23 @@
   --color-surface: oklch(100% 0 0); /* #FFFFFF - Surface color, pure white */
   
   /* Accent Colors */
-  --color-accent-green: #40594c; /* Fallback */
-  --color-accent-green: oklch(35% 0.05 145); /* #40594c - Primary accent, green */
+  --color-accent-green: #35443D; /* Fallback */
+  --color-accent-green: oklch(25% 0.02 145); /* #35443D - Primary accent, matches foreground */
   
-  --color-accent-green-light: rgba(113, 152, 131, 0.08); /* Light green tint */
-  --color-accent: #40594c; /* Fallback */
-  --color-accent: oklch(35% 0.05 145); /* #40594c - Accent color */
+  --color-accent-green-light: rgba(53, 68, 61, 0.08); /* Light foreground tint */
+  --color-accent: #35443D; /* Fallback */
+  --color-accent: oklch(25% 0.02 145); /* #35443D - Accent color, matches foreground */
   
-  --color-accent-hover: #36453D; /* Fallback */
-  --color-accent-hover: oklch(23% 0.02 145); /* #36453D - Accent hover state, darker */
+  --color-accent-hover: #2A3530; /* Fallback - darker version of #35443D */
+  --color-accent-hover: oklch(20% 0.02 145); /* Darker accent hover state */
   
-  --color-accent-soft: rgba(113, 152, 131, 0.08); /* Soft accent background */
+  --color-accent-soft: rgba(53, 68, 61, 0.08); /* Soft accent background - foreground at 8% opacity */
   
   /* Borders */
-  --color-border-default: rgba(0, 0, 0, 0.12); /* Default border, 12% opacity */
+  --color-border-default: rgba(0, 0, 0, 0.10); /* Default border, 12% opacity */
   --color-border-subtle: rgba(0, 0, 0, 0.06); /* Subtle border, 6% opacity */
   --color-border-dashed: rgba(0, 0, 0, 0.16); /* Dashed border, 16% opacity */
-  --color-border-accent: rgba(64, 89, 76, 0.3); /* Accent border, 30% opacity */
+  --color-border-accent: rgba(53, 68, 61, 0.4); /* Accent border, foreground at 30% opacity */
   --border: rgba(0, 0, 0, 0.12); /* Default border alias */
   --border-hard: rgba(0, 0, 0, 0.16); /* Hard border, 16% opacity */
   
@@ -112,8 +112,8 @@
   --color-savings-bar-shadow: rgba(113, 152, 131, 0.08); /* Savings bar shadow, 8% opacity */
   
   /* Phosphor icon colors - Duotone inner fill */
-  --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground primary at 8% opacity (#35443D at 8%) */
-  --ph-icon-fill-duotone: oklch(from var(--color-foreground-primary) l c h / 0.08); /* Modern browsers: foreground at 8% opacity */
+  --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground primary at 6% opacity (#35443D at 6%) */
+  --ph-icon-fill-duotone: oklch(from var(--color-foreground-primary) l c h / 0.06); /* Modern browsers: foreground at 6% opacity */
   
   /* ═══════════════════════════════════════════════════════════
      TYPOGRAPHY - Fluid scaling with clamp()
