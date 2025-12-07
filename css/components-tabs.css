@@ -51,39 +51,20 @@
   }
   
   /* ═══════════════════════════════════════════════════════════
-     TAB BUTTONS
+     TAB BUTTONS - Extends interactive-base
+     Active tab has more prominent background (via indicator)
      ═══════════════════════════════════════════════════════════ */
   
   .tab-btn {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
-    border: none;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    cursor: pointer;
-    font-family: var(--font-sans);
-    font-weight: var(--font-medium);
-    font-size: var(--text-base-size);
-    line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
-    transition: transform var(--duration-normal) var(--ease-bounce);
+    /* Extends .interactive-base - all shared styles inherited */
+    border: none; /* Override: tabs don't have border, indicator provides bg */
+    box-shadow: none; /* Override: no shadow, indicator provides elevation */
     position: relative;
     z-index: 1;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  
-  .tab-btn:active {
-    transform: scale(0.97);
   }
   
   .tab-btn span {
     color: inherit;
-    user-select: none;
-    -webkit-user-select: none;
   }
   
   .tab-btn .btn-icon {

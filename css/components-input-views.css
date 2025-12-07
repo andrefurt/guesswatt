@@ -52,7 +52,8 @@
   
   .input-content {
     border: 1px solid white;
-    border-radius: var(--radius-xl);
+    /* Child radius = parent radius (16px) - parent border (0.5px) ≈ 15.5px */
+    border-radius: calc(var(--radius-xl) - 0.5px);
     box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
@@ -68,7 +69,8 @@
     inset: 0;
     pointer-events: none;
     box-shadow: var(--shadow-inset-light);
-    border-radius: var(--radius-xl);
+    /* Inherits parent's border-radius */
+    border-radius: calc(var(--radius-xl) - 0.5px);
     transition: opacity var(--duration-slow) var(--ease-bounce);
   }
   
@@ -432,7 +434,8 @@
     align-items: center;
     height: 2.75rem; /* 44px - fixed height for form inputs */
     border: 1px solid white;
-    border-radius: var(--radius-sm);
+    /* Child radius = parent radius (6px) - parent border (0.5px) ≈ 5.5px */
+    border-radius: calc(var(--radius-sm) - 0.5px);
     box-shadow: var(--shadow-md);
     position: relative;
     background: var(--color-bg-form-input);
@@ -445,7 +448,8 @@
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: var(--radius-sm);
+    /* Inherits parent's border-radius */
+    border-radius: calc(var(--radius-sm) - 0.5px);
     box-shadow: var(--shadow-inset-light);
     pointer-events: none;
   }

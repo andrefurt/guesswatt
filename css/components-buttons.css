@@ -7,23 +7,16 @@
 
 @layer components {
   /* ═══════════════════════════════════════════════════════════
-     BUTTON SLOT (Container)
+     SHARED BASE COMPONENT - Interactive Elements
+     Base class for buttons, tabs, pills, labels, chips
+     All share the same visual foundation
      ═══════════════════════════════════════════════════════════ */
   
-  .btn-slot {
-    border: 0.5px solid var(--color-border-default, rgba(0, 0, 0, 0.12));
-    border-radius: var(--radius-sm, 0.375rem);
-  }
-  
-  /* ═══════════════════════════════════════════════════════════
-     BASE BUTTON
-     ═══════════════════════════════════════════════════════════ */
-  
-  .btn {
+  .interactive-base {
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4); /* 12px 20px 12px 16px */
+    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
     border: 0.5px solid white;
     border-radius: var(--radius-sm);
     background: transparent;
@@ -31,7 +24,7 @@
     cursor: pointer;
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-base);
+    font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
     color: var(--color-foreground-primary);
     transition: transform var(--duration-normal) var(--ease-bounce);
@@ -41,23 +34,47 @@
     -webkit-user-select: none;
   }
   
-  .btn:active {
+  .interactive-base:active {
     transform: scale(0.97);
   }
   
-  .btn span {
+  .interactive-base span {
     text-decoration: none;
     user-select: none;
     -webkit-user-select: none;
   }
   
-  /* If button is an <a> tag */
-  a.btn,
-  a.btn:hover,
-  a.btn:visited,
-  a.btn:active {
+  /* If interactive-base is an <a> tag */
+  a.interactive-base,
+  a.interactive-base:hover,
+  a.interactive-base:visited,
+  a.interactive-base:active {
     text-decoration: none;
   }
+  
+  /* ═══════════════════════════════════════════════════════════
+     BUTTON SLOT (Container)
+     ═══════════════════════════════════════════════════════════ */
+  
+  .btn-slot {
+    border: 0.5px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+  }
+  
+  /* Child elements inside btn-slot should have calculated border-radius */
+  .btn-slot > * {
+    border-radius: calc(var(--radius-sm) - 0.5px); /* Parent radius - border */
+  }
+  
+  /* ═══════════════════════════════════════════════════════════
+     BASE BUTTON - Extends interactive-base
+     ═══════════════════════════════════════════════════════════ */
+  
+  .btn {
+    /* Extends .interactive-base - all shared styles inherited */
+  }
+  
+  /* Button inherits all styles from .interactive-base */
   
   .btn-icon {
     width: var(--text-base-size);
@@ -84,6 +101,11 @@
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-xs);
     position: relative;
+  }
+  
+  /* Child buttons inside segmented-btn inherit parent's border-radius calculation */
+  .segmented-btn > * {
+    border-radius: calc(var(--radius-sm) - 0.5px); /* Parent radius - border */
   }
   
   /* Copy button inside segmented - needs FULL padding */
@@ -221,6 +243,11 @@
       opacity var(--duration-slow) var(--ease-out),
       transform var(--duration-slow) var(--ease-out);
     z-index: var(--z-dropdown);
+  }
+  
+  /* Dropdown items have calculated border-radius based on parent padding */
+  .dropdown-item {
+    border-radius: calc(var(--radius-sm) - var(--space-1)); /* Parent radius - padding */
   }
   
   .dropdown-wrapper.open .dropdown-menu {

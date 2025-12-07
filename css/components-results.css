@@ -83,7 +83,8 @@
   .result-card {
     background: var(--color-background-card);
     border: 1px solid white;
-    border-radius: var(--radius-xl);
+    /* Child radius = parent radius (16px) - parent border (0.5px) ≈ 15.5px */
+    border-radius: calc(var(--radius-xl) - 0.5px);
     box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
@@ -95,7 +96,8 @@
     inset: 0;
     pointer-events: none;
     box-shadow: var(--shadow-inset-light);
-    border-radius: var(--radius-xl);
+    /* Inherits parent's border-radius */
+    border-radius: calc(var(--radius-xl) - 0.5px);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -230,16 +232,17 @@
     gap: var(--space-3);
   }
   
-  /* Campaign Badge */
+  /* Campaign Badge - Extends interactive-base structure */
   .badge {
     border: 0.5px solid var(--color-border-default);
     border-radius: var(--radius-sm);
   }
   
   .badge-inner {
+    /* Shares same visual structure as buttons/pills */
     padding: var(--space-1) var(--space-2);
     border: 0.5px solid white;
-    border-radius: var(--radius-sm);
+    border-radius: calc(var(--radius-sm) - var(--space-1)); /* Child radius = parent - padding */
     box-shadow: var(--shadow-xs);
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
@@ -250,37 +253,34 @@
   }
   
   /* ═══════════════════════════════════════════════════════════
-     SAVINGS BAR
+     SAVINGS BAR - Extends interactive-base with green variant
+     Shares same visual aspect as secondary buttons, only color differs
      ═══════════════════════════════════════════════════════════ */
   
   .savings-bar {
-    border: 0.5px solid var(--color-border-accent);
-    border-radius: var(--radius-sm);
-    height: 2.75rem; /* 44px - fixed height for savings bar */
-    margin-top: var(--space-3);
-  }
-  
-  .savings-bar-inner {
+    /* Extends .interactive-base structure */
     display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-1);
-    height: 2.75rem; /* 44px - fixed height */
     padding: var(--space-1) var(--space-2);
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-border-accent);
     border-radius: var(--radius-sm);
     background: var(--color-savings-bar-bg);
-    box-shadow: var(--color-savings-bar-shadow);
+    box-shadow: var(--shadow-xs);
+    height: 2.75rem; /* 44px - fixed height for savings bar */
+    margin-top: var(--space-3);
     position: relative;
   }
   
-  .savings-bar-inner::after {
+  .savings-bar::after {
     content: '';
     position: absolute;
     inset: 0;
+    border: 0.5px solid white;
+    border-radius: var(--radius-sm);
     box-shadow: var(--shadow-inset-dark);
     pointer-events: none;
-    border-radius: var(--radius-sm);
   }
   
   .savings-bar svg {
@@ -332,7 +332,7 @@
     color: var(--color-foreground-primary);
   }
   
-  /* Tags */
+  /* Tags - Extends interactive-base structure */
   .tags-group {
     display: flex;
     gap: var(--space-1);
@@ -345,12 +345,13 @@
   }
   
   .tag-inner {
+    /* Shares same visual structure as buttons/pills/badges */
     display: flex;
     align-items: center;
     gap: var(--space-1);
     padding: var(--space-1) var(--space-2);
     border: 0.5px solid white;
-    border-radius: var(--radius-sm);
+    border-radius: calc(var(--radius-sm) - var(--space-1)); /* Child radius = parent - padding */
     box-shadow: var(--shadow-xs);
   }
   
