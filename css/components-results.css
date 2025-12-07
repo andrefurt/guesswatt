@@ -289,10 +289,11 @@
      ═══════════════════════════════════════════════════════════ */
   
   .savings-bar {
-    border: 0.5px solid var(--color-border-accent);
+    border: 0.5px solid var(--color-border-accent); /* Green outer border */
     border-radius: var(--radius-sm);
     height: 2.75rem; /* 44px - fixed height for savings bar */
     margin-top: var(--space-3);
+    position: relative;
   }
   
   .savings-bar-inner {
@@ -300,10 +301,11 @@
     align-items: center;
     justify-content: center;
     gap: var(--space-1);
-    height: 2.75rem; /* 44px - fixed height */
+    height: calc(2.75rem - 1px); /* 44px - 1px (0.5px margin top + 0.5px margin bottom) */
+    margin: 0.5px; /* Inset from outer border to create inner border effect */
     padding: var(--space-1) var(--space-2);
-    border: 0.5px solid white;
-    border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent - border */
+    border: 0.5px solid white; /* White inner border */
+    border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
     background: var(--color-savings-bar-bg);
     box-shadow: var(--shadow-xs);
     position: relative;
