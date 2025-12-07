@@ -4,7 +4,7 @@ globs:
   alwaysApply: true
 ---
 
-# LessWatt v2 - Tech Stack & Architecture
+# GuessWatt - Tech Stack & Architecture
 
 ## Philosophy
 
@@ -37,15 +37,25 @@ globs:
 
 All values derived from a systematic scale. No magic numbers.
 
+**Actual file structure**:
 ```
 css/
-├── tokens.css       → Variables (colors, spacing, timing)
-├── reset.css        → Modern CSS reset
-├── base.css         → Typography, body, links
-├── components.css   → Button, input, card, modal, toast
-├── utilities.css    → Helpers (.sr-only, .stack, .cluster)
-└── main.css         → Single import point
+├── tokens.css                    → Design tokens (colors, spacing, typography, animations)
+├── reset.css                     → Modern CSS reset
+├── base.css                      → Typography, body, links
+├── components-buttons.css        → Button component styles
+├── components-header.css          → Header/top bar styles
+├── components-highlights.css      → Highlight rows styles
+├── components-input-views.css     → Input form and views styles
+├── components-layout.css          → Layout components (cards, containers)
+├── components-results.css         → Result card and display styles
+├── components-tabs.css            → Tab navigation styles
+├── utilities.css                  → Utility classes (.sr-only, .stack, .cluster)
+├── animations.css                 → Animation keyframes and transitions
+└── main.css                      → Single import point (imports all above)
 ```
+
+**Modular approach**: Each component type has its own CSS file for maintainability. All imported via `main.css`.
 
 ### Color System (OKLCH)
 
@@ -214,50 +224,49 @@ Flexbox-based, composable patterns.
 
 ```
 js/
-├── app.js              → Main entry, orchestration
-├── state.js            → URL state encode/decode
-├── calculator.js       → Invoice calculations
-├── pdf-extractor.js    → PDF parsing
-├── a11y.js             → Accessibility utilities
-├── components/
-│   ├── modal.js        → Accessible modal
-│   ├── toast.js        → Notifications
-│   └── result.js       → Result display with animation
-└── utils/
-    ├── dom.js          → DOM helpers
-    ├── format.js       → Number/currency formatting
-    └── calendar.js     → .ics generation
+├── main.js             → Application entry point, state management, form handlers
+├── calculator.js       → Pure business logic: cost calculations, offer filtering
+├── config.js          → Configuration constants (VAT, default power, providers)
+├── pdf-service.js     → PDF parsing (client-side with PDF.js)
+├── ui-components.js    → UI component initialization (tabs, tooltips, dropdowns)
+├── ui-handlers.js     → Event handlers (copy, delete, show/hide results)
+├── ui-renderer.js     → Result rendering and DOM manipulation
+└── utils.js           → Utility functions (CSV/JSON loading, data parsing)
 ```
+
+**Note**: The current implementation consolidates some functionality. Components like modals and toasts are implemented inline where needed, following the principle of simplicity over abstraction.
 
 ### Module Pattern
 
-Each module exports clean public API:
+Each module exports clean public API with JSDoc comments:
 
 ```javascript
-// components/modal.js
+// calculator.js
 
 /**
- * Creates an accessible modal dialog.
+ * Calculate monthly cost for an offer
+ * Implements full calculation with IEC, proper tariff splitting, and VAT
  * 
- * @param {Object} options
- * @param {HTMLElement} options.trigger - Element that opens modal
- * @param {string} options.content - Modal HTML content
- * @param {string} options.title - Modal title for a11y
- * @param {Function} options.onOpen - Callback on open
- * @param {Function} options.onClose - Callback on close
- * @returns {{ open: Function, close: Function, destroy: Function }}
+ * @param {Object} offer - Offer object from CSV/JSON
+ * @param {number} consumption - Consumption in kWh
+ * @param {number} power - Power in kVA
+ * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
+ * @returns {number} Monthly cost in euros (with VAT)
  * 
  * @example
- * const modal = createModal({
- *   trigger: document.querySelector('#help-btn'),
- *   title: 'Como encontrar o CPE',
- *   content: '<p>O CPE está na sua fatura...</p>'
- * });
+ * const cost = calculateMonthlyCost(offer, 250, 4.6);
+ * // Returns: 71.23 (€/month)
  */
-export function createModal({ trigger, content, title, onOpen, onClose }) {
+export function calculateMonthlyCost(offer, consumption, power, distribution = null) {
   // Implementation...
 }
 ```
+
+**Key principles**:
+- **Pure functions**: No side effects, same input = same output
+- **Single responsibility**: Each function does one thing well
+- **Composability**: Functions can be combined to build complex behavior
+- **Documentation**: JSDoc comments explain purpose, parameters, return values
 
 ### Accessibility Utilities
 
@@ -320,52 +329,42 @@ export function onEscape(callback) {
 }
 ```
 
-### State Management (URL-based)
+### State Management
 
-No localStorage dependency. State lives in URL.
+**Current implementation**: Tab-based state management with result caching
 
 ```javascript
-// state.js
+// main.js
 
-/**
- * Encodes state to URL-safe base64.
- */
-export function encodeState(state) {
-  const json = JSON.stringify(state);
-  return btoa(encodeURIComponent(json));
-}
-
-/**
- * Decodes state from URL.
- */
-export function decodeState(encoded) {
-  try {
-    const json = decodeURIComponent(atob(encoded));
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Updates URL with state (no page reload).
- */
-export function pushState(state) {
-  const encoded = encodeState(state);
-  const url = new URL(window.location);
-  url.searchParams.set('s', encoded);
-  history.pushState(null, '', url);
-}
-
-/**
- * Reads state from current URL.
- */
-export function readState() {
-  const url = new URL(window.location);
-  const encoded = url.searchParams.get('s');
-  return encoded ? decodeState(encoded) : null;
-}
+const state = {
+  // Tab results cache
+  tabResults: {
+    estimate: null,
+    precise: null
+  },
+  
+  // Current active mode
+  currentMode: 'estimate',
+  
+  // Manual form visibility
+  manualFormVisible: false
+};
 ```
+
+**State flow**:
+1. User submits form (estimate or precise)
+2. Result is calculated and rendered
+3. Result HTML is cached in `state.tabResults[mode]`
+4. When switching tabs, cached result is reused (no recalculation)
+5. When form is cleared, cache is cleared
+
+**Future enhancement**: URL-based state encoding for bookmarkable/shareable results (see ADR-018 in DECISIONS.mdc)
+
+**Benefits**:
+- No localStorage dependency (works in private browsing)
+- Stateless by default (can be enhanced with URL state)
+- Fast tab switching (cached results)
+- Simple implementation (no complex state library)
 
 ---
 
@@ -619,6 +618,66 @@ Targeting modern browsers only:
 | JS | <30KB | Vanilla, no deps |
 | CSV (initial) | ~300KB | Cached after first load |
 | Total | <400KB | Fast on 3G |
+
+---
+
+## Runtime Behavior
+
+### Application Flow
+
+1. **Initialization** (`main.js`):
+   - DOM ready → `init()` called
+   - Initialize UI handlers (copy, dropdown, delete)
+   - Populate provider dropdown
+   - Initialize tabs system
+   - Initialize PDF upload handler
+   - Initialize tooltips
+   - Attach form submit handlers
+
+2. **Data Loading** (`utils.js`):
+   - Prefers `offers.json` (optimized, pre-filtered)
+   - Falls back to CSV parsing if JSON unavailable
+   - Filters to electricity-only offers
+   - Returns normalized offer objects
+
+3. **Form Submission**:
+   - **Estimate mode**: Monthly bill → estimate consumption → find best offer → render
+   - **Precise mode**: Consumption + power + tariff → find best offer → render
+
+4. **Result Rendering** (`ui-renderer.js`):
+   - Calculate savings (vs current or vs average)
+   - Build HTML structure
+   - Insert into DOM
+   - Cache result for tab switching
+   - Show results view, hide input view
+
+5. **Tab Switching**:
+   - Check cache for mode
+   - If cached: restore HTML immediately
+   - If not cached: show input form for that mode
+
+### Data Flow
+
+```
+User Input
+    ↓
+Form Handler (main.js)
+    ↓
+Load Data (utils.js) → offers.json or CSV
+    ↓
+Calculate (calculator.js) → Best Offer
+    ↓
+Render (ui-renderer.js) → HTML
+    ↓
+Display → User sees result
+```
+
+### Performance Considerations
+
+- **Lazy loading**: Data only loaded when form is submitted
+- **Caching**: Results cached per tab to avoid recalculation
+- **Debouncing**: Not currently needed (no real-time input)
+- **Code splitting**: Not applicable (no build step, but modules loaded on demand)
 
 ---
 

@@ -1,189 +1,278 @@
-# LessWatt v2
+# GuessWatt Documentation
 
-Compare electricity tariffs in Portugal. Find out if you're overpaying.
+> Comprehensive documentation for developers, designers, and contributors
 
-## Quick Links
+This directory contains all project documentation organized by topic. Each document serves a specific purpose and follows industry best practices for technical documentation.
 
-| Document | Description | Auto-Apply |
-|----------|-------------|------------|
-| [TECH_STACK.mdc](./TECH_STACK.mdc) | Technology decisions and constraints | ✅ Always |
-| [DECISIONS.mdc](./DECISIONS.mdc) | Architecture Decision Records (ADRs) | ✅ Always |
-| [CONCEPT.mdc](./CONCEPT.mdc) | Product vision, user flow, design principles | When relevant |
-| [IMPLEMENTATION.mdc](./IMPLEMENTATION.mdc) | Phase-by-phase implementation plan | When relevant |
-| [COPY.mdc](./COPY.mdc) | Tone of voice, all copy, glossary | When relevant |
-| [DATA_MODEL.mdc](./DATA_MODEL.mdc) | CSV schema, formulas, data relationships | When relevant |
-| [CURSOR_RULES.mdc](./CURSOR_RULES.mdc) | AI assistant behaviour and project context | ✅ Always |
+## 📚 Documentation Index
 
-## Core Idea
+### Core Documentation
 
-One input: "How much do you pay per month?"
+| Document | Purpose | When to Read |
+|----------|---------|--------------|
+| **[CONCEPT.mdc](./CONCEPT.mdc)** | Product vision, user flows, LOVE framework analysis, design principles | When understanding product goals and user experience |
+| **[TECH_STACK.mdc](./TECH_STACK.mdc)** | Technology decisions, CSS architecture, JS patterns, accessibility requirements | **Always** - Core technical reference |
+| **[DATA_MODEL.mdc](./DATA_MODEL.mdc)** | CSV schemas, calculation formulas, data relationships, ERSE insights structure | When working with data or calculations |
+| **[DECISIONS.mdc](./DECISIONS.mdc)** | Architecture Decision Records (ADRs) - technical and product decisions with rationale | **Always** - Understand why decisions were made |
+| **[IMPLEMENTATION.mdc](./IMPLEMENTATION.mdc)** | Phase-by-phase implementation plan with tasks, deliverables, and checklists | When planning new features or reviewing implementation status |
+| **[COPY.mdc](./COPY.mdc)** | Tone of voice, all UI copy, tooltips, error states, Portuguese glossary | When writing or reviewing user-facing text |
+| **[CURSOR_RULES.mdc](./CURSOR_RULES.mdc)** | AI assistant behavior, project context, coding standards | **Always** - Rules for AI-assisted development |
+| **[DEVELOPMENT.md](./DEVELOPMENT.md)** | Complete development guide: setup, workflow, testing, debugging | When setting up development environment or contributing |
 
-One output: "You're losing €X/year. Here's the best tariff and how to switch."
+## 🎯 Quick Navigation
 
-## What's New in v2
+### For New Developers
 
-### Simpler Entry
-- Single € input (was: power + consumption + tariff)
-- Optional PDF upload for precision (subtle icon, not a distraction)
-- Estimate → Refine flow
+1. Start with **[TECH_STACK.mdc](./TECH_STACK.mdc)** to understand the architecture
+2. Read **[DECISIONS.mdc](./DECISIONS.mdc)** to understand why things are built this way
+3. Review **[CURSOR_RULES.mdc](./CURSOR_RULES.mdc)** for coding standards
+4. Check **[DATA_MODEL.mdc](./DATA_MODEL.mdc)** when working with calculations
 
-### Better Output
-- Loss framing: "You're losing €288/year"
-- Offer card with expandable details
-- Tooltips for technical terms (ⓘ)
-- Real provider contacts from ERSE data
+### For Product/Design
 
-### Actionable
-- Step-by-step switching script with actual phone numbers
-- "What you DON'T need to do" section
-- Calendar reminder (2 months default)
-- Social proof from ERSE statistics
+1. Read **[CONCEPT.mdc](./CONCEPT.mdc)** for product vision and user flows
+2. Review **[COPY.mdc](./COPY.mdc)** for tone of voice and UI copy
+3. Check **[IMPLEMENTATION.mdc](./IMPLEMENTATION.mdc)** for feature status
 
-## Data Sources
+### For Contributors
 
-| Source | What | Update |
-|--------|------|--------|
-| ERSE CSVs | Tariff prices, commercial conditions | Weekly (automated via GitHub Actions) |
-| ERSE Reports | Market statistics, social proof | Every 4 months (automated) |
+1. Read **[DEVELOPMENT.md](./DEVELOPMENT.md)** for setup and workflow
+2. Read **[CURSOR_RULES.mdc](./CURSOR_RULES.mdc)** for coding standards
+3. Review **[DECISIONS.mdc](./DECISIONS.mdc)** before proposing changes
+4. Check **[TECH_STACK.mdc](./TECH_STACK.mdc)** for technical constraints
 
-## Data Update Pipeline
+## 📖 Document Details
 
-The app uses a two-stage data pipeline:
+### CONCEPT.mdc
 
-1. **Download** (`scripts/download-erse.js`): Downloads latest CSVs from ERSE simulator
-   - Uses Playwright to handle JavaScript-rendered page
-   - Retries with exponential backoff
-   - Validates both required CSVs after extraction
-   - Writes `data/meta.json` with timestamp, row counts, source URL
+**Purpose**: Product vision, user experience design, and strategic decisions
 
-2. **Build** (`scripts/build-offers.js`): Joins CSVs and creates optimized `offers.json`
-   - Joins `Precos_ELEGN.csv` + `CondComerciais.csv` on `COM` + `COD_Proposta`
-   - Normalizes numbers (comma decimals) and trims strings
-   - Extracts campaign/conditions metadata
-   - Filters electricity-only offers (excludes GN/DUAL)
-   - Outputs `data/offers.json` for runtime use
+**Contents**:
+- Mission and core idea
+- Feature prioritization (Phase 1-3)
+- Domain map (Portuguese energy market)
+- Service design blueprint
+- LOVE framework analysis (Learn, Onboard, Value, Endorse)
+- User flows
+- Impact potential
+- Success metrics
 
-3. **Validate** (`scripts/selftest.js`): Runs validation checks
-   - Ensures offers exist and have required fields
-   - Validates no GN-only offers
-   - Tests calculation samples (no NaN, positive totals)
+**When to update**: When product strategy changes or new features are planned
 
-### Running Locally
+---
 
-```bash
-# Download latest ERSE data
-node scripts/download-erse.js
+### TECH_STACK.mdc
 
-# Build offers.json from CSVs
-node scripts/build-offers.js
+**Purpose**: Technical architecture, patterns, and implementation details
 
-# Run validation tests
-node scripts/selftest.js
+**Contents**:
+- Philosophy and core principles
+- Stack overview (HTML, CSS, JS, hosting)
+- CSS architecture (tokens, typography, spacing, animations)
+- JavaScript architecture (modules, patterns, utilities)
+- Component patterns (buttons, inputs, modals)
+- Accessibility checklist
+- Browser support
+- Performance budget
 
-# Or run all three in sequence
-node scripts/download-erse.js && node scripts/build-offers.js && node scripts/selftest.js
-```
+**When to update**: When technical decisions change or new patterns are introduced
 
-### GitHub Actions
+---
 
-The `.github/workflows/update-erse.yml` workflow:
-- Runs weekly (every Monday at 09:00 UTC)
-- Can be manually triggered from Actions tab
-- Downloads → Builds → Validates → Commits only when data changes
-- Logs row counts and timestamps in action output
+### DATA_MODEL.mdc
 
-### Data Files
+**Purpose**: Data structures, schemas, and calculation formulas
 
-- `data/Precos_ELEGN.csv`: Raw price data from ERSE
-- `data/CondComerciais.csv`: Raw commercial conditions from ERSE
-- `data/offers.json`: Built/optimized offers for runtime (preferred by frontend)
-- `data/meta.json`: Metadata (update timestamp, row counts, build info)
-- `data/last-update.json`: Legacy format for footer display
+**Contents**:
+- Data sources (ERSE CSVs)
+- CSV schemas (`Precos_ELEGN.csv`, `CondComerciais.csv`)
+- Data relationships and join logic
+- Calculation formulas (monthly cost, consumption estimation)
+- Default values and assumptions
+- Data validation rules
+- ERSE insights structure
+- Provider mapping
 
-The frontend prefers `offers.json` but falls back to CSV loading for backward compatibility.
+**When to update**: When data structure changes or formulas are refined
 
-## Tech Stack
+---
 
-- **Vanilla JS** — No framework, no build step
-- **Modern CSS** — OKLCH colors, clamp(), custom properties
-- **Static hosting** — GitHub Pages
-- **Automated data** — GitHub Actions for CSV + insights updates
+### DECISIONS.mdc
 
-## Project Structure
+**Purpose**: Architecture Decision Records (ADRs) documenting technical and product decisions
 
-```
-lesswatt/
-├── index.html
-├── css/
-│   ├── tokens.css      # Design tokens
-│   ├── reset.css       # CSS reset
-│   ├── base.css        # Typography
-│   ├── components.css  # UI components
-│   └── main.css        # Imports
-├── js/
-│   ├── app.js          # Entry point
-│   ├── calculator.js   # Price calculations
-│   ├── data.js         # CSV loading
-│   └── components/     # UI components
-├── data/
-│   ├── Precos_ELEGN.csv
-│   ├── CondComerciais.csv
-│   ├── erse-insights.json
-│   └── providers.json
-├── docs/
-│   └── v2/             # This documentation
-└── scripts/
-    ├── download-erse.js
-    └── fetch-erse-insights.js
-```
+**Contents**:
+- ADR-001: Client-Side Only
+- ADR-002: Vanilla JS, No Framework
+- ADR-003: No Build Step
+- ADR-004: ERSE CSVs as Primary Source
+- ADR-005: Manual CSV Updates
+- ADR-006: ERSE Insights Every 4 Months
+- ADR-007: Single €/month Input with PDF Option
+- ADR-008: Estimate vs Precise (Two Modes)
+- ADR-009: Calculation Formula
+- ADR-010: Assumed Defaults
+- ADR-011: Loss Framing
+- ADR-012: Offer Card with Expandable Details
+- ADR-013: Tooltips for Technical Terms
+- ADR-014: Top N Offers, Not All
+- ADR-015: Real Contacts from CSV
+- ADR-016: Calendar: 2 Months Default
+- ADR-017: PDF Parsing Client-Side
+- ADR-018: URL State for Bookmarks
+- ADR-019: Portuguese (PT-PT) Only
+- ADR-020: Domestic Segment Only
 
-## Implementation Phases
+**When to update**: When making new architectural decisions (create new ADR)
 
-| Phase | Focus | Status |
-|-------|-------|--------|
-| 0 | Foundation (tokens, reset, base) | ⬜ |
-| 1.1 | Input with PDF option | ⬜ |
-| 1.2 | Result with offer card | ⬜ |
-| 1.3 | Switching guide | ⬜ |
-| 1.4 | Tooltips & modals | ⬜ |
-| 2.1 | Refine flow (manual input) | ⬜ |
-| 2.2 | Calendar reminder | ⬜ |
-| 2.3 | Share functionality | ⬜ |
-| 3 | All offers list | ⬜ |
-| 4 | PDF parsing | ⬜ |
-| 5 | ERSE insights integration | ⬜ |
-| 6 | Polish & testing | ⬜ |
+**Format**: Each ADR follows: Context → Options → Decision → Consequences
 
-## Accessibility Requirements
+---
 
-- WCAG 2.1 AA compliance
-- Keyboard navigation throughout
-- Screen reader tested (VoiceOver, NVDA)
-- Reduced motion support
-- Touch targets ≥44px
-- Color contrast ≥4.5:1
+### IMPLEMENTATION.mdc
 
-## Performance Targets
+**Purpose**: Phase-by-phase implementation plan with tasks and deliverables
 
-- First Contentful Paint: <1.5s
-- Time to Interactive: <3s
-- Lighthouse Performance: >90
-- Lighthouse Accessibility: 100
-- No external dependencies (except PDF.js for Phase 4)
+**Contents**:
+- Phase 0: Foundation (tokens, reset, base)
+- Phase 1.1: Simplified Input (with PDF option)
+- Phase 1.2: Loss-Focused Result with Offer Card
+- Phase 1.3: Switching Guide with Real Data
+- Phase 1.4: Tooltips & Info Modals
+- Phase 2.1: Refine Flow (Manual Input)
+- Phase 2.2: Calendar Reminder
+- Phase 2.3: Share Functionality
+- Phase 3: Offers List
+- Phase 4: PDF Parsing
+- Phase 5: ERSE Insights Integration
+- Phase 6: Polish & Refinement
 
-## Commands
+Each phase includes:
+- Goal and deliverables
+- Tasks checklist
+- Decisions to document
+- A11y checklist
+- Implementation log template
 
-```bash
-# Development (local server)
-pnpm dev
+**When to update**: When phases are completed or new phases are added
 
-# Update ERSE data manually
-pnpm update-erse
+---
 
-# Update ERSE insights manually
-pnpm update-insights
-```
+### COPY.mdc
 
-## License
+**Purpose**: Tone of voice, all UI copy, and content guidelines
 
-MIT
+**Contents**:
+- Tone of voice principles
+- Rhetorical devices (used with moderation)
+- Copy by section (hero, input, result, tooltips, etc.)
+- Error states and empty states
+- Tooltips content
+- Glossary of concepts (energy literacy)
+- Social proof (ERSE insights)
+- Copy review checklist
+
+**When to update**: When UI copy changes or new sections are added
+
+---
+
+### CURSOR_RULES.mdc
+
+**Purpose**: AI assistant behavior and coding standards
+
+**Contents**:
+- Project context
+- Role definition
+- Code standards (general, CSS, JavaScript)
+- File structure
+- Accessibility requirements
+- Animation philosophy
+- Portuguese language guidelines
+- Data handling
+- Error handling
+- Comments guidelines
+- Git commit format
+- Performance budget
+- Quick reference table
+
+**When to update**: When coding standards change or new patterns are established
+
+## 🔄 Documentation Maintenance
+
+### Keeping Documentation Up to Date
+
+1. **Update immediately** when:
+   - Architecture decisions change (update DECISIONS.mdc)
+   - Technical patterns change (update TECH_STACK.mdc)
+   - Data structures change (update DATA_MODEL.mdc)
+   - UI copy changes (update COPY.mdc)
+
+2. **Review quarterly**:
+   - Check for outdated information
+   - Update implementation status
+   - Review ADRs for relevance
+
+3. **When adding features**:
+   - Document decisions in DECISIONS.mdc
+   - Update IMPLEMENTATION.mdc with new phases
+   - Add copy to COPY.mdc
+   - Update TECH_STACK.mdc if patterns change
+
+## 📝 Documentation Standards
+
+### Format
+
+- **Markdown** (`.md` or `.mdc` files)
+- **Clear headings** with hierarchy
+- **Code blocks** with language tags
+- **Tables** for structured data
+- **Examples** for clarity
+
+### Style
+
+- **Concise but complete**: Every detail needed, nothing extra
+- **Examples over explanations**: Show, don't just tell
+- **Cross-references**: Link between related documents
+- **Version awareness**: Note when information applies
+
+### Structure
+
+Each document should have:
+1. **Purpose statement**: What this document is for
+2. **Table of contents**: For longer documents
+3. **Clear sections**: Organized by topic
+4. **Examples**: Real code/data examples
+5. **References**: Links to related docs
+
+## 🎓 Learning Path
+
+### Week 1: Understanding the Project
+
+1. Read [CONCEPT.mdc](./CONCEPT.mdc) - Understand the product
+2. Read [TECH_STACK.mdc](./TECH_STACK.mdc) - Understand the architecture
+3. Read [DECISIONS.mdc](./DECISIONS.mdc) - Understand the decisions
+
+### Week 2: Deep Dive
+
+1. Read [DATA_MODEL.mdc](./DATA_MODEL.mdc) - Understand the data
+2. Read [IMPLEMENTATION.mdc](./IMPLEMENTATION.mdc) - Understand the roadmap
+3. Read [COPY.mdc](./COPY.mdc) - Understand the voice
+
+### Week 3: Contributing
+
+1. Read [CURSOR_RULES.mdc](./CURSOR_RULES.mdc) - Understand the standards
+2. Review codebase with documentation in hand
+3. Start contributing with documentation as reference
+
+## 🤔 Questions?
+
+If documentation is unclear or missing information:
+
+1. Check if it's covered in another document
+2. Review the codebase for implementation details
+3. Create an issue to request documentation updates
+4. Consider contributing documentation improvements
+
+---
+
+**Remember**: Good documentation is a living document. Keep it updated as the project evolves.
