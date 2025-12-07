@@ -36,9 +36,10 @@ This directory contains all project documentation organized by topic. Each docum
 
 ### For Contributors
 
-1. Read **[CURSOR_RULES.mdc](./CURSOR_RULES.mdc)** for coding standards
-2. Review **[DECISIONS.mdc](./DECISIONS.mdc)** before proposing changes
-3. Check **[TECH_STACK.mdc](./TECH_STACK.mdc)** for technical constraints
+1. Read **[DEVELOPMENT.md](./DEVELOPMENT.md)** for setup and workflow
+2. Read **[CURSOR_RULES.mdc](./CURSOR_RULES.mdc)** for coding standards
+3. Review **[DECISIONS.mdc](./DECISIONS.mdc)** before proposing changes
+4. Check **[TECH_STACK.mdc](./TECH_STACK.mdc)** for technical constraints
 
 ## 📖 Document Details
 
