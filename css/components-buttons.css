@@ -293,17 +293,13 @@
     z-index: var(--z-dropdown);
   }
   
-  /* Dropdown items have calculated border-radius based on parent padding */
-  .dropdown-item {
-    border-radius: calc(var(--radius-sm) - var(--space-1)); /* Parent radius - padding */
-  }
-  
   .dropdown-wrapper.open .dropdown-menu {
     opacity: 1;
     pointer-events: auto;
     transform: scale(1);
   }
   
+  /* Dropdown items have calculated border-radius based on parent padding */
   .dropdown-item {
     display: flex;
     align-items: center;
@@ -312,7 +308,7 @@
     padding: var(--space-4) var(--space-5);
     border: none;
     background: transparent;
-    border-radius: var(--radius-sm);
+    border-radius: calc(var(--radius-sm) - var(--space-1)); /* Parent radius - padding */
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-sm-size);
