@@ -67,14 +67,49 @@
   }
   
   /* ═══════════════════════════════════════════════════════════
-     BASE BUTTON - Extends interactive-base
+     BASE BUTTON - Uses interactive-base styles
      ═══════════════════════════════════════════════════════════ */
   
   .btn {
-    /* Extends .interactive-base - all shared styles inherited */
+    /* Apply all interactive-base styles directly */
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
+    border: 0.5px solid white;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    box-shadow: var(--shadow-xs);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-weight: var(--font-medium);
+    font-size: var(--text-base-size);
+    line-height: var(--text-default-leading);
+    color: var(--color-foreground-primary);
+    transition: transform var(--duration-normal) var(--ease-bounce);
+    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
   
-  /* Button inherits all styles from .interactive-base */
+  .btn:active {
+    transform: scale(0.97);
+  }
+  
+  .btn span {
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  /* If button is an <a> tag */
+  a.btn,
+  a.btn:hover,
+  a.btn:visited,
+  a.btn:active {
+    text-decoration: none;
+  }
   
   .btn-icon {
     width: var(--text-base-size);
@@ -191,7 +226,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     opacity: 0;
-    filter: blur(var(--space-1)); /* 4px blur */
+    filter: blur(4px); /* Fixed blur value - not responsive */
     color: var(--color-accent-green);
   }
   
@@ -203,7 +238,7 @@
   /* Copied state */
   .copy-btn.copied .copy-btn-default {
     opacity: 0;
-    filter: blur(var(--space-1)); /* 4px blur */
+    filter: blur(4px); /* Fixed blur value - not responsive */
     transform: scale(0.95);
   }
   
