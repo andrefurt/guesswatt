@@ -139,6 +139,19 @@
     pointer-events: none;
   }
   
+  /* Phosphor Duotone icons styling */
+  .provider-icon i,
+  .provider-icon .ph-duotone {
+    font-size: var(--text-lg-size);
+    width: var(--text-lg-size);
+    height: var(--text-lg-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+  
+  /* Legacy SVG support */
   .provider-icon svg {
     width: var(--text-lg-size);
     height: var(--text-lg-size);
@@ -200,6 +213,20 @@
     gap: var(--space-3);
   }
   
+  /* Phosphor Duotone icons styling */
+  .data-row-label i,
+  .data-row-label .ph-duotone {
+    font-size: var(--space-4);
+    width: var(--space-4);
+    height: var(--space-4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    opacity: 0.6;
+  }
+  
+  /* Legacy SVG support */
   .data-row-label svg {
     width: var(--space-4);
     height: var(--space-4);
@@ -283,6 +310,19 @@
     pointer-events: none;
   }
   
+  /* Phosphor Duotone icons styling */
+  .savings-bar i,
+  .savings-bar .ph-duotone {
+    font-size: var(--space-4);
+    width: var(--space-4);
+    height: var(--space-4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+  
+  /* Legacy SVG support */
   .savings-bar svg {
     width: var(--space-4);
     height: var(--space-4);
@@ -355,6 +395,19 @@
     box-shadow: var(--shadow-xs);
   }
   
+  /* Phosphor Duotone icons styling */
+  .tag-inner i,
+  .tag-inner .ph-duotone {
+    font-size: var(--text-sm-size);
+    width: var(--text-sm-size);
+    height: var(--text-sm-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+  
+  /* Legacy SVG support */
   .tag-inner svg {
     width: var(--text-sm-size);
     height: var(--text-sm-size);
@@ -416,6 +469,20 @@
     height: var(--text-base-size);
   }
   
+  /* Phosphor Duotone icons styling */
+  .footer-updated i,
+  .footer-updated .ph-duotone {
+    font-size: var(--text-sm-size);
+    width: var(--text-sm-size);
+    height: var(--text-sm-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    opacity: 0.8;
+  }
+  
+  /* Legacy SVG support */
   .footer-updated svg {
     width: var(--text-sm-size);
     height: var(--text-sm-size);

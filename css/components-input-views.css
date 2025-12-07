@@ -302,6 +302,19 @@
     pointer-events: none;
   }
   
+  /* Phosphor Duotone icons styling */
+  .drop-area-icon i,
+  .drop-area-icon .ph-duotone {
+    font-size: var(--text-lg-size);
+    width: var(--text-lg-size);
+    height: var(--text-lg-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+  
+  /* Legacy SVG support */
   .drop-area-icon svg {
     width: var(--text-lg-size);
     height: var(--text-lg-size);
@@ -532,6 +545,16 @@
     pointer-events: none;
     opacity: 0.44;
     transition: transform var(--duration-slow) var(--ease-bounce);
+  }
+  
+  /* Phosphor Duotone icons styling */
+  .form-select-icon i,
+  .form-select-icon .ph-duotone {
+    font-size: var(--text-base-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
   }
   
   .form-select:focus + .form-select-icon {

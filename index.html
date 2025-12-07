@@ -85,11 +85,7 @@
           <!-- ESTIMADO MODE (default) -->
           <div class="input-pill-content input-pill-estimado" id="pill-estimado">
             <div class="input-pill-mode">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 1.75C7 1.75 3.5 4.375 3.5 7C3.5 8.933 5.067 10.5 7 10.5C8.933 10.5 10.5 8.933 10.5 7C10.5 4.375 7 1.75 7 1.75Z" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M7 10.5V12.25" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
-                <path d="M4.8125 12.25H9.1875" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
+              <i class="ph-duotone ph-lightbulb" aria-hidden="true"></i>
               <span>Estimado</span>
             </div>
             <div class="input-pill-value">
@@ -101,11 +97,7 @@
           <!-- PRECISO MODE (invoice data) -->
           <div class="input-pill-content input-pill-preciso" id="pill-preciso">
             <div class="input-pill-icon">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 2.5H12.5L16 6V17.5H4V2.5Z" stroke="#E53935" stroke-width="1.2" stroke-linejoin="round"/>
-                <path d="M12.5 2.5V6H16" stroke="#E53935" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                <text x="10" y="13" font-family="Inter" font-size="4" font-weight="600" fill="#E53935" text-anchor="middle">PDF</text>
-              </svg>
+              <i class="ph-duotone ph-file-pdf" aria-hidden="true"></i>
             </div>
             <div class="input-pill-data">
               <span class="pill-provider" id="pill-provider">Endesa</span>
@@ -124,9 +116,7 @@
           <!-- Delete button (shared) -->
           <button class="input-pill-delete" id="delete-btn" type="button" aria-label="Remover entrada e voltar ao formulário">
             <div class="input-pill-delete-inner">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M11 3L3 11M3 3L11 11" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
+              <i class="ph-duotone ph-x" aria-hidden="true"></i>
             </div>
           </button>
         </div>
@@ -136,11 +126,7 @@
         <div class="btn-slot">
           <a href="sobre.html" class="btn" aria-label="Saber mais sobre Guesswatt">
             <span class="btn-icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 1.75V12.25" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
-                <path d="M4.375 4.375L7 1.75L9.625 4.375" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="7" cy="7" r="5.25" stroke="#35443D" stroke-width="1.2"/>
-              </svg>
+              <i class="ph-duotone ph-info"></i>
             </span>
             <span>Sobre</span>
           </a>
@@ -151,21 +137,14 @@
               <!-- Default state -->
               <div class="copy-btn-content copy-btn-default">
                 <span class="btn-icon" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="2" width="10" height="10" rx="2" stroke="#35443D" stroke-width="1.2"/>
-                    <path d="M5 5H9" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
-                    <path d="M5 7H9" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
-                    <path d="M5 9H7" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
-                  </svg>
+                  <i class="ph-duotone ph-copy"></i>
                 </span>
                 <span>Copy page</span>
               </div>
               <!-- Copied state -->
               <div class="copy-btn-content copy-btn-copied">
                 <span class="btn-icon" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <polyline points="3,7 6,10 11,4" stroke="#40594c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                  </svg>
+                  <i class="ph-duotone ph-check"></i>
                 </span>
                 <span>Copied</span>
               </div>
@@ -174,40 +153,25 @@
             <div class="dropdown-wrapper" id="dropdown-wrapper">
               <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-haspopup="true" aria-controls="dropdown-menu">
                 <span class="btn-icon" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                  <i class="ph-duotone ph-caret-down"></i>
                 </span>
               </button>
               <div class="dropdown-menu" id="dropdown-menu" role="menu" aria-labelledby="dropdown-trigger">
                 <button class="dropdown-item" data-action="markdown" type="button" role="menuitem">
                   <span class="item-icon" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="#35443D" stroke-width="1.2"/>
-                      <path d="M4 9.5V6.5L5.5 8.5L7 6.5V9.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M10 9.5L12 7.5M12 7.5L12 9.5M12 7.5L10 7.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    <i class="ph-duotone ph-code"></i>
                   </span>
                   <span>Copy as markdown</span>
                 </button>
                 <button class="dropdown-item" data-action="chatgpt" type="button" role="menuitem">
                   <span class="item-icon" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="8" cy="8" r="6.5" stroke="#35443D" stroke-width="1.2"/>
-                      <path d="M5 8.5C5.5 9.5 6.5 10 8 10C9.5 10 10.5 9.5 11 8.5" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
-                      <circle cx="6" cy="6.5" r="0.75" fill="#35443D"/>
-                      <circle cx="10" cy="6.5" r="0.75" fill="#35443D"/>
-                    </svg>
+                    <i class="ph-duotone ph-smiley"></i>
                   </span>
                   <span>Open in ChatGPT</span>
                 </button>
                 <button class="dropdown-item" data-action="claude" type="button" role="menuitem">
                   <span class="item-icon" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" stroke="#35443D" stroke-width="1.2" stroke-linejoin="round"/>
-                      <path d="M8 7V10" stroke="#35443D" stroke-width="1.2" stroke-linecap="round"/>
-                      <circle cx="8" cy="5" r="0.75" fill="#35443D"/>
-                    </svg>
+                    <i class="ph-duotone ph-hexagon"></i>
                   </span>
                   <span>Open in Claude</span>
                 </button>
@@ -240,21 +204,13 @@
                 <div class="tabs-list">
                   <button class="tab-btn tab active" data-tab="estimado" data-mode="estimate" id="tab-estimado" type="button" role="tab" aria-selected="true" aria-controls="estimate-form">
                     <span class="btn-icon" aria-hidden="true">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 1.75C7 1.75 3.5 4.375 3.5 7C3.5 8.933 5.067 10.5 7 10.5C8.933 10.5 10.5 8.933 10.5 7C10.5 4.375 7 1.75 7 1.75Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M7 10.5V12.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                        <path d="M4.8125 12.25H9.1875" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                      </svg>
+                      <i class="ph-duotone ph-lightbulb"></i>
                     </span>
                     <span>Estimado</span>
                   </button>
                   <button class="tab-btn tab" data-tab="preciso" data-mode="precise" id="tab-preciso" type="button" role="tab" aria-selected="false" aria-controls="precise-mode">
                     <span class="btn-icon" aria-hidden="true">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.2"/>
-                        <circle cx="7" cy="7" r="2.625" stroke="currentColor" stroke-width="1.2"/>
-                        <circle cx="7" cy="7" r="0.875" fill="currentColor"/>
-                      </svg>
+                      <i class="ph-duotone ph-target"></i>
                     </span>
                     <span>Preciso</span>
                   </button>
@@ -286,11 +242,7 @@
               <div class="drop-area" id="precise-mode" role="tabpanel" aria-labelledby="tab-preciso">
                 <input type="file" class="file-input" id="pdf-input" accept=".pdf" aria-label="Selecionar ficheiro PDF da fatura">
                 <div class="drop-area-icon" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 2.5H12.5L16 6V17.5H4V2.5Z" stroke="#E53935" stroke-width="1.2" stroke-linejoin="round"/>
-                    <path d="M12.5 2.5V6H16" stroke="#E53935" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <text x="10" y="13" font-family="Inter" font-size="4" font-weight="600" fill="#E53935" text-anchor="middle">PDF</text>
-                  </svg>
+                  <i class="ph-duotone ph-file-pdf"></i>
                 </div>
                 <div class="drop-area-text">
                   <p>Clica ou arrasta a tua fatura PDF</p>
@@ -313,9 +265,7 @@
                               <!-- Populated from PROVIDERS dynamically -->
                             </select>
                             <span class="form-select-icon">
-                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
+                              <i class="ph-duotone ph-caret-down"></i>
                             </span>
                           </div>
                         </div>
@@ -332,9 +282,7 @@
                               <option value="3">Tri-horária</option>
                             </select>
                             <span class="form-select-icon">
-                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
+                              <i class="ph-duotone ph-caret-down"></i>
                             </span>
                           </div>
                         </div>
@@ -422,11 +370,7 @@
       <footer class="footer">
         <p class="footer-text">Guesswatt compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a> (atualizado mensalmente)</p>
         <div class="footer-updated">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1.5 6C1.5 8.48528 3.51472 10.5 6 10.5C8.48528 10.5 10.5 8.48528 10.5 6C10.5 3.51472 8.48528 1.5 6 1.5" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
-            <path d="M3 3.5L1.5 1.5" stroke="#35443D" stroke-width="1" stroke-linecap="round"/>
-            <path d="M1.5 4V1.5H4" stroke="#35443D" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <i class="ph-duotone ph-clock" aria-hidden="true"></i>
           <span>Actualizado em <span id="last-update-month"></span> de <span id="last-update-year"></span></span>
         </div>
       </footer>

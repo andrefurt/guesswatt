@@ -100,6 +100,19 @@
     gap: var(--space-1);
   }
   
+  /* Phosphor Duotone icons styling */
+  .input-pill-mode i,
+  .input-pill-mode .ph-duotone {
+    font-size: var(--text-base-size);
+    width: var(--text-base-size);
+    height: var(--text-base-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+  
+  /* Legacy SVG support */
   .input-pill-mode svg {
     width: var(--text-base-size);
     height: var(--text-base-size);
@@ -170,6 +183,19 @@
     box-shadow: var(--shadow-xs);
   }
   
+  /* Phosphor Duotone icons styling */
+  .input-pill-delete i,
+  .input-pill-delete .ph-duotone {
+    font-size: var(--text-base-size);
+    width: var(--text-base-size);
+    height: var(--text-base-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+  
+  /* Legacy SVG support */
   .input-pill-delete svg {
     width: var(--text-base-size);
     height: var(--text-base-size);
@@ -248,6 +274,19 @@
     pointer-events: none;
   }
   
+  /* Phosphor Duotone icons styling */
+  .input-pill-icon i,
+  .input-pill-icon .ph-duotone {
+    font-size: var(--text-lg-size);
+    width: var(--text-lg-size);
+    height: var(--text-lg-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+  
+  /* Legacy SVG support */
   .input-pill-icon svg {
     width: var(--text-lg-size);
     height: var(--text-lg-size);

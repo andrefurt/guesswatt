@@ -84,6 +84,19 @@
     justify-content: center;
   }
   
+  /* Phosphor Duotone icons styling */
+  .btn-icon i,
+  .btn-icon .ph-duotone {
+    font-size: var(--text-base-size);
+    width: var(--text-base-size);
+    height: var(--text-base-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+  
+  /* Legacy SVG support (if any remain) */
   .btn-icon svg {
     width: var(--text-base-size);
     height: var(--text-base-size);
@@ -299,6 +312,19 @@
     flex-shrink: 0;
   }
   
+  /* Phosphor Duotone icons styling */
+  .dropdown-item .item-icon i,
+  .dropdown-item .item-icon .ph-duotone {
+    font-size: var(--space-4);
+    width: var(--space-4);
+    height: var(--space-4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+  
+  /* Legacy SVG support */
   .dropdown-item .item-icon svg {
     width: var(--space-4);
     height: var(--space-4);
