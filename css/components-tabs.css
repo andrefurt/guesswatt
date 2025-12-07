@@ -60,8 +60,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    height: var(--space-8); /* Approximately 32px height */
-    padding: 0 var(--space-5) 0 var(--space-4); /* Horizontal padding only, height controlled by height property */
+    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
     border: none; /* Override: tabs don't have border, indicator provides bg */
     border-radius: var(--radius-sm);
     background: transparent;
@@ -69,7 +68,7 @@
     cursor: pointer;
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-base-size);
+    font-size: var(--text-base-size); /* 14px */
     line-height: var(--text-default-leading);
     color: var(--color-foreground-primary);
     transition: transform var(--duration-normal) var(--ease-bounce);
