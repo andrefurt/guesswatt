@@ -399,7 +399,27 @@ export function getPillMode() {
 /**
  * Initialize all UI handlers
  */
+/**
+ * Initialize logo link to redirect to home (estimate mode)
+ */
+function initLogoLink() {
+  const logoLink = document.getElementById('logo-link');
+  if (!logoLink) return;
+  
+  logoLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    // Hide results view and show input view (estimate mode)
+    hideResults();
+    // Reset to estimate mode if needed
+    const estimateTab = document.getElementById('tab-estimado');
+    if (estimateTab) {
+      estimateTab.click();
+    }
+  });
+}
+
 export function initUIHandlers() {
+  initLogoLink();
   initCopyButton();
   initDropdown();
   initDeleteButton();

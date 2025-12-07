@@ -123,18 +123,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 0.5px solid white;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-icon);
+    gap: var(--radius-sm); /* 6px gap - matches Figma design */
+    padding: var(--radius-sm) var(--space-3); /* 6px vertical, 12px horizontal - matches Figma px-[12.5px] py-[0.5px] */
+    border: 0.5px solid white; /* Same border as secondary button */
+    border-radius: var(--radius-sm); /* 6px - same as buttons */
+    background: var(--bg-high); /* More prominent background - oklch(95% 0 0) #F0F0EF */
+    box-shadow: var(--shadow-icon); /* Same shadow as icon containers */
     position: relative;
     overflow: hidden;
-    background: white;
   }
   
+  /* Inset shadow for provider icon - matches Figma design */
   .provider-icon::after {
     content: '';
     position: absolute;
     inset: 0;
+    border-radius: var(--radius-sm);
     box-shadow: var(--shadow-icon-inset);
     pointer-events: none;
   }

@@ -35,12 +35,12 @@
   .logo {
     display: flex;
     align-items: center;
-    gap: var(--radius-sm); /* 6px gap - matches Figma design */
-    padding: var(--radius-sm) var(--space-5); /* 6px vertical, 20px horizontal - matches button-like styling */
-    border: 0.5px solid white; /* Same border as secondary button */
-    border-radius: var(--radius-sm); /* 6px - same as buttons */
-    background: var(--bg-high); /* More prominent background - oklch(95% 0 0) #F0F0EF */
-    box-shadow: var(--shadow-icon); /* Same shadow as icon containers */
+    gap: var(--radius-sm); /* 6px gap */
+    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right - height 32px */
+    border: none; /* No border */
+    border-radius: var(--radius-sm); /* 6px */
+    background: transparent; /* No background */
+    box-shadow: none; /* No shadow */
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-md-size);
@@ -48,18 +48,20 @@
     letter-spacing: calc(var(--text-md-size) * -0.03); /* -0.48px relative to font size */
     line-height: var(--leading-tight);
     text-decoration: none;
-    position: relative;
-    overflow: hidden;
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out);
   }
   
-  /* Inset shadow for logo container - matches Figma design */
-  .logo::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-icon-inset);
-    pointer-events: none;
+  /* Hover state: foreground color at 4% opacity */
+  .logo:hover {
+    background: oklch(from var(--color-foreground-primary) l c h / 0.04);
+  }
+  
+  /* Fallback for browsers that don't support oklch() */
+  @supports not (color: oklch(0% 0 0)) {
+    .logo:hover {
+      background: rgba(53, 68, 61, 0.04); /* #35443D at 4% opacity */
+    }
   }
   
   .top-bar-actions {
