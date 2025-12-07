@@ -75,7 +75,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
+    height: var(--space-8); /* Approximately 32px height */
+    padding: 0 var(--space-5) 0 var(--space-4); /* Horizontal padding only, height controlled by height property */
     border: 0.5px solid white;
     border-radius: var(--radius-sm);
     background: transparent;
@@ -122,7 +123,7 @@
   /* Phosphor Duotone icons styling */
   .btn-icon i,
   .btn-icon .ph-duotone {
-    font-size: var(--text-base-size);
+    font-size: var(--text-base-size); /* 14px icon size */
     width: var(--text-base-size);
     height: var(--text-base-size);
     display: inline-flex;
@@ -130,6 +131,7 @@
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
+    --ph-icon-fill-duotone: var(--ph-icon-fill-duotone); /* Inner fill, foreground at 8% opacity */
   }
   
   /* Legacy SVG support (if any remain) */
@@ -146,6 +148,7 @@
   .segmented-btn {
     display: flex;
     align-items: center;
+    height: var(--space-8); /* Approximately 32px height */
     border: 0.5px solid white;
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-xs);
@@ -159,7 +162,8 @@
   
   /* Copy button inside segmented - needs FULL padding */
   .segmented-btn .copy-btn {
-    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4); /* Full padding, not reduced */
+    height: var(--space-8); /* Approximately 32px height */
+    padding: 0 var(--space-5) 0 var(--space-4); /* Horizontal padding only, height controlled by height property */
     border: none;
     box-shadow: none;
   }
@@ -347,14 +351,15 @@
   /* Phosphor Duotone icons styling */
   .dropdown-item .item-icon i,
   .dropdown-item .item-icon .ph-duotone {
-    font-size: var(--space-4);
-    width: var(--space-4);
-    height: var(--space-4);
+    font-size: var(--text-base-size); /* 14px icon size */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
+    --ph-icon-fill-duotone: var(--ph-icon-fill-duotone); /* Inner fill, foreground at 8% opacity */
   }
   
   /* Legacy SVG support */

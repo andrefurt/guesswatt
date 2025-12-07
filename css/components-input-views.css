@@ -305,14 +305,15 @@
   /* Phosphor Duotone icons styling */
   .drop-area-icon i,
   .drop-area-icon .ph-duotone {
-    font-size: var(--text-lg-size);
-    width: var(--text-lg-size);
-    height: var(--text-lg-size);
+    font-size: var(--text-base-size); /* 14px icon size */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
+    --ph-icon-fill-duotone: var(--ph-icon-fill-duotone); /* Inner fill, foreground at 8% opacity */
   }
   
   /* Legacy SVG support */
@@ -551,12 +552,15 @@
   /* Phosphor Duotone icons styling */
   .form-select-icon i,
   .form-select-icon .ph-duotone {
-    font-size: var(--text-base-size);
+    font-size: var(--text-base-size); /* 14px icon size */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
+    --ph-icon-fill-duotone: var(--ph-icon-fill-duotone); /* Inner fill, foreground at 8% opacity */
   }
   
   .form-select:focus + .form-select-icon {

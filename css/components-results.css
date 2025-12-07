@@ -142,14 +142,15 @@
   /* Phosphor Duotone icons styling */
   .provider-icon i,
   .provider-icon .ph-duotone {
-    font-size: var(--text-lg-size);
-    width: var(--text-lg-size);
-    height: var(--text-lg-size);
+    font-size: var(--text-base-size); /* 14px icon size */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
+    --ph-icon-fill-duotone: var(--ph-icon-fill-duotone); /* Inner fill, foreground at 8% opacity */
   }
   
   /* Legacy SVG support */
@@ -217,15 +218,16 @@
   /* Phosphor Duotone icons styling */
   .data-row-label i,
   .data-row-label .ph-duotone {
-    font-size: var(--space-4);
-    width: var(--space-4);
-    height: var(--space-4);
+    font-size: var(--text-base-size); /* 14px icon size */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: inherit;
     opacity: 0.6;
     font-style: normal; /* Override base.css italic styling for icon elements */
+    --ph-icon-fill-duotone: var(--ph-icon-fill-duotone); /* Inner fill, foreground at 8% opacity */
   }
   
   /* Legacy SVG support */
@@ -319,14 +321,15 @@
   /* Phosphor Duotone icons styling */
   .savings-bar-inner i,
   .savings-bar-inner .ph-duotone {
-    font-size: var(--space-4);
-    width: var(--space-4);
-    height: var(--space-4);
+    font-size: var(--text-base-size); /* 14px icon size */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
+    --ph-icon-fill-duotone: var(--ph-icon-fill-duotone); /* Inner fill, foreground at 8% opacity */
   }
   
   /* Legacy SVG support */
@@ -405,14 +408,15 @@
   /* Phosphor Duotone icons styling */
   .tag-inner i,
   .tag-inner .ph-duotone {
-    font-size: var(--text-sm-size);
-    width: var(--text-sm-size);
-    height: var(--text-sm-size);
+    font-size: var(--text-base-size); /* 14px icon size */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: inherit;
     font-style: normal; /* Override base.css italic styling for icon elements */
+    --ph-icon-fill-duotone: var(--ph-icon-fill-duotone); /* Inner fill, foreground at 8% opacity */
   }
   
   /* Legacy SVG support */
@@ -480,15 +484,16 @@
   /* Phosphor Duotone icons styling */
   .footer-updated i,
   .footer-updated .ph-duotone {
-    font-size: var(--text-sm-size);
-    width: var(--text-sm-size);
-    height: var(--text-sm-size);
+    font-size: var(--text-base-size); /* 14px icon size */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: inherit;
     opacity: 0.8;
     font-style: normal; /* Override base.css italic styling for icon elements */
+    --ph-icon-fill-duotone: var(--ph-icon-fill-duotone); /* Inner fill, foreground at 8% opacity */
   }
   
   /* Legacy SVG support */

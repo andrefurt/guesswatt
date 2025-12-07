@@ -111,6 +111,10 @@
   --color-savings-bar-bg: rgba(113, 152, 131, 0.08); /* Savings bar background, 8% opacity */
   --color-savings-bar-shadow: rgba(113, 152, 131, 0.08); /* Savings bar shadow, 8% opacity */
   
+  /* Phosphor icon colors - Duotone inner fill */
+  --ph-icon-fill-duotone: rgba(53, 68, 61, 0.08); /* Inner fill, foreground primary at 8% opacity (#35443D at 8%) */
+  --ph-icon-fill-duotone: oklch(from var(--color-foreground-primary) l c h / 0.08); /* Modern browsers: foreground at 8% opacity */
+  
   /* ═══════════════════════════════════════════════════════════
      TYPOGRAPHY - Fluid scaling with clamp()
      ═══════════════════════════════════════════════════════════ */
