@@ -291,9 +291,32 @@
     margin-top: var(--space-3);
   }
   
+  .savings-bar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    height: 2.75rem; /* 44px - fixed height */
+    padding: var(--space-1) var(--space-2);
+    border: 0.5px solid white;
+    border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent - border */
+    background: var(--color-savings-bar-bg);
+    box-shadow: var(--shadow-xs);
+    position: relative;
+  }
+  
+  .savings-bar-inner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: calc(var(--radius-sm) - 0.5px);
+    box-shadow: var(--shadow-inset-dark);
+    pointer-events: none;
+  }
+  
   /* Phosphor Duotone icons styling */
-  .savings-bar i,
-  .savings-bar .ph-duotone {
+  .savings-bar-inner i,
+  .savings-bar-inner .ph-duotone {
     font-size: var(--space-4);
     width: var(--space-4);
     height: var(--space-4);
@@ -304,12 +327,12 @@
   }
   
   /* Legacy SVG support */
-  .savings-bar svg {
+  .savings-bar-inner svg {
     width: var(--space-4);
     height: var(--space-4);
   }
   
-  .savings-bar span {
+  .savings-bar-inner span {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
