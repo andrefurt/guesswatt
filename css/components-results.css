@@ -497,7 +497,7 @@
   
   /* Disclaimer */
   .disclaimer-row {
-    padding: var(--space-4) 0;
+    padding: var(--space-4) 0 0 0;
   }
   
   .disclaimer-text {
