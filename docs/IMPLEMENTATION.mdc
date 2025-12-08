@@ -850,19 +850,40 @@ const shareUrl = `https://guesswatt.pt/?s=${encodedState}`;
 | Consumo (kWh) | "Consumo" or "Energia ativa" section |
 | Potência (kVA) | "Potência contratada" |
 | Tipo tarifa | "Simples" / "Bi-horária" / "Tri-horária" |
+| Ciclo (opcional) | "Ciclo Diário" / "Ciclo Semanal" / "sem feriados" |
 | Fornecedor | Header/logo |
 | Nome tarifa | Contract details |
 
+### Cycle Detection
+
+For bi-hourly and tri-hourly tariffs, the parser detects cycle type:
+
+- **Weekly cycle** (`'weekly'`): Detected from "sem feriados", "ciclo semanal", "semanal"
+- **Daily cycle** (`'daily'`): Detected from "ciclo diário", "diário"
+- **Null**: When cycle info is not present
+
+Cycle information is displayed in the UI (e.g., "Bi-horária (Ciclo Semanal)") but does not affect price calculations, as ERSE prices are the same regardless of cycle.
+
+### Consumption Extraction
+
+The parser handles complex bill structures:
+
+- **Multiple VAT brackets**: Sums consumption across different VAT rates (6% and 23%)
+- **Period-specific consumption**: Extracts "Termo de Energia" lines for each period (Vazio, Fora-vazio, Ponta, Cheia)
+- **Validation**: Cross-checks against IEC (Imposto Especial Consumo) line
+- **Filtering**: Excludes cumulative meter readings (typically >1000 kWh)
+
 ### Tasks
 
-- [ ] Integrate PDF.js
-- [ ] Create parser for each provider format
-- [ ] Extract consumption value
-- [ ] Extract power value
-- [ ] Detect tariff type
-- [ ] Identify provider
-- [ ] Error handling for unsupported formats
-- [ ] Privacy: process client-side only
+- [x] Integrate PDF.js
+- [x] Create robust parser for multiple providers
+- [x] Extract consumption value (handles multiple VAT brackets)
+- [x] Extract power value
+- [x] Detect tariff type
+- [x] Detect cycle type (daily/weekly)
+- [x] Identify provider
+- [x] Error handling for unsupported formats
+- [x] Privacy: process client-side only
 
 ### Error States
 

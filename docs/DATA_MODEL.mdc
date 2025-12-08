@@ -146,6 +146,13 @@ const TRI_HORARIA = {
   cheias: 0.50,     // mid-day
   ponta: 0.20       // peak hours
 };
+
+// Cycle types for bi-hourly and tri-hourly tariffs
+// Note: Cycle affects consumption distribution, not prices
+const CYCLE_TYPES = {
+  DAILY: 'daily',      // Ciclo Diário - periods change each day
+  WEEKLY: 'weekly'     // Ciclo Semanal - periods change by day of week
+};
 ```
 
 ### Monthly Cost Calculation
@@ -423,12 +430,59 @@ const providers = {
 
 ---
 
+## Offers.json Structure
+
+The `offers.json` file is built from CSVs and contains enriched offer data:
+
+```javascript
+{
+  // Core identifiers
+  COM: "EDPC",                    // Provider code
+  COD_Proposta: "EDPC_01",        // Offer code
+  Pot_Cont: 4.6,                  // Contracted power (kVA)
+  Contagem: 1,                    // Tariff type (1=simple, 2=bi, 3=tri)
+  
+  // Price fields
+  TF: 0.2325,                     // Fixed term (€/day)
+  "TV|TVFV|TVP": 0.1658,          // Variable term (€/kWh)
+  "TVV|TVC": 0.1094,              // Valley/mid term (€/kWh)
+  TVVz: 0.0947,                   // Super-valley term (€/kWh)
+  
+  // Enriched metadata
+  tariffName: "Tarifa Digital",   // Human-readable name
+  cycleType: "weekly",            // Cycle type: 'daily' | 'weekly' | null
+  website: "https://...",          // Provider website
+  phone: "800100100",             // Contact phone
+  fornecimento: "ELE",            // Energy type
+  segmento: "Dom",                // Target segment
+  validFrom: "01/01/2025",        // Offer start date
+  validTo: "31/12/2025",          // Offer end date
+  isIndexed: false,              // Indexed prices flag
+  hasLockIn: false,               // Lock-in period flag
+  lockInMonths: null,             // Lock-in duration (months)
+  promotion: null,               // Promotion metadata
+  isCampaignActive: null          // Campaign active status
+}
+```
+
+### Cycle Type Detection
+
+The `cycleType` field is automatically detected from `NomeProposta`:
+
+- **Daily cycle** (`'daily'`): Detected when name contains "ciclo diário", "diário", "diario"
+- **Weekly cycle** (`'weekly'`): Detected when name contains "ciclo semanal", "semanal", "sem feriados"
+- **Null**: When cycle info is not present in the name
+
+**Note:** Most ERSE CSV offers don't include cycle information in names, so `cycleType` will be `null` for most offers. Cycle detection is primarily useful for PDF-extracted data where cycle info is explicitly stated.
+
 ## File Structure
 
 ```
 data/
 ├── Precos_ELEGN.csv          # Prices (monthly auto-update)
 ├── CondComerciais.csv        # Conditions (monthly auto-update)
+├── offers.json               # Built offers with metadata (auto-generated)
+├── meta.json                 # Build metadata (auto-generated)
 ├── erse-insights.json        # Market stats (quarterly auto-update)
 └── providers.json            # Provider metadata (manual)
 ```

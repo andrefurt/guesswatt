@@ -60,11 +60,11 @@ guesswatt/
 │   ├── main.js             # Entry point
 │   ├── calculator.js        # Business logic
 │   ├── config.js            # Constants
-│   ├── pdf-service.js       # PDF parsing
+│   ├── pdf-service.js       # PDF parsing (includes cycle detection)
 │   ├── ui-components.js     # UI initialization
 │   ├── ui-handlers.js       # Event handlers
 │   ├── ui-renderer.js       # Result rendering
-│   └── utils.js             # Utilities
+│   └── utils.js             # Utilities (includes formatTariffName)
 ├── data/                   # Data files
 │   ├── Precos_ELEGN.csv    # Price data
 │   ├── CondComerciais.csv  # Conditions data
