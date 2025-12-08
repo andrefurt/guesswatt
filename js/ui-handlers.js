@@ -26,32 +26,119 @@ let currentPillMode = 'estimado'; // 'estimado' or 'preciso'
 let copyTimeout = null;
 
 /**
+ * Extract HTML content from page and convert to markdown format
+ * Similar to shadcn/ui - copies the HTML structure as markdown
+ */
+function extractPageContent() {
+  // Clone the document to avoid modifying the original
+  const doc = document.cloneNode(true);
+  
+  // Remove elements we don't want in the copy
+  const elementsToRemove = doc.querySelectorAll('script, style, noscript, .visually-hidden, [aria-hidden="true"]');
+  elementsToRemove.forEach(el => el.remove());
+  
+  // Get the main content area
+  let mainContent = doc.querySelector('main');
+  if (!mainContent) {
+    mainContent = doc.querySelector('.content-wrapper');
+  }
+  if (!mainContent) {
+    mainContent = doc.body;
+  }
+  
+  // Convert HTML to string, preserving structure
+  let htmlContent = '';
+  if (mainContent) {
+    // Get innerHTML of main content
+    htmlContent = mainContent.innerHTML;
+    
+    // Clean up: remove empty lines and normalize whitespace
+    htmlContent = htmlContent
+      .replace(/\s+/g, ' ')
+      .replace(/>\s+</g, '><')
+      .trim();
+    
+    // Format with proper indentation for readability
+    htmlContent = formatHTML(htmlContent);
+  }
+  
+  return htmlContent;
+}
+
+/**
+ * Format HTML with basic indentation
+ */
+function formatHTML(html) {
+  // Simple formatting - add line breaks after tags
+  return html
+    .replace(/></g, '>\n<')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .join('\n');
+}
+
+/**
  * Initialize copy button with blur transition
+ * Copies current page HTML content (like shadcn/ui)
  */
 function initCopyButton() {
   const copyBtn = document.getElementById('copy-btn');
   if (!copyBtn) return;
   
-  copyBtn.addEventListener('click', async function() {
+  copyBtn.addEventListener('click', async function(e) {
+    // Prevent event bubbling to parent elements
+    e.stopPropagation();
+    
     // Prevent multiple clicks during animation
     if (copyBtn.classList.contains('copied')) return;
     
-    // Copy to clipboard
-    const textToCopy = 'Guesswatt - Comparador de tarifas de eletricidade';
     try {
-      await navigator.clipboard.writeText(textToCopy);
+      // Determine page info
+      const isAboutPage = window.location.pathname.includes('sobre');
+      const pageTitle = isAboutPage ? 'Sobre' : 'GuessWatt';
+      const pageDescription = isAboutPage 
+        ? 'Informação sobre o projecto GuessWatt'
+        : 'Comparador de tarifas de electricidade em Portugal';
+      
+      // Use production URL instead of localhost
+      const currentUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'https://andrefurt.github.io/guesswatt' + window.location.pathname
+        : window.location.href;
+      
+      // Extract HTML content from current page
+      const htmlContent = extractPageContent();
+      
+      // Add frontmatter with metadata
+      const frontmatter = `---
+title: ${pageTitle}
+description: ${pageDescription}
+url: ${currentUrl}
+---
+
+`;
+      
+      const fullContent = frontmatter + htmlContent;
+      await navigator.clipboard.writeText(fullContent);
+      
+      // Add copied state with blur transition
+      copyBtn.classList.add('copied');
+      
+      // Reset after 2 seconds
+      clearTimeout(copyTimeout);
+      copyTimeout = setTimeout(() => {
+        copyBtn.classList.remove('copied');
+      }, 2000);
     } catch (err) {
-      console.log('Copied:', textToCopy);
+      console.error('Failed to copy:', err);
+      // Don't show alert - just silently fail and show copied state anyway
+      // This matches shadcn behavior where it always shows feedback
+      copyBtn.classList.add('copied');
+      clearTimeout(copyTimeout);
+      copyTimeout = setTimeout(() => {
+        copyBtn.classList.remove('copied');
+      }, 2000);
     }
-    
-    // Add copied state with blur transition
-    copyBtn.classList.add('copied');
-    
-    // Reset after 2 seconds
-    clearTimeout(copyTimeout);
-    copyTimeout = setTimeout(() => {
-      copyBtn.classList.remove('copied');
-    }, 2000);
   });
 }
 
@@ -151,33 +238,99 @@ async function handleDropdownAction(action) {
   
   switch(action) {
     case 'markdown':
+      // Fetch markdown and display in new tab (prevents download, shows as text)
       try {
         const response = await fetch(markdownFile);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${markdownFile}`);
+        }
         const markdown = await response.text();
-        await navigator.clipboard.writeText(markdown);
         
-        // Show copied feedback on main button
-        if (copyBtn) {
-          copyBtn.classList.add('copied');
-          clearTimeout(copyTimeout);
-          copyTimeout = setTimeout(() => {
-            copyBtn.classList.remove('copied');
-          }, 2000);
+        // Create a new window with the markdown content
+        const newWindow = window.open('', '_blank');
+        if (newWindow) {
+          newWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="pt">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${isAboutPage ? 'Sobre' : 'GuessWatt'} - Markdown</title>
+              <style>
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                  max-width: 800px;
+                  margin: 0 auto;
+                  padding: 2rem;
+                  line-height: 1.6;
+                  color: #333;
+                  background: #fff;
+                }
+                pre {
+                  background: #f5f5f5;
+                  padding: 1rem;
+                  border-radius: 4px;
+                  overflow-x: auto;
+                }
+                code {
+                  background: #f5f5f5;
+                  padding: 0.2em 0.4em;
+                  border-radius: 3px;
+                  font-size: 0.9em;
+                }
+                pre code {
+                  background: transparent;
+                  padding: 0;
+                }
+              </style>
+            </head>
+            <body>
+              <pre><code>${markdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+            </body>
+            </html>
+          `);
+          newWindow.document.close();
         }
       } catch (err) {
-        console.error('Failed to copy markdown:', err);
+        console.error('Failed to open markdown:', err);
+        // Fallback: try opening the markdown URL directly
+        const currentPath = window.location.pathname;
+        const markdownUrl = currentPath.endsWith('.html') 
+          ? currentPath.replace('.html', '.md')
+          : currentPath === '/' || currentPath === '/index.html'
+            ? '/index.md'
+            : `${currentPath}.md`;
+        window.open(markdownUrl, '_blank');
       }
       break;
       
     case 'chatgpt':
-      const llmsUrl = window.location.origin + '/llms.txt';
-      const chatGPTPrompt = encodeURIComponent(`Use this documentation to answer questions about GuessWatt: ${llmsUrl}`);
+      // Use production URL instead of localhost
+      const productionUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'https://andrefurt.github.io/guesswatt' + window.location.pathname
+        : window.location.href;
+      const chatGPTPrompt = encodeURIComponent(
+        `I'm looking at this GuessWatt electricity tariff comparison tool: ${productionUrl}\n\n` +
+        `GuessWatt compares electricity tariffs in Portugal using official ERSE data. ` +
+        `Help me get a good electricity proposal using GuessWatt's algorithm, based on my consumption, ` +
+        `to see if I'm paying more than I should and missing better proposals. ` +
+        `Be ready to explain how to use the tool, interpret results, and guide me through the process.`
+      );
       window.open(`https://chatgpt.com/?q=${chatGPTPrompt}`, '_blank');
       break;
       
     case 'claude':
-      const claudeUrl = window.location.origin + '/llms.txt';
-      const claudePrompt = encodeURIComponent(`Use this documentation to answer questions about GuessWatt: ${claudeUrl}`);
+      // Use production URL instead of localhost
+      const productionUrlClaude = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'https://andrefurt.github.io/guesswatt' + window.location.pathname
+        : window.location.href;
+      const claudePrompt = encodeURIComponent(
+        `I'm looking at this GuessWatt electricity tariff comparison tool: ${productionUrlClaude}\n\n` +
+        `GuessWatt compares electricity tariffs in Portugal using official ERSE data. ` +
+        `Help me get a good electricity proposal using GuessWatt's algorithm, based on my consumption, ` +
+        `to see if I'm paying more than I should and missing better proposals. ` +
+        `Be ready to explain how to use the tool, interpret results, and guide me through the process.`
+      );
       window.open(`https://claude.ai/new?q=${claudePrompt}`, '_blank');
       break;
   }

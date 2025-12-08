@@ -2,12 +2,71 @@
 
 > Ferramenta de comparação de tarifas de electricidade em Portugal usando dados oficiais da ERSE.
 
+## Descrição
+
+GuessWatt é uma ferramenta gratuita e open-source que ajuda consumidores portugueses a encontrar melhores tarifas de electricidade. Compara todas as ofertas disponíveis do mercado regulador português (ERSE) e mostra exactamente quanto poderias poupar ao mudar.
+
+## Funcionalidades
+
+- **Modo Estimativa**: Introduz o valor mensal da factura (€/mês) e obtém resultados instantâneos
+- **Modo Preciso**: Carrega a factura PDF ou introduz dados detalhados de consumo
+- **Descoberta da melhor oferta**: Encontra a tarifa mais barata para o teu perfil
+- **Orientação acionável**: Instruções passo a passo sobre como mudar de fornecedor
+- **Zero backend**: Tudo funciona no navegador — os teus dados nunca saem do dispositivo
+
 ## Páginas
 
 - [Início](https://andrefurt.github.io/guesswatt/): Comparador de tarifas com modo estimativa e modo preciso
 - [Sobre](https://andrefurt.github.io/guesswatt/sobre.html): Informação sobre o projecto, como calculamos, fonte dos dados
 
+## Como funciona
+
+### Modo Estimativa
+
+Introduz o valor mensal da tua factura (€/mês). O sistema assume:
+- Potência: 4.6 kVA (mais comum em Portugal)
+- Tarifa: Simples (preço único)
+- Consumo: estimado a partir do valor
+
+### Modo Preciso
+
+Podes:
+- Carregar a factura em PDF (extracção automática)
+- Introduzir manualmente: potência, consumo, tipo de tarifa
+
+## Fórmula de cálculo
+
+```
+Custo mensal = (Termo fixo × 30 dias) + (Termo variável × consumo kWh) + Taxas + IVA 23%
+```
+
+### Tipos de tarifa
+
+- **Simples**: Preço único a qualquer hora
+- **Bi-horária**: Dois preços: vazio (22h-8h) e fora de vazio
+- **Tri-horária**: Três preços: vazio, cheias, ponta
+
+## Glossário
+
+- **kWh**: Quilowatt-hora. Unidade de energia. 1 kWh = aparelho de 1000W ligado 1 hora.
+- **kVA**: Potência contratada. Define quanta energia podes usar em simultâneo.
+- **CPE**: Código de Ponto de Entrega. Identifica o contador.
+- **Termo fixo**: Valor diário independente do consumo (€/dia).
+- **Termo variável**: Preço por energia consumida (€/kWh).
+
+## Fonte dos dados
+
+Dados oficiais da ERSE (Entidade Reguladora dos Serviços Energéticos), actualizados mensalmente.
+
+## Arquitectura técnica
+
+- **Frontend**: Vanilla JavaScript (ES6+ modules), sem framework
+- **Estilização**: CSS moderno com OKLCH colors, custom properties, clamp()
+- **Hosting**: Static hosting (GitHub Pages compatible)
+- **Dependências**: Zero runtime dependencies (excepto PDF.js para parsing de PDFs)
+
 ## Recursos
 
 - [GitHub](https://github.com/andrefurt/guesswatt): Código fonte
 - [ERSE](https://www.erse.pt): Fonte oficial dos dados de tarifas
+- [Documentação completa](https://github.com/andrefurt/guesswatt/tree/main/docs): Documentação técnica detalhada

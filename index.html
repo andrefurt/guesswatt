@@ -3,12 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Primary Meta Tags -->
+  <title>GuessWatt - Comparador de Tarifas de Electricidade</title>
+  <meta name="title" content="GuessWatt - Comparador de Tarifas de Electricidade">
+  <meta name="description" content="Compara tarifas de electricidade em Portugal usando dados oficiais da ERSE. Descobre se estás a pagar mais do que devias e encontra a melhor proposta.">
+  <meta name="keywords" content="electricidade, tarifas, Portugal, ERSE, comparador, energia, poupança">
+  <meta name="author" content="GuessWatt">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://andrefurt.github.io/guesswatt/">
+  <meta property="og:title" content="GuessWatt - Comparador de Tarifas de Electricidade">
+  <meta property="og:description" content="Compara tarifas de electricidade em Portugal usando dados oficiais da ERSE. Descobre se estás a pagar mais do que devias e encontra a melhor proposta.">
+  <meta property="og:locale" content="pt_PT">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://andrefurt.github.io/guesswatt/">
+  <meta property="twitter:title" content="GuessWatt - Comparador de Tarifas de Electricidade">
+  <meta property="twitter:description" content="Compara tarifas de electricidade em Portugal usando dados oficiais da ERSE. Descobre se estás a pagar mais do que devias e encontra a melhor proposta.">
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <title>GuessWatt</title>
+  
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "GuessWatt",
+    "description": "Comparador de tarifas de electricidade em Portugal usando dados oficiais da ERSE",
+    "url": "https://andrefurt.github.io/guesswatt/",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    "featureList": [
+      "Comparação de tarifas de electricidade",
+      "Modo estimativa com valor mensal",
+      "Modo preciso com PDF ou dados manuais",
+      "Cálculo de poupança anual",
+      "Dados oficiais da ERSE",
+      "Processamento client-side (privacidade)"
+    ],
+    "creator": {
+      "@type": "Person",
+      "name": "Andrefurt"
+    },
+    "license": "https://github.com/andrefurt/guesswatt/blob/main/LICENSE"
+  }
+  </script>
   <style>
     /* Minimal functional styles only - visual styles are in modular CSS */
     
@@ -162,7 +213,7 @@
                   <span class="item-icon" aria-hidden="true">
                     <i class="ph-duotone ph-code"></i>
                   </span>
-                  <span>Copy as markdown</span>
+                  <span>View as markdown</span>
                 </button>
                 <button class="dropdown-item" data-action="chatgpt" type="button" role="menuitem">
                   <span class="item-icon" aria-hidden="true">
