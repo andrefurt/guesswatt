@@ -16,7 +16,7 @@
   
   /* Foreground (text) - Primary naming */
   --color-foreground-primary: #35443D; /* Fallback for older browsers */
-  --color-foreground-primary: oklch(32% 0.02 135); /* #35443D - Primary text color */
+  --color-foreground-primary: oklch(40% 0.04 135); /* #35443D - Primary text color */
   
   --color-foreground-secondary: #8E8C89; /* Fallback */
   --color-foreground-secondary: oklch(64% 0.01 0); /* #8E8C89 - Secondary text, medium gray */

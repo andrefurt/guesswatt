@@ -19,7 +19,8 @@
   }
   
   .title-section {
-    padding: var(--space-3); /* 12px */
+    padding: var(--space-3);
+    margin-bottom: var(--space-3); /* 12px */
   }
   
   .title {
@@ -447,16 +448,16 @@
   .form-input-content {
     display: flex;
     align-items: center;
-    height: 2.75rem; /* 44px - fixed height for form inputs */
+    height: 2.5rem; /* 40px - fixed height for form inputs */
     border: 1px solid white;
     /* Child radius = parent radius (6px) - parent border (0.5px) ≈ 5.5px */
     border-radius: calc(var(--radius-sm) - 0.5px);
-    box-shadow: var(--shadow-md);
+    box-shadow: none; /* Shadow removed */
     position: relative;
     background: var(--color-bg-form-input);
+    opacity: 0.75; /* Further decreased background opacity */
     transition: 
-      border-color var(--duration-normal) var(--ease-out),
-      box-shadow var(--duration-normal) var(--ease-out);
+      border-color var(--duration-normal) var(--ease-out);
   }
   
   .form-input-content::after {
@@ -465,19 +466,24 @@
     inset: 0;
     /* Inherits parent's border-radius */
     border-radius: calc(var(--radius-sm) - 0.5px);
-    box-shadow: var(--shadow-inset-light);
+    box-shadow: none; /* Shadow removed */
     pointer-events: none;
   }
   
   .form-input-content:focus-within {
     border-color: var(--color-border-accent);
-    box-shadow: var(--shadow-md);
+    box-shadow: none; /* Shadow removed */
+  }
+  
+  /* Remove focus outline on mouse click, keep for keyboard navigation */
+  .form-input-content:focus-within:not(:focus-visible) {
+    border-color: var(--color-border-default);
   }
   
   .form-input {
     flex: 1;
     height: 100%;
-    padding: var(--space-3);
+    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
     border: none;
     background: transparent;
     font-family: var(--font-sans);
@@ -516,7 +522,7 @@
   .form-select {
     flex: 1;
     height: 100%;
-    padding: var(--space-3);
+    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
     padding-right: var(--space-8);
     border: none;
     background: transparent;
@@ -541,12 +547,15 @@
   
   .form-select-icon {
     position: absolute;
-    right: var(--space-3);
+    right: var(--space-2); /* 8px - matches padding */
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
     opacity: 0.44;
     transition: transform var(--duration-slow) var(--ease-bounce);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   /* Phosphor Duotone icons styling */
@@ -563,8 +572,17 @@
     --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
-  .form-select:focus + .form-select-icon {
+  .form-select:focus-visible + .form-select-icon {
     opacity: 0.7;
+  }
+  
+  /* Remove focus styles on mouse click */
+  .form-select:focus:not(:focus-visible) {
+    outline: none;
+  }
+  
+  .form-select:focus:not(:focus-visible) + .form-select-icon {
+    opacity: 0.44;
   }
   
   /* Form footer */

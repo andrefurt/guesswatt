@@ -348,4 +348,121 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   
   // Initialize provider logo fallback handlers
   initProviderLogoFallbacks();
+  
+  // Initialize electrical sparks animation
+  initElectricalSparks();
 }
+
+/**
+ * Initialize electrical sparks animation on result card
+ * Creates random sparks that flash intermittently, mimicking electrical sparks
+ */
+function initElectricalSparks() {
+  const resultCard = document.querySelector('.result-card');
+  if (!resultCard) {
+    console.log('No result card found for sparks');
+    return;
+  }
+  
+  // Remove existing sparks if any
+  const existingSparks = resultCard.querySelectorAll('.spark');
+  existingSparks.forEach(spark => spark.remove());
+  
+  // Function to trigger a spark flash
+  function triggerSpark(spark) {
+    spark.classList.remove('active');
+    // Force reflow to restart animation
+    void spark.offsetWidth;
+    spark.classList.add('active');
+    
+    // Remove active class after animation
+    setTimeout(() => {
+      spark.classList.remove('active');
+    }, 200);
+  }
+  
+  // Trigger sparks at random intervals (mimicking electrical rhythm)
+  function startSparkCycle(sparks) {
+    if (!sparks || sparks.length === 0) return;
+    
+    sparks.forEach((spark, index) => {
+      // Random delay between 0.3s and 2s for each spark
+      const delay = Math.random() * 1700 + 300;
+      const initialDelay = index * 100; // Stagger initial appearance
+      
+      setTimeout(() => {
+        triggerSpark(spark);
+        
+        // Continue sparking at random intervals
+        function scheduleNext() {
+          // Random interval between 0.8s and 3s
+          const nextDelay = Math.random() * 2200 + 800;
+          setTimeout(() => {
+            triggerSpark(spark);
+            scheduleNext();
+          }, nextDelay);
+        }
+        
+        scheduleNext();
+      }, initialDelay + delay);
+    });
+  }
+  
+  // Create 10-15 sparks randomly positioned around the card
+  const sparkCount = Math.floor(Math.random() * 6) + 10; // 10-15 sparks
+  
+  // Use requestAnimationFrame to ensure card is fully rendered
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const cardRect = resultCard.getBoundingClientRect();
+      const cardWidth = cardRect.width;
+      const cardHeight = cardRect.height;
+      
+      if (cardWidth === 0 || cardHeight === 0) {
+        console.log('Card dimensions not ready, retrying...');
+        setTimeout(() => initElectricalSparks(), 200);
+        return;
+      }
+      
+      const sparks = [];
+      
+      for (let i = 0; i < sparkCount; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'spark';
+        
+        // Random position around the card perimeter
+        const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+        
+        let left, top;
+        switch(side) {
+          case 0: // top
+            left = Math.random() * (cardWidth - 10) + 5;
+            top = Math.random() * 15 + 2;
+            break;
+          case 1: // right
+            left = cardWidth - Math.random() * 15 - 2;
+            top = Math.random() * (cardHeight - 10) + 5;
+            break;
+          case 2: // bottom
+            left = Math.random() * (cardWidth - 10) + 5;
+            top = cardHeight - Math.random() * 15 - 2;
+            break;
+          case 3: // left
+            left = Math.random() * 15 + 2;
+            top = Math.random() * (cardHeight - 10) + 5;
+            break;
+        }
+        
+        spark.style.left = `${left}px`;
+        spark.style.top = `${top}px`;
+        
+        resultCard.appendChild(spark);
+        sparks.push(spark);
+      }
+      
+      // Start spark cycle after all sparks are created
+      startSparkCycle(sparks);
+    });
+  });
+}
+  

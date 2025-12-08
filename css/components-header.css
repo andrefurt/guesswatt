@@ -116,22 +116,25 @@
     background: rgba(255, 255, 255, 0.2); /* Slightly lighter background on hover - white at 40% opacity */
   }
   
-  /* Estimate mode: asymmetric padding (12px left, 6px right, 6px top/bottom) */
+  /* Estimate mode: symmetric padding, 32px height */
   .input-pill-inner:has(.input-pill-estimado) {
-    padding: var(--radius-sm) var(--radius-sm) var(--radius-sm) var(--space-3); /* 6px top/bottom/right, 12px left */
+    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right - equal padding */
     gap: var(--radius-sm); /* 6px gap between content and delete button - matches Figma gap-[6px] */
+    min-height: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px - matches button height */
   }
   
-  /* Preciso mode: symmetric padding (6px all around) */
+  /* Preciso mode: reduced padding, 32px height */
   .input-pill-inner:has(.input-pill-preciso) {
-    padding: var(--radius-sm); /* 6px all around */
-    gap: var(--space-3); /* 12px gap between icon and content (default for PDF mode) */
+    padding: var(--space-1) var(--radius-sm); /* 4px top/bottom, 6px left/right */
+    gap: var(--space-2); /* 8px gap between icon and content */
+    min-height: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px - matches button height */
   }
   
   /* Preciso mode without PDF icon (manual): no gap, content starts immediately */
   .input-pill:not(.pdf-source) .input-pill-inner:has(.input-pill-preciso) {
     gap: 0; /* No gap when manual entry (no PDF icon) */
   }
+  
   
   /* Child elements inside input-pill-inner inherit parent's border-radius calculation */
   .input-pill-inner > * {
@@ -143,6 +146,11 @@
     align-items: center;
     border: none;
     box-shadow: none;
+  }
+  
+  /* Add gap between PDF icon and data content */
+  .input-pill-content.input-pill-preciso {
+    gap: var(--space-2); /* 8px gap between icon and content */
   }
   
   /* Estimate mode content: gap between mode and value */
@@ -208,15 +216,14 @@
     color: var(--color-foreground-secondary);
   }
   
-  /* Delete button (suffix) - square, matches btn-suffix visual style */
+  /* Delete button (suffix) - smaller padding for estimate card */
   .input-pill-delete {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Calculate padding to make square button matching button height */
-    /* Button height = var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) = ~32px */
-    /* For square: padding = (height - icon size) / 2 */
-    padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-base-size)) / 2);
+    /* Reduced padding for smaller icon button */
+    /* Icon size is var(--text-base-size) (14px), use smaller padding */
+    padding: var(--space-1); /* 4px padding - smaller than calculated value */
     border: none;
     box-shadow: none;
     /* Remove gap since icon-only button doesn't need spacing */
@@ -297,10 +304,75 @@
     }
   }
   
-  /* Preciso pill icon container - 32px square, matches Figma design */
+  /* Mobile: position input pill below navbar to avoid overlap */
+  @media (max-width: 48rem) { /* 768px */
+    .top-bar {
+      flex-wrap: wrap; /* Allow wrapping on mobile */
+      padding: var(--space-3); /* Reduce padding on mobile */
+    }
+    
+    .top-bar-actions {
+      flex-shrink: 0; /* Prevent actions from shrinking */
+    }
+    
+    .input-pill {
+      position: relative;
+      left: auto;
+      transform: none;
+      top: auto;
+      order: 3; /* Place after logo and actions */
+      width: 100%;
+      margin-top: var(--space-3); /* Add spacing below navbar */
+      display: flex;
+      justify-content: center;
+      padding: 0; /* No padding */
+    }
+    
+    .results-view .input-pill {
+      display: flex; /* Override display: block */
+      animation: pillAppearMobile var(--duration-slower) var(--ease-out) forwards;
+    }
+    
+    @keyframes pillAppearMobile {
+      0% {
+        opacity: 0;
+        transform: translateY(calc(var(--space-2) * -1));
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .input-pill.preciso-mode {
+      max-width: 100%; /* Full width on mobile */
+    }
+    
+    .input-pill-inner {
+      width: 100%; /* Fill container width on mobile */
+      max-width: 100%; /* Ensure inner content doesn't overflow */
+      justify-content: space-between; /* Space between content and delete button */
+    }
+    
+    /* Remove gap on mobile since we're using space-between */
+    .input-pill-inner:has(.input-pill-estimado) {
+      gap: 0; /* Remove gap, use space-between instead */
+    }
+    
+    .input-pill-inner:has(.input-pill-preciso) {
+      gap: 0; /* Remove gap, use space-between instead */
+    }
+    
+    /* Hide labels in PDF mode (preciso mode) on mobile only */
+    .input-pill.preciso-mode .pill-label {
+      display: none;
+    }
+  }
+  
+  /* Preciso pill icon container - smaller size to match card */
   .input-pill-icon {
-    width: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px - matches button height */
-    height: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px - matches button height */
+    width: calc(var(--text-base-size) + var(--space-2)); /* Icon size (14px) + padding (8px) = 22px */
+    height: calc(var(--text-base-size) + var(--space-2)); /* Icon size (14px) + padding (8px) = 22px */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -335,9 +407,9 @@
   /* Phosphor Duotone icons styling */
   .input-pill-icon i,
   .input-pill-icon .ph-duotone {
-    font-size: var(--text-lg-size); /* 20px icon size for PDF icon */
-    width: var(--text-lg-size);
-    height: var(--text-lg-size);
+    font-size: var(--text-base-size); /* 14px icon size - matches other icons */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -348,8 +420,8 @@
   
   /* Legacy SVG support */
   .input-pill-icon svg {
-    width: var(--text-lg-size);
-    height: var(--text-lg-size);
+    width: var(--text-base-size);
+    height: var(--text-base-size);
   }
   
   /* Preciso pill data - matches Figma: py-[6px], gap-[8px] */
