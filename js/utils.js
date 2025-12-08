@@ -92,6 +92,7 @@ export async function loadOffers() {
             // Store enriched metadata for enrichOffer to use
             _enriched: {
               tariffName: offer.tariffName,
+              cycleType: offer.cycleType || null, // Include cycleType from offers.json
               website: offer.website,
               phone: offer.phone,
               fornecimento: offer.fornecimento,
@@ -169,6 +170,38 @@ export function toTitleCase(name) {
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+/**
+ * Detect cycle type from tariff name
+ * @param {string} tariffName - Tariff name from NomeProposta
+ * @returns {string|null} 'daily' | 'weekly' | null
+ */
+export function detectCycleType(tariffName) {
+  if (!tariffName) return null;
+  
+  // Normalize text: lowercase, remove accents
+  const normalized = String(tariffName)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, ''); // Remove accents
+  
+  // Check for daily cycle indicators
+  if (normalized.includes('ciclo diario') || 
+      normalized.includes('ciclo diário') ||
+      normalized.includes('diario') ||
+      normalized.includes('diário')) {
+    return 'daily';
+  }
+  
+  // Check for weekly cycle indicators
+  if (normalized.includes('ciclo semanal') ||
+      normalized.includes('semanal') ||
+      normalized.includes('sem feriados')) {
+    return 'weekly';
+  }
+  
+  return null;
 }
 
 /**

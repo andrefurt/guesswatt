@@ -4,6 +4,7 @@
  */
 
 import { VAT, DAYS_PER_MONTH, AUDIOVISUAL_TAX, DEFAULT_POWER } from './config.js';
+import { detectCycleType } from './utils.js';
 
 // Constants from DATA_MODEL.mdc
 const IEC_KWH = 0.001; // Special consumption tax (€/kWh)
@@ -365,9 +366,15 @@ export function enrichOffer(offer, conditions) {
   }
   
   // Fallback: extract from condition object (CSV mode)
+  const tariffName = condition?.NomeProposta || offer.COD_Proposta;
+  
+  // Detect cycle type from tariff name (for CSV fallback)
+  const cycleType = tariffName ? detectCycleType(tariffName) : null;
+  
   return {
     ...offer,
-    tariffName: condition?.NomeProposta || offer.COD_Proposta,
+    tariffName: tariffName,
+    cycleType: cycleType, // Include cycleType for CSV fallback
     phone: condition?.ContactoComercialTel || null,
     website: condition?.LinkOfertaCom || condition?.LinkCOM || null,
     fornecimento: condition?.Fornecimento || '',
