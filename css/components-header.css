@@ -424,7 +424,7 @@
   .input-pill-data {
     display: flex;
     align-items: center;
-    gap: var(--space-2); /* 8px gap between items */
+    gap: var(--space-3); /* 12px gap between items (increased from 8px) */
     padding: var(--radius-sm) 0; /* 6px top/bottom padding */
   }
   
