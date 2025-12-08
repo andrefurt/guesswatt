@@ -23,12 +23,14 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -78,7 +80,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv
           git commit -m "chore: update ERSE data $(date +%Y-%m-%d)" || exit 0
-          git push
+          git push origin HEAD:main
       
       - name: No changes detected
         if: steps.changes.outputs.changed != 'true'
