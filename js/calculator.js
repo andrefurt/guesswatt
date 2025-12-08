@@ -325,15 +325,17 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
     return nameA.localeCompare(nameB);
   });
   
-  // Debug logging
+  // Debug logging (with defensive check)
   const best = withValidCosts[0];
-  console.log(`[findBestOfferForTariff] Best offer: ${best.COM} - ${best.tariffName || best.COD_Proposta} (annual cost: €${best.annualCostEffective.toFixed(2)})`);
-  if (withValidCosts.length > 1) {
-    console.log(`[findBestOfferForTariff] Top 3 offers:`, withValidCosts.slice(0, 3).map(o => ({
-      provider: o.COM,
-      tariff: o.tariffName || o.COD_Proposta,
-      annualCost: o.annualCostEffective.toFixed(2)
-    })));
+  if (best) {
+    console.log(`[findBestOfferForTariff] Best offer: ${best.COM} - ${best.tariffName || best.COD_Proposta} (annual cost: €${best.annualCostEffective.toFixed(2)})`);
+    if (withValidCosts.length > 1) {
+      console.log(`[findBestOfferForTariff] Top 3 offers:`, withValidCosts.slice(0, 3).map(o => ({
+        provider: o.COM,
+        tariff: o.tariffName || o.COD_Proposta,
+        annualCost: o.annualCostEffective.toFixed(2)
+      })));
+    }
   }
   
   return best; // melhor oferta
