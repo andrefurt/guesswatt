@@ -96,14 +96,14 @@ function initCopyButton() {
     try {
       // Determine page info
       const isAboutPage = window.location.pathname.includes('sobre');
-      const pageTitle = isAboutPage ? 'Sobre' : 'GuessWatt';
+      const pageTitle = isAboutPage ? 'Sobre' : 'GuessWatts';
       const pageDescription = isAboutPage 
-        ? 'Informação sobre o projecto GuessWatt'
+        ? 'Informação sobre o projecto GuessWatts'
         : 'Comparador de tarifas de electricidade em Portugal';
       
       // Use production URL instead of localhost
       const currentUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://andrefurt.github.io/guesswatt' + window.location.pathname
+        ? 'https://guesswatts.com' + window.location.pathname
         : window.location.href;
       
       // Extract HTML content from current page
@@ -255,7 +255,7 @@ async function handleDropdownAction(action) {
             <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>${isAboutPage ? 'Sobre' : 'GuessWatt'} - Markdown</title>
+              <title>${isAboutPage ? 'Sobre' : 'GuessWatts'} - Markdown</title>
               <style>
                 body {
                   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -307,12 +307,12 @@ async function handleDropdownAction(action) {
     case 'chatgpt':
       // Use production URL instead of localhost
       const productionUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://andrefurt.github.io/guesswatt' + window.location.pathname
+        ? 'https://guesswatts.com' + window.location.pathname
         : window.location.href;
       const chatGPTPrompt = encodeURIComponent(
-        `I'm looking at this GuessWatt electricity tariff comparison tool: ${productionUrl}\n\n` +
-        `GuessWatt compares electricity tariffs in Portugal using official ERSE data. ` +
-        `Help me get a good electricity proposal using GuessWatt's algorithm, based on my consumption, ` +
+        `I'm looking at this GuessWatts electricity tariff comparison tool: ${productionUrl}\n\n` +
+        `GuessWatts compares electricity tariffs in Portugal using official ERSE data. ` +
+        `Help me get a good electricity proposal using GuessWatts's algorithm, based on my consumption, ` +
         `to see if I'm paying more than I should and missing better proposals. ` +
         `Be ready to explain how to use the tool, interpret results, and guide me through the process.`
       );
@@ -322,12 +322,12 @@ async function handleDropdownAction(action) {
     case 'claude':
       // Use production URL instead of localhost
       const productionUrlClaude = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://andrefurt.github.io/guesswatt' + window.location.pathname
+        ? 'https://guesswatts.com' + window.location.pathname
         : window.location.href;
       const claudePrompt = encodeURIComponent(
-        `I'm looking at this GuessWatt electricity tariff comparison tool: ${productionUrlClaude}\n\n` +
-        `GuessWatt compares electricity tariffs in Portugal using official ERSE data. ` +
-        `Help me get a good electricity proposal using GuessWatt's algorithm, based on my consumption, ` +
+        `I'm looking at this GuessWatts electricity tariff comparison tool: ${productionUrlClaude}\n\n` +
+        `GuessWatts compares electricity tariffs in Portugal using official ERSE data. ` +
+        `Help me get a good electricity proposal using GuessWatts's algorithm, based on my consumption, ` +
         `to see if I'm paying more than I should and missing better proposals. ` +
         `Be ready to explain how to use the tool, interpret results, and guide me through the process.`
       );

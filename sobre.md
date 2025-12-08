@@ -1,8 +1,8 @@
-# Sobre o GuessWatt
+# Sobre o GuessWatts
 
 ## O que é
 
-O GuessWatt compara tarifas de eletricidade em Portugal. Mostras quanto pagas, nós dizemos se estás a pagar demais e qual a melhor alternativa.
+O GuessWatts compara tarifas de eletricidade em Portugal. Mostras quanto pagas, nós dizemos se estás a pagar demais e qual a melhor alternativa.
 
 Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.
 
@@ -12,7 +12,7 @@ Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 com
 
 Mudar de fornecedor é gratuito, demora menos de uma semana, e não requer qualquer intervenção técnica. Mas quase ninguém o faz.
 
-O GuessWatt existe para quebrar essa inércia.
+O GuessWatts existe para quebrar essa inércia.
 
 ## Como calculamos
 

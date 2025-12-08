@@ -1,4 +1,4 @@
-# GuessWatt Documentation
+# GuessWatts Documentation
 
 > Comprehensive documentation for developers, designers, and contributors
 

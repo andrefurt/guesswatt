@@ -1,10 +1,10 @@
-# GuessWatt
+# GuessWatts
 
 > Ferramenta de comparação de tarifas de electricidade em Portugal usando dados oficiais da ERSE.
 
 ## Descrição
 
-GuessWatt é uma ferramenta gratuita e open-source que ajuda consumidores portugueses a encontrar melhores tarifas de electricidade. Compara todas as ofertas disponíveis do mercado regulador português (ERSE) e mostra exactamente quanto poderias poupar ao mudar.
+GuessWatts é uma ferramenta gratuita e open-source que ajuda consumidores portugueses a encontrar melhores tarifas de electricidade. Compara todas as ofertas disponíveis do mercado regulador português (ERSE) e mostra exactamente quanto poderias poupar ao mudar.
 
 ## Funcionalidades
 
@@ -16,8 +16,8 @@ GuessWatt é uma ferramenta gratuita e open-source que ajuda consumidores portug
 
 ## Páginas
 
-- [Início](https://andrefurt.github.io/guesswatt/): Comparador de tarifas com modo estimativa e modo preciso
-- [Sobre](https://andrefurt.github.io/guesswatt/sobre.html): Informação sobre o projecto, como calculamos, fonte dos dados
+- [Início](https://guesswatts.com/): Comparador de tarifas com modo estimativa e modo preciso
+- [Sobre](https://guesswatts.com/sobre.html): Informação sobre o projecto, como calculamos, fonte dos dados
 
 ## Como funciona
 

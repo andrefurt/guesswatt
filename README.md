@@ -1,8 +1,8 @@
-# GuessWatt
+# GuessWatts
 
 > Compare electricity tariffs in Portugal. Discover if you're overpaying.
 
-**GuessWatt** is a free, open-source tool that helps Portuguese consumers find better electricity tariffs. It compares all available offers from the Portuguese energy market regulator (ERSE) and shows you exactly how much you could save by switching.
+**GuessWatts** is a free, open-source tool that helps Portuguese consumers find better electricity tariffs. It compares all available offers from the Portuguese energy market regulator (ERSE) and shows you exactly how much you could save by switching.
 
 ## 🎯 What It Does
 
@@ -309,7 +309,7 @@ MIT License - see LICENSE file for details
 
 ## 🔗 Links
 
-- **Website**: [guesswatt.pt](https://guesswatt.pt) (or your domain)
+- **Website**: [guesswatts.com](https://guesswatts.com) (or your domain)
 - **Issues**: [GitHub Issues](https://github.com/yourusername/guesswatt/issues)
 - **ERSE Simulator**: [ERSE Website](https://www.erse.pt/)
 

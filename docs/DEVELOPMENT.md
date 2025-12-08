@@ -1,6 +1,6 @@
 # Development Guide
 
-> Complete guide for setting up, developing, and contributing to GuessWatt
+> Complete guide for setting up, developing, and contributing to GuessWatts
 
 ## Prerequisites
 

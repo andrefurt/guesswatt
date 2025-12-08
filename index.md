@@ -1,4 +1,4 @@
-# GuessWatt
+# GuessWatts
 
 Ferramenta de comparação de tarifas de electricidade em Portugal.
 

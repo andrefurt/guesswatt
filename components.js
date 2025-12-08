@@ -1,5 +1,5 @@
 /**
- * Web Components for GuessWatt
+ * Web Components for GuessWatts
  * 
  * Native Web Components using Shadow DOM and Slots.
  * Business logic remains in app.js - components only provide structure.
