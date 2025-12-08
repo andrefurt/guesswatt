@@ -60,6 +60,172 @@ export async function extractPDFData(file) {
 }
 
 /**
+ * Extract consumption from invoice text by summing all consumption lines
+ * Handles multiple VAT brackets, bi-hourly/tri-hourly tariffs, and validates against IEC line
+ * @param {string} text - Full text content from PDF
+ * @returns {Object|null} Extracted consumption data or null
+ */
+function extractConsumption(text) {
+  // Normalize text: replace multiple spaces/newlines with single space for better regex matching
+  const normalizedText = text.replace(/\s+/g, ' ');
+  
+  // Step 1: Try to extract from IEC (Imposto Especial Consumo) line - most reliable
+  // Format: "Imposto Especial Consumo (Real) 347 kWh 0,001000€/kWh 0,35 €"
+  const iecPattern = /imposto\s+especial\s+consumo[^(]*\(?(?:real|estimado)?\)?\s*(\d+)\s*kwh/gi;
+  const iecMatches = [...normalizedText.matchAll(iecPattern)];
+  let iecTotal = null;
+  if (iecMatches.length > 0) {
+    // Take the largest value (in case of multiple matches)
+    iecTotal = Math.max(...iecMatches.map(m => parseInt(m[1])));
+  }
+  
+  // Step 2: Extract all consumption lines from billing period sections
+  // Look for consumption lines in billing period contexts (not cumulative meter readings)
+  
+  // Pattern to match billing periods: "Consumo (Real) 12 ago 2025 a 11 set 2025"
+  const billingPeriodPattern = /consumo\s*\(?(?:real|estimado)\)?\s*(\d{1,2}\s+\w+\s+\d{4})\s*a\s*(\d{1,2}\s+\w+\s+\d{4})/gi;
+  const periodMatches = [...normalizedText.matchAll(billingPeriodPattern)];
+  
+  // Consumption patterns for different period types
+  // These match "Termo de Energia" lines with kWh values
+  const consumptionPatterns = {
+    // Cheio/F.Vazio/Fora de Vazio (full/off-peak)
+    foraVazio: /termo\s+de\s+energia\s+(?:cheio\/f\.?vazio|cheio\/fora\s+de\s+vazio|fora\s+de\s+vazio|cheio)\s+(\d+)\s*kwh/gi,
+    // Vazio (off-peak)
+    vazio: /termo\s+de\s+energia\s+vazio\s+(\d+)\s*kwh/gi,
+    // Ponta (peak) - for tri-hourly
+    ponta: /termo\s+de\s+energia\s+ponta\s+(\d+)\s*kwh/gi,
+    // Cheia (mid-day) - for tri-hourly
+    cheia: /termo\s+de\s+energia\s+cheia\s+(\d+)\s*kwh/gi,
+    // Simple tariff (no period type specified)
+    simples: /termo\s+de\s+energia\s+(\d+)\s*kwh/gi,
+  };
+  
+  // Alternative patterns (more flexible, provider-agnostic)
+  // Match any line with kWh that appears in consumption context
+  const altPatterns = {
+    // Lines like "81 kWh" near "Termo de Energia" or "Consumo"
+    termoEnergia: /termo\s+de\s+energia[^k]*?(\d+)\s*kwh/gi,
+    // Direct consumption values in billing sections
+    consumoReal: /consumo\s*\(?(?:real|estimado)\)?[^k]*?(\d+)\s*kwh/gi,
+  };
+  
+  // Extract all consumption values
+  const consumptionValues = {
+    foraVazio: [],
+    vazio: [],
+    ponta: [],
+    cheia: [],
+    simples: [],
+  };
+  
+  // Extract using specific patterns (excluding simples to avoid double-counting)
+  // Process in order: most specific first
+  const specificPatterns = ['foraVazio', 'vazio', 'ponta', 'cheia'];
+  specificPatterns.forEach(type => {
+    const pattern = consumptionPatterns[type];
+    const matches = [...normalizedText.matchAll(pattern)];
+    matches.forEach(match => {
+      const value = parseInt(match[1]);
+      if (value > 0 && value < 100000) { // Sanity check: reasonable consumption value
+        consumptionValues[type].push(value);
+      }
+    });
+  });
+  
+  // Only use simples pattern if no period-specific matches found
+  // This avoids double-counting when period types are present
+  const hasPeriodSpecific = consumptionValues.foraVazio.length > 0 || 
+                           consumptionValues.vazio.length > 0 || 
+                           consumptionValues.ponta.length > 0 || 
+                           consumptionValues.cheia.length > 0;
+  
+  if (!hasPeriodSpecific) {
+    // Try simples pattern (no period type specified)
+    const simplesMatches = [...normalizedText.matchAll(consumptionPatterns.simples)];
+    simplesMatches.forEach(match => {
+      const value = parseInt(match[1]);
+      if (value > 0 && value < 100000) {
+        consumptionValues.simples.push(value);
+      }
+    });
+    
+    // If still no matches, try alternative patterns
+    if (consumptionValues.simples.length === 0) {
+      const termoMatches = [...normalizedText.matchAll(altPatterns.termoEnergia)];
+      termoMatches.forEach(match => {
+        const value = parseInt(match[1]);
+        if (value > 0 && value < 100000) {
+          consumptionValues.simples.push(value);
+        }
+      });
+    }
+  }
+  
+  // Step 3: Filter out cumulative meter readings
+  // These typically appear on page 1 with "A sua leitura" or "Leitura" context
+  // and have very large values (e.g., 13899 kWh)
+  const meterReadingPattern = /(?:a\s+sua\s+leitura|leitura|leitura\s+anterior|leitura\s+actual)[^k]*?(\d+)\s*kwh/gi;
+  const meterReadings = [...normalizedText.matchAll(meterReadingPattern)];
+  const meterReadingValues = meterReadings.map(m => parseInt(m[1]));
+  
+  // Filter out values that look like cumulative readings (typically > 1000 kWh)
+  // But keep them if they're the only values we found
+  const hasBillingPeriodConsumption = periodMatches.length > 0;
+  const allConsumptionValues = [
+    ...consumptionValues.foraVazio,
+    ...consumptionValues.vazio,
+    ...consumptionValues.ponta,
+    ...consumptionValues.cheia,
+    ...consumptionValues.simples,
+  ];
+  
+  // If we have billing period context, filter out large values that might be meter readings
+  const filteredConsumption = hasBillingPeriodConsumption
+    ? allConsumptionValues.filter(v => v < 1000 || allConsumptionValues.length === 1)
+    : allConsumptionValues;
+  
+  // Step 4: Calculate totals by period type
+  const totals = {
+    foraVazio: consumptionValues.foraVazio.reduce((sum, v) => sum + v, 0),
+    vazio: consumptionValues.vazio.reduce((sum, v) => sum + v, 0),
+    ponta: consumptionValues.ponta.reduce((sum, v) => sum + v, 0),
+    cheia: consumptionValues.cheia.reduce((sum, v) => sum + v, 0),
+    simples: consumptionValues.simples.reduce((sum, v) => sum + v, 0),
+  };
+  
+  // Step 5: Determine total consumption
+  let totalConsumption = 0;
+  
+  // If we have period-specific values, sum them
+  if (totals.foraVazio > 0 || totals.vazio > 0 || totals.ponta > 0 || totals.cheia > 0) {
+    totalConsumption = totals.foraVazio + totals.vazio + totals.ponta + totals.cheia;
+  } else if (totals.simples > 0) {
+    // For simple tariff, sum all simple consumption values
+    totalConsumption = totals.simples;
+  } else if (filteredConsumption.length > 0) {
+    // Fallback: sum filtered values
+    totalConsumption = filteredConsumption.reduce((sum, v) => sum + v, 0);
+  }
+  
+  // Step 6: Validate against IEC if available
+  if (iecTotal && totalConsumption > 0) {
+    // IEC should match total consumption (allow 5% tolerance for rounding)
+    const tolerance = Math.max(5, Math.floor(iecTotal * 0.05));
+    if (Math.abs(totalConsumption - iecTotal) > tolerance) {
+      // IEC is more reliable, use it if discrepancy is large
+      console.warn(`Consumption mismatch: extracted ${totalConsumption} kWh, IEC shows ${iecTotal} kWh. Using IEC value.`);
+      totalConsumption = iecTotal;
+    }
+  } else if (iecTotal && totalConsumption === 0) {
+    // If we couldn't extract from consumption lines, use IEC
+    totalConsumption = iecTotal;
+  }
+  
+  return totalConsumption > 0 ? totalConsumption : null;
+}
+
+/**
  * Parse invoice text using regex patterns
  * @param {string} text - Full text content from PDF
  * @returns {Object|null} Parsed invoice data or null
@@ -67,10 +233,6 @@ export async function extractPDFData(file) {
 export function parseInvoiceText(text) {
   // Patterns para diferentes operadores
   const patterns = {
-    // Consumo em kWh
-    consumption: /consumo[:\s]*(\d+)\s*kwh/i,
-    consumptionAlt: /(\d+)\s*kwh/i,
-    
     // Potência em kVA
     power: /pot[êe]ncia[:\s]*([\d.,]+)\s*kva/i,
     powerAlt: /([\d.,]+)\s*kva/i,
@@ -88,12 +250,8 @@ export function parseInvoiceText(text) {
     trihoraria: /tri[- ]?hor[aá]ria/i,
   };
   
-  // Extrair consumo
-  let consumption = null;
-  const consumptionMatch = text.match(patterns.consumption) || text.match(patterns.consumptionAlt);
-  if (consumptionMatch) {
-    consumption = parseInt(consumptionMatch[1]);
-  }
+  // Extrair consumo usando método robusto
+  const consumption = extractConsumption(text);
   
   // Extrair potência
   let power = null;
