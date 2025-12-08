@@ -5,7 +5,7 @@
  */
 
 import { PROVIDERS } from './config.js';
-import { formatPhone, toTitleCase } from './utils.js';
+import { formatPhone, toTitleCase, formatTariffName } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { showResults, getPillMode } from './ui-handlers.js';
 
@@ -202,7 +202,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
       </div>
       <div class="result-card-info">
         <p class="provider-name">${providerName}</p>
-        <p class="provider-plan">${toTitleCase(enrichedBest.tariffName || 'Tarifa Simples')}</p>
+        <p class="provider-plan">${toTitleCase(formatTariffName(enrichedBest.tariffName || 'Tarifa Simples', enrichedBest.Contagem || 1, enrichedBest.cycleType || null))}</p>
       </div>
     </div>
 

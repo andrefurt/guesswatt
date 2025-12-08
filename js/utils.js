@@ -171,3 +171,33 @@ export function toTitleCase(name) {
     .join(' ');
 }
 
+/**
+ * Format tariff name with cycle info if available
+ * @param {string} tariffName - Base tariff name
+ * @param {number} tariffType - Tariff type (1=simple, 2=bi-hourly, 3=tri-hourly)
+ * @param {string|null} cycleType - Cycle type ('daily' | 'weekly' | null)
+ * @returns {string} Formatted tariff name
+ */
+export function formatTariffName(tariffName, tariffType, cycleType = null) {
+  if (!tariffName) {
+    // Fallback to type-based name
+    if (tariffType === 1) return 'Tarifa Simples';
+    if (tariffType === 2) return 'Tarifa Bi-horária';
+    if (tariffType === 3) return 'Tarifa Tri-horária';
+    return 'Tarifa Simples';
+  }
+  
+  // If cycle info is available and tariff is bi/tri-hourly, append cycle info
+  if (cycleType && (tariffType === 2 || tariffType === 3)) {
+    const cycleLabel = cycleType === 'daily' ? ' (Ciclo Diário)' : ' (Ciclo Semanal)';
+    // Only append if not already in the name
+    const normalizedName = tariffName.toLowerCase();
+    if (!normalizedName.includes('ciclo') && !normalizedName.includes('diário') && 
+        !normalizedName.includes('diario') && !normalizedName.includes('semanal')) {
+      return tariffName + cycleLabel;
+    }
+  }
+  
+  return tariffName;
+}
+

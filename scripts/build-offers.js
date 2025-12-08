@@ -406,6 +406,34 @@ function extractPromotion(condition, prioritizedColumns = null) {
 }
 
 /**
+ * Detect cycle type from tariff name
+ * @param {string} tariffName - Tariff name from NomeProposta
+ * @returns {string|null} 'daily' | 'weekly' | null
+ */
+function detectCycleType(tariffName) {
+  if (!tariffName) return null;
+  
+  const normalized = normalizeTextForTokens(tariffName);
+  
+  // Check for daily cycle indicators
+  if (normalized.includes('ciclo diario') || 
+      normalized.includes('ciclo diário') ||
+      normalized.includes('diario') ||
+      normalized.includes('diário')) {
+    return 'daily';
+  }
+  
+  // Check for weekly cycle indicators
+  if (normalized.includes('ciclo semanal') ||
+      normalized.includes('semanal') ||
+      normalized.includes('sem feriados')) {
+    return 'weekly';
+  }
+  
+  return null;
+}
+
+/**
  * Extract campaign/conditions metadata from condition row
  * @param {Object} condition - Condition row from CSV
  * @param {Array<string>} prioritizedColumns - Optional: prioritized column names for promotion extraction
@@ -414,8 +442,12 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
   const lockIn = detectLockIn(condition);
   const promotion = extractPromotion(condition, prioritizedColumns);
   
+  const tariffName = normalizeString(condition.NomeProposta || condition.COD_Proposta);
+  const cycleType = detectCycleType(tariffName);
+  
   const metadata = {
-    tariffName: normalizeString(condition.NomeProposta || condition.COD_Proposta),
+    tariffName: tariffName,
+    cycleType: cycleType, // 'daily' | 'weekly' | null
     website: normalizeString(condition.LinkOfertaCom || condition.LinkCOM || ''),
     phone: normalizeString(condition.ContactoComercialTel || ''),
     fornecimento: normalizeString(condition.Fornecimento || ''),
@@ -569,6 +601,7 @@ function buildOffers() {
     // Extract campaign metadata (use prioritized columns from discovery)
     const campaign = condition ? extractCampaignMetadata(condition, prioritizedColumns) : {
       tariffName: price.COD_Proposta,
+      cycleType: null, // No cycle info without condition data
       website: '',
       phone: '',
       fornecimento: '',

@@ -5,7 +5,7 @@
 
 import { PROVIDERS } from './config.js';
 import { findBestOfferForTariff, calculateMonthlyCost, enrichOffer } from './calculator.js';
-import { loadOffers, toTitleCase } from './utils.js';
+import { loadOffers, toTitleCase, formatTariffName } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { setInvoiceData } from './ui-handlers.js';
 
@@ -273,13 +273,33 @@ export function parseInvoiceText(text) {
   if (patterns.trihoraria.test(text)) tariffType = 3;
   else if (patterns.bihoraria.test(text)) tariffType = 2;
   
+  // Detectar ciclo (daily vs weekly) para bi-horária e tri-horária
+  let cycleType = null;
+  if (tariffType === 2 || tariffType === 3) {
+    const normalizedText = text.toLowerCase();
+    // Check for weekly cycle indicators
+    if (normalizedText.includes('sem feriados') ||
+        normalizedText.includes('ciclo semanal') ||
+        normalizedText.includes('semanal')) {
+      cycleType = 'weekly';
+    }
+    // Check for daily cycle indicators
+    else if (normalizedText.includes('ciclo diário') ||
+             normalizedText.includes('ciclo diario') ||
+             normalizedText.includes('diário') ||
+             normalizedText.includes('diario')) {
+      cycleType = 'daily';
+    }
+  }
+  
   // Retornar dados se tiver pelo menos consumo ou potência
   if (consumption || power) {
     return {
       consumption: consumption || 250,  // Default se não encontrar
       power: power || 4.6,              // Default se não encontrar
       provider: provider,
-      tariffType: tariffType
+      tariffType: tariffType,
+      cycleType: cycleType // 'daily' | 'weekly' | null
     };
   }
   
@@ -312,8 +332,11 @@ export function showPDFData(data, onDataShown) {
   // Mostrar dados extraídos no drop area
   const providerNameRaw = data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detectado';
   const providerName = toTitleCase(providerNameRaw);
-  const tariffNameRaw = data.tariffType === 1 ? 'Simples' : data.tariffType === 2 ? 'Bi-horária' : 'Tri-horária';
-  const tariffName = toTitleCase(tariffNameRaw);
+  
+  // Build tariff name with cycle info if available
+  const tariffNameRaw = data.tariffType === 1 ? 'Simples' : 
+                        data.tariffType === 2 ? 'Bi-horária' : 'Tri-horária';
+  const tariffName = formatTariffName(tariffNameRaw, data.tariffType, data.cycleType);
   
   // Update drop area text to show loaded state
   dropAreaText.innerHTML = `
