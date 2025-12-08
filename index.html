@@ -346,8 +346,24 @@
                       <label for="power" class="form-label">Potência contratada</label>
                       <div class="form-input-slot">
                         <div class="form-input-content">
-                          <input type="text" class="form-input" id="power" placeholder="4.6" required>
-                          <span class="form-input-suffix">kVA</span>
+                          <div class="form-select-wrapper">
+                            <select class="form-select" id="power" required>
+                              <option value="">Selecionar...</option>
+                              <option value="1.15">1.15 kVA</option>
+                              <option value="2.3">2.3 kVA</option>
+                              <option value="3.45">3.45 kVA</option>
+                              <option value="4.6" selected>4.6 kVA</option>
+                              <option value="5.75">5.75 kVA</option>
+                              <option value="6.9">6.9 kVA</option>
+                              <option value="10.35">10.35 kVA</option>
+                              <option value="13.8">13.8 kVA</option>
+                              <option value="17.25">17.25 kVA</option>
+                              <option value="20.7">20.7 kVA</option>
+                            </select>
+                            <span class="form-select-icon">
+                              <i class="ph ph-caret-down"></i>
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
