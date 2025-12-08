@@ -54,33 +54,43 @@ jobs:
         run: npx playwright install chromium
       
       - name: Download ERSE CSV
-        run: node scripts/download-erse.js
+        run: |
+          set -e
+          node scripts/download-erse.js || (echo "❌ Failed to download ERSE CSV" && exit 1)
       
       - name: Build offers.json
-        run: node scripts/build-offers.js
+        run: |
+          set -e
+          node scripts/build-offers.js || (echo "❌ Failed to build offers.json" && exit 1)
       
       - name: Run self-tests
-        run: node scripts/selftest.js
+        run: |
+          set -e
+          node scripts/selftest.js || (echo "❌ Self-tests failed" && exit 1)
       
       - name: Check for changes
         id: changes
         run: |
-          git diff --quiet data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv 2>/dev/null || echo "changed=true" >> $GITHUB_OUTPUT
-          if [ "${{ steps.changes.outputs.changed }}" != "true" ]; then
-            echo "No changes detected in data files"
-          else
+          set +e
+          git diff --quiet data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv data/last-update.json 2>/dev/null
+          if [ $? -ne 0 ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
             echo "Changes detected in data files"
             git status --short data/
+          else
+            echo "No changes detected in data files"
           fi
+          set -e
       
       - name: Commit and push
         if: steps.changes.outputs.changed == 'true'
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv
+          git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv data/last-update.json
           git commit -m "chore: update ERSE data $(date +%Y-%m-%d)" || exit 0
-          git push origin HEAD:main
+          git push origin HEAD:main || (echo "❌ Failed to push changes" && exit 1)
       
       - name: No changes detected
         if: steps.changes.outputs.changed != 'true'
