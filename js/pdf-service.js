@@ -432,22 +432,46 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
     }
     
     // Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions } = await loadOffers();
+    const { prices, conditions, offers } = await loadOffers();
     
-    // Filtrar apenas electricidade (excluir DUAL e GN)
-    const electricityOnly = prices.filter(p => {
-      const condition = conditions.find(c => 
-        c.COM === p.COM && c.COD_Proposta === p.COD_Proposta
-      );
-      if (condition && condition.Fornecimento) {
-        return condition.Fornecimento === 'ELE';
-      }
-      return true; // Backward compatibility
-    });
+    // Use offers.json if available (already filtered to ELE-only at build time)
+    // Otherwise filter CSV data to ELE-only
+    let offersToSearch;
+    if (offers && offers.length > 0) {
+      // offers.json already contains ELE-only offers with all metadata
+      offersToSearch = offers;
+    } else {
+      // CSV fallback: filter to ELE-only
+      const electricityOnly = prices.filter(p => {
+        const condition = conditions.find(c => 
+          c.COM === p.COM && c.COD_Proposta === p.COD_Proposta
+        );
+        if (condition && condition.Fornecimento) {
+          return condition.Fornecimento === 'ELE';
+        }
+        // If no condition data, assume electricity (backward compatibility)
+        return true;
+      });
+      // Convert to offer-like format for compatibility
+      offersToSearch = electricityOnly.map(p => ({
+        ...p,
+        tariffName: '',
+        website: '',
+        phone: '',
+        fornecimento: '',
+        segmento: '',
+        validFrom: '',
+        validTo: '',
+        isIndexed: false,
+        hasLockIn: false,
+        promotion: null,
+        isCampaignActive: null
+      }));
+    }
     
-    // Encontrar melhor oferta
+    // Encontrar melhor oferta (filters lock-in, uses annual effective cost)
     const best = findBestOfferForTariff(
-      electricityOnly, 
+      offersToSearch, 
       pdfData.consumption, 
       pdfData.power, 
       pdfData.tariffType
@@ -458,13 +482,14 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
       return;
     }
     
-    // Enriquecer com dados comerciais
-    const enrichedBest = enrichOffer(best, conditions);
+    // Enriquecer com nome da tarifa e metadata (if not already enriched)
+    const enrichedBest = offers ? best : enrichOffer(best, conditions);
     
     // Calcular poupança vs operador actual (se detectado)
     let savings = null;
     if (pdfData.provider) {
-      const currentProviderOffers = prices.filter(o => {
+      // Encontrar ofertas do operador actual com mesma potência e tarifa
+      const currentProviderOffers = offersToSearch.filter(o => {
         const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
         const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
         return o.COM === pdfData.provider && 
@@ -475,11 +500,13 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
       });
       
       if (currentProviderOffers.length > 0) {
+        // Calcular custo com a melhor oferta do operador actual
         const currentProviderCosts = currentProviderOffers.map(offer => ({
           ...offer,
           monthlyCost: calculateMonthlyCost(offer, pdfData.consumption, pdfData.power)
         }));
         
+        // Ordenar por custo e pegar a mais barata
         currentProviderCosts.sort((a, b) => a.monthlyCost - b.monthlyCost);
         const bestCurrentOffer = currentProviderCosts[0];
         
