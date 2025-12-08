@@ -383,6 +383,7 @@
   /* PDF icon - hidden by default, shown only when data comes from PDF */
   .input-pill-icon-pdf {
     display: none;
+    background: rgba(255, 255, 255, 0.5); /* 50% opacity white background */
   }
   
   /* Show PDF icon when input-pill has pdf-source class (set when PDF is loaded) */
@@ -468,13 +469,9 @@
     opacity: 0.9;
   }
   
+  /* Separators removed from design - hide them */
   .pill-separator {
-    font-family: var(--font-sans);
-    font-weight: var(--font-medium);
-    font-size: var(--text-base-size);
-    line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
-    opacity: 0.2;
+    display: none;
   }
 }
 
