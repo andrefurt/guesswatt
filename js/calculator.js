@@ -253,19 +253,33 @@ export function findBestOffer(offers, consumption, power) {
  * @throws {Error} If no valid offers found
  */
 export function findBestOfferForTariff(offers, consumption, power, tariffType = 1, distribution = null) {
+  // Normalize power to number for comparison
+  const normalizedPower = typeof power === 'number' ? power : parseFloat(String(power).replace(',', '.'));
+  const normalizedTariffType = typeof tariffType === 'number' ? tariffType : parseInt(tariffType);
+  
+  // Debug logging (can be removed in production)
+  console.log(`[findBestOfferForTariff] Searching with: power=${normalizedPower} kVA, tariffType=${normalizedTariffType}, consumption=${consumption} kWh, total offers=${offers.length}`);
+  
   // Filtrar ofertas válidas (exclude lock-in by default)
   const valid = offers.filter(o => {
     const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
     const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
+    const contagem = typeof o.Contagem === 'number' ? o.Contagem : parseInt(o.Contagem);
+    
+    // Use tolerance for floating point comparison (0.01 kVA tolerance)
+    const powerMatch = Math.abs(potCont - normalizedPower) < 0.01;
+    
     return o.TF > 0 && 
            tvField > 0 && 
-           potCont === power &&
-           o.Contagem === tariffType && // usar tipo de tarifa fornecido
+           powerMatch &&
+           contagem === normalizedTariffType &&
            o.hasLockIn !== true; // Exclude lock-in offers
   });
   
+  console.log(`[findBestOfferForTariff] Found ${valid.length} valid offers after filtering`);
+  
   if (valid.length === 0) {
-    throw new Error('Nenhuma oferta válida encontrada');
+    throw new Error(`Nenhuma oferta válida encontrada para potência ${normalizedPower} kVA e tarifa ${normalizedTariffType}`);
   }
   
   // Calcular custos para cada uma
@@ -311,7 +325,18 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
     return nameA.localeCompare(nameB);
   });
   
-  return withValidCosts[0]; // melhor oferta
+  // Debug logging
+  const best = withValidCosts[0];
+  console.log(`[findBestOfferForTariff] Best offer: ${best.COM} - ${best.tariffName || best.COD_Proposta} (annual cost: €${best.annualCostEffective.toFixed(2)})`);
+  if (withValidCosts.length > 1) {
+    console.log(`[findBestOfferForTariff] Top 3 offers:`, withValidCosts.slice(0, 3).map(o => ({
+      provider: o.COM,
+      tariff: o.tariffName || o.COD_Proposta,
+      annualCost: o.annualCostEffective.toFixed(2)
+    })));
+  }
+  
+  return best; // melhor oferta
 }
 
 /**
