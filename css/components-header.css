@@ -362,11 +362,6 @@
     .input-pill-inner:has(.input-pill-preciso) {
       gap: 0; /* Remove gap, use space-between instead */
     }
-    
-    /* Hide labels in PDF mode (preciso mode) on mobile only */
-    .input-pill.preciso-mode .pill-label {
-      display: none;
-    }
   }
   
   /* Preciso pill icon container - smaller size to match card */
@@ -433,8 +428,7 @@
   }
   
   .pill-provider,
-  .pill-value,
-  .pill-label {
+  .pill-value {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
@@ -447,9 +441,26 @@
     opacity: 0.9;
   }
   
-  .pill-label {
+  /* Pill item - icon + value container */
+  .pill-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1); /* 4px gap between icon and value */
+  }
+  
+  /* Icon styling within pill items */
+  .pill-item i,
+  .pill-item .ph-duotone {
+    font-size: var(--text-base-size); /* 14px icon size - matches result card icons */
+    width: var(--text-base-size);
+    height: var(--text-base-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: var(--color-foreground-primary);
-    opacity: 0.6;
+    opacity: 0.6; /* Match label opacity */
+    font-style: normal;
+    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity */
   }
   
   .pill-value {
