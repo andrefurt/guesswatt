@@ -488,15 +488,24 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
     // Calcular poupança vs operador actual (se detectado)
     let savings = null;
     if (pdfData.provider) {
+      // Normalize power for comparison (use same tolerance as findBestOfferForTariff)
+      const normalizedPower = typeof pdfData.power === 'number' ? pdfData.power : parseFloat(String(pdfData.power).replace(',', '.'));
+      const normalizedTariffType = typeof pdfData.tariffType === 'number' ? pdfData.tariffType : parseInt(pdfData.tariffType);
+      
       // Encontrar ofertas do operador actual com mesma potência e tarifa
       const currentProviderOffers = offersToSearch.filter(o => {
         const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
         const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
+        const contagem = typeof o.Contagem === 'number' ? o.Contagem : parseInt(o.Contagem);
+        
+        // Use tolerance for floating point comparison (0.01 kVA tolerance - same as findBestOfferForTariff)
+        const powerMatch = Math.abs(potCont - normalizedPower) < 0.01;
+        
         return o.COM === pdfData.provider && 
                o.TF > 0 &&
                tvField > 0 &&
-               potCont === pdfData.power &&
-               o.Contagem === pdfData.tariffType;
+               powerMatch &&
+               contagem === normalizedTariffType;
       });
       
       if (currentProviderOffers.length > 0) {

@@ -262,15 +262,24 @@ async function handlePreciseSubmit(e) {
     // 6. Calcular poupança se houver operador actual
     let savings = null;
     if (currentProvider) {
+      // Normalize power for comparison (use same tolerance as findBestOfferForTariff)
+      const normalizedPower = typeof power === 'number' ? power : parseFloat(String(power).replace(',', '.'));
+      const normalizedTariffType = typeof tariffType === 'number' ? tariffType : parseInt(tariffType);
+      
       // Encontrar ofertas do operador actual com mesma potência e tarifa
       const currentProviderOffers = offersToSearch.filter(o => {
         const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
         const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
+        const contagem = typeof o.Contagem === 'number' ? o.Contagem : parseInt(o.Contagem);
+        
+        // Use tolerance for floating point comparison (0.01 kVA tolerance - same as findBestOfferForTariff)
+        const powerMatch = Math.abs(potCont - normalizedPower) < 0.01;
+        
         return o.COM === currentProvider && 
                o.TF > 0 &&
                tvField > 0 &&
-               potCont === power &&
-               o.Contagem === tariffType;
+               powerMatch &&
+               contagem === normalizedTariffType;
       });
       
       if (currentProviderOffers.length > 0) {
