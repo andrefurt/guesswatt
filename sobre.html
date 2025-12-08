@@ -203,7 +203,7 @@
       <p class="footer-text">Guesswatts compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a> (atualizado mensalmente)</p>
       <div class="footer-updated">
         <i class="ph-duotone ph-clock" aria-hidden="true"></i>
-        <span>Actualizado em <span id="last-update-month"></span> de <span id="last-update-year"></span></span>
+        <span>Actualizado em Novembro de 2025</span>
       </div>
     </footer>
   </div>
@@ -215,20 +215,6 @@
     // Initialize UI handlers (copy button, dropdown)
     initUIHandlers();
     
-    // Load last update date
-    async function loadLastUpdate() {
-      try {
-        const response = await fetch('data/last-update.json');
-        const data = await response.json();
-        document.getElementById('last-update-month').textContent = data.month;
-        document.getElementById('last-update-year').textContent = data.year;
-      } catch (error) {
-        console.error('Error loading last update:', error);
-      }
-    }
-    
-    // Load last update on page load
-    loadLastUpdate();
   </script>
 </body>
 </html>
