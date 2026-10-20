@@ -72,8 +72,8 @@ Key columns we use (full CSV has 60+ columns):
 | `Data ini` | date | Offer start date | `01/01/2025` |
 | `Data fim` | date | Offer end date | `31/12/2025` |
 | `FiltroFidelização` | char | Has lock-in period | `S`, `N` |
-| `FiltroRenovavel` | char | Renewable energy | `S`, `N` |
-| `FiltroPrecosIndex` | char | Indexed prices (volatile) | `S`, `N` |
+| `FiltroRenovavel_ELE` | char | Renewable energy (`FiltroRenovavel` before 2026) | `S`, `N` |
+| `FiltroPrecosIndex_ELE` | char | Indexed prices (volatile); `FiltroPrecosIndex` before 2026, both are read | `S`, `N` |
 | `ContactoComercialTel` | string | **Phone number** | `808505505` |
 | `ContactoWEBouMAIL` | string | Website or email | `url` or `email` |
 | `LinkCOM` | url | Provider website | `https://...` |
