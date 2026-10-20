@@ -22,6 +22,8 @@ const META_PATH = path.join(DATA_DIR, 'meta.json');
 
 // The real calculator, loaded in runSelftest (it is an ES module)
 const CALCULATOR_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'calculator.js')).href;
+const CONFIG_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'config.js')).href;
+const PDF_SERVICE_PATH = path.join(__dirname, '..', 'js', 'pdf-service.js');
 let calculateMonthlyCost;
 
 /**
@@ -32,6 +34,7 @@ async function runSelftest() {
   
   const calculator = await import(CALCULATOR_URL);
   calculateMonthlyCost = calculator.calculateMonthlyCost;
+  const { PROVIDERS } = await import(CONFIG_URL);
   
   let passed = 0;
   let failed = 0;
@@ -104,6 +107,22 @@ async function runSelftest() {
     if (nonDomestic.length > 0) {
       throw new Error(`Found ${nonDomestic.length} Ndom offers (should be filtered at build time)`);
     }
+  });
+
+  // Test 5a2: Supplier codes the UI and the PDF parser use exist in the data
+  test('every supplier code has a name and offers', () => {
+    const inData = new Set(offers.map(o => o.COM));
+    const unnamed = [...inData].filter(code => !PROVIDERS[code]);
+    const withoutOffers = Object.keys(PROVIDERS).filter(code => !inData.has(code));
+    const parserCodes = [...fs.readFileSync(PDF_SERVICE_PATH, 'utf8').matchAll(/provider = '([A-Z0-9]+)'/g)].map(m => m[1]);
+    const parserUnknown = parserCodes.filter(code => !inData.has(code));
+    const problems = [];
+    if (unnamed.length) problems.push(`no name in PROVIDERS: ${unnamed.join(', ')}`);
+    if (withoutOffers.length) problems.push(`no offers for: ${withoutOffers.join(', ')}`);
+    if (parserUnknown.length) problems.push(`PDF parser emits codes with no offers: ${parserUnknown.join(', ')}`);
+    if (parserCodes.length === 0) problems.push('found no provider codes in pdf-service.js');
+    if (problems.length) throw new Error(problems.join('; '));
+    console.log(`   ${inData.size} suppliers, ${parserCodes.length} detectable from a PDF`);
   });
 
   // Test 5b: Lock-in detection

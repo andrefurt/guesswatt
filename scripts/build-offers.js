@@ -738,6 +738,11 @@ function buildOffers() {
       segmento: 'Dom and Tod only (excluded Ndom)',
       lockInExcluded: false // Note: lock-in filtering happens at runtime
     },
+    // Supplier codes present in offers.json (js/config.js PROVIDERS names each one)
+    providers: offers.reduce((counts, offer) => {
+      counts[offer.COM] = (counts[offer.COM] || 0) + 1;
+      return counts;
+    }, {}),
     statistics: {
       lockInCount: lockInCount,
       lockInBySourceTotals: lockInBySourceTotals,
