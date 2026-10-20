@@ -134,11 +134,11 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   
   // Build campaign badge HTML
   let campaignBadgeHTML = '';
-  if (enrichedBest.isCampaignActive === true || enrichedBest.promotion) {
-    const promotionText = enrichedBest.promotion || 'CAMPANHA';
+  // Ranked offers are always active today (isOfferEligible), so a promotion on one is current
+  if (enrichedBest.promotion) {
     campaignBadgeHTML = `
       <div class="badge">
-        <div class="badge-inner">${promotionText}</div>
+        <div class="badge-inner">CAMPANHA</div>
       </div>
     `;
   }

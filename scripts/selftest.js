@@ -461,6 +461,11 @@ async function runSelftest() {
 
   // ERSExplica "Aplicação do IVA na fatura de eletricidade", examples 1, 3 and 4.
   // They use the 2022 thresholds (100 kWh, 150 kWh for large households), passed explicitly.
+  test('golden: mandatory service costs add a twelfth of the yearly amount', () => {
+    // 46.2231 (simple, 200 kWh) + 120/12
+    expectCost(calculateMonthlyCost({ ...SIMPLE, serviceCostYear: 120 }, 200, 4.6), 56.2231, 'services');
+  });
+
   test('golden: ERSE Exemplo 1 (simple, 3.45 kVA, 160 kWh) = 37.73', () => {
     const offer = { Contagem: 1, Pot_Cont: 3.45, TF: 0.0904 + 0.0758, 'TV|TVFV|TVP': 0.1599 };
     const tar = { fixedTermByPower: { '3.45': 0.0904 } };
@@ -496,6 +501,40 @@ async function runSelftest() {
       throw new Error(`expected CHEAP, got ${best.COD_Proposta}`);
     }
     expectCost(best.annualCostEffective, calculateMonthlyCost(cheaper, 200, 4.6) * 12, 'annual');
+  });
+
+  test('eligibility: an expired offer never ranks, even when cheapest', () => {
+    const asOf = new Date(Date.UTC(2026, 0, 15));
+    const expired = { ...SIMPLE, COD_Proposta: 'OLD', 'TV|TVFV|TVP': 0.05, validFrom: '01/01/2025', validTo: '31/12/2025' };
+    const future = { ...SIMPLE, COD_Proposta: 'NEXT', 'TV|TVFV|TVP': 0.06, validFrom: '01/02/2026', validTo: '' };
+    const current = { ...SIMPLE, COD_Proposta: 'NOW', validFrom: '01/01/2026', validTo: '15/01/2026' };
+    const best = calculator.findBestOfferForTariff([expired, future, current], 200, 4.6, 1, null, { asOf });
+    if (best.COD_Proposta !== 'NOW') {
+      throw new Error(`expected NOW, got ${best.COD_Proposta}`);
+    }
+  });
+
+  test('eligibility: a consumption-band offer competes only inside its band', () => {
+    // 1200 to 3588 kWh/year is 100 to 299 kWh/month (G9ENERGY_04's band)
+    const banded = { ...SIMPLE, COD_Proposta: 'BAND', 'TV|TVFV|TVP': 0.05, consMinYear: 1200, consMaxYear: 3588 };
+    const pool = [SIMPLE, banded];
+    const inside = calculator.findBestOfferForTariff(pool, 200, 4.6, 1);
+    const below = calculator.findBestOfferForTariff(pool, 50, 4.6, 1);
+    const above = calculator.findBestOfferForTariff(pool, 400, 4.6, 1);
+    if (inside.COD_Proposta !== 'BAND' || below.COD_Proposta !== 'S1' || above.COD_Proposta !== 'S1') {
+      throw new Error(`got ${inside.COD_Proposta}/${below.COD_Proposta}/${above.COD_Proposta}`);
+    }
+    const g9 = offers.find(o => o.COM === 'G9ENERGY' && o.COD_Proposta === 'G9ENERGY_04');
+    if (g9 && (g9.consMinYear !== 1200 || g9.consMaxYear !== 3588)) {
+      throw new Error(`G9ENERGY_04 band is ${g9.consMinYear}-${g9.consMaxYear}, expected 1200-3588`);
+    }
+  });
+
+  test('eligibility: no offer in the data carries a build-time active flag', () => {
+    const baked = offers.filter(o => 'isCampaignActive' in o || 'isOfferActive' in o);
+    if (baked.length > 0) {
+      throw new Error(`${baked.length} offers carry isCampaignActive/isOfferActive`);
+    }
   });
 
   test('golden: equal costs break ties by name', () => {
@@ -602,11 +641,6 @@ async function runSelftest() {
     
     const stats = meta.build.statistics;
     
-    // Check for new metrics (prefer new names, accept old for backwards compatibility)
-    if (stats.activeOffersCount === undefined && stats.activeCampaignCount === undefined) {
-      throw new Error('statistics missing activeOffersCount or activeCampaignCount');
-    }
-    
     if (stats.promotionsWithMetadataCount === undefined) {
       throw new Error('statistics missing promotionsWithMetadataCount');
     }
@@ -633,9 +667,7 @@ async function runSelftest() {
       throw new Error(`promotionsAppliedCount should be 0 (promotions not used in calculations), got ${stats.promotionsAppliedCount}`);
     }
     
-    const activeOffers = stats.activeOffersCount !== undefined ? stats.activeOffersCount : stats.activeCampaignCount;
     console.log(`   Statistics:`);
-    console.log(`   - Active offers: ${activeOffers}`);
     console.log(`   - Lock-in by source totals: field=${stats.lockInBySourceTotals.field || 0}, text=${stats.lockInBySourceTotals.text || 0}`);
     console.log(`   - Promotions with metadata: ${stats.promotionsWithMetadataCount}`);
     console.log(`   - Promotions with known active status: ${stats.promotionsWithKnownActiveStatusCount}`);
