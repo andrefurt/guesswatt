@@ -173,6 +173,14 @@ Inválido:     Introduz um valor entre €30 e €500
 PDF erro:     Não conseguimos ler este PDF. Tenta com o valor em €.
 ```
 
+**PDF incompleto** (o PDF deu um dos dois valores): abre o formulário manual com o que foi encontrado
+preenchido e o campo em falta focado, sem valores assumidos.
+
+```
+Nota:  Não encontrámos o consumo na fatura. Preenche o valor que falta.
+       Não encontrámos a potência na fatura. Preenche o valor que falta.
+```
+
 ---
 
 ### Resultado - Cartão da Melhor Oferta
