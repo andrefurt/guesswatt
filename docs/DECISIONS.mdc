@@ -35,6 +35,7 @@ Decisões técnicas e de produto documentadas. Cada ADR segue o formato: context
 - [ADR-014](#adr-014-top-n-ofertas-não-todas) Top N Ofertas, Não Todas
 - [ADR-015](#adr-015-contactos-reais-do-csv) Contactos Reais do CSV
 - [ADR-021](#adr-021-provider-logo-implementation-hybrid-cascading-fallback) Provider Logo Implementation - Hybrid Cascading Fallback
+- [ADR-022](#adr-022-ofertas-condicionadas-e-indexadas) Ofertas Condicionadas e Indexadas
 
 ### Funcionalidades
 - [ADR-016](#adr-016-calendário-2-meses-default) Calendário: 2 Meses Default
@@ -782,6 +783,37 @@ Implementar sistema híbrido com cascading fallback:
 - ✅ Zero manutenção manual
 - ⚠️ Dependência de serviços externos (Clearbit, Google)
 - ⚠️ Ligeira latência no loading de logos (não bloqueante)
+
+---
+
+## ADR-022: Ofertas Condicionadas e Indexadas
+
+**Data:** Outubro 2026
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Em cerca de 87% dos perfis a melhor oferta era a COOP_04, só para cooperantes da Coopérnico e com
+preço indexado ao mercado horário, mostrada como um custo fixo sem aviso (auditoria de outubro de
+2026, ACC-3). A ERSE marca as ofertas condicionadas com `FiltroRestrições = S` (cooperantes,
+códigos "Plano Amigo", clientes Continente ou de GPL) e as indexadas com `FiltroPrecosIndex = S`.
+
+**Opções consideradas:**
+1. Mostrar tudo, como a lista por omissão do simulador da ERSE
+2. Excluir condicionadas e indexadas
+3. Excluir condicionadas; manter indexadas com a data dos preços
+
+**Decisão:**
+Opção 3, decidida pelo dono em 2026-10-20. As condicionadas ficam em `offers.json` com
+`isRestricted: true` e nunca são recomendadas (`js/calculator.js`), mas continuam a servir de base
+para calcular a poupança de quem já as tem. As indexadas mostram a linha "Preço indexado: valores de
+<mês ano>", com a data de `meta.json`.
+
+**Consequências:**
+- ✅ Ninguém é encaminhado para uma oferta a que não pode aderir
+- ✅ Clientes da Coopérnico e da MEO Energia continuam a poder escolher o operador atual
+- ⚠️ O vencedor muda em cerca de 80% dos perfis
+- ⚠️ O custo de uma indexada é uma estimativa com os preços dessa data
 
 ---
 

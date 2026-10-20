@@ -282,6 +282,7 @@ export function findBestOffer(offers, consumption, power, context = {}) {
            potCont === power &&
            o.Contagem === 1 && // tarifa simples
            o.hasLockIn !== true && // Exclude lock-in offers
+           o.isRestricted !== true && // Exclude conditioned offers
            isOfferEligible(o, consumption, context.asOf);
   });
   
@@ -369,6 +370,7 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
            powerMatch &&
            contagem === normalizedTariffType &&
            o.hasLockIn !== true && // Exclude lock-in offers
+           o.isRestricted !== true && // Exclude conditioned offers
            isOfferEligible(o, consumption, context.asOf);
   });
   
