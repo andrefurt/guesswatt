@@ -1,131 +1,86 @@
 /**
  * Utility Functions
- * Generic helper functions for CSV parsing, phone formatting, etc.
+ * Data loading, phone and name formatting, and small helpers
  */
 
 /**
- * Parse CSV text into array of objects
- * @param {string} text - CSV text content
- * @returns {Array<Object>} Parsed CSV data as array of objects
- */
-export function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = lines[0].split(';').map(h => h.trim());
-  
-  return lines.slice(1).map(line => {
-    const values = line.split(';');
-    const obj = {};
-    
-    headers.forEach((header, i) => {
-      let value = values[i]?.trim() || '';
-      
-      // Converter números (vírgula para ponto)
-      // Pode ser: "0,2325", "4,6", "123", etc.
-      if (value !== '' && /^-?\d+[,.]\d+/.test(value)) {
-        value = parseFloat(value.replace(',', '.'));
-      } else if (value !== '' && /^-?\d+$/.test(value)) {
-        value = parseFloat(value);
-      }
-      
-      // Preservar o nome do campo exatamente como está (incluindo caracteres especiais como |)
-      obj[header] = value;
-    });
-    
-    return obj;
-  });
-}
-
-/**
- * Load and parse CSV file from URL
- * @param {string} url - URL to CSV file
- * @returns {Promise<Array<Object>>} Parsed CSV data
- */
-export async function loadCSV(url) {
-  const response = await fetch(url);
-  const text = await response.text();
-  return parseCSV(text);
-}
-
-/**
- * Load offers.json (preferred) or fallback to CSV files
- * @returns {Promise<{prices: Array<Object>, conditions: Array<Object>}>} Parsed data
+ * Load data/offers.json, with data/tar.json and the data date in parallel
+ * @returns {Promise<{offers: Array<Object>, tar: Object|null, dataDate: Date|null}>}
+ * @throws {Error} When offers.json cannot be loaded
  */
 export async function loadOffers() {
-  try {
-    // Try to load offers.json first
-    const response = await fetch('data/offers.json');
-    if (response.ok) {
-      const offers = await response.json();
-      console.log(`✅ Loaded ${offers.length} offers from offers.json`);
-      
-      // Convert offers.json format back to prices/conditions format for compatibility
-      // This allows existing calculator functions to work without changes
-      const prices = offers.map(offer => ({
-        COM: offer.COM,
-        COD_Proposta: offer.COD_Proposta,
-        Pot_Cont: offer.Pot_Cont,
-        Contagem: offer.Contagem,
-        TF: offer.TF,
-        'TV|TVFV|TVP': offer['TV|TVFV|TVP'],
-        'TVV|TVC': offer['TVV|TVC'],
-        TVVz: offer.TVVz
-      }));
-      
-      // Create conditions lookup from offers
-      const conditionsMap = new Map();
-      offers.forEach(offer => {
-        const key = `${offer.COM}|${offer.COD_Proposta}`;
-        if (!conditionsMap.has(key)) {
-          conditionsMap.set(key, {
-            COM: offer.COM,
-            COD_Proposta: offer.COD_Proposta,
-            NomeProposta: offer.tariffName,
-            ContactoComercialTel: offer.phone,
-            LinkOfertaCom: offer.website,
-            LinkCOM: offer.website,
-            Fornecimento: offer.fornecimento,
-            Segmento: offer.segmento,
-            'Data ini': offer.validFrom,
-            'Data fim': offer.validTo,
-            FiltroFidelização: offer.hasLockIn ? 'S' : 'N',
-            FiltroPrecosIndex: offer.isIndexed ? 'S' : 'N',
-            // Store enriched metadata for enrichOffer to use
-            _enriched: {
-              tariffName: offer.tariffName,
-              cycleType: offer.cycleType || null, // Include cycleType from offers.json
-              website: offer.website,
-              phone: offer.phone,
-              fornecimento: offer.fornecimento,
-              segmento: offer.segmento,
-              validFrom: offer.validFrom,
-              validTo: offer.validTo,
-              isIndexed: offer.isIndexed,
-              hasLockIn: offer.hasLockIn,
-              lockInMonths: offer.lockInMonths,
-              lockInSource: offer.lockInSource,
-              promotion: offer.promotion,
-              newCustomerOnly: offer.newCustomerOnly,
-              requiresDirectDebit: offer.requiresDirectDebit,
-              requiresEBill: offer.requiresEBill,
-              campaignSummary: offer.campaignSummary,
-              isCampaignActive: offer.isCampaignActive
-            }
-          });
-        }
-      });
-      const conditions = Array.from(conditionsMap.values());
-      
-      return { prices, conditions, offers }; // Include raw offers for new code
-    }
-  } catch (error) {
-    console.warn('⚠️  Could not load offers.json, falling back to CSV:', error.message);
+  const tarRequest = loadAccessTariffs();
+  const dataDateRequest = loadDataDate();
+
+  const response = await fetch('data/offers.json');
+  if (!response.ok) {
+    throw new Error(`offers.json: HTTP ${response.status}`);
   }
-  
-  // Fallback to CSV loading
-  const prices = await loadCSV('data/Precos_ELEGN.csv');
-  const conditions = await loadCSV('data/CondComerciais.csv');
-  console.log(`✅ Loaded ${prices.length} prices and ${conditions.length} conditions from CSV`);
-  return { prices, conditions, offers: null };
+  const offers = await response.json();
+  console.log(`✅ Loaded ${offers.length} offers from offers.json`);
+
+  return { offers, tar: await tarRequest, dataDate: await dataDateRequest };
+}
+
+/**
+ * Load the network-access (TAR) fixed terms used for the reduced VAT on the fixed term
+ * @returns {Promise<Object|null>} data/tar.json, or null when it cannot be loaded
+ *   (costs at 3.45 kVA or below then use the standard rate on the whole fixed term)
+ */
+async function loadAccessTariffs() {
+  try {
+    const response = await fetch('data/tar.json');
+    if (response.ok) return await response.json();
+  } catch (error) {
+    console.warn('⚠️  Could not load tar.json:', error.message);
+  }
+  return null;
+}
+
+/**
+ * Date of the prices in data/ (meta.json build.sourceUpdatedAt). Never the build time,
+ * which only says when the CSVs were last processed.
+ * @returns {Promise<Date|null>} null when the source date is unknown
+ */
+export async function loadDataDate() {
+  try {
+    const response = await fetch('data/meta.json');
+    if (!response.ok) return null;
+    const { build } = await response.json();
+    const value = build?.sourceUpdatedAt;
+    return value ? new Date(value) : null;
+  } catch (error) {
+    console.warn('⚠️  Could not load meta.json:', error.message);
+    return null;
+  }
+}
+
+/**
+ * Format a data date as "dezembro de 2025"
+ * @param {Date} date
+ * @returns {string}
+ */
+export function formatDataMonth(date) {
+  return new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric', timeZone: 'Europe/Lisbon' }).format(date);
+}
+
+/**
+ * Format a data date as "dez. 2025"
+ * @param {Date} date
+ * @returns {string}
+ */
+export function formatShortDataMonth(date) {
+  const month = new Intl.DateTimeFormat('pt-PT', { month: 'short', timeZone: 'Europe/Lisbon' }).format(date);
+  const year = new Intl.DateTimeFormat('pt-PT', { year: 'numeric', timeZone: 'Europe/Lisbon' }).format(date);
+  return `${month} ${year}`;
+}
+
+/**
+ * Whether the person said the household has 5 or more people (reduced VAT up to 300 kWh)
+ * @returns {boolean}
+ */
+export function isLargeHousehold() {
+  return document.getElementById('large-household')?.checked === true;
 }
 
 /**
@@ -170,38 +125,6 @@ export function toTitleCase(name) {
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
-}
-
-/**
- * Detect cycle type from tariff name
- * @param {string} tariffName - Tariff name from NomeProposta
- * @returns {string|null} 'daily' | 'weekly' | null
- */
-export function detectCycleType(tariffName) {
-  if (!tariffName) return null;
-  
-  // Normalize text: lowercase, remove accents
-  const normalized = String(tariffName)
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, ''); // Remove accents
-  
-  // Check for daily cycle indicators
-  if (normalized.includes('ciclo diario') || 
-      normalized.includes('ciclo diário') ||
-      normalized.includes('diario') ||
-      normalized.includes('diário')) {
-    return 'daily';
-  }
-  
-  // Check for weekly cycle indicators
-  if (normalized.includes('ciclo semanal') ||
-      normalized.includes('semanal') ||
-      normalized.includes('sem feriados')) {
-    return 'weekly';
-  }
-  
-  return null;
 }
 
 /**

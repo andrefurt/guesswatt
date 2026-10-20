@@ -3,93 +3,104 @@
  * Pure business logic for cost calculations, offer filtering, and consumption estimation
  */
 
-import { VAT, DAYS_PER_MONTH, AUDIOVISUAL_TAX, DEFAULT_POWER } from './config.js';
-import { detectCycleType } from './utils.js';
+import {
+  VAT,
+  VAT_REDUCED,
+  REDUCED_VAT_MAX_POWER,
+  REDUCED_VAT_KWH,
+  REDUCED_VAT_KWH_LARGE_HOUSEHOLD,
+  REDUCED_FIXED_VAT_MAX_POWER,
+  DGEG_FEE,
+  DAYS_PER_MONTH,
+  AUDIOVISUAL_TAX,
+  DEFAULT_POWER
+} from './config.js';
 
 // Constants from DATA_MODEL.mdc
 const IEC_KWH = 0.001; // Special consumption tax (€/kWh)
 
 // Consumption distribution assumptions (when unknown)
+// ERSE's simulator assumes 40% vazio for all three of its typical consumers
+// (Manual do Simulador, "Pressupostos considerados", p. 15)
 const BI_HORARIA = {
-  vazio: 0.35,      // 22h-08h
-  foraVazio: 0.65   // 08h-22h
+  vazio: 0.40,      // 22h-08h
+  foraVazio: 0.60   // 08h-22h
 };
 
+// Not from an official source: ERSE publishes no tri-hourly typical split
 const TRI_HORARIA = {
   vazio: 0.30,      // night
   cheias: 0.50,     // mid-day
   ponta: 0.20       // peak hours
 };
 
+// Fallback typical offer when no data is loaded (DATA_MODEL.mdc defaults)
+const FALLBACK_TF = 0.25;   // €/day
+const FALLBACK_TV = 0.18;   // €/kWh
+
+const MIN_ESTIMATE_KWH = 50;
+const MAX_ESTIMATE_KWH = 5000;
+
+function median(values) {
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.floor(sorted.length / 2)];
+}
+
+/**
+ * Build a typical simple-tariff offer at the default power from the loaded offers:
+ * median fixed term and median energy price among the offers active on asOf
+ * @param {Array<Object>|null} offers - Loaded offers
+ * @param {Date} asOf - Day for the active check (defaults to today)
+ * @returns {Object} Synthetic offer accepted by calculateMonthlyCost
+ */
+export function typicalOffer(offers = null, asOf = new Date()) {
+  const atPower = (offers || []).filter(o => o.Pot_Cont === DEFAULT_POWER && o.TF > 0 && isOfferActive(o, asOf));
+  const simple = atPower.filter(o => o.Contagem === 1 && o['TV|TVFV|TVP'] > 0);
+
+  return {
+    Contagem: 1,
+    Pot_Cont: DEFAULT_POWER,
+    TF: atPower.length > 0 ? median(atPower.map(o => o.TF)) : FALLBACK_TF,
+    'TV|TVFV|TVP': simple.length > 0 ? median(simple.map(o => o['TV|TVFV|TVP'])) : FALLBACK_TV
+  };
+}
+
 /**
  * Estimate consumption (kWh) from monthly bill amount
- * Uses data-driven median price from loaded offers if available
+ * Inverts calculateMonthlyCost on the typical offer by bisection, so the estimate
+ * uses exactly the same formula (and taxes) as the costs shown afterwards
  * @param {number} monthlyBill - Monthly bill amount in euros
  * @param {Array<Object>} offers - Optional: loaded offers for data-driven estimation
+ * @param {Object} context - Optional context (see calculateMonthlyCost)
  * @returns {number} Estimated consumption in kWh
  */
-export function estimateConsumption(monthlyBill, offers = null) {
-  // Data-driven: compute median price from offers if available
-  let avgPricePerKwh = 0.18; // Fallback default
-  
-  if (offers && offers.length > 0) {
-    // Filter for simple tariff, default power, valid offers
-    const relevant = offers.filter(o => 
-      o.Contagem === 1 && 
-      o.Pot_Cont === DEFAULT_POWER &&
-      o.TF > 0 &&
-      o['TV|TVFV|TVP'] > 0
-    );
-    
-    if (relevant.length > 0) {
-      // Compute median of TF + TV for default power
-      const prices = relevant.map(o => {
-        const tfPerMonth = o.TF * DAYS_PER_MONTH;
-        const tv = o['TV|TVFV|TVP'];
-        // Estimate: assume 200 kWh/month average for price calculation
-        const totalPerKwh = (tfPerMonth / 200) + tv;
-        return totalPerKwh;
-      }).sort((a, b) => a - b);
-      
-      const medianIndex = Math.floor(prices.length / 2);
-      avgPricePerKwh = prices[medianIndex] || 0.18;
-    }
+export function estimateConsumption(monthlyBill, offers = null, context = {}) {
+  const typical = typicalOffer(offers, context.asOf);
+  const costAt = kWh => calculateMonthlyCost(typical, kWh, DEFAULT_POWER, null, context);
+
+  let low = 0;
+  let high = MAX_ESTIMATE_KWH;
+  for (let i = 0; i < 50; i++) {
+    const mid = (low + high) / 2;
+    if (costAt(mid) < monthlyBill) low = mid;
+    else high = mid;
   }
-  
-  // Reverse calculation: monthlyBill = (fixedTerm + variableTerm + taxes) * VAT
-  const withoutVAT = monthlyBill / VAT;
-  
-  // Estimate fixed term (using median from data if available, else default)
-  let avgFixedTerm = 0.25 * DAYS_PER_MONTH; // Default fallback
-  if (offers && offers.length > 0) {
-    const relevant = offers.filter(o => 
-      o.Pot_Cont === DEFAULT_POWER &&
-      o.TF > 0
-    );
-    if (relevant.length > 0) {
-      const fixedTerms = relevant.map(o => o.TF * DAYS_PER_MONTH).sort((a, b) => a - b);
-      const medianIndex = Math.floor(fixedTerms.length / 2);
-      avgFixedTerm = fixedTerms[medianIndex] || avgFixedTerm;
-    }
-  }
-  
-  const withoutFixed = withoutVAT - avgFixedTerm - AUDIOVISUAL_TAX;
-  const consumption = withoutFixed / avgPricePerKwh;
-  
+
   // Clamp to reasonable bounds
-  return Math.max(50, Math.min(5000, Math.round(consumption)));
+  return Math.max(MIN_ESTIMATE_KWH, Math.min(MAX_ESTIMATE_KWH, Math.round(low)));
 }
 
 /**
  * Calculate monthly cost for an offer
- * Implements full calculation with IEC, proper tariff splitting, and VAT
- * @param {Object} offer - Offer object from CSV/JSON
+ * Implements full calculation with IEC, DGEG, proper tariff splitting, and VAT per component
+ * @param {Object} offer - Offer object from offers.json
  * @param {number} consumption - Consumption in kWh
  * @param {number} power - Power in kVA
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
+ * @param {Object} context - Optional: { tar (data/tar.json), largeHousehold, reducedVatKwh, asOf (Date for eligibility) }
  * @returns {number} Monthly cost in euros (with VAT)
  */
-export function calculateMonthlyCost(offer, consumption, power, distribution = null) {
+export function calculateMonthlyCost(offer, consumption, power, distribution = null, context = {}) {
   const tariffType = offer.Contagem || 1;
   const fixedTerm = (offer.TF || 0) * DAYS_PER_MONTH;
   
@@ -126,12 +137,94 @@ export function calculateMonthlyCost(offer, consumption, power, distribution = n
     variableTerm = consumption * tv;
   }
   
-  // Taxes
-  const iec = consumption * IEC_KWH;
-  const subtotal = fixedTerm + variableTerm + iec + AUDIOVISUAL_TAX;
-  const total = subtotal * VAT;
-  
-  return total;
+  // VAT per component. Energy: reduced rate on the first kWh up to the threshold,
+  // prorated across periods. Fixed term: reduced rate on its network-access (TAR) share.
+  const reducedKwh = power <= REDUCED_VAT_MAX_POWER ? reducedVatKwh(context) : 0;
+  const reducedShare = consumption > 0 ? Math.min(1, reducedKwh / consumption) : 0;
+  const energy =
+    variableTerm * reducedShare * VAT_REDUCED +
+    variableTerm * (1 - reducedShare) * VAT;
+
+  const tarPerDay = power <= REDUCED_FIXED_VAT_MAX_POWER ? accessFixedPerDay(context, power) : 0;
+  const fixedReduced = Math.min(fixedTerm, tarPerDay * DAYS_PER_MONTH);
+  const fixed = fixedReduced * VAT_REDUCED + (fixedTerm - fixedReduced) * VAT;
+
+  const iec = consumption * IEC_KWH * VAT;
+  const audiovisual = AUDIOVISUAL_TAX * VAT_REDUCED;
+  const dgeg = DGEG_FEE * VAT;
+
+  // Mandatory services bundled with the offer (ERSE gives €/year with VAT), as ERSE's simulator does
+  const services = (offer.serviceCostYear || 0) / 12;
+
+  return energy + fixed + iec + audiovisual + dgeg + services;
+}
+
+/**
+ * kWh per 30 days that get the reduced VAT rate
+ * @param {Object} context - Context: { largeHousehold, reducedVatKwh }
+ * @returns {number}
+ */
+function reducedVatKwh(context) {
+  if (typeof context.reducedVatKwh === 'number') return context.reducedVatKwh;
+  return context.largeHousehold ? REDUCED_VAT_KWH_LARGE_HOUSEHOLD : REDUCED_VAT_KWH;
+}
+
+/**
+ * Network-access (TAR) fixed term for a power, from data/tar.json
+ * @param {Object} context - Context: { tar }
+ * @param {number} power - Power in kVA
+ * @returns {number} €/day, 0 when the table has no value
+ */
+function accessFixedPerDay(context, power) {
+  const table = context.tar?.fixedTermByPower;
+  if (!table) return 0;
+  const key = String(Number(String(power).replace(',', '.')));
+  return table[key] || 0;
+}
+
+/**
+ * Parse an ERSE date (DD/MM/YYYY) as UTC midnight
+ * @param {string} value
+ * @returns {Date|null}
+ */
+function parseErseDate(value) {
+  const parts = String(value || '').split('/');
+  if (parts.length !== 3) return null;
+  const [day, month, year] = parts.map(Number);
+  if (!day || !month || !year) return null;
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+/**
+ * Whether an offer is inside its validity dates on a given day
+ * @param {Object} offer - Offer with validFrom/validTo (DD/MM/YYYY, either may be empty)
+ * @param {Date} asOf - Day to check (defaults to today)
+ * @returns {boolean}
+ */
+export function isOfferActive(offer, asOf = new Date()) {
+  const day = Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth(), asOf.getUTCDate());
+  const from = parseErseDate(offer.validFrom);
+  const to = parseErseDate(offer.validTo);
+  if (from && day < from.getTime()) return false;
+  if (to && day > to.getTime()) return false;
+  return true;
+}
+
+/**
+ * Whether an offer can be offered to this profile on this day:
+ * active (isOfferActive) and inside its annual consumption band
+ * @param {Object} offer - Offer with validity dates and consMinYear/consMaxYear (kWh/year)
+ * @param {number} consumption - Monthly consumption in kWh
+ * @param {Date} asOf - Day to check (defaults to today)
+ * @returns {boolean}
+ */
+export function isOfferEligible(offer, consumption, asOf = new Date()) {
+  if (!isOfferActive(offer, asOf)) return false;
+
+  const yearly = consumption * 12;
+  if (typeof offer.consMinYear === 'number' && yearly < offer.consMinYear) return false;
+  if (typeof offer.consMaxYear === 'number' && yearly > offer.consMaxYear) return false;
+  return true;
 }
 
 /**
@@ -143,8 +236,8 @@ export function calculateMonthlyCost(offer, consumption, power, distribution = n
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
  * @returns {Object} Object with monthlyCostBase, monthlyCostPromo, and promotionApplied
  */
-export function calculateMonthlyCostWithPromotion(offer, consumption, power, distribution = null) {
-  const monthlyCostBase = calculateMonthlyCost(offer, consumption, power, distribution);
+export function calculateMonthlyCostWithPromotion(offer, consumption, power, distribution = null, context = {}) {
+  const monthlyCostBase = calculateMonthlyCost(offer, consumption, power, distribution, context);
   
   // Promotions are NOT applied to calculations (metadata only)
   // This ensures we don't make speculative savings claims
@@ -164,8 +257,8 @@ export function calculateMonthlyCostWithPromotion(offer, consumption, power, dis
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
  * @returns {number} Annual cost in euros (base cost only, no promotions)
  */
-export function calculateAnnualEffectiveCost(offer, consumption, power, distribution = null) {
-  const monthlyCostBase = calculateMonthlyCost(offer, consumption, power, distribution);
+export function calculateAnnualEffectiveCost(offer, consumption, power, distribution = null, context = {}) {
+  const monthlyCostBase = calculateMonthlyCost(offer, consumption, power, distribution, context);
   
   // Promotions are NOT applied - use base cost only for conservative, trustworthy pricing
   return monthlyCostBase * 12;
@@ -173,14 +266,15 @@ export function calculateAnnualEffectiveCost(offer, consumption, power, distribu
 
 /**
  * Find best offer for simple tariff (Contagem=1)
- * Excludes lock-in offers by default and uses annual effective cost for ranking
+ * Excludes lock-in and ineligible offers (isOfferEligible) and uses annual effective cost for ranking
  * @param {Array<Object>} offers - Array of offer objects
  * @param {number} consumption - Consumption in kWh
  * @param {number} power - Power in kVA
+ * @param {Object} context - Optional context (see calculateMonthlyCost)
  * @returns {Object} Best offer object with monthlyCost and annualCostEffective properties
  * @throws {Error} If no valid offers found
  */
-export function findBestOffer(offers, consumption, power) {
+export function findBestOffer(offers, consumption, power, context = {}) {
   // Filtrar ofertas válidas (exclude lock-in by default)
   const valid = offers.filter(o => {
     const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
@@ -189,7 +283,9 @@ export function findBestOffer(offers, consumption, power) {
            tvField > 0 && 
            potCont === power &&
            o.Contagem === 1 && // tarifa simples
-           o.hasLockIn !== true; // Exclude lock-in offers
+           o.hasLockIn !== true && // Exclude lock-in offers
+           o.isRestricted !== true && // Exclude conditioned offers
+           isOfferEligible(o, consumption, context.asOf);
   });
   
   if (valid.length === 0) {
@@ -198,9 +294,9 @@ export function findBestOffer(offers, consumption, power) {
   
   // Calcular custos para cada uma
   const withCosts = valid.map(o => {
-    const monthlyCost = calculateMonthlyCost(o, consumption, power);
-    const annualCostEffective = calculateAnnualEffectiveCost(o, consumption, power);
-    const { monthlyCostBase, monthlyCostPromo } = calculateMonthlyCostWithPromotion(o, consumption, power);
+    const monthlyCost = calculateMonthlyCost(o, consumption, power, null, context);
+    const annualCostEffective = calculateAnnualEffectiveCost(o, consumption, power, null, context);
+    const { monthlyCostBase, monthlyCostPromo } = calculateMonthlyCostWithPromotion(o, consumption, power, null, context);
     
     return {
       ...o,
@@ -243,17 +339,39 @@ export function findBestOffer(offers, consumption, power) {
 }
 
 /**
+ * Median monthly cost of the offers that could win for this profile (same filters as
+ * findBestOfferForTariff). Used in estimate mode to place the best offer in the market;
+ * the median is robust to the few offers that bundle equipment.
+ * @returns {number|null} €/month, null when no offer qualifies
+ */
+export function marketMedianCost(offers, consumption, power, tariffType = 1, distribution = null, context = {}) {
+  const costs = offers
+    .filter(o =>
+      Math.abs(o.Pot_Cont - power) < 0.01 &&
+      o.Contagem === tariffType &&
+      o.TF > 0 &&
+      (o['TV|TVFV|TVP'] || 0) > 0 &&
+      o.hasLockIn !== true &&
+      o.isRestricted !== true &&
+      isOfferEligible(o, consumption, context.asOf))
+    .map(o => calculateMonthlyCost(o, consumption, power, distribution, context))
+    .sort((a, b) => a - b);
+  return costs.length > 0 ? median(costs) : null;
+}
+
+/**
  * Find best offer for specific tariff type
- * Excludes lock-in offers by default and uses annual effective cost for ranking
+ * Excludes lock-in and ineligible offers (isOfferEligible) and uses annual effective cost for ranking
  * @param {Array<Object>} offers - Array of offer objects
  * @param {number} consumption - Consumption in kWh
  * @param {number} power - Power in kVA
  * @param {number} tariffType - Tariff type (1=simples, 2=bi-horária, 3=tri-horária)
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
+ * @param {Object} context - Optional context (see calculateMonthlyCost)
  * @returns {Object} Best offer object with monthlyCost and annualCostEffective properties
  * @throws {Error} If no valid offers found
  */
-export function findBestOfferForTariff(offers, consumption, power, tariffType = 1, distribution = null) {
+export function findBestOfferForTariff(offers, consumption, power, tariffType = 1, distribution = null, context = {}) {
   // Normalize power to number for comparison
   const normalizedPower = typeof power === 'number' ? power : parseFloat(String(power).replace(',', '.'));
   const normalizedTariffType = typeof tariffType === 'number' ? tariffType : parseInt(tariffType);
@@ -274,7 +392,9 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
            tvField > 0 && 
            powerMatch &&
            contagem === normalizedTariffType &&
-           o.hasLockIn !== true; // Exclude lock-in offers
+           o.hasLockIn !== true && // Exclude lock-in offers
+           o.isRestricted !== true && // Exclude conditioned offers
+           isOfferEligible(o, consumption, context.asOf);
   });
   
   console.log(`[findBestOfferForTariff] Found ${valid.length} valid offers after filtering`);
@@ -285,9 +405,9 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
   
   // Calcular custos para cada uma
   const withCosts = valid.map(o => {
-    const monthlyCost = calculateMonthlyCost(o, consumption, power, distribution);
-    const annualCostEffective = calculateAnnualEffectiveCost(o, consumption, power, distribution);
-    const { monthlyCostBase, monthlyCostPromo } = calculateMonthlyCostWithPromotion(o, consumption, power, distribution);
+    const monthlyCost = calculateMonthlyCost(o, consumption, power, distribution, context);
+    const annualCostEffective = calculateAnnualEffectiveCost(o, consumption, power, distribution, context);
+    const { monthlyCostBase, monthlyCostPromo } = calculateMonthlyCostWithPromotion(o, consumption, power, distribution, context);
     
     return {
       ...o,
@@ -341,53 +461,3 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
   
   return best; // melhor oferta
 }
-
-/**
- * Enrich offer with commercial data and campaign metadata
- * @param {Object} offer - Offer object
- * @param {Array<Object>} conditions - Commercial conditions array
- * @returns {Object} Enriched offer object with campaign metadata
- */
-export function enrichOffer(offer, conditions) {
-  const condition = conditions.find(c => 
-    c.COM === offer.COM && 
-    c.COD_Proposta === offer.COD_Proposta
-  );
-  
-  // If condition has _enriched metadata (from offers.json), use it
-  if (condition?._enriched) {
-    return {
-      ...offer,
-      ...condition._enriched,
-      tariffName: condition._enriched.tariffName || offer.COD_Proposta,
-      phone: condition._enriched.phone || condition?.ContactoComercialTel || null,
-      website: condition._enriched.website || condition?.LinkOfertaCom || condition?.LinkCOM || null
-    };
-  }
-  
-  // Fallback: extract from condition object (CSV mode)
-  const tariffName = condition?.NomeProposta || offer.COD_Proposta;
-  
-  // Detect cycle type from tariff name (for CSV fallback)
-  const cycleType = tariffName ? detectCycleType(tariffName) : null;
-  
-  return {
-    ...offer,
-    tariffName: tariffName,
-    cycleType: cycleType, // Include cycleType for CSV fallback
-    phone: condition?.ContactoComercialTel || null,
-    website: condition?.LinkOfertaCom || condition?.LinkCOM || null,
-    fornecimento: condition?.Fornecimento || '',
-    segmento: condition?.Segmento || '',
-    validFrom: condition?.['Data ini'] || '',
-    validTo: condition?.['Data fim'] || '',
-    isIndexed: condition?.FiltroPrecosIndex === 'S',
-    hasLockIn: condition?.FiltroFidelização === 'S',
-    newCustomerOnly: false,
-    requiresDirectDebit: false,
-    requiresEBill: false,
-    campaignSummary: condition?.TxTOferta ? String(condition.TxTOferta).substring(0, 200) : '',
-    isCampaignActive: null // Would need date parsing to determine
-  };
-}
-

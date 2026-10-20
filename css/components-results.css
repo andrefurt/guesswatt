@@ -347,6 +347,34 @@
      Shares same visual aspect as secondary buttons, only color differs
      ═══════════════════════════════════════════════════════════ */
   
+  /* Estimate mode: where the best offer sits in the market */
+  .market-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border: 0.5px solid var(--color-border-accent);
+    border-radius: var(--radius-sm);
+    background: var(--color-savings-bar-bg);
+    font-family: var(--font-sans);
+    font-size: var(--text-base-size);
+    color: var(--color-foreground-primary);
+  }
+
+  .market-summary-link {
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: start;
+    text-decoration: underline;
+    text-underline-offset: var(--space-1);
+    cursor: pointer;
+  }
+
   .savings-bar {
     border: 0.5px solid var(--color-border-accent); /* Accent border - foreground at 30% opacity */
     border-radius: var(--radius-sm); /* 6px */
@@ -539,7 +567,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-1); /* 4px gap between icon and text */
-    height: var(--text-base-size);
+    min-height: var(--text-base-size);
   }
   
   /* Phosphor Duotone icons styling */

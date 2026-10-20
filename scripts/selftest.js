@@ -6,6 +6,7 @@
  * - Required fields present
  * - No GN-only offers
  * - Calculation samples (no NaN, positive totals)
+ * - Golden cases against the real js/calculator.js
  * 
  * Usage:
  *   node scripts/selftest.js
@@ -13,34 +14,29 @@
 
 const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const OFFERS_PATH = path.join(DATA_DIR, 'offers.json');
 const META_PATH = path.join(DATA_DIR, 'meta.json');
 
-// Constants for calculation (matching frontend)
-const VAT = 1.23;
-const DAYS_PER_MONTH = 30;
-const AUDIOVISUAL_TAX = 2.85;
-const IEC_KWH = 0.001;
-
-/**
- * Calculate monthly cost for an offer (simplified, matches calculator.js logic)
- */
-function calculateMonthlyCost(offer, consumption, power) {
-  const tvField = offer['TV|TVFV|TVP'] || offer.TV || 0;
-  const fixedTerm = (offer.TF || 0) * DAYS_PER_MONTH;
-  const variableTerm = consumption * tvField;
-  const iec = consumption * IEC_KWH;
-  const subtotal = fixedTerm + variableTerm + iec + AUDIOVISUAL_TAX;
-  return subtotal * VAT;
-}
+// The real calculator, loaded in runSelftest (it is an ES module)
+const CALCULATOR_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'calculator.js')).href;
+const CONFIG_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'config.js')).href;
+const PDF_SERVICE_PATH = path.join(__dirname, '..', 'js', 'pdf-service.js');
+const PDF_SERVICE_URL = pathToFileURL(PDF_SERVICE_PATH).href;
+let calculateMonthlyCost;
 
 /**
  * Run self-tests
  */
-function runSelftest() {
+async function runSelftest() {
   console.log('🧪 Running self-tests...\n');
+  
+  const calculator = await import(CALCULATOR_URL);
+  calculateMonthlyCost = calculator.calculateMonthlyCost;
+  const { PROVIDERS } = await import(CONFIG_URL);
+  const { parseInvoiceText } = await import(PDF_SERVICE_URL);
   
   let passed = 0;
   let failed = 0;
@@ -107,6 +103,43 @@ function runSelftest() {
     }
   });
   
+  // Test 5a: Domestic only (ADR-020)
+  test('no non-domestic (Ndom) offers', () => {
+    const nonDomestic = offers.filter(o => o.segmento === 'Ndom');
+    if (nonDomestic.length > 0) {
+      throw new Error(`Found ${nonDomestic.length} Ndom offers (should be filtered at build time)`);
+    }
+  });
+
+  // Test 5a2: Supplier codes the UI and the PDF parser use exist in the data
+  test('every supplier code has a name and offers', () => {
+    const inData = new Set(offers.map(o => o.COM));
+    const unnamed = [...inData].filter(code => !PROVIDERS[code]);
+    const withoutOffers = Object.keys(PROVIDERS).filter(code => !inData.has(code));
+    const parserCodes = [...fs.readFileSync(PDF_SERVICE_PATH, 'utf8').matchAll(/provider = '([A-Z0-9]+)'/g)].map(m => m[1]);
+    const parserUnknown = parserCodes.filter(code => !inData.has(code));
+    const problems = [];
+    if (unnamed.length) problems.push(`no name in PROVIDERS: ${unnamed.join(', ')}`);
+    if (withoutOffers.length) problems.push(`no offers for: ${withoutOffers.join(', ')}`);
+    if (parserUnknown.length) problems.push(`PDF parser emits codes with no offers: ${parserUnknown.join(', ')}`);
+    if (parserCodes.length === 0) problems.push('found no provider codes in pdf-service.js');
+    if (problems.length) throw new Error(problems.join('; '));
+    console.log(`   ${inData.size} suppliers, ${parserCodes.length} detectable from a PDF`);
+  });
+
+  // Test 5a3: Conditioned offers (FiltroRestrições = S) are flagged and never ranked (decision 3)
+  test('conditioned (members-only or referral) offers are flagged and never win', () => {
+    const coop = offers.filter(o => o.COM === 'COOP' && o.COD_Proposta === 'COOP_04');
+    if (coop.length === 0 || coop.some(o => o.isRestricted !== true)) {
+      throw new Error('COOP_04 should be present with isRestricted true');
+    }
+    const cheapestRestricted = { ...coop[0], TF: 0.01, 'TV|TVFV|TVP': 0.01, validFrom: '', validTo: '' };
+    const best = calculator.findBestOfferForTariff([...offers, cheapestRestricted], 200, cheapestRestricted.Pot_Cont, cheapestRestricted.Contagem);
+    if (best.isRestricted) {
+      throw new Error(`a conditioned offer won: ${best.COM} ${best.COD_Proposta}`);
+    }
+  });
+
   // Test 5b: Lock-in detection
   test('lock-in detection fields present', () => {
     const withLockIn = offers.filter(o => o.hasLockIn === true);
@@ -127,6 +160,21 @@ function runSelftest() {
     console.log(`   Found ${withLockIn.length} lock-in offers, ${withoutLockIn.length} without lock-in`);
   });
   
+  // Test 5b2: Lock-in follows ERSE's S/N flag ("sem fidelização" is not lock-in)
+  test('offers that ERSE marks without lock-in are not excluded', () => {
+    const known = offers.filter(o =>
+      (o.COM === 'EDPSU' && o.COD_Proposta === 'TUR') ||
+      (o.COM === 'IBELECTRA' && o.COD_Proposta === 'IBELECTRA_01')
+    );
+    if (known.length === 0) {
+      throw new Error('TUR and IBELECTRA_01 are missing from offers.json');
+    }
+    const wrong = known.filter(o => o.hasLockIn !== false);
+    if (wrong.length > 0) {
+      throw new Error(`${wrong.length} TUR/IBELECTRA_01 rows marked as lock-in`);
+    }
+  });
+
   // Test 5c: Promotion parsing
   test('promotion parsing sanity checks', () => {
     const withPromotion = offers.filter(o => o.promotion !== null && o.promotion !== undefined);
@@ -330,8 +378,7 @@ function runSelftest() {
     const testConsumption = 250;
     const testPower = 4.6;
     
-    // Note: We can't import the calculator functions here (CommonJS vs ES modules)
-    // So we'll just verify that offers have the required fields for calculation
+    // Field check only; the golden cases below pin the values
     testOffers.forEach(offer => {
       if (!offer.TF || offer.TF <= 0) {
         errors.push(`Invalid TF for ${offer.COM} ${offer.COD_Proposta}`);
@@ -368,6 +415,204 @@ function runSelftest() {
     console.log(`   ${nonLockInOffers.length} non-lock-in offers available for selection`);
   });
   
+  // Golden cases: synthetic offers, expected values worked out by hand.
+  // A formula change in js/calculator.js must update these literals.
+  const CENT = 0.005;
+  function expectCost(actual, expected, label) {
+    if (Math.abs(actual - expected) > CENT) {
+      throw new Error(`${label}: expected ${expected.toFixed(4)}, got ${actual.toFixed(4)}`);
+    }
+  }
+  const SIMPLE = { COM: 'TEST', COD_Proposta: 'S1', Contagem: 1, Pot_Cont: 4.6, TF: 0.3, 'TV|TVFV|TVP': 0.15 };
+  const BI = { COM: 'TEST', COD_Proposta: 'B1', Contagem: 2, Pot_Cont: 4.6, TF: 0.3, 'TV|TVFV|TVP': 0.20, 'TVV|TVC': 0.10 };
+  const TRI = { COM: 'TEST', COD_Proposta: 'T1', Contagem: 3, Pot_Cont: 4.6, TF: 0.3, 'TV|TVFV|TVP': 0.25, 'TVV|TVC': 0.15, TVVz: 0.08 };
+
+  // Fixed parts at 4.6 kVA: fixed term 0.3*30*1.23 = 11.07, IEC 0.2*1.23 = 0.246,
+  // CAV 2.85*1.06 = 3.021, DGEG 0.07*1.23 = 0.0861; all 200 kWh get the 6% rate
+  test('golden: simple tariff, 200 kWh at 4.6 kVA', () => {
+    // 200*0.15*1.06 + 11.07 + 0.246 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(SIMPLE, 200, 4.6), 46.2231, 'simple');
+  });
+
+  test('golden: bi-hourly tariff, default 40/60 split (ERSE)', () => {
+    // (200*0.40*0.10 + 200*0.60*0.20)*1.06 + 11.07 + 0.246 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(BI, 200, 4.6), 48.3431, 'bi-hourly');
+  });
+
+  test('golden: tri-hourly tariff, default 30/50/20 split', () => {
+    // 200*(0.30*0.08 + 0.50*0.15 + 0.20*0.25)*1.06 + 11.07 + 0.246 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(TRI, 200, 4.6), 46.0111, 'tri-hourly');
+  });
+
+  test('golden: above 200 kWh the rest of the energy pays 23%', () => {
+    // 400 kWh: 60*(0.5*1.06 + 0.5*1.23) + 11.07 + 0.4*1.23 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(SIMPLE, 400, 4.6), 83.3691, 'simple 400 kWh');
+  });
+
+  test('golden: a household of 5 or more gets 300 kWh at 6%', () => {
+    // 400 kWh: 60*(0.75*1.06 + 0.25*1.23) + 11.07 + 0.492 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(SIMPLE, 400, 4.6, null, { largeHousehold: true }), 80.8191, 'large household');
+  });
+
+  test('golden: at 250 kWh the household answer changes the cost', () => {
+    // Fixed parts: 11.07 + 0.25*1.23 + 3.021 + 0.0861 = 14.4846
+    // No: 200*0.15*1.06 + 50*0.15*1.23 + 14.4846; yes: 250*0.15*1.06 + 14.4846
+    expectCost(calculateMonthlyCost(SIMPLE, 250, 4.6), 55.5096, 'household no');
+    expectCost(calculateMonthlyCost(SIMPLE, 250, 4.6, null, { largeHousehold: true }), 54.2346, 'household yes');
+  });
+
+  test('golden: above 6.9 kVA everything but the CAV pays 23%', () => {
+    const offer = { ...SIMPLE, Pot_Cont: 10.35, TF: 0.5 };
+    // (15 + 75 + 0.5 + 0.07)*1.23 + 3.021
+    expectCost(calculateMonthlyCost(offer, 500, 10.35), 114.4221, '10.35 kVA');
+  });
+
+  test('golden: at 3.45 kVA the TAR share of the fixed term pays 6%', () => {
+    const offer = { ...SIMPLE, Pot_Cont: 3.45, TF: 0.25 };
+    const tar = { fixedTermByPower: { '3.45': 0.1718 } };
+    // fixed 7.5: 5.154*1.06 + 2.346*1.23; energy 30*1.06; IEC 0.246; CAV 3.021; DGEG 0.0861
+    expectCost(calculateMonthlyCost(offer, 200, 3.45, null, { tar }), 43.50192, 'tar share');
+  });
+
+  // ERSExplica "Aplicação do IVA na fatura de eletricidade", examples 1, 3 and 4.
+  // They use the 2022 thresholds (100 kWh, 150 kWh for large households), passed explicitly.
+  test('golden: mandatory service costs add a twelfth of the yearly amount', () => {
+    // 46.2231 (simple, 200 kWh) + 120/12
+    expectCost(calculateMonthlyCost({ ...SIMPLE, serviceCostYear: 120 }, 200, 4.6), 56.2231, 'services');
+  });
+
+  test('golden: ERSE Exemplo 1 (simple, 3.45 kVA, 160 kWh) = 37.73', () => {
+    const offer = { Contagem: 1, Pot_Cont: 3.45, TF: 0.0904 + 0.0758, 'TV|TVFV|TVP': 0.1599 };
+    const tar = { fixedTermByPower: { '3.45': 0.0904 } };
+    expectCost(calculateMonthlyCost(offer, 160, 3.45, null, { tar, reducedVatKwh: 100 }), 37.73, 'Exemplo 1');
+  });
+
+  const ERSE_BI = { Contagem: 2, Pot_Cont: 6.9, TF: 0.3160, 'TV|TVFV|TVP': 0.1926, 'TVV|TVC': 0.1073 };
+  const ERSE_SPLIT = { vazio: 80 / 250, foraVazio: 170 / 250 };
+  test('golden: ERSE Exemplo 3 (bi-hourly, 6.9 kVA, 250 kWh) = 63.10', () => {
+    expectCost(calculateMonthlyCost(ERSE_BI, 250, 6.9, ERSE_SPLIT, { reducedVatKwh: 100 }), 63.10, 'Exemplo 3');
+  });
+
+  test('golden: ERSE Exemplo 4 (large household, same profile) = 61.69', () => {
+    expectCost(calculateMonthlyCost(ERSE_BI, 250, 6.9, ERSE_SPLIT, { reducedVatKwh: 150 }), 61.69, 'Exemplo 4');
+  });
+
+  test('data/tar.json covers every power with reduced VAT on the fixed term', () => {
+    const tar = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'tar.json'), 'utf8'));
+    for (const power of ['1.15', '2.3', '3.45']) {
+      const value = tar.fixedTermByPower?.[power];
+      if (typeof value !== 'number' || value <= 0 || value > 0.5) {
+        throw new Error(`missing or implausible TAR for ${power} kVA: ${value}`);
+      }
+    }
+  });
+
+  test('golden: ranking picks the cheapest offer without lock-in', () => {
+    const cheaperLocked = { ...SIMPLE, COD_Proposta: 'LOCK', 'TV|TVFV|TVP': 0.10, hasLockIn: true };
+    const cheaper = { ...SIMPLE, COD_Proposta: 'CHEAP', 'TV|TVFV|TVP': 0.12 };
+    const pool = [SIMPLE, cheaperLocked, cheaper];
+    const best = calculator.findBestOfferForTariff(pool, 200, 4.6, 1);
+    if (best.COD_Proposta !== 'CHEAP') {
+      throw new Error(`expected CHEAP, got ${best.COD_Proposta}`);
+    }
+    expectCost(best.annualCostEffective, calculateMonthlyCost(cheaper, 200, 4.6) * 12, 'annual');
+  });
+
+  test('eligibility: an expired offer never ranks, even when cheapest', () => {
+    const asOf = new Date(Date.UTC(2026, 0, 15));
+    const expired = { ...SIMPLE, COD_Proposta: 'OLD', 'TV|TVFV|TVP': 0.05, validFrom: '01/01/2025', validTo: '31/12/2025' };
+    const future = { ...SIMPLE, COD_Proposta: 'NEXT', 'TV|TVFV|TVP': 0.06, validFrom: '01/02/2026', validTo: '' };
+    const current = { ...SIMPLE, COD_Proposta: 'NOW', validFrom: '01/01/2026', validTo: '15/01/2026' };
+    const best = calculator.findBestOfferForTariff([expired, future, current], 200, 4.6, 1, null, { asOf });
+    if (best.COD_Proposta !== 'NOW') {
+      throw new Error(`expected NOW, got ${best.COD_Proposta}`);
+    }
+  });
+
+  test('eligibility: a consumption-band offer competes only inside its band', () => {
+    // 1200 to 3588 kWh/year is 100 to 299 kWh/month (G9ENERGY_04's band)
+    const banded = { ...SIMPLE, COD_Proposta: 'BAND', 'TV|TVFV|TVP': 0.05, consMinYear: 1200, consMaxYear: 3588 };
+    const pool = [SIMPLE, banded];
+    const inside = calculator.findBestOfferForTariff(pool, 200, 4.6, 1);
+    const below = calculator.findBestOfferForTariff(pool, 50, 4.6, 1);
+    const above = calculator.findBestOfferForTariff(pool, 400, 4.6, 1);
+    if (inside.COD_Proposta !== 'BAND' || below.COD_Proposta !== 'S1' || above.COD_Proposta !== 'S1') {
+      throw new Error(`got ${inside.COD_Proposta}/${below.COD_Proposta}/${above.COD_Proposta}`);
+    }
+    const g9 = offers.find(o => o.COM === 'G9ENERGY' && o.COD_Proposta === 'G9ENERGY_04');
+    if (g9 && (g9.consMinYear !== 1200 || g9.consMaxYear !== 3588)) {
+      throw new Error(`G9ENERGY_04 band is ${g9.consMinYear}-${g9.consMaxYear}, expected 1200-3588`);
+    }
+  });
+
+  test('eligibility: no offer in the data carries a build-time active flag', () => {
+    const baked = offers.filter(o => 'isCampaignActive' in o || 'isOfferActive' in o);
+    if (baked.length > 0) {
+      throw new Error(`${baked.length} offers carry isCampaignActive/isOfferActive`);
+    }
+  });
+
+  test('golden: the market median skips offers that could not win', () => {
+    const pool = [0.10, 0.15, 0.20].map((tv, i) => ({ ...SIMPLE, COD_Proposta: `M${i}`, 'TV|TVFV|TVP': tv }));
+    const excluded = [
+      { ...SIMPLE, COD_Proposta: 'LOCK', 'TV|TVFV|TVP': 0.99, hasLockIn: true },
+      { ...SIMPLE, COD_Proposta: 'RESTR', 'TV|TVFV|TVP': 0.99, isRestricted: true }
+    ];
+    // Median of the three costs is the TV 0.15 one: 46.2231
+    expectCost(calculator.marketMedianCost([...pool, ...excluded], 200, 4.6, 1), 46.2231, 'median');
+  });
+
+  test('golden: equal costs break ties by name', () => {
+    const b = { ...SIMPLE, COD_Proposta: 'B', tariffName: 'Beta' };
+    const a = { ...SIMPLE, COD_Proposta: 'A', tariffName: 'Alfa' };
+    const best = calculator.findBestOfferForTariff([b, a], 200, 4.6, 1);
+    if (best.COD_Proposta !== 'A') {
+      throw new Error(`expected A, got ${best.COD_Proposta}`);
+    }
+  });
+
+  test('golden: estimate round trip on a synthetic offer stays within 1 kWh', () => {
+    const offer = { Contagem: 1, Pot_Cont: 4.6, TF: 0.40, 'TV|TVFV|TVP': 0.15 };
+    for (const kWh of [100, 200, 300, 600]) {
+      const bill = calculateMonthlyCost(offer, kWh, 4.6);
+      const estimated = calculator.estimateConsumption(bill, [offer]);
+      if (Math.abs(estimated - kWh) > 1) {
+        throw new Error(`${kWh} kWh -> €${bill.toFixed(2)} -> ${estimated} kWh`);
+      }
+    }
+  });
+
+  test('golden: estimate on the real data reproduces the bill on the typical offer', () => {
+    const typical = calculator.typicalOffer(offers);
+    for (const bill of [40, 80, 120]) {
+      const estimated = calculator.estimateConsumption(bill, offers);
+      const cost = calculateMonthlyCost(typical, estimated, 4.6);
+      // One kWh is worth well under €0.50 on any offer
+      if (Math.abs(cost - bill) > 0.5) {
+        throw new Error(`€${bill} -> ${estimated} kWh -> €${cost.toFixed(2)}`);
+      }
+    }
+  });
+
+  // PDF parser on synthetic invoice text (real supplier fixtures are a follow-up)
+  test('pdf: a bi-hourly bill gives its own vazio/fora-vazio split', () => {
+    const text = 'Iberdrola Potência contratada 6,9 kVA Tarifa bi-horária ' +
+      'Termo de Energia Vazio 120 kWh Termo de Energia Fora de Vazio 180 kWh';
+    const parsed = parseInvoiceText(text);
+    const d = parsed?.distribution;
+    if (!parsed || parsed.consumption !== 300 || parsed.tariffType !== 2 || !d ||
+        Math.abs(d.vazio - 0.4) > 1e-9 || Math.abs(d.foraVazio - 0.6) > 1e-9) {
+      throw new Error(`got ${JSON.stringify(parsed)}`);
+    }
+  });
+
+  test('pdf: a bill with no kWh line leaves consumption empty (no assumed 250)', () => {
+    const parsed = parseInvoiceText('Goldenergy Potência contratada 6,9 kVA Tarifa simples Total a pagar 61,11 €');
+    if (!parsed || parsed.consumption !== null || parsed.power !== 6.9) {
+      throw new Error(`got ${JSON.stringify(parsed)}`);
+    }
+  });
+
   // Test 8: Tariff types are valid
   test('tariff types are valid (1, 2, or 3)', () => {
     const invalid = offers.filter(o => ![1, 2, 3].includes(o.Contagem));
@@ -378,7 +623,7 @@ function runSelftest() {
   
   // Test 9: Power values are standard
   test('power values are standard kVA values', () => {
-    const standardPowers = [1.15, 2.3, 3.45, 4.6, 5.75, 6.9, 10.35, 13.8, 17.25, 20.7];
+    const standardPowers = [1.15, 2.3, 3.45, 4.6, 5.75, 6.9, 10.35, 13.8, 17.25, 20.7, 27.6, 34.5, 41.4];
     const invalid = offers.filter(o => !standardPowers.includes(o.Pot_Cont));
     if (invalid.length > 0) {
       // This is a warning, not an error - some offers might have non-standard powers
@@ -440,11 +685,6 @@ function runSelftest() {
     
     const stats = meta.build.statistics;
     
-    // Check for new metrics (prefer new names, accept old for backwards compatibility)
-    if (stats.activeOffersCount === undefined && stats.activeCampaignCount === undefined) {
-      throw new Error('statistics missing activeOffersCount or activeCampaignCount');
-    }
-    
     if (stats.promotionsWithMetadataCount === undefined) {
       throw new Error('statistics missing promotionsWithMetadataCount');
     }
@@ -471,9 +711,7 @@ function runSelftest() {
       throw new Error(`promotionsAppliedCount should be 0 (promotions not used in calculations), got ${stats.promotionsAppliedCount}`);
     }
     
-    const activeOffers = stats.activeOffersCount !== undefined ? stats.activeOffersCount : stats.activeCampaignCount;
     console.log(`   Statistics:`);
-    console.log(`   - Active offers: ${activeOffers}`);
     console.log(`   - Lock-in by source totals: field=${stats.lockInBySourceTotals.field || 0}, text=${stats.lockInBySourceTotals.text || 0}`);
     console.log(`   - Promotions with metadata: ${stats.promotionsWithMetadataCount}`);
     console.log(`   - Promotions with known active status: ${stats.promotionsWithKnownActiveStatusCount}`);
@@ -481,6 +719,16 @@ function runSelftest() {
     console.log(`   - Promotions applied: ${stats.promotionsAppliedCount} (not used in ranking)`);
   });
   
+  // Test 10c: The page shows the date of the prices; freshness itself is checked in CI, not here
+  test('meta.json records the date of the prices', () => {
+    const meta = JSON.parse(fs.readFileSync(META_PATH, 'utf8'));
+    const value = meta.build?.sourceUpdatedAt;
+    if (!value || isNaN(new Date(value).getTime())) {
+      throw new Error(`build.sourceUpdatedAt is missing or not a date: ${value}`);
+    }
+    console.log(`   Prices from ${value.slice(0, 10)}`);
+  });
+
   // Test 11: Promotion discovery validation
   test('promotion discovery validation', () => {
     if (!fs.existsSync(META_PATH)) {
@@ -519,7 +767,10 @@ function runSelftest() {
 
 // Run
 if (require.main === module) {
-  runSelftest();
+  runSelftest().catch(error => {
+    console.error(`\n❌ Self-test crashed: ${error.message}`);
+    process.exit(1);
+  });
 }
 
 module.exports = { runSelftest };

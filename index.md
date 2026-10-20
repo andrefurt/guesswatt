@@ -33,10 +33,10 @@ Podes:
 ## Fórmula de cálculo
 
 ```
-Custo = (Termo fixo × 30) + (Termo variável × consumo) + Taxas + IVA 23%
+Custo = (Termo fixo × 30) + (Termo variável × consumo) + Taxas (audiovisual, IEC, DGEG), com IVA por componente (6% ou 23%; ver /sobre)
 ```
 
 ## Fonte dos dados
 
-Dados oficiais da ERSE (Entidade Reguladora dos Serviços Energéticos), actualizados mensalmente.
+Dados oficiais da ERSE (Entidade Reguladora dos Serviços Energéticos). A data dos preços aparece no fundo de cada página.
 

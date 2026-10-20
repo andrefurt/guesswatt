@@ -107,7 +107,7 @@ Vê se és um deles.
 **Social proof contextual (usar uma destas):**
 
 ```
-"87% dos portugueses já estão no mercado livre. E tu?"
+"88% das casas já estão no mercado livre. E tu?"
 Fonte: ERSE, 2025
 
 "Mais de 68 mil pessoas mudaram de fornecedor só no último mês."
@@ -156,12 +156,29 @@ Button:       Ver quanto perco
 - Se arrasta/clica PDF → cálculo preciso
 - O ícone de PDF é um affordance subtil, não distrai
 
+**Agregado familiar** (checkbox abaixo do input, desmarcada por omissão; vale para os três modos):
+
+```
+Label:        Somos 5 ou mais pessoas em casa
+```
+
+Marcada, o IVA a 6% aplica-se aos primeiros 300 kWh do mês em vez de 200 (ver "Taxes and VAT" em
+`docs/DATA_MODEL.mdc`). Deixada como está, não acrescenta nenhum passo.
+
 **Estados de erro:**
 
 ```
 Vazio:        Precisamos de um valor para calcular
-Inválido:     Introduz um valor entre €30 e €500
+Inválido:     Indica um valor entre 20 € e 500 €.   (abaixo do cartão; valida em JS)
 PDF erro:     Não conseguimos ler este PDF. Tenta com o valor em €.
+```
+
+**PDF incompleto** (o PDF deu um dos dois valores): abre o formulário manual com o que foi encontrado
+preenchido e o campo em falta focado, sem valores assumidos.
+
+```
+Nota:  Não encontrámos o consumo na fatura. Preenche o valor que falta.
+       Não encontrámos a potência na fatura. Preenche o valor que falta.
 ```
 
 ---
@@ -263,6 +280,26 @@ PDF erro:     Não conseguimos ler este PDF. Tenta com o valor em €.
 | Energia renovável | Expandido | "Sim" / "Não" |
 | CTA primário | ✅ | "Ver como mudar" |
 | CTA secundário | ✅ | Link para site do comercializador |
+
+---
+
+**Preço indexado** (linha do cartão, só quando a oferta é indexada):
+
+```
+Label:  Preço indexado
+Valor:  valores de dez. 2025     (mês e ano dos preços, de meta.json)
+```
+
+---
+
+**Modo estimado** (substitui "Poupas" quando só há o valor da fatura; ADR-011):
+
+```
+A melhor oferta custa cerca de €66/mês. Metade das ofertas custa mais de €87/mês.
+[Para saberes quanto poupas, usa o modo Preciso.]
+```
+
+"Poupas €X/mês" aparece só no modo preciso, contra a tarifa do operador atual.
 
 ---
 
@@ -386,7 +423,7 @@ Mudar é mais simples do que parece.
 **Prazos:**
 
 ```
-· A mudança fica ativa em 5-7 dias úteis (máximo legal: 3 semanas)
+· A mudança demora no máximo 3 semanas (ERSE, Síntese Mensal de junho de 2026)
 · Vais receber uma última fatura do antigo fornecedor até 6 semanas depois
 · A partir do dia da mudança, o novo fornecedor começa a faturar
 ```
@@ -649,7 +686,14 @@ A calcular poupança...      (não "Por favor aguarde...")
 GuessWatts compara tarifas de eletricidade em Portugal.
 Não somos uma empresa de energia. Não vendemos nada.
 
-Dados: ERSE (atualizado mensalmente)
+Dados: ERSE, preços de dezembro de 2025.
+```
+
+A data vem de `data/meta.json` (`build.sourceUpdatedAt`) e é escrita por `js/data-date.js`; nunca se
+promete uma frequência de atualização. Quando os preços têm mais de 45 dias, aparece por baixo:
+
+```
+Estes preços têm mais de 45 dias. Confirma no site do operador antes de mudar.
 ```
 
 ---
@@ -672,7 +716,7 @@ Dados actualizados a cada 4 meses. Usar contextualmente, sempre com referência 
 
 **No hero:**
 ```
-87% dos portugueses já estão no mercado livre.
+88% das casas já estão no mercado livre.
 Se ainda não comparaste, podes estar a perder dinheiro.
 ```
 
@@ -687,7 +731,7 @@ O processo é gratuito e demora em média 5 dias.
 ```
 Portugal tem eletricidade 22% mais barata que a média da Zona Euro.
 Mas dentro de Portugal, ainda há diferenças grandes entre tarifas.
-<small>Fonte: Eurostat via ERSE, 1º Semestre 2025</small>
+<small>Fonte: ERSE, Síntese Mensal do mercado livre, junho de 2026 (88,1% dos clientes residenciais)</small>
 ```
 
 ### Regras
@@ -776,7 +820,6 @@ Antes de aprovar qualquer texto:
 
 | Etapa | Tempo |
 |-------|-------|
-| Processo típico | 5-7 dias úteis |
 | Máximo legal | 3 semanas |
 | Última fatura do antigo | Até 6 semanas depois |
 

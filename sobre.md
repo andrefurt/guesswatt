@@ -10,7 +10,7 @@ Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.
 
 Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem comparar — e perde dinheiro.
 
-Mudar de fornecedor é gratuito, demora menos de uma semana, e não requer qualquer intervenção técnica. Mas quase ninguém o faz.
+Mudar de fornecedor é gratuito, demora no máximo 3 semanas e não requer qualquer intervenção técnica. Mas quase ninguém o faz.
 
 O GuessWatts existe para quebrar essa inércia.
 
@@ -21,8 +21,10 @@ Usamos os dados oficiais da ERSE (Entidade Reguladora dos Serviços Energéticos
 Para cada tarifa, calculamos:
 - Termo fixo (€/dia) × 30 dias
 - Termo variável (€/kWh) × consumo mensal
-- Taxas (audiovisual, IEC)
-- IVA a 23%
+- Taxas: contribuição audiovisual, IEC e taxa da DGEG
+- IVA a 6% nos primeiros 200 kWh do mês (300 kWh em casas com 5 ou mais pessoas), até 6,9 kVA
+- IVA a 6% na parte do termo fixo que paga o acesso às redes, até 3,45 kVA
+- IVA a 23% no resto, exceto na contribuição audiovisual, que paga 6%
 
 ## Fonte dos dados
 
@@ -30,7 +32,7 @@ Os dados vêm directamente da ERSE:
 - Preços por tarifa, potência e tipo de contagem
 - Condições comerciais (fidelização, contactos, links)
 
-Actualizamos mensalmente quando a ERSE publica novos dados.
+Usamos os dados publicados pela ERSE; a data dos preços aparece no fundo de cada página.
 
 ## Limitações
 

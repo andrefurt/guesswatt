@@ -310,6 +310,9 @@
               <!-- Manual Form (Preciso view - manual mode) -->
               <div class="manual-form" id="manual-form">
                 <form id="precise-form">
+                  <!-- Shown when a PDF was read but a field was missing (pdf-service.js) -->
+                  <p class="form-note" id="manual-form-note" role="status" hidden></p>
+
                   <!-- Row 1: Operador, Tarifa, Potência -->
                   <div class="form-row">
                     <div class="form-field">
@@ -396,21 +399,20 @@
           </div>
         </div>
 
+        <!-- Estimate mode: shown when the bill is outside 20 to 500 € (main.js) -->
+        <p class="form-note estimate-note" id="estimate-note" role="alert" hidden>Indica um valor entre 20 € e 500 €.</p>
+
+        <!-- Household size: picks the 200 or 300 kWh reduced-VAT threshold -->
+        <div class="household-option">
+          <input type="checkbox" id="large-household" name="large-household">
+          <label for="large-household">Somos 5 ou mais pessoas em casa</label>
+        </div>
+
         <!-- Highlights -->
         <div class="highlights">
           <div class="highlight-row">
             <div class="highlight-row-inner">
-              <p class="highlight-text">87% das pessoas já estão no mercado livre. <em>Fonte:</em> <a href="https://ec.europa.eu/eurostat" target="_blank" rel="noopener">Eurostat</a></p>
-            </div>
-          </div>
-          <div class="highlight-row">
-            <div class="highlight-row-inner">
-              <p class="highlight-text">55% das pessoas pagam mais 200€/ano por inércia. <em>Fonte:</em> <a href="https://www.erse.pt/media/s2xluwec/202508_ele_rel_ml.pdf" target="_blank" rel="noopener">ERSE</a></p>
-            </div>
-          </div>
-          <div class="highlight-row">
-            <div class="highlight-row-inner">
-              <p class="highlight-text">60% das pessoas no mercado livre nunca mudaram de operador. <em>Fonte:</em> <a href="https://www.erse.pt/media/s2xluwec/202508_ele_rel_ml.pdf" target="_blank" rel="noopener">ERSE</a></p>
+              <p class="highlight-text">88% das casas já estão no mercado livre. <em>Fonte:</em> <a href="https://www.erse.pt/media/pt0obw32/202606_ele_rel_ml.pdf" target="_blank" rel="noopener">ERSE, junho de 2026</a></p>
             </div>
           </div>
         </div>
@@ -441,11 +443,12 @@
 
       <!-- Footer -->
       <footer class="footer">
-        <p class="footer-text">Guesswatts compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a> (atualizado mensalmente)</p>
-        <div class="footer-updated">
+        <p class="footer-text">Guesswatts compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a><span id="data-date" hidden>, preços de <time></time></span>.</p>
+        <!-- Shown by js/data-date.js when the prices are more than 45 days old -->
+        <p class="footer-updated" id="data-stale" hidden>
           <i class="ph-duotone ph-clock" aria-hidden="true"></i>
-          <span>Actualizado em Novembro de 2025</span>
-        </div>
+          <span>Estes preços têm mais de 45 dias. Confirma no site do operador antes de mudar.</span>
+        </p>
       </footer>
     </div>
   </div>
@@ -471,7 +474,7 @@
         <section aria-labelledby="why" class="about-section">
           <h2 id="why" class="about-heading">Porquê</h2>
           <p class="about-text">Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem mudar, gastando mais do que devia.</p>
-          <p class="about-text">Mudar de fornecedor é gratuito, demora menos de uma semana, e não requer qualquer intervenção técnica. Mas quase ninguém o faz.</p>
+          <p class="about-text">Mudar de fornecedor é gratuito, demora no máximo 3 semanas e não requer qualquer intervenção técnica. Mas quase ninguém o faz.</p>
           <p class="about-text">GuessWatts existe para quebrar essa inércia.</p>
         </section>
         
@@ -490,8 +493,10 @@
           <ul class="about-list">
             <li>Termo fixo (€/dia) × 30 dias</li>
             <li>Termo variável (€/kWh) × consumo mensal (ajustado conforme o tipo de tarifa: simples, bi-horária ou tri-horária)</li>
-            <li>Taxas (taxa audiovisual e IEC)</li>
-            <li>IVA a 23%</li>
+            <li>Taxas: contribuição audiovisual, IEC e taxa da DGEG</li>
+            <li>IVA a 6% nos primeiros 200 kWh do mês (300 kWh em casas com 5 ou mais pessoas), até 6,9 kVA</li>
+            <li>IVA a 6% na parte do termo fixo que paga o acesso às redes, até 3,45 kVA</li>
+            <li>IVA a 23% no resto, exceto na contribuição audiovisual, que paga 6%</li>
           </ul>
           <p class="about-text">Comparamos todas as ofertas disponíveis para o teu perfil (potência contratada e tipo de tarifa) e ordenamos por custo anual efectivo. Por predefinição, excluímos ofertas com fidelização obrigatória.</p>
         </section>
@@ -504,7 +509,7 @@
             <li>Condições comerciais (fidelização, contactos telefónicos, links para adesão)</li>
             <li>Informações sobre comercializadores e logótipos</li>
           </ul>
-          <p class="about-text">Actualizamos mensalmente quando a <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a> publica novos dados. O processamento é feito localmente no teu navegador — os teus dados nunca saem do teu dispositivo.</p>
+          <p class="about-text">Usamos os dados publicados pela <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a>; a data dos preços aparece no fundo de cada página. O processamento é feito localmente no teu navegador — os teus dados nunca saem do teu dispositivo.</p>
         </section>
         
         <section aria-labelledby="limitations" class="about-section">
@@ -523,6 +528,7 @@
 
   <script type="module" src="components.js"></script>
   <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/data-date.js"></script>
   <script>
     // Animated ASCII thunderbolt
     function initThunderbolt() {

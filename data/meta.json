@@ -1,23 +1,53 @@
 {
   "build": {
-    "builtAt": "2025-12-08T01:30:27.139Z",
-    "sourceUpdatedAt": null,
-    "offersCount": 7164,
+    "builtAt": "2026-10-20T23:30:25.294Z",
+    "sourceUpdatedAt": "2025-12-01T00:00:00Z",
+    "sourceDateNote": "Date the CSVs were first committed (1d62c2e); ERSE's export date was not recorded, so the prices are at least this old",
+    "offersCount": 5492,
     "rowCounts": {
       "prices": 13517,
       "conditions": 708
     },
     "filtersApplied": {
       "fornecimento": "ELE only (excluded GN and DUAL)",
+      "segmento": "Dom and Tod only (excluded Ndom)",
+      "restricted": "kept with isRestricted; never ranked (js/calculator.js)",
       "lockInExcluded": false
     },
+    "providers": {
+      "EDPSU": 33,
+      "ALFAENERGIA": 62,
+      "AUDAX": 184,
+      "COOP": 66,
+      "EDPC": 853,
+      "END": 591,
+      "ENIPLENITUDE": 247,
+      "EZUENERGIA": 132,
+      "G9ENERGY": 198,
+      "GALP": 853,
+      "GOLD": 257,
+      "IBD": 410,
+      "IBELECTRA": 270,
+      "JAFPLUS": 23,
+      "LOGICA": 23,
+      "LUZBOA": 132,
+      "LUZIGAS": 130,
+      "MEOENERGIA": 42,
+      "MUON": 62,
+      "NABALIAENERGIA": 58,
+      "NOSSAENERGIA": 62,
+      "OENEO": 66,
+      "PORTULOGOS": 33,
+      "REPSOL": 626,
+      "USENERGY": 33,
+      "YESENERGY": 46
+    },
     "statistics": {
-      "lockInCount": 1410,
+      "lockInCount": 313,
       "lockInBySourceTotals": {
-        "field": 921,
-        "text": 489
+        "field": 313,
+        "text": 0
       },
-      "activeOffersCount": 2010,
       "promotionsWithMetadataCount": 306,
       "promotionsWithKnownActiveStatusCount": 0,
       "promotionsActiveCount": 0,
@@ -242,22 +272,6 @@
     ],
     "lockInSamples": [
       {
-        "COM": "EDPSU",
-        "COD_Proposta": "TUR",
-        "NomeProposta": "Condições de preço regulado",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Não tem fidelização Tarifa Regulada de Último Recurso e Tarifas em regime equiparado -"
-      },
-      {
-        "COM": "CUR",
-        "COD_Proposta": "CUR",
-        "NomeProposta": "Tarifa Mercado Regulado",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Não tem fidelização Tarifa Transitória -"
-      },
-      {
         "COM": "ALFAENERGIA",
         "COD_Proposta": "ALFAENERGIA_02",
         "NomeProposta": "Tarifa ALFA GÁS FIXO BP< PIONEIROS 2025",
@@ -346,30 +360,6 @@
         "snippet": "Para a modalidades de contratação em Preço Indexado que tenham um período de fidelização nos termos da cláusula 19 do RRC, a denúncia antecipada do Contrato pel"
       },
       {
-        "COM": "DOUROGAS",
-        "COD_Proposta": "DOUROGAS_03",
-        "NomeProposta": "Gás Natural - MAIS POUPANÇA",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Adesão 100% online com Débito direto, fatura eletrónica e sem fidelização. Atualizado com tarifas acesso a 01 Outubro 2025."
-      },
-      {
-        "COM": "ELERGONE",
-        "COD_Proposta": "ELERGONE_01",
-        "NomeProposta": "Elergone Corporate",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Oferta para BTN Empresarial, Tarifa Simples, Bi-Horária e Tri-Horária, para todas as classes de potência, preço indexado ao mercado diário OMIE (média mensal),"
-      },
-      {
-        "COM": "END",
-        "COD_Proposta": "END_03",
-        "NomeProposta": "Tarifa A Sua Empresa",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Com a Tarifa A Sua Empresa tem um desconto sobre o termo de energia permanente de 8% + 10% aplicável durante os 3 primeiros meses sem complicações nem fidelizaç"
-      },
-      {
         "COM": "EZUENERGIA",
         "COD_Proposta": "EZUENERGIA_08",
         "NomeProposta": "Tarifa EZU Outono Multibanco Empresas",
@@ -400,11 +390,51 @@
         "lockInSource": "field",
         "lockInMonths": 12,
         "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      },
+      {
+        "COM": "EZUENERGIA",
+        "COD_Proposta": "EZUENERGIA_03",
+        "NomeProposta": "Tarifa EZU Indexada Empresas Maxi",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      },
+      {
+        "COM": "EZUENERGIA",
+        "COD_Proposta": "EZUENERGIA_05",
+        "NomeProposta": "Tarifa EZU Indexada Empresas Multibanco",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      },
+      {
+        "COM": "GALP",
+        "COD_Proposta": "GALP_08",
+        "NomeProposta": "Junta+ Eletricidade Verde & Gás Natural & Combustível & Galp 360 Casa Fidelização 12 Meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização é aplicável aos serviços adicionais por um período de 12 meses. Em caso de rescisão antecipada dos serviços adicionais, a penalização calculada pelo"
+      },
+      {
+        "COM": "GALP",
+        "COD_Proposta": "GALP_13",
+        "NomeProposta": "Junta+ Eletricidade Verde & Gás Natural & Combustível & Galp 360 Casa Fidelização 12 Meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização é aplicável aos serviços adicionais por um período de 12 meses. Em caso de rescisão antecipada dos serviços adicionais, a penalização calculada pelo"
+      },
+      {
+        "COM": "GALP",
+        "COD_Proposta": "GALP_14",
+        "NomeProposta": "Junta+ Eletricidade Verde & Gás Natural & Combustível & Galp 360 Casa Fidelização 12 Meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização é aplicável aos serviços adicionais por um período de 12 meses. Em caso de rescisão antecipada dos serviços adicionais, a penalização calculada pelo"
       }
     ],
     "lockInBySource": {
-      "field": 15,
-      "text": 5
+      "field": 20,
+      "text": 0
     },
     "promotionParsedSamples": [
       {

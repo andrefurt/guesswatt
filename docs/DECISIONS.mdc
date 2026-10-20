@@ -29,12 +29,13 @@ Decisões técnicas e de produto documentadas. Cada ADR segue o formato: context
 - [ADR-010](#adr-010-defaults-assumidos) Defaults Assumidos
 
 ### Output & UX
-- [ADR-011](#adr-011-loss-framing) Loss Framing ("Perdes €X")
+- [ADR-011](#adr-011-loss-framing) Loss Framing ("Perdes €X"), substituído em outubro de 2026
 - [ADR-012](#adr-012-cartão-de-oferta-com-detalhes-expansíveis) Cartão de Oferta com Detalhes Expansíveis
 - [ADR-013](#adr-013-tooltips-para-termos-técnicos) Tooltips para Termos Técnicos
 - [ADR-014](#adr-014-top-n-ofertas-não-todas) Top N Ofertas, Não Todas
 - [ADR-015](#adr-015-contactos-reais-do-csv) Contactos Reais do CSV
 - [ADR-021](#adr-021-provider-logo-implementation-hybrid-cascading-fallback) Provider Logo Implementation - Hybrid Cascading Fallback
+- [ADR-022](#adr-022-ofertas-condicionadas-e-indexadas) Ofertas Condicionadas e Indexadas
 
 ### Funcionalidades
 - [ADR-016](#adr-016-calendário-2-meses-default) Calendário: 2 Meses Default
@@ -329,26 +330,32 @@ Calcular factura mensal a partir dos dados CSV.
 custoMensal = (TF × 30) + (consumo × TV)
 
 // Bi-horária (com distribuição assumida)
-custoMensal = (TF × 30) + (consumo × 0.35 × TVV) + (consumo × 0.65 × TVFV)
+custoMensal = (TF × 30) + (consumo × 0.40 × TVV) + (consumo × 0.60 × TVFV)
 
 // Tri-horária (com distribuição assumida)
 custoMensal = (TF × 30) + (consumo × 0.30 × TVVz) + (consumo × 0.50 × TVC) + (consumo × 0.20 × TVP)
 
-// Taxas e IVA
-subtotal = custoMensal + IEC + audiovisual
-total = subtotal × 1.23
+// Taxas e IVA por componente (revisto em outubro de 2026)
+total = energia com IVA a 6%/23% + termo fixo com IVA a 6%/23%
+      + IEC × 1.23 + DGEG × 1.23 + audiovisual × 1.06
 ```
 
 **Constantes:**
-- IVA: 23%
-- Audiovisual: €2.85/mês
-- IEC: €0.001/kWh
+- IVA: 6% nos primeiros 200 kWh por 30 dias (300 kWh em famílias de 5 ou mais) até 6,9 kVA; 6% na parte de acesso às redes (TAR) do termo fixo até 3,45 kVA; 23% no resto
+- Audiovisual: €2.85/mês, IVA 6%
+- IEC: €0.001/kWh, IVA 23%
+- Taxa DGEG: €0.07/mês, IVA 23%
 - Dias/mês: 30
 
+**Revisão (outubro de 2026):** a v2 aplicava IVA a 23% a tudo e omitia a taxa DGEG, o que
+sobrestimava o custo mensal em 7 a 12% até 6,9 kVA (auditoria de outubro de 2026, ACC-1). O IVA
+passou a ser aplicado por componente, como no ERSExplica da ERSE; o TAR do termo fixo vem de
+`data/tar.json`. Detalhe em `docs/DATA_MODEL.mdc`, "Taxes and VAT".
+
 **Consequências:**
-- ✅ Alinhado com fórmula ERSE
-- ✅ Validado contra facturas reais
-- ⚠️ Variação ±2% vs factura real (simplificação IVA)
+- ✅ Reproduz os exemplos 1, 3 e 4 do ERSExplica ao cêntimo (selftest)
+- ⚠️ Uma fonte anual a mais: `data/tar.json` muda com as tarifas da ERSE de cada ano
+- ⚠️ Não modela tarifa social nem as taxas das regiões autónomas
 
 ---
 
@@ -367,8 +374,12 @@ Quando o utilizador só dá €/mês, precisamos de assumir valores.
 |-----------|---------|-------|
 | Potência | 4.6 kVA | Mais comum em Portugal |
 | Tarifa | Simples (1) | Mais comum, conservador |
-| Distribuição bi-horária | 35% vazio / 65% fora | Média típica |
-| Distribuição tri-horária | 30% vazio / 50% cheias / 20% ponta | Média típica |
+| Distribuição bi-horária | 40% vazio / 60% fora | Pressuposto do simulador da ERSE (era 35/65 até outubro de 2026); no PDF usa-se a repartição da fatura |
+| Distribuição tri-horária | 30% vazio / 50% cheias / 20% ponta | Sem fonte oficial; no PDF usa-se a repartição da fatura |
+
+Os defaults valem só para o modo estimado. No modo preciso (PDF) nunca se assume consumo nem
+potência: se o PDF não os dá, abre-se o formulário manual com o resto preenchido (outubro de 2026,
+auditoria FE-1).
 
 **Consequências:**
 - ✅ Permite cálculo com input mínimo
@@ -381,7 +392,22 @@ Quando o utilizador só dá €/mês, precisamos de assumir valores.
 
 **Data:** Novembro 2025 (v2)
 
-**Status:** ✅ Aceite
+**Status:** 🔄 Substituído (outubro de 2026)
+
+**Substituição (2026-10-20, decisão do dono):** a mensagem de perda nunca chegou ao código, que
+mostrava "Poupas" também no modo estimado. Aí a poupança comparava a mediana do mercado com a melhor
+oferta, não a tarifa da pessoa, e qualquer fatura acima de cerca de €22 mostrava uma poupança
+(auditoria de outubro de 2026, UX-1). Agora:
+- **Modo estimado:** "A melhor oferta custa cerca de €Y/mês. Metade das ofertas custa mais de
+  €Z/mês." (mediana das ofertas que podem ganhar, que as ofertas com equipamento incluído não
+  distorcem), seguido de um botão para o modo Preciso. Aceita faturas de 20 € a 500 €.
+- **Modo preciso:** "Poupas €X/mês" contra a oferta mais barata do operador atual, como antes.
+
+Decisão do dono (2026-10-21) sobre o número do mercado: a mediana, escrita como "Metade das
+ofertas custa mais de €Z/mês", e não a média, que as ofertas com equipamento puxavam para €103 numa
+fatura de €80.
+
+A decisão original fica abaixo como registo.
 
 **Contexto:**
 Como apresentar o resultado? Opções:
@@ -699,6 +725,11 @@ Dados ERSE incluem doméstico e empresarial.
 **Decisão:**
 Filtrar para doméstico apenas (`Segmento !== 'Ndom'`).
 
+**Implementação (outubro de 2026):** até aqui o filtro não existia no código e o modo preciso
+recomendava ofertas Ndom (auditoria de outubro de 2026, DOCS-1). Passou a ser aplicado em
+`scripts/build-offers.js`, por isso `offers.json` só tem ofertas `Dom` e `Tod`; o selftest falha se
+aparecer uma Ndom.
+
 **Razões:**
 - Preços empresariais são mais complexos
 - Empresas têm necessidades diferentes
@@ -771,6 +802,37 @@ Implementar sistema híbrido com cascading fallback:
 - ✅ Zero manutenção manual
 - ⚠️ Dependência de serviços externos (Clearbit, Google)
 - ⚠️ Ligeira latência no loading de logos (não bloqueante)
+
+---
+
+## ADR-022: Ofertas Condicionadas e Indexadas
+
+**Data:** Outubro 2026
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+Em cerca de 87% dos perfis a melhor oferta era a COOP_04, só para cooperantes da Coopérnico e com
+preço indexado ao mercado horário, mostrada como um custo fixo sem aviso (auditoria de outubro de
+2026, ACC-3). A ERSE marca as ofertas condicionadas com `FiltroRestrições = S` (cooperantes,
+códigos "Plano Amigo", clientes Continente ou de GPL) e as indexadas com `FiltroPrecosIndex = S`.
+
+**Opções consideradas:**
+1. Mostrar tudo, como a lista por omissão do simulador da ERSE
+2. Excluir condicionadas e indexadas
+3. Excluir condicionadas; manter indexadas com a data dos preços
+
+**Decisão:**
+Opção 3, decidida pelo dono em 2026-10-20. As condicionadas ficam em `offers.json` com
+`isRestricted: true` e nunca são recomendadas (`js/calculator.js`), mas continuam a servir de base
+para calcular a poupança de quem já as tem. As indexadas mostram a linha "Preço indexado: valores de
+<mês ano>", com a data de `meta.json`.
+
+**Consequências:**
+- ✅ Ninguém é encaminhado para uma oferta a que não pode aderir
+- ✅ Clientes da Coopérnico e da MEO Energia continuam a poder escolher o operador atual
+- ⚠️ O vencedor muda em cerca de 80% dos perfis
+- ⚠️ O custo de uma indexada é uma estimativa com os preços dessa data
 
 ---
 

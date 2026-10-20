@@ -65,6 +65,7 @@ guesswatt/
 │   ├── main.js             # Application entry point
 │   ├── calculator.js       # Cost calculation logic
 │   ├── config.js           # Configuration constants
+│   ├── data-date.js        # Footer price date and stale notice
 │   ├── pdf-service.js      # PDF parsing (client-side)
 │   ├── ui-components.js    # UI component initialization
 │   ├── ui-handlers.js      # Event handlers
@@ -74,8 +75,9 @@ guesswatt/
 │   ├── Precos_ELEGN.csv    # Price data from ERSE
 │   ├── CondComerciais.csv  # Commercial conditions from ERSE
 │   ├── offers.json         # Built/optimized offers (preferred)
-│   ├── meta.json           # Metadata (update dates, row counts)
-│   └── last-update.json    # Legacy format for footer display
+│   ├── tar.json            # Yearly ERSE access tariff (fixed term) for reduced VAT
+│   ├── meta.json           # Metadata (price date, row counts)
+│   └── last-update.json    # Legacy, no longer read by the page
 ├── scripts/                # Build and maintenance scripts
 │   ├── download-erse.js    # Download latest ERSE CSVs
 │   ├── build-offers.js     # Build offers.json from CSVs
@@ -126,7 +128,7 @@ ES6 modules with clear separation of concerns:
 - **State management**: URL-based state (no localStorage)
 - **Business logic**: Pure functions in `calculator.js`
 - **UI logic**: Component initialization and event handling
-- **Data loading**: CSV/JSON parsing with fallback support
+- **Data loading**: `offers.json` built from the ERSE CSVs at build time (no CSV parsing in the browser)
 
 ## 📊 Data Pipeline
 
@@ -181,22 +183,19 @@ fixedTerm = TF × 30
 
 // Variable term (depends on tariff type)
 // Simple: consumption × TV
-// Bi-hourly: consumption × (0.35 × TVV + 0.65 × TVFV)
+// Bi-hourly: consumption × (0.40 × TVV + 0.60 × TVFV), or the split read from a PDF bill
 // Tri-hourly: consumption × (0.30 × TVVz + 0.50 × TVC + 0.20 × TVP)
 
-// Taxes
-iec = consumption × 0.001
-subtotal = fixedTerm + variableTerm + iec + 2.85
-total = subtotal × 1.23  // VAT
+// Taxes: IEC 0.001 €/kWh, DGEG 0.07 €/month, audiovisual 2.85 €/month
+// VAT per component (6% or 23%): see "Taxes and VAT" in docs/DATA_MODEL.mdc
 ```
 
 ### Consumption Estimation
 
 When only monthly bill amount is provided:
 
-1. Remove VAT (÷ 1.23)
-2. Subtract fixed costs (estimated fixed term + audiovisual tax)
-3. Divide remainder by average price per kWh (data-driven median)
+1. Build a typical offer from the data (median fixed term and median energy price at 4.6 kVA)
+2. Find the consumption whose monthly cost on that offer equals the bill (bisection on the cost formula)
 
 ### Best Offer Selection
 

@@ -60,6 +60,7 @@ guesswatt/
 │   ├── main.js             # Entry point
 │   ├── calculator.js        # Business logic
 │   ├── config.js            # Constants
+│   ├── data-date.js         # Footer price date and stale notice
 │   ├── pdf-service.js       # PDF parsing (includes cycle detection)
 │   ├── ui-components.js     # UI initialization
 │   ├── ui-handlers.js       # Event handlers
@@ -69,7 +70,8 @@ guesswatt/
 │   ├── Precos_ELEGN.csv    # Price data
 │   ├── CondComerciais.csv  # Conditions data
 │   ├── offers.json         # Built offers
-│   └── meta.json           # Metadata
+│   ├── tar.json            # Yearly ERSE access tariff (fixed term) for reduced VAT
+│   └── meta.json           # Metadata, including the price date
 ├── scripts/                # Build scripts
 │   ├── download-erse.js    # Download ERSE data
 │   ├── build-offers.js     # Build offers.json

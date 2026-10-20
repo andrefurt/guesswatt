@@ -4,13 +4,13 @@
  */
 
 import { DEFAULT_POWER, PROVIDERS } from './config.js';
-import { loadOffers, toTitleCase } from './utils.js';
+import { loadOffers, toTitleCase, isLargeHousehold } from './utils.js';
 import { 
   estimateConsumption, 
   calculateMonthlyCost, 
   findBestOffer, 
-  findBestOfferForTariff, 
-  enrichOffer 
+  findBestOfferForTariff,
+  marketMedianCost
 } from './calculator.js';
 import { 
   initPDFUpload, 
@@ -101,6 +101,10 @@ function setManualFormVisible(visible) {
 // FORM HANDLERS
 // =============================================================================
 
+// Estimate mode accepts bills in this range (€/month)
+const MIN_BILL = 20;
+const MAX_BILL = 500;
+
 /**
  * Handler for estimate form submission
  * @param {Event} e - Form submit event
@@ -108,10 +112,19 @@ function setManualFormVisible(visible) {
 async function handleEstimateSubmit(e) {
   e.preventDefault();
   
-  const monthlyBill = parseFloat(document.getElementById('monthly-bill').value);
+  const monthlyBill = parseFloat(String(document.getElementById('monthly-bill').value).replace(',', '.'));
   const resultDiv = document.getElementById('result');
   
   if (!resultDiv) return;
+  
+  // The estimate only holds for typical household bills
+  const billNote = document.getElementById('estimate-note');
+  if (!(monthlyBill >= MIN_BILL && monthlyBill <= MAX_BILL)) {
+    if (billNote) billNote.hidden = false;
+    document.getElementById('monthly-bill')?.focus();
+    return;
+  }
+  if (billNote) billNote.hidden = true;
   
   resultDiv.innerHTML = '<p>A calcular...</p>';
   
@@ -119,54 +132,25 @@ async function handleEstimateSubmit(e) {
   setEstimadoData(monthlyBill);
   
   try {
-    // 1. Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions, offers } = await loadOffers();
+    // 1. Carregar dados
+    const { offers, tar, dataDate } = await loadOffers();
+    const context = { tar, largeHousehold: isLargeHousehold() };
     
     // 2. Estimar consumo (data-driven if offers available)
-    const consumption = estimateConsumption(monthlyBill, offers);
+    const consumption = estimateConsumption(monthlyBill, offers, context);
     
-    // 3. Use offers.json if available (already filtered to ELE-only at build time)
-    // Otherwise filter CSV data to ELE-only
-    let offersToSearch;
-    if (offers && offers.length > 0) {
-      // offers.json already contains ELE-only offers with all metadata
-      offersToSearch = offers;
-    } else {
-      // CSV fallback: filter to ELE-only
-      const electricityOnly = prices.filter(p => {
-        const condition = conditions.find(c => 
-          c.COM === p.COM && c.COD_Proposta === p.COD_Proposta
-        );
-        if (condition && condition.Fornecimento) {
-          return condition.Fornecimento === 'ELE';
-        }
-        // If no condition data, assume electricity (backward compatibility)
-        return true;
-      });
-      // Convert to offer-like format for compatibility
-      offersToSearch = electricityOnly.map(p => ({
-        ...p,
-        tariffName: '',
-        website: '',
-        phone: '',
-        fornecimento: '',
-        segmento: '',
-        validFrom: '',
-        validTo: '',
-        isIndexed: false,
-        hasLockIn: false,
-        promotion: null,
-        isCampaignActive: null
-      }));
-    }
     
     // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
-    const best = findBestOffer(offersToSearch, consumption, DEFAULT_POWER);
+    const best = findBestOffer(offers, consumption, DEFAULT_POWER, context);
     
-    // 5. Enriquecer com nome da tarifa e metadata (if not already enriched)
-    const enrichedBest = offers ? best : enrichOffer(best, conditions);
+    // 5. Juntar a data dos preços e a mediana do mercado (o modo estimado não mostra poupança)
+    const enrichedBest = {
+      ...best,
+      dataDate,
+      marketMedianCost: marketMedianCost(offers, consumption, DEFAULT_POWER, 1, null, context)
+    };
     
-    // 6. Renderizar resultado (usa monthlyBill para calcular poupança)
+    // 6. Renderizar resultado
     renderResult(enrichedBest, consumption, DEFAULT_POWER, monthlyBill, null, true, getCurrentMode(), setTabResult);
     
   } catch (error) {
@@ -181,6 +165,10 @@ async function handleEstimateSubmit(e) {
  */
 async function handlePreciseSubmit(e) {
   e.preventDefault();
+  
+  // The "missing field" note from a partial PDF has done its job once the form is sent
+  const formNote = document.getElementById('manual-form-note');
+  if (formNote) formNote.hidden = true;
   
   const consumption = parseFloat(document.getElementById('consumption').value);
   const power = parseFloat(document.getElementById('power').value);
@@ -215,49 +203,16 @@ async function handlePreciseSubmit(e) {
       throw new Error('Introduz um consumo válido');
     }
     
-    // 2. Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions, offers } = await loadOffers();
+    // 2. Carregar dados
+    const { offers, tar, dataDate } = await loadOffers();
+    const context = { tar, largeHousehold: isLargeHousehold() };
     
-    // 3. Use offers.json if available (already filtered to ELE-only at build time)
-    // Otherwise filter CSV data to ELE-only
-    let offersToSearch;
-    if (offers && offers.length > 0) {
-      // offers.json already contains ELE-only offers with all metadata
-      offersToSearch = offers;
-    } else {
-      // CSV fallback: filter to ELE-only
-      const electricityOnly = prices.filter(p => {
-        const condition = conditions.find(c => 
-          c.COM === p.COM && c.COD_Proposta === p.COD_Proposta
-        );
-        if (condition && condition.Fornecimento) {
-          return condition.Fornecimento === 'ELE';
-        }
-        // If no condition data, assume electricity (backward compatibility)
-        return true;
-      });
-      // Convert to offer-like format for compatibility
-      offersToSearch = electricityOnly.map(p => ({
-        ...p,
-        tariffName: '',
-        website: '',
-        phone: '',
-        fornecimento: '',
-        segmento: '',
-        validFrom: '',
-        validTo: '',
-        isIndexed: false,
-        hasLockIn: false,
-        promotion: null,
-        isCampaignActive: null
-      }));
-    }
     
     // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
-    const best = findBestOfferForTariff(offersToSearch, consumption, power, tariffType);
+    const best = findBestOfferForTariff(offers, consumption, power, tariffType, null, context);
     
-    // 5. Enriquecer com nome da tarifa e metadata (if not already enriched)
-    const enrichedBest = offers ? best : enrichOffer(best, conditions);
+    // 5. Juntar a data dos preços (mostrada nas ofertas indexadas)
+    const enrichedBest = { ...best, dataDate };
     
     // 6. Calcular poupança se houver operador actual
     let savings = null;
@@ -267,7 +222,7 @@ async function handlePreciseSubmit(e) {
       const normalizedTariffType = typeof tariffType === 'number' ? tariffType : parseInt(tariffType);
       
       // Encontrar ofertas do operador actual com mesma potência e tarifa
-      const currentProviderOffers = offersToSearch.filter(o => {
+      const currentProviderOffers = offers.filter(o => {
         const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
         const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
         const contagem = typeof o.Contagem === 'number' ? o.Contagem : parseInt(o.Contagem);
@@ -286,7 +241,7 @@ async function handlePreciseSubmit(e) {
         // Calcular custo com a melhor oferta do operador actual
         const currentProviderCosts = currentProviderOffers.map(offer => ({
           ...offer,
-          monthlyCost: calculateMonthlyCost(offer, consumption, power)
+          monthlyCost: calculateMonthlyCost(offer, consumption, power, null, context)
         }));
         
         // Ordenar por custo e pegar a mais barata
@@ -407,6 +362,14 @@ function init() {
       setManualFormVisible(false);
     });
   }
+  
+  // "Usa o modo Preciso" in an estimate result: back to the form, on the Preciso tab
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#go-precise')) {
+      hideResults();
+      document.getElementById('tab-preciso')?.click();
+    }
+  });
   
   // Inicializar tooltips
   initTooltips();

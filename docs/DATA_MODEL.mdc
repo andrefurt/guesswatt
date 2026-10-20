@@ -65,7 +65,7 @@ Key columns we use (full CSV has 60+ columns):
 | `COM` | string | Provider code (join key) | `EDPC` |
 | `COD_Proposta` | string | Offer code (join key) | `EDPC_01` |
 | `NomeProposta` | string | Human-readable offer name | `Tarifa Digital` |
-| `Segmento` | string | Target segment | `Tod`, `Dom`, `Ndom` |
+| `Segmento` | string | Target segment (`Ndom` is dropped at build time) | `Tod`, `Dom`, `Ndom` |
 | `TipoContagem` | string | Supported tariff types | `1`, `2`, `3`, `123` |
 | `Fornecimento` | string | Energy type | `ELE`, `GN`, `DUAL` |
 | `DuracaoContrato` | int | Contract duration (months) | `12` |
@@ -130,15 +130,17 @@ const fullOffer = { ...offer, ...conditions };
 ### Constants
 
 ```javascript
-const IVA = 0.23;                    // 23% VAT
 const DIAS_MES = 30;                 // Days per month
-const AUDIOVISUAL = 2.85;            // Monthly TV tax (€)
-const IEC_KWH = 0.001;               // Special consumption tax (€/kWh)
+const AUDIOVISUAL = 2.85;            // Monthly TV tax (€), VAT 6%
+const IEC_KWH = 0.001;               // Special consumption tax (€/kWh), VAT 23%
+const DGEG = 0.07;                   // Monthly DGEG fee (€), VAT 23%
+// VAT rates and thresholds live in js/config.js; see "Taxes and VAT" below
 
-// Consumption distribution assumptions (when unknown)
+// Consumption distribution assumptions (when unknown; a PDF bill's own split wins).
+// The tri-hourly split has no official source.
 const BI_HORARIA = {
-  vazio: 0.35,      // 22h-08h
-  foraVazio: 0.65   // 08h-22h
+  vazio: 0.40,      // 22h-08h; ERSE simulator's assumption (manual, p. 15)
+  foraVazio: 0.60   // 08h-22h
 };
 
 const TRI_HORARIA = {
@@ -195,44 +197,36 @@ function calcularCustoMensal(potencia, consumoKwh, tipoTarifa, oferta, distribui
       consumoKwh * dist.ponta * oferta.TVP;
   }
   
-  // Taxes
-  const iec = consumoKwh * IEC_KWH;
-  const subtotal = termoFixo + termoVariavel + iec + AUDIOVISUAL;
-  const iva = subtotal * IVA;
-  
-  return subtotal + iva;
+  // Taxes and VAT are applied per component: see "Taxes and VAT" below
 }
 ```
+
+### Taxes and VAT
+
+`calculateMonthlyCost` in `js/calculator.js` applies VAT per component, as ERSE's
+"ERSExplica: Aplicação do IVA na fatura de eletricidade" does:
+
+- **Energy:** 6% on the first 200 kWh per 30 days (300 kWh for households of 5 or more) at
+  6.9 kVA or below, 23% on the rest (Lei 38/2024). For bi- and tri-hourly tariffs the 6% share is
+  prorated across the periods, as in ERSE's Exemplo 3.
+- **Fixed term:** 6% on its network-access (TAR) share at 3.45 kVA or below, 23% on the rest
+  (DL 60/2019). The TAR fixed term per power comes from `data/tar.json` (ERSE Diretiva 10/2025
+  for 2026), which the loader fetches next to offers.json.
+- **IEC** (0.001 €/kWh) and the **DGEG fee** (0.07 €/month, Portaria 311/2002): 23%.
+- **Audiovisual contribution** (2.85 €/month): 6%.
+
+The household size is a `tax` option (`largeHousehold`). The selftest reproduces ERSE's examples
+1, 3 and 4 to the cent; they use the 2022 thresholds (100 and 150 kWh), passed as `reducedVatKwh`.
+Not modelled: the social tariff, and Madeira and Azores rates.
 
 ### Estimate Consumption from Invoice Amount
 
-```javascript
-/**
- * Reverse-calculate consumption from monthly bill
- * Used for €/month quick input
- * 
- * @param {number} valorFatura - Monthly bill amount (€)
- * @param {number} potencia - Assumed power (default: 4.6 kVA)
- * @param {number} precoMedioKwh - Average price (default: 0.18 €/kWh)
- * @returns {number} Estimated monthly consumption (kWh)
- */
-function estimarConsumo(valorFatura, potencia = 4.6, precoMedioKwh = 0.18) {
-  // Remove VAT
-  const semIva = valorFatura / (1 + IVA);
-  
-  // Remove fixed costs (estimated)
-  const termoFixoEstimado = 0.25 * DIAS_MES; // ~€7.50/month
-  const custosFixos = termoFixoEstimado + AUDIOVISUAL;
-  
-  // Remaining is variable consumption
-  const termoVariavel = semIva - custosFixos;
-  
-  // Estimate kWh
-  const consumoKwh = termoVariavel / precoMedioKwh;
-  
-  return Math.max(0, Math.round(consumoKwh));
-}
-```
+`estimateConsumption` in `js/calculator.js` inverts `calculateMonthlyCost` by bisection on a
+typical offer (`typicalOffer`): the median fixed term at 4.6 kVA and the median simple-tariff
+energy price in the loaded data. The estimate therefore uses the same formula and taxes as the
+costs shown afterwards; the fixed term is counted once. The result is clamped to 50 to 5000 kWh.
+Without data it falls back to 0.25 €/day and 0.18 €/kWh. The selftest pins the round trip
+(kWh to bill to kWh, within 1 kWh).
 
 ### Find Best Offer
 
@@ -412,21 +406,11 @@ jobs:
 
 ## Provider Mapping
 
-Human-readable names for UI:
-
-```javascript
-const providers = {
-  'EDPC': { name: 'EDP Comercial', short: 'EDP' },
-  'EDPSU': { name: 'SU Eletricidade', short: 'SU' },
-  'GALP': { name: 'Galp', short: 'Galp' },
-  'GOLD': { name: 'Goldenergy', short: 'Goldenergy' },
-  'ENDESA': { name: 'Endesa', short: 'Endesa' },
-  'IBER': { name: 'Iberdrola', short: 'Iberdrola' },
-  'REPSOL': { name: 'Repsol', short: 'Repsol' },
-  'MEO': { name: 'MEO Energia', short: 'MEO' },
-  // Add as providers appear in data
-};
-```
+ERSE publishes supplier codes (`COM`) only, never names. `PROVIDERS` in `js/config.js` names every
+code in `offers.json`, and the dropdown and the result card read it. The build records the codes it
+saw in `meta.json` (`build.providers`). The selftest fails when a code in the data has no name, a
+name has no offers, or the PDF parser emits a code with no offers. A new supplier in an ERSE refresh
+therefore turns the gate red until it gets a name.
 
 ---
 
@@ -455,15 +439,27 @@ The `offers.json` file is built from CSVs and contains enriched offer data:
   phone: "800100100",             // Contact phone
   fornecimento: "ELE",            // Energy type
   segmento: "Dom",                // Target segment
-  validFrom: "01/01/2025",        // Offer start date
-  validTo: "31/12/2025",          // Offer end date
-  isIndexed: false,              // Indexed prices flag
-  hasLockIn: false,               // Lock-in period flag
+  validFrom: "01/01/2025",        // Offer start date (Data ini), may be empty
+  validTo: "31/12/2025",          // Offer end date (Data fim), may be empty
+  consMinYear: null,              // Consumption band start (ConsIni_ELE, kWh/year) or null
+  consMaxYear: null,              // Consumption band end (ConsFim_ELE, kWh/year) or null
+  serviceCostYear: 0,             // Mandatory services (CustoServicos_c/IVA, €/year with VAT)
+  isIndexed: false,              // Indexed prices flag (FiltroPrecosIndex); the card shows the price date
+  isRestricted: false,            // Conditioned offer (FiltroRestrições): never ranked, kept as a savings baseline
+  hasLockIn: false,               // Lock-in: FiltroFidelização S/N decides; text only when the flag is empty
   lockInMonths: null,             // Lock-in duration (months)
-  promotion: null,               // Promotion metadata
-  isCampaignActive: null          // Campaign active status
+  promotion: null                // Promotion metadata (never applied to costs)
 }
 ```
+
+### Eligibility
+
+Nothing date-dependent is baked into `offers.json`. At ranking time, `isOfferEligible` in
+`js/calculator.js` drops an offer that is outside `validFrom`/`validTo` on the day of the visit, or
+whose band (`consMinYear`/`consMaxYear`, kWh/year) does not contain the monthly consumption × 12.
+The find functions also skip lock-in and conditioned (`isRestricted`) offers (ADR-022).
+`calculateMonthlyCost` adds `serviceCostYear / 12`, as ERSE's simulator does. The typical offer
+behind the estimate uses only offers active that day.
 
 ### Cycle Type Detection
 

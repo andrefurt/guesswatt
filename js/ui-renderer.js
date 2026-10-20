@@ -5,7 +5,7 @@
  */
 
 import { PROVIDERS } from './config.js';
-import { formatPhone, toTitleCase, formatTariffName } from './utils.js';
+import { formatPhone, toTitleCase, formatTariffName, formatShortDataMonth } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { showResults, getPillMode } from './ui-handlers.js';
 
@@ -118,27 +118,43 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   const formattedPhone = formatPhone(enrichedBest.phone);
   const rawPhone = String(enrichedBest.phone || '').replace(/\D/g, '');
   
-  // Calculate savings for estimate mode
-  let estimateSavings = null;
-  if (monthlyBill && !savings) {
-    const monthlySavings = monthlyBill - enrichedBest.monthlyCost;
-    if (monthlySavings > 0) {
-      estimateSavings = {
-        monthly: monthlySavings,
-        yearly: monthlySavings * 12
-      };
-    }
+  // Estimate mode knows the bill, not the tariff behind it, so it places the best offer in the
+  // market instead of claiming a saving (ADR-011 superseded); "Poupas" is for Preciso only
+  const displaySavings = savings;
+  let marketSummaryHTML = '';
+  if (isEstimate && typeof enrichedBest.marketMedianCost === 'number') {
+    marketSummaryHTML = `
+      <div class="market-summary">
+        <p>A melhor oferta custa cerca de €${Math.round(enrichedBest.monthlyCost)}/mês. Metade das ofertas custa mais de €${Math.round(enrichedBest.marketMedianCost)}/mês.</p>
+        <button type="button" class="market-summary-link" id="go-precise">Para saberes quanto poupas, usa o modo Preciso.</button>
+      </div>
+    `;
   }
-  
-  const displaySavings = savings || estimateSavings;
   
   // Build campaign badge HTML
   let campaignBadgeHTML = '';
-  if (enrichedBest.isCampaignActive === true || enrichedBest.promotion) {
-    const promotionText = enrichedBest.promotion || 'CAMPANHA';
+  // Ranked offers are always active today (isOfferEligible), so a promotion on one is current
+  if (enrichedBest.promotion) {
     campaignBadgeHTML = `
       <div class="badge">
-        <div class="badge-inner">${promotionText}</div>
+        <div class="badge-inner">CAMPANHA</div>
+      </div>
+    `;
+  }
+
+  // Indexed prices follow the wholesale market: the cost shown uses the prices of the data date
+  let indexedRowHTML = '';
+  if (enrichedBest.isIndexed) {
+    const priceDate = enrichedBest.dataDate ? `valores de ${formatShortDataMonth(enrichedBest.dataDate)}` : 'varia com o mercado';
+    indexedRowHTML = `
+      <div class="data-row">
+        <div class="data-row-inner">
+          <div class="data-row-label">
+            <i class="ph-duotone ph-chart-line"></i>
+            <span>Preço indexado</span>
+          </div>
+          <span class="data-row-value">${priceDate}</span>
+        </div>
       </div>
     `;
   }
@@ -238,8 +254,10 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
           </div>
         </div>
       </div>
+      ${indexedRowHTML}
 
       ${savingsBarHTML}
+      ${marketSummaryHTML}
     </div>
   `;
   
@@ -286,7 +304,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
       <div class="info-row">
         <div class="info-row-inner">
           <span class="info-row-label">Quanto tempo demora</span>
-          <span class="info-row-value">4 a 5 dias</span>
+          <span class="info-row-value">Até 3 semanas</span>
         </div>
       </div>
       <div class="disclaimer-row">

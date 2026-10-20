@@ -63,6 +63,14 @@ function normalizeNumber(value) {
 }
 
 /**
+ * Number field that may be empty: null when empty, the number otherwise
+ */
+function optionalNumber(value) {
+  if (normalizeString(value) === '') return null;
+  return normalizeNumber(value);
+}
+
+/**
  * Normalize string field (trim, handle empty)
  */
 function normalizeString(value) {
@@ -204,82 +212,49 @@ function discoverPromotionFields(conditions) {
 }
 
 /**
+ * Extract a lock-in duration in months from free text ("12 meses", "1 ano")
+ * @returns {number|null}
+ */
+function extractLockInMonths(text) {
+  const monthMatch = text.match(/(\d+)\s*(?:meses?|mês)/i);
+  if (monthMatch) return parseInt(monthMatch[1], 10);
+  const yearMatch = text.match(/(\d+)\s*(?:anos?|ano)/i);
+  if (yearMatch) return parseInt(yearMatch[1], 10) * 12;
+  return null;
+}
+
+/**
  * Detect lock-in from condition data
- * Returns: { hasLockIn: boolean, lockInMonths: number|null, lockInSource: string|null }
+ * ERSE's FiltroFidelização (S/N) decides. The text is read only when the flag is empty,
+ * and a negated phrase ("sem fidelização", "não tem fidelização") never counts.
+ * Returns: { hasLockIn: boolean, lockInMonths: number|null, lockInSource: 'field'|'text'|null }
  */
 function detectLockIn(condition) {
-  // 1. Check explicit flag
   const explicitFlag = normalizeString(condition.FiltroFidelização || '');
-  if (explicitFlag === 'S') {
-    // Try to extract months from DuracaoContrato or text
-    let months = null;
-    const duracao = normalizeString(condition.DuracaoContrato || '');
-    if (duracao && /^\d+$/.test(duracao)) {
-      months = parseInt(duracao, 10);
-    }
-    
-    // Try to extract from text fields
-    if (!months) {
-      const textFields = [
-        condition.TxTFidelização || '',
-        condition.TxTOferta || '',
-        condition.TxTRestricoesAdic || ''
-      ].join(' ').toLowerCase();
-      
-      // Look for patterns like "12 meses", "1 ano", "24 meses"
-      const monthMatch = textFields.match(/(\d+)\s*(?:meses?|mês|mês)/i);
-      if (monthMatch) {
-        months = parseInt(monthMatch[1], 10);
-      } else {
-        const yearMatch = textFields.match(/(\d+)\s*(?:anos?|ano)/i);
-        if (yearMatch) {
-          months = parseInt(yearMatch[1], 10) * 12;
-        }
-      }
-    }
-    
-    return {
-      hasLockIn: true,
-      lockInMonths: months,
-      lockInSource: months ? 'field' : 'text'
-    };
-  }
-  
-  // 2. Infer from text if flag is missing but text suggests lock-in
   const textFields = [
     condition.TxTFidelização || '',
     condition.TxTOferta || '',
     condition.TxTRestricoesAdic || ''
   ].join(' ').toLowerCase();
-  
-  const lockInKeywords = ['fideliza', 'permanência', 'permanencia', 'penaliza', 'obrigatória', 'obrigatoria'];
-  const hasLockInKeyword = lockInKeywords.some(keyword => textFields.includes(keyword));
-  
-  if (hasLockInKeyword) {
-    // Try to extract months
-    let months = null;
-    const monthMatch = textFields.match(/(\d+)\s*(?:meses?|mês|mês)/i);
-    if (monthMatch) {
-      months = parseInt(monthMatch[1], 10);
-    } else {
-      const yearMatch = textFields.match(/(\d+)\s*(?:anos?|ano)/i);
-      if (yearMatch) {
-        months = parseInt(yearMatch[1], 10) * 12;
-      }
-    }
-    
-    return {
-      hasLockIn: true,
-      lockInMonths: months,
-      lockInSource: 'text'
-    };
+
+  if (explicitFlag === 'S') {
+    const duracao = normalizeString(condition.DuracaoContrato || '');
+    const months = /^\d+$/.test(duracao) ? parseInt(duracao, 10) : extractLockInMonths(textFields);
+    return { hasLockIn: true, lockInMonths: months, lockInSource: 'field' };
   }
-  
-  return {
-    hasLockIn: false,
-    lockInMonths: null,
-    lockInSource: null
-  };
+
+  if (explicitFlag === 'N') {
+    return { hasLockIn: false, lockInMonths: null, lockInSource: null };
+  }
+
+  // Flag missing: infer from text, ignoring negated mentions
+  const withoutNegations = textFields.replace(/(sem|não tem|nao tem|não há|nao ha|isento de)\s+(período de\s+)?(fideliza\w*|permanência|permanencia)/g, '');
+  const lockInKeywords = ['fideliza', 'permanência', 'permanencia', 'penaliza'];
+  if (lockInKeywords.some(keyword => withoutNegations.includes(keyword))) {
+    return { hasLockIn: true, lockInMonths: extractLockInMonths(withoutNegations), lockInSource: 'text' };
+  }
+
+  return { hasLockIn: false, lockInMonths: null, lockInSource: null };
 }
 
 /**
@@ -455,6 +430,13 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
     validFrom: normalizeString(condition['Data ini'] || ''),
     validTo: normalizeString(condition['Data fim'] || ''),
     isIndexed: normalizeString(condition.FiltroPrecosIndex || '') === 'S',
+    // Conditioned offer (members, referral codes, other contracts): kept as a savings baseline for
+    // its own customers, never recommended
+    isRestricted: normalizeString(condition['FiltroRestrições'] || '') === 'S',
+    // Eligibility: annual consumption band (kWh/year) and mandatory services (€/year, with VAT)
+    consMinYear: optionalNumber(condition.ConsIni_ELE),
+    consMaxYear: optionalNumber(condition.ConsFim_ELE),
+    serviceCostYear: optionalNumber(condition['CustoServicos_c/IVA (€/ano)']) || 0,
     hasLockIn: lockIn.hasLockIn,
     lockInMonths: lockIn.lockInMonths,
     lockInSource: lockIn.lockInSource,
@@ -475,32 +457,9 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
   }
   metadata.campaignSummary = summaryParts.join(' | ').substring(0, 200);
   
-  // Compute isOfferActive based on offer validity dates (Data ini/Data fim)
-  // These dates represent when the offer/proposal is valid, not promotion-specific dates
-  let isOfferActive = null;
-  if (metadata.validFrom && metadata.validTo) {
-    try {
-      const fromDate = parseDate(metadata.validFrom);
-      const toDate = parseDate(metadata.validTo);
-      const now = new Date();
-      // Set time to UTC midnight for date-only comparison
-      const fromUTC = new Date(Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate()));
-      const toUTC = new Date(Date.UTC(toDate.getFullYear(), toDate.getMonth(), toDate.getDate()));
-      const nowUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-      isOfferActive = fromUTC <= nowUTC && nowUTC <= toUTC;
-    } catch (e) {
-      isOfferActive = null; // Unknown
-    }
-  }
-  
-  metadata.isOfferActive = isOfferActive;
-  
-  // Compute isPromotionActive ONLY if we have promotion-specific dates
-  // Since CSV doesn't have promo-specific dates, this will be null
-  // Keep isCampaignActive for backwards compatibility (maps to isOfferActive for now)
-  metadata.isCampaignActive = isOfferActive; // Backwards compatibility
-  metadata.isPromotionActive = null; // No promo-specific dates in CSV
-  
+  // Whether the offer is active depends on the day it is viewed, so the browser decides it
+  // from validFrom/validTo (isOfferEligible in js/calculator.js); nothing date-dependent is baked in.
+
   // Update promotion object with isActive field if promotion exists
   if (promotion) {
     // Since we don't have promo-specific dates, use offer validity as proxy
@@ -509,17 +468,6 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
   }
   
   return metadata;
-}
-
-/**
- * Parse date string (DD/MM/YYYY format)
- */
-function parseDate(dateStr) {
-  const parts = dateStr.split('/');
-  if (parts.length === 3) {
-    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-  }
-  throw new Error(`Invalid date format: ${dateStr}`);
 }
 
 /**
@@ -577,6 +525,11 @@ function buildOffers() {
     if (!condition || condition.Fornecimento !== 'ELE') {
       continue; // Skip GN, DUAL, and offers without condition data
     }
+
+    // Filter: domestic only (ADR-020); 'Tod' offers are open to everyone
+    if (normalizeString(condition.Segmento) === 'Ndom') {
+      continue;
+    }
     
     // Normalize price fields
     const tvField = normalizeNumber(price['TV|TVFV|TVP'] || price.TV || 0);
@@ -609,14 +562,15 @@ function buildOffers() {
       validFrom: '',
       validTo: '',
       isIndexed: false,
+      isRestricted: false,
       hasLockIn: false,
       newCustomerOnly: false,
       requiresDirectDebit: false,
       requiresEBill: false,
       campaignSummary: '',
-      isOfferActive: null,
-      isCampaignActive: null, // Backwards compatibility
-      isPromotionActive: null
+      consMinYear: null,
+      consMaxYear: null,
+      serviceCostYear: 0
     };
     
     // Build offer object
@@ -645,7 +599,6 @@ function buildOffers() {
   // Count statistics
   const lockInCount = offers.filter(o => o.hasLockIn === true).length;
   const promotionMetadataCount = offers.filter(o => o.promotion !== null).length;
-  const activeOffersCount = offers.filter(o => o.isOfferActive === true).length;
   
   // Lock-in totals by source (across ALL offers, not just samples)
   const lockInBySourceTotals = { field: 0, text: 0 };
@@ -714,7 +667,6 @@ function buildOffers() {
   console.log(`✅ Built ${offers.length} offers`);
   console.log(`   - Lock-in offers (excluded): ${lockInCount}`);
   console.log(`   - Lock-in by source: field=${lockInBySourceTotals.field}, text=${lockInBySourceTotals.text}`);
-  console.log(`   - Active offers: ${activeOffersCount}`);
   console.log(`   - Offers with promotion metadata: ${promotionMetadataCount} (not applied to calculations)`);
   console.log(`   - Promotions with known active status: ${promotionsWithKnownActiveStatus}`);
   console.log(`   - Promotions active: ${promotionsActiveCount}`);
@@ -750,12 +702,15 @@ function buildOffers() {
     }
   }
   
-  // Get source update timestamp if available
-  const sourceUpdatedAt = meta.updatedAt || null;
+  // Date of the prices: the downloader's date when it just ran, else the one the previous build kept.
+  // Never the build time: rebuilding old CSVs must not make them look fresh.
+  const sourceUpdatedAt = meta.updatedAt || meta.build?.sourceUpdatedAt || null;
+  const sourceDateNote = meta.updatedAt ? 'Date the downloader fetched the CSVs from ERSE' : (meta.build?.sourceDateNote || null);
   
   meta.build = {
     builtAt: new Date().toISOString(),
     sourceUpdatedAt: sourceUpdatedAt,
+    sourceDateNote: sourceDateNote,
     offersCount: offers.length,
     rowCounts: {
       prices: prices.length,
@@ -763,12 +718,18 @@ function buildOffers() {
     },
     filtersApplied: {
       fornecimento: 'ELE only (excluded GN and DUAL)',
+      segmento: 'Dom and Tod only (excluded Ndom)',
+      restricted: 'kept with isRestricted; never ranked (js/calculator.js)',
       lockInExcluded: false // Note: lock-in filtering happens at runtime
     },
+    // Supplier codes present in offers.json (js/config.js PROVIDERS names each one)
+    providers: offers.reduce((counts, offer) => {
+      counts[offer.COM] = (counts[offer.COM] || 0) + 1;
+      return counts;
+    }, {}),
     statistics: {
       lockInCount: lockInCount,
       lockInBySourceTotals: lockInBySourceTotals,
-      activeOffersCount: activeOffersCount,
       promotionsWithMetadataCount: promotionMetadataCount,
       promotionsWithKnownActiveStatusCount: promotionsWithKnownActiveStatus,
       promotionsActiveCount: promotionsActiveCount,
