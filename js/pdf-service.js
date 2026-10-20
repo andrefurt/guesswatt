@@ -11,6 +11,7 @@ import { setInvoiceData } from './ui-handlers.js';
 
 // PDF data state (managed by this module)
 let pdfData = null;
+let showManualForm = null; // setManualFormVisible from main.js, kept by initPDFUpload
 
 /**
  * Load PDF.js library dynamically
@@ -292,11 +293,11 @@ export function parseInvoiceText(text) {
     }
   }
   
-  // Retornar dados se tiver pelo menos consumo ou potência
+  // Retornar o que foi encontrado; um campo em falta fica null (nunca um valor assumido)
   if (consumption || power) {
     return {
-      consumption: consumption || 250,  // Default se não encontrar
-      power: power || 4.6,              // Default se não encontrar
+      consumption: consumption || null,
+      power: power || null,
       provider: provider,
       tariffType: tariffType,
       cycleType: cycleType // 'daily' | 'weekly' | null
@@ -424,7 +425,10 @@ export async function handlePDFFile(file, clearTabResult, onDataShown) {
     // Extrair dados do PDF
     const extracted = await extractPDFData(file);
     
-    if (extracted) {
+    if (extracted && (!extracted.consumption || !extracted.power)) {
+      clearPDF(clearTabResult);
+      openManualFormWithPDFData(extracted);
+    } else if (extracted) {
       pdfData = extracted;
       showPDFData(extracted, onDataShown);
     } else {
@@ -436,6 +440,43 @@ export async function handlePDFFile(file, clearTabResult, onDataShown) {
     alert('Erro ao processar o PDF. Tenta introduzir manualmente.');
     clearPDF(clearTabResult);
   }
+}
+
+/**
+ * Open the manual form with what the PDF gave, and focus the field it did not give
+ * @param {Object} found - Extracted data; consumption or power is null
+ */
+function openManualFormWithPDFData(found) {
+  const inputSlot = document.getElementById('input-slot');
+  inputSlot?.classList.add('preciso-mode', 'manual-mode');
+  if (showManualForm) showManualForm(true);
+
+  const setSelect = (id, value) => {
+    const select = document.getElementById(id);
+    if (select && value && [...select.options].some(option => option.value === String(value))) {
+      select.value = String(value);
+    }
+  };
+  setSelect('current-provider', found.provider);
+  setSelect('tariff-type', found.tariffType);
+  setSelect('power', found.power);
+
+  const consumptionInput = document.getElementById('consumption');
+  if (consumptionInput) {
+    consumptionInput.value = found.consumption ? String(found.consumption) : '';
+    // An empty field with the "250" example placeholder would read as a value taken from the bill
+    if (!found.consumption) consumptionInput.placeholder = '';
+  }
+
+  const missing = !found.consumption ? 'o consumo' : 'a potência';
+  const note = document.getElementById('manual-form-note');
+  if (note) {
+    note.textContent = `Não encontrámos ${missing} na fatura. Preenche o valor que falta.`;
+    note.hidden = false;
+  }
+
+  const missingField = document.getElementById(!found.consumption ? 'consumption' : 'power');
+  missingField?.focus();
 }
 
 /**
@@ -560,6 +601,7 @@ export function initPDFUpload(clearTabResult, setManualFormVisible, getManualFor
   const inputSlot = document.getElementById('input-slot');
   
   if (!dropArea || !pdfInput) return;
+  showManualForm = setManualFormVisible;
   
   // Clicar na drop area abre file picker (exceto no link manual)
   dropArea.addEventListener('click', (e) => {

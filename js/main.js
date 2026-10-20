@@ -148,6 +148,10 @@ async function handleEstimateSubmit(e) {
 async function handlePreciseSubmit(e) {
   e.preventDefault();
   
+  // The "missing field" note from a partial PDF has done its job once the form is sent
+  const formNote = document.getElementById('manual-form-note');
+  if (formNote) formNote.hidden = true;
+  
   const consumption = parseFloat(document.getElementById('consumption').value);
   const power = parseFloat(document.getElementById('power').value);
   const tariffType = parseInt(document.getElementById('tariff-type').value);

@@ -377,6 +377,10 @@ Quando o utilizador só dá €/mês, precisamos de assumir valores.
 | Distribuição bi-horária | 35% vazio / 65% fora | Média típica |
 | Distribuição tri-horária | 30% vazio / 50% cheias / 20% ponta | Média típica |
 
+Os defaults valem só para o modo estimado. No modo preciso (PDF) nunca se assume consumo nem
+potência: se o PDF não os dá, abre-se o formulário manual com o resto preenchido (outubro de 2026,
+auditoria FE-1).
+
 **Consequências:**
 - ✅ Permite cálculo com input mínimo
 - ⚠️ Pode sobre/subestimar para perfis atípicos
