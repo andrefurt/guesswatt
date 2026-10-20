@@ -24,6 +24,7 @@ const META_PATH = path.join(DATA_DIR, 'meta.json');
 const CALCULATOR_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'calculator.js')).href;
 const CONFIG_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'config.js')).href;
 const PDF_SERVICE_PATH = path.join(__dirname, '..', 'js', 'pdf-service.js');
+const PDF_SERVICE_URL = pathToFileURL(PDF_SERVICE_PATH).href;
 let calculateMonthlyCost;
 
 /**
@@ -35,6 +36,7 @@ async function runSelftest() {
   const calculator = await import(CALCULATOR_URL);
   calculateMonthlyCost = calculator.calculateMonthlyCost;
   const { PROVIDERS } = await import(CONFIG_URL);
+  const { parseInvoiceText } = await import(PDF_SERVICE_URL);
   
   let passed = 0;
   let failed = 0;
@@ -432,9 +434,9 @@ async function runSelftest() {
     expectCost(calculateMonthlyCost(SIMPLE, 200, 4.6), 46.2231, 'simple');
   });
 
-  test('golden: bi-hourly tariff, default 35/65 split', () => {
-    // (200*0.35*0.10 + 200*0.65*0.20)*1.06 + 11.07 + 0.246 + 3.021 + 0.0861
-    expectCost(calculateMonthlyCost(BI, 200, 4.6), 49.4031, 'bi-hourly');
+  test('golden: bi-hourly tariff, default 40/60 split (ERSE)', () => {
+    // (200*0.40*0.10 + 200*0.60*0.20)*1.06 + 11.07 + 0.246 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(BI, 200, 4.6), 48.3431, 'bi-hourly');
   });
 
   test('golden: tri-hourly tariff, default 30/50/20 split', () => {
@@ -579,6 +581,25 @@ async function runSelftest() {
       if (Math.abs(cost - bill) > 0.5) {
         throw new Error(`€${bill} -> ${estimated} kWh -> €${cost.toFixed(2)}`);
       }
+    }
+  });
+
+  // PDF parser on synthetic invoice text (real supplier fixtures are a follow-up)
+  test('pdf: a bi-hourly bill gives its own vazio/fora-vazio split', () => {
+    const text = 'Iberdrola Potência contratada 6,9 kVA Tarifa bi-horária ' +
+      'Termo de Energia Vazio 120 kWh Termo de Energia Fora de Vazio 180 kWh';
+    const parsed = parseInvoiceText(text);
+    const d = parsed?.distribution;
+    if (!parsed || parsed.consumption !== 300 || parsed.tariffType !== 2 || !d ||
+        Math.abs(d.vazio - 0.4) > 1e-9 || Math.abs(d.foraVazio - 0.6) > 1e-9) {
+      throw new Error(`got ${JSON.stringify(parsed)}`);
+    }
+  });
+
+  test('pdf: a bill with no kWh line leaves consumption empty (no assumed 250)', () => {
+    const parsed = parseInvoiceText('Goldenergy Potência contratada 6,9 kVA Tarifa simples Total a pagar 61,11 €');
+    if (!parsed || parsed.consumption !== null || parsed.power !== 6.9) {
+      throw new Error(`got ${JSON.stringify(parsed)}`);
     }
   });
 

@@ -330,7 +330,7 @@ Calcular factura mensal a partir dos dados CSV.
 custoMensal = (TF × 30) + (consumo × TV)
 
 // Bi-horária (com distribuição assumida)
-custoMensal = (TF × 30) + (consumo × 0.35 × TVV) + (consumo × 0.65 × TVFV)
+custoMensal = (TF × 30) + (consumo × 0.40 × TVV) + (consumo × 0.60 × TVFV)
 
 // Tri-horária (com distribuição assumida)
 custoMensal = (TF × 30) + (consumo × 0.30 × TVVz) + (consumo × 0.50 × TVC) + (consumo × 0.20 × TVP)
@@ -374,8 +374,8 @@ Quando o utilizador só dá €/mês, precisamos de assumir valores.
 |-----------|---------|-------|
 | Potência | 4.6 kVA | Mais comum em Portugal |
 | Tarifa | Simples (1) | Mais comum, conservador |
-| Distribuição bi-horária | 35% vazio / 65% fora | Média típica |
-| Distribuição tri-horária | 30% vazio / 50% cheias / 20% ponta | Média típica |
+| Distribuição bi-horária | 40% vazio / 60% fora | Pressuposto do simulador da ERSE (era 35/65 até outubro de 2026); no PDF usa-se a repartição da fatura |
+| Distribuição tri-horária | 30% vazio / 50% cheias / 20% ponta | Sem fonte oficial; no PDF usa-se a repartição da fatura |
 
 Os defaults valem só para o modo estimado. No modo preciso (PDF) nunca se assume consumo nem
 potência: se o PDF não os dá, abre-se o formulário manual com o resto preenchido (outubro de 2026,

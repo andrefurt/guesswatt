@@ -181,7 +181,7 @@ fixedTerm = TF × 30
 
 // Variable term (depends on tariff type)
 // Simple: consumption × TV
-// Bi-hourly: consumption × (0.35 × TVV + 0.65 × TVFV)
+// Bi-hourly: consumption × (0.40 × TVV + 0.60 × TVFV), or the split read from a PDF bill
 // Tri-hourly: consumption × (0.30 × TVVz + 0.50 × TVC + 0.20 × TVP)
 
 // Taxes: IEC 0.001 €/kWh, DGEG 0.07 €/month, audiovisual 2.85 €/month

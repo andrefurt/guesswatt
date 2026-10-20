@@ -64,7 +64,8 @@ export async function extractPDFData(file) {
  * Extract consumption from invoice text by summing all consumption lines
  * Handles multiple VAT brackets, bi-hourly/tri-hourly tariffs, and validates against IEC line
  * @param {string} text - Full text content from PDF
- * @returns {Object|null} Extracted consumption data or null
+ * @returns {{total: number, distribution: Object|null}|null} Total kWh and, when the bill lists
+ *   periods, their shares ({ vazio, foraVazio } or { vazio, cheias, ponta }); null if nothing found
  */
 function extractConsumption(text) {
   // Normalize text: replace multiple spaces/newlines with single space for better regex matching
@@ -223,7 +224,32 @@ function extractConsumption(text) {
     totalConsumption = iecTotal;
   }
   
-  return totalConsumption > 0 ? totalConsumption : null;
+  if (totalConsumption <= 0) return null;
+
+  // Step 7: Share of each period, so bi- and tri-hourly costs use the bill's own split
+  let distribution = null;
+  const biSum = totals.vazio + totals.foraVazio;
+  const triSum = totals.vazio + totals.cheia + totals.ponta;
+  if (totals.vazio > 0 && totals.foraVazio > 0 && totals.ponta === 0 && totals.cheia === 0) {
+    distribution = { vazio: totals.vazio / biSum, foraVazio: totals.foraVazio / biSum };
+  } else if (totals.ponta > 0 && totals.cheia > 0 && totals.foraVazio === 0) {
+    distribution = { vazio: totals.vazio / triSum, cheias: totals.cheia / triSum, ponta: totals.ponta / triSum };
+  }
+
+  return { total: totalConsumption, distribution };
+}
+
+/**
+ * Keep a period split only when its shape matches the tariff type
+ * @param {Object|null} distribution - From extractConsumption
+ * @param {number} tariffType - 2 = bi-hourly, 3 = tri-hourly
+ * @returns {Object|null}
+ */
+function distributionForTariff(distribution, tariffType) {
+  if (!distribution) return null;
+  if (tariffType === 2 && 'foraVazio' in distribution) return distribution;
+  if (tariffType === 3 && 'cheias' in distribution) return distribution;
+  return null;
 }
 
 /**
@@ -252,7 +278,8 @@ export function parseInvoiceText(text) {
   };
   
   // Extrair consumo usando método robusto
-  const consumption = extractConsumption(text);
+  const extractedConsumption = extractConsumption(text);
+  const consumption = extractedConsumption?.total || null;
   
   // Extrair potência
   let power = null;
@@ -300,7 +327,9 @@ export function parseInvoiceText(text) {
       power: power || null,
       provider: provider,
       tariffType: tariffType,
-      cycleType: cycleType // 'daily' | 'weekly' | null
+      cycleType: cycleType, // 'daily' | 'weekly' | null
+      // Per-period shares from the bill, only when they match the tariff type
+      distribution: distributionForTariff(extractedConsumption?.distribution, tariffType)
     };
   }
   
@@ -505,7 +534,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
       pdfData.consumption, 
       pdfData.power, 
       pdfData.tariffType,
-      null,
+      pdfData.distribution,
       context
     );
     
@@ -544,7 +573,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
         // Calcular custo com a melhor oferta do operador actual
         const currentProviderCosts = currentProviderOffers.map(offer => ({
           ...offer,
-          monthlyCost: calculateMonthlyCost(offer, pdfData.consumption, pdfData.power, null, context)
+          monthlyCost: calculateMonthlyCost(offer, pdfData.consumption, pdfData.power, pdfData.distribution, context)
         }));
         
         // Ordenar por custo e pegar a mais barata
