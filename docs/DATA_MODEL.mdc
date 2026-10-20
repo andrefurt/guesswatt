@@ -443,7 +443,8 @@ The `offers.json` file is built from CSVs and contains enriched offer data:
   consMinYear: null,              // Consumption band start (ConsIni_ELE, kWh/year) or null
   consMaxYear: null,              // Consumption band end (ConsFim_ELE, kWh/year) or null
   serviceCostYear: 0,             // Mandatory services (CustoServicos_c/IVA, €/year with VAT)
-  isIndexed: false,              // Indexed prices flag
+  isIndexed: false,              // Indexed prices flag (FiltroPrecosIndex); the card shows the price date
+  isRestricted: false,            // Conditioned offer (FiltroRestrições): never ranked, kept as a savings baseline
   hasLockIn: false,               // Lock-in: FiltroFidelização S/N decides; text only when the flag is empty
   lockInMonths: null,             // Lock-in duration (months)
   promotion: null                // Promotion metadata (never applied to costs)
@@ -455,6 +456,7 @@ The `offers.json` file is built from CSVs and contains enriched offer data:
 Nothing date-dependent is baked into `offers.json`. At ranking time, `isOfferEligible` in
 `js/calculator.js` drops an offer that is outside `validFrom`/`validTo` on the day of the visit, or
 whose band (`consMinYear`/`consMaxYear`, kWh/year) does not contain the monthly consumption × 12.
+The find functions also skip lock-in and conditioned (`isRestricted`) offers (ADR-022).
 `calculateMonthlyCost` adds `serviceCostYear / 12`, as ERSE's simulator does. The typical offer
 behind the estimate uses only offers active that day.
 

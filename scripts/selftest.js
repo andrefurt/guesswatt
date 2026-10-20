@@ -125,6 +125,19 @@ async function runSelftest() {
     console.log(`   ${inData.size} suppliers, ${parserCodes.length} detectable from a PDF`);
   });
 
+  // Test 5a3: Conditioned offers (FiltroRestrições = S) are flagged and never ranked (decision 3)
+  test('conditioned (members-only or referral) offers are flagged and never win', () => {
+    const coop = offers.filter(o => o.COM === 'COOP' && o.COD_Proposta === 'COOP_04');
+    if (coop.length === 0 || coop.some(o => o.isRestricted !== true)) {
+      throw new Error('COOP_04 should be present with isRestricted true');
+    }
+    const cheapestRestricted = { ...coop[0], TF: 0.01, 'TV|TVFV|TVP': 0.01, validFrom: '', validTo: '' };
+    const best = calculator.findBestOfferForTariff([...offers, cheapestRestricted], 200, cheapestRestricted.Pot_Cont, cheapestRestricted.Contagem);
+    if (best.isRestricted) {
+      throw new Error(`a conditioned offer won: ${best.COM} ${best.COD_Proposta}`);
+    }
+  });
+
   // Test 5b: Lock-in detection
   test('lock-in detection fields present', () => {
     const withLockIn = offers.filter(o => o.hasLockIn === true);

@@ -5,7 +5,7 @@
  */
 
 import { PROVIDERS } from './config.js';
-import { formatPhone, toTitleCase, formatTariffName } from './utils.js';
+import { formatPhone, toTitleCase, formatTariffName, formatShortDataMonth } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { showResults, getPillMode } from './ui-handlers.js';
 
@@ -142,6 +142,23 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
       </div>
     `;
   }
+
+  // Indexed prices follow the wholesale market: the cost shown uses the prices of the data date
+  let indexedRowHTML = '';
+  if (enrichedBest.isIndexed) {
+    const priceDate = enrichedBest.dataDate ? `valores de ${formatShortDataMonth(enrichedBest.dataDate)}` : 'varia com o mercado';
+    indexedRowHTML = `
+      <div class="data-row">
+        <div class="data-row-inner">
+          <div class="data-row-label">
+            <i class="ph-duotone ph-chart-line"></i>
+            <span>Preço indexado</span>
+          </div>
+          <span class="data-row-value">${priceDate}</span>
+        </div>
+      </div>
+    `;
+  }
   
   // Build savings bar HTML
   let savingsBarHTML = '';
@@ -238,6 +255,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
           </div>
         </div>
       </div>
+      ${indexedRowHTML}
 
       ${savingsBarHTML}
     </div>

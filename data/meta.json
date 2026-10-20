@@ -1,7 +1,8 @@
 {
   "build": {
-    "builtAt": "2026-10-20T23:27:47.606Z",
-    "sourceUpdatedAt": null,
+    "builtAt": "2026-10-20T23:30:25.294Z",
+    "sourceUpdatedAt": "2025-12-01T00:00:00Z",
+    "sourceDateNote": "Date the CSVs were first committed (1d62c2e); ERSE's export date was not recorded, so the prices are at least this old",
     "offersCount": 5492,
     "rowCounts": {
       "prices": 13517,
@@ -10,6 +11,7 @@
     "filtersApplied": {
       "fornecimento": "ELE only (excluded GN and DUAL)",
       "segmento": "Dom and Tod only (excluded Ndom)",
+      "restricted": "kept with isRestricted; never ranked (js/calculator.js)",
       "lockInExcluded": false
     },
     "providers": {

@@ -430,6 +430,9 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
     validFrom: normalizeString(condition['Data ini'] || ''),
     validTo: normalizeString(condition['Data fim'] || ''),
     isIndexed: normalizeString(condition.FiltroPrecosIndex || '') === 'S',
+    // Conditioned offer (members, referral codes, other contracts): kept as a savings baseline for
+    // its own customers, never recommended
+    isRestricted: normalizeString(condition['FiltroRestrições'] || '') === 'S',
     // Eligibility: annual consumption band (kWh/year) and mandatory services (€/year, with VAT)
     consMinYear: optionalNumber(condition.ConsIni_ELE),
     consMaxYear: optionalNumber(condition.ConsFim_ELE),
@@ -559,6 +562,7 @@ function buildOffers() {
       validFrom: '',
       validTo: '',
       isIndexed: false,
+      isRestricted: false,
       hasLockIn: false,
       newCustomerOnly: false,
       requiresDirectDebit: false,
@@ -698,12 +702,15 @@ function buildOffers() {
     }
   }
   
-  // Get source update timestamp if available
-  const sourceUpdatedAt = meta.updatedAt || null;
+  // Date of the prices: the downloader's date when it just ran, else the one the previous build kept.
+  // Never the build time: rebuilding old CSVs must not make them look fresh.
+  const sourceUpdatedAt = meta.updatedAt || meta.build?.sourceUpdatedAt || null;
+  const sourceDateNote = meta.updatedAt ? 'Date the downloader fetched the CSVs from ERSE' : (meta.build?.sourceDateNote || null);
   
   meta.build = {
     builtAt: new Date().toISOString(),
     sourceUpdatedAt: sourceUpdatedAt,
+    sourceDateNote: sourceDateNote,
     offersCount: offers.length,
     rowCounts: {
       prices: prices.length,
@@ -712,6 +719,7 @@ function buildOffers() {
     filtersApplied: {
       fornecimento: 'ELE only (excluded GN and DUAL)',
       segmento: 'Dom and Tod only (excluded Ndom)',
+      restricted: 'kept with isRestricted; never ranked (js/calculator.js)',
       lockInExcluded: false // Note: lock-in filtering happens at runtime
     },
     // Supplier codes present in offers.json (js/config.js PROVIDERS names each one)

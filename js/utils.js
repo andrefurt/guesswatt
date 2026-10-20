@@ -48,11 +48,12 @@ export async function loadCSV(url) {
 
 /**
  * Load offers.json (preferred) or fallback to CSV files
- * Also loads data/tar.json in parallel for the tax context
- * @returns {Promise<{prices: Array<Object>, conditions: Array<Object>, offers: Array<Object>|null, tar: Object|null}>} Parsed data
+ * Also loads data/tar.json and the data date in parallel
+ * @returns {Promise<{prices: Array<Object>, conditions: Array<Object>, offers: Array<Object>|null, tar: Object|null, dataDate: Date|null}>} Parsed data
  */
 export async function loadOffers() {
   const tarRequest = loadAccessTariffs();
+  const dataDateRequest = loadDataDate();
 
   try {
     // Try to load offers.json first
@@ -117,7 +118,7 @@ export async function loadOffers() {
       });
       const conditions = Array.from(conditionsMap.values());
       
-      return { prices, conditions, offers, tar: await tarRequest }; // Include raw offers for new code
+      return { prices, conditions, offers, tar: await tarRequest, dataDate: await dataDateRequest }; // Include raw offers for new code
     }
   } catch (error) {
     console.warn('⚠️  Could not load offers.json, falling back to CSV:', error.message);
@@ -127,7 +128,7 @@ export async function loadOffers() {
   const prices = await loadCSV('data/Precos_ELEGN.csv');
   const conditions = await loadCSV('data/CondComerciais.csv');
   console.log(`✅ Loaded ${prices.length} prices and ${conditions.length} conditions from CSV`);
-  return { prices, conditions, offers: null, tar: await tarRequest };
+  return { prices, conditions, offers: null, tar: await tarRequest, dataDate: await dataDateRequest };
 }
 
 /**
@@ -143,6 +144,44 @@ async function loadAccessTariffs() {
     console.warn('⚠️  Could not load tar.json:', error.message);
   }
   return null;
+}
+
+/**
+ * Date of the prices in data/ (meta.json build.sourceUpdatedAt). Never the build time,
+ * which only says when the CSVs were last processed.
+ * @returns {Promise<Date|null>} null when the source date is unknown
+ */
+export async function loadDataDate() {
+  try {
+    const response = await fetch('data/meta.json');
+    if (!response.ok) return null;
+    const { build } = await response.json();
+    const value = build?.sourceUpdatedAt;
+    return value ? new Date(value) : null;
+  } catch (error) {
+    console.warn('⚠️  Could not load meta.json:', error.message);
+    return null;
+  }
+}
+
+/**
+ * Format a data date as "dezembro de 2025"
+ * @param {Date} date
+ * @returns {string}
+ */
+export function formatDataMonth(date) {
+  return new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric', timeZone: 'Europe/Lisbon' }).format(date);
+}
+
+/**
+ * Format a data date as "dez. 2025"
+ * @param {Date} date
+ * @returns {string}
+ */
+export function formatShortDataMonth(date) {
+  const month = new Intl.DateTimeFormat('pt-PT', { month: 'short', timeZone: 'Europe/Lisbon' }).format(date);
+  const year = new Intl.DateTimeFormat('pt-PT', { year: 'numeric', timeZone: 'Europe/Lisbon' }).format(date);
+  return `${month} ${year}`;
 }
 
 /**

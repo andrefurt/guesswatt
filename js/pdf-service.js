@@ -455,7 +455,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
     }
     
     // Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions, offers, tar } = await loadOffers();
+    const { prices, conditions, offers, tar, dataDate } = await loadOffers();
     const tax = { tar, largeHousehold: isLargeHousehold() };
     
     // Use offers.json if available (already filtered to ELE-only at build time)
@@ -509,7 +509,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
     }
     
     // Enriquecer com nome da tarifa e metadata (if not already enriched)
-    const enrichedBest = offers ? best : enrichOffer(best, conditions);
+    const enrichedBest = { ...(offers ? best : enrichOffer(best, conditions)), dataDate };
     
     // Calcular poupança vs operador actual (se detectado)
     let savings = null;

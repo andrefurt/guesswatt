@@ -275,6 +275,15 @@ PDF erro:     Não conseguimos ler este PDF. Tenta com o valor em €.
 
 ---
 
+**Preço indexado** (linha do cartão, só quando a oferta é indexada):
+
+```
+Label:  Preço indexado
+Valor:  valores de dez. 2025     (mês e ano dos preços, de meta.json)
+```
+
+---
+
 ### Lista de Ofertas (expandida)
 
 Quando clica "Ver mais X ofertas":

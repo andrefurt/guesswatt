@@ -120,7 +120,7 @@ async function handleEstimateSubmit(e) {
   
   try {
     // 1. Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions, offers, tar } = await loadOffers();
+    const { prices, conditions, offers, tar, dataDate } = await loadOffers();
     const tax = { tar, largeHousehold: isLargeHousehold() };
     
     // 2. Estimar consumo (data-driven if offers available)
@@ -165,7 +165,7 @@ async function handleEstimateSubmit(e) {
     const best = findBestOffer(offersToSearch, consumption, DEFAULT_POWER, tax);
     
     // 5. Enriquecer com nome da tarifa e metadata (if not already enriched)
-    const enrichedBest = offers ? best : enrichOffer(best, conditions);
+    const enrichedBest = { ...(offers ? best : enrichOffer(best, conditions)), dataDate };
     
     // 6. Renderizar resultado (usa monthlyBill para calcular poupança)
     renderResult(enrichedBest, consumption, DEFAULT_POWER, monthlyBill, null, true, getCurrentMode(), setTabResult);
@@ -217,7 +217,7 @@ async function handlePreciseSubmit(e) {
     }
     
     // 2. Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions, offers, tar } = await loadOffers();
+    const { prices, conditions, offers, tar, dataDate } = await loadOffers();
     const tax = { tar, largeHousehold: isLargeHousehold() };
     
     // 3. Use offers.json if available (already filtered to ELE-only at build time)
@@ -259,7 +259,7 @@ async function handlePreciseSubmit(e) {
     const best = findBestOfferForTariff(offersToSearch, consumption, power, tariffType, null, tax);
     
     // 5. Enriquecer com nome da tarifa e metadata (if not already enriched)
-    const enrichedBest = offers ? best : enrichOffer(best, conditions);
+    const enrichedBest = { ...(offers ? best : enrichOffer(best, conditions)), dataDate };
     
     // 6. Calcular poupança se houver operador actual
     let savings = null;
