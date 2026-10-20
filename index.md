@@ -38,5 +38,5 @@ Custo = (Termo fixo × 30) + (Termo variável × consumo) + Taxas (audiovisual, 
 
 ## Fonte dos dados
 
-Dados oficiais da ERSE (Entidade Reguladora dos Serviços Energéticos), actualizados mensalmente.
+Dados oficiais da ERSE (Entidade Reguladora dos Serviços Energéticos). A data dos preços aparece no fundo de cada página.
 

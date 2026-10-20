@@ -94,6 +94,11 @@
     }
   }
 
+  /* The hidden attribute always wins over a component's display value */
+  [hidden] {
+    display: none !important;
+  }
+
   /* Improve focus visibility */
   :focus-visible {
     outline: 2px solid var(--color-accent);

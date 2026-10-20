@@ -709,6 +709,16 @@ async function runSelftest() {
     console.log(`   - Promotions applied: ${stats.promotionsAppliedCount} (not used in ranking)`);
   });
   
+  // Test 10c: The page shows the date of the prices; freshness itself is checked in CI, not here
+  test('meta.json records the date of the prices', () => {
+    const meta = JSON.parse(fs.readFileSync(META_PATH, 'utf8'));
+    const value = meta.build?.sourceUpdatedAt;
+    if (!value || isNaN(new Date(value).getTime())) {
+      throw new Error(`build.sourceUpdatedAt is missing or not a date: ${value}`);
+    }
+    console.log(`   Prices from ${value.slice(0, 10)}`);
+  });
+
   // Test 11: Promotion discovery validation
   test('promotion discovery validation', () => {
     if (!fs.existsSync(META_PATH)) {
