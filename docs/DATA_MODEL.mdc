@@ -65,7 +65,7 @@ Key columns we use (full CSV has 60+ columns):
 | `COM` | string | Provider code (join key) | `EDPC` |
 | `COD_Proposta` | string | Offer code (join key) | `EDPC_01` |
 | `NomeProposta` | string | Human-readable offer name | `Tarifa Digital` |
-| `Segmento` | string | Target segment | `Tod`, `Dom`, `Ndom` |
+| `Segmento` | string | Target segment (`Ndom` is dropped at build time) | `Tod`, `Dom`, `Ndom` |
 | `TipoContagem` | string | Supported tariff types | `1`, `2`, `3`, `123` |
 | `Fornecimento` | string | Energy type | `ELE`, `GN`, `DUAL` |
 | `DuracaoContrato` | int | Contract duration (months) | `12` |

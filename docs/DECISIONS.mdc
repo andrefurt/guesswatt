@@ -705,6 +705,11 @@ Dados ERSE incluem doméstico e empresarial.
 **Decisão:**
 Filtrar para doméstico apenas (`Segmento !== 'Ndom'`).
 
+**Implementação (outubro de 2026):** até aqui o filtro não existia no código e o modo preciso
+recomendava ofertas Ndom (auditoria de outubro de 2026, DOCS-1). Passou a ser aplicado em
+`scripts/build-offers.js`, por isso `offers.json` só tem ofertas `Dom` e `Tod`; o selftest falha se
+aparecer uma Ndom.
+
 **Razões:**
 - Preços empresariais são mais complexos
 - Empresas têm necessidades diferentes

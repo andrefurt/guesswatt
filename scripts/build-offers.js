@@ -577,6 +577,11 @@ function buildOffers() {
     if (!condition || condition.Fornecimento !== 'ELE') {
       continue; // Skip GN, DUAL, and offers without condition data
     }
+
+    // Filter: domestic only (ADR-020); 'Tod' offers are open to everyone
+    if (normalizeString(condition.Segmento) === 'Ndom') {
+      continue;
+    }
     
     // Normalize price fields
     const tvField = normalizeNumber(price['TV|TVFV|TVP'] || price.TV || 0);
@@ -763,6 +768,7 @@ function buildOffers() {
     },
     filtersApplied: {
       fornecimento: 'ELE only (excluded GN and DUAL)',
+      segmento: 'Dom and Tod only (excluded Ndom)',
       lockInExcluded: false // Note: lock-in filtering happens at runtime
     },
     statistics: {

@@ -1,23 +1,24 @@
 {
   "build": {
-    "builtAt": "2025-12-08T01:30:27.139Z",
+    "builtAt": "2026-10-20T23:22:37.769Z",
     "sourceUpdatedAt": null,
-    "offersCount": 7164,
+    "offersCount": 5492,
     "rowCounts": {
       "prices": 13517,
       "conditions": 708
     },
     "filtersApplied": {
       "fornecimento": "ELE only (excluded GN and DUAL)",
+      "segmento": "Dom and Tod only (excluded Ndom)",
       "lockInExcluded": false
     },
     "statistics": {
-      "lockInCount": 1410,
+      "lockInCount": 769,
       "lockInBySourceTotals": {
-        "field": 921,
-        "text": 489
+        "field": 313,
+        "text": 456
       },
-      "activeOffersCount": 2010,
+      "activeOffersCount": 0,
       "promotionsWithMetadataCount": 306,
       "promotionsWithKnownActiveStatusCount": 0,
       "promotionsActiveCount": 0,
