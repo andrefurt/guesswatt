@@ -6,6 +6,7 @@
  * - Required fields present
  * - No GN-only offers
  * - Calculation samples (no NaN, positive totals)
+ * - Golden cases against the real js/calculator.js
  * 
  * Usage:
  *   node scripts/selftest.js
@@ -13,34 +14,24 @@
 
 const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const OFFERS_PATH = path.join(DATA_DIR, 'offers.json');
 const META_PATH = path.join(DATA_DIR, 'meta.json');
 
-// Constants for calculation (matching frontend)
-const VAT = 1.23;
-const DAYS_PER_MONTH = 30;
-const AUDIOVISUAL_TAX = 2.85;
-const IEC_KWH = 0.001;
-
-/**
- * Calculate monthly cost for an offer (simplified, matches calculator.js logic)
- */
-function calculateMonthlyCost(offer, consumption, power) {
-  const tvField = offer['TV|TVFV|TVP'] || offer.TV || 0;
-  const fixedTerm = (offer.TF || 0) * DAYS_PER_MONTH;
-  const variableTerm = consumption * tvField;
-  const iec = consumption * IEC_KWH;
-  const subtotal = fixedTerm + variableTerm + iec + AUDIOVISUAL_TAX;
-  return subtotal * VAT;
-}
+// The real calculator, loaded in runSelftest (it is an ES module)
+const CALCULATOR_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'calculator.js')).href;
+let calculateMonthlyCost;
 
 /**
  * Run self-tests
  */
-function runSelftest() {
+async function runSelftest() {
   console.log('🧪 Running self-tests...\n');
+  
+  const calculator = await import(CALCULATOR_URL);
+  calculateMonthlyCost = calculator.calculateMonthlyCost;
   
   let passed = 0;
   let failed = 0;
@@ -330,8 +321,7 @@ function runSelftest() {
     const testConsumption = 250;
     const testPower = 4.6;
     
-    // Note: We can't import the calculator functions here (CommonJS vs ES modules)
-    // So we'll just verify that offers have the required fields for calculation
+    // Field check only; the golden cases below pin the values
     testOffers.forEach(offer => {
       if (!offer.TF || offer.TF <= 0) {
         errors.push(`Invalid TF for ${offer.COM} ${offer.COD_Proposta}`);
@@ -368,6 +358,53 @@ function runSelftest() {
     console.log(`   ${nonLockInOffers.length} non-lock-in offers available for selection`);
   });
   
+  // Golden cases: synthetic offers, expected values worked out by hand.
+  // A formula change in js/calculator.js must update these literals.
+  const CENT = 0.005;
+  function expectCost(actual, expected, label) {
+    if (Math.abs(actual - expected) > CENT) {
+      throw new Error(`${label}: expected ${expected.toFixed(4)}, got ${actual.toFixed(4)}`);
+    }
+  }
+  const SIMPLE = { COM: 'TEST', COD_Proposta: 'S1', Contagem: 1, Pot_Cont: 4.6, TF: 0.3, 'TV|TVFV|TVP': 0.15 };
+  const BI = { COM: 'TEST', COD_Proposta: 'B1', Contagem: 2, Pot_Cont: 4.6, TF: 0.3, 'TV|TVFV|TVP': 0.20, 'TVV|TVC': 0.10 };
+  const TRI = { COM: 'TEST', COD_Proposta: 'T1', Contagem: 3, Pot_Cont: 4.6, TF: 0.3, 'TV|TVFV|TVP': 0.25, 'TVV|TVC': 0.15, TVVz: 0.08 };
+
+  test('golden: simple tariff, 200 kWh at 4.6 kVA', () => {
+    // (0.3*30 + 200*0.15 + 200*0.001 + 2.85) * 1.23
+    expectCost(calculateMonthlyCost(SIMPLE, 200, 4.6), 51.7215, 'simple');
+  });
+
+  test('golden: bi-hourly tariff, default 35/65 split', () => {
+    // (9 + 200*0.35*0.10 + 200*0.65*0.20 + 0.2 + 2.85) * 1.23
+    expectCost(calculateMonthlyCost(BI, 200, 4.6), 55.4115, 'bi-hourly');
+  });
+
+  test('golden: tri-hourly tariff, default 30/50/20 split', () => {
+    // (9 + 200*(0.30*0.08 + 0.50*0.15 + 0.20*0.25) + 0.2 + 2.85) * 1.23
+    expectCost(calculateMonthlyCost(TRI, 200, 4.6), 51.4755, 'tri-hourly');
+  });
+
+  test('golden: ranking picks the cheapest offer without lock-in', () => {
+    const cheaperLocked = { ...SIMPLE, COD_Proposta: 'LOCK', 'TV|TVFV|TVP': 0.10, hasLockIn: true };
+    const cheaper = { ...SIMPLE, COD_Proposta: 'CHEAP', 'TV|TVFV|TVP': 0.12 };
+    const pool = [SIMPLE, cheaperLocked, cheaper];
+    const best = calculator.findBestOfferForTariff(pool, 200, 4.6, 1);
+    if (best.COD_Proposta !== 'CHEAP') {
+      throw new Error(`expected CHEAP, got ${best.COD_Proposta}`);
+    }
+    expectCost(best.annualCostEffective, calculateMonthlyCost(cheaper, 200, 4.6) * 12, 'annual');
+  });
+
+  test('golden: equal costs break ties by name', () => {
+    const b = { ...SIMPLE, COD_Proposta: 'B', tariffName: 'Beta' };
+    const a = { ...SIMPLE, COD_Proposta: 'A', tariffName: 'Alfa' };
+    const best = calculator.findBestOfferForTariff([b, a], 200, 4.6, 1);
+    if (best.COD_Proposta !== 'A') {
+      throw new Error(`expected A, got ${best.COD_Proposta}`);
+    }
+  });
+
   // Test 8: Tariff types are valid
   test('tariff types are valid (1, 2, or 3)', () => {
     const invalid = offers.filter(o => ![1, 2, 3].includes(o.Contagem));
@@ -378,7 +415,7 @@ function runSelftest() {
   
   // Test 9: Power values are standard
   test('power values are standard kVA values', () => {
-    const standardPowers = [1.15, 2.3, 3.45, 4.6, 5.75, 6.9, 10.35, 13.8, 17.25, 20.7];
+    const standardPowers = [1.15, 2.3, 3.45, 4.6, 5.75, 6.9, 10.35, 13.8, 17.25, 20.7, 27.6, 34.5, 41.4];
     const invalid = offers.filter(o => !standardPowers.includes(o.Pot_Cont));
     if (invalid.length > 0) {
       // This is a warning, not an error - some offers might have non-standard powers
@@ -519,7 +556,10 @@ function runSelftest() {
 
 // Run
 if (require.main === module) {
-  runSelftest();
+  runSelftest().catch(error => {
+    console.error(`\n❌ Self-test crashed: ${error.message}`);
+    process.exit(1);
+  });
 }
 
 module.exports = { runSelftest };

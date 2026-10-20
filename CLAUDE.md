@@ -24,14 +24,15 @@ Data refresh (needs Playwright, normally left to the weekly Action):
 5. Semantic HTML first: `<button>`, `<dialog>`, `<details>` before custom widgets.
 6. Every interactive element works with the keyboard, shows focus and respects reduced motion.
 7. Never `innerHTML` with user content.
-8. Use the formulas in `docs/DATA_MODEL.mdc`; `scripts/selftest.js` mirrors `js/calculator.js`,
-   so a change to one is a change to both.
+8. `js/calculator.js` owns the formulas; `docs/DATA_MODEL.mdc` explains them and loses where they
+   disagree. `scripts/selftest.js` imports the calculator and pins golden values, so a formula change
+   updates those literals in the same commit.
 
 ## Where to look
 
 | Task | Read first |
 |---|---|
-| Calculations, CSV fields, formulas | `docs/DATA_MODEL.mdc` |
+| Calculations, CSV fields, formulas | `js/calculator.js`, then `docs/DATA_MODEL.mdc` |
 | Any UI copy, tooltips, errors | `docs/COPY.mdc` |
 | Product intent and user flows | `docs/CONCEPT.mdc` |
 | Architecture and CSS or JS patterns | `docs/TECH_STACK.mdc` |
