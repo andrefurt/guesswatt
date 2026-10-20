@@ -47,7 +47,8 @@ export async function extractPDFData(file) {
   }
   
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  // isEvalSupported: false stops a crafted font in the PDF from running code (CVE-2024-4367)
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, isEvalSupported: false }).promise;
   
   let fullText = '';
   for (let i = 1; i <= pdf.numPages; i++) {
