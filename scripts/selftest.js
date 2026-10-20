@@ -405,6 +405,29 @@ async function runSelftest() {
     }
   });
 
+  test('golden: estimate round trip on a synthetic offer stays within 1 kWh', () => {
+    const offer = { Contagem: 1, Pot_Cont: 4.6, TF: 0.40, 'TV|TVFV|TVP': 0.15 };
+    for (const kWh of [100, 200, 300, 600]) {
+      const bill = calculateMonthlyCost(offer, kWh, 4.6);
+      const estimated = calculator.estimateConsumption(bill, [offer]);
+      if (Math.abs(estimated - kWh) > 1) {
+        throw new Error(`${kWh} kWh -> €${bill.toFixed(2)} -> ${estimated} kWh`);
+      }
+    }
+  });
+
+  test('golden: estimate on the real data reproduces the bill on the typical offer', () => {
+    const typical = calculator.typicalOffer(offers);
+    for (const bill of [40, 80, 120]) {
+      const estimated = calculator.estimateConsumption(bill, offers);
+      const cost = calculateMonthlyCost(typical, estimated, 4.6);
+      // One kWh is worth well under €0.50 on any offer
+      if (Math.abs(cost - bill) > 0.5) {
+        throw new Error(`€${bill} -> ${estimated} kWh -> €${cost.toFixed(2)}`);
+      }
+    }
+  });
+
   // Test 8: Tariff types are valid
   test('tariff types are valid (1, 2, or 3)', () => {
     const invalid = offers.filter(o => ![1, 2, 3].includes(o.Contagem));

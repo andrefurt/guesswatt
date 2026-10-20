@@ -21,63 +21,58 @@ const TRI_HORARIA = {
   ponta: 0.20       // peak hours
 };
 
+// Fallback typical offer when no data is loaded (DATA_MODEL.mdc defaults)
+const FALLBACK_TF = 0.25;   // €/day
+const FALLBACK_TV = 0.18;   // €/kWh
+
+const MIN_ESTIMATE_KWH = 50;
+const MAX_ESTIMATE_KWH = 5000;
+
+function median(values) {
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.floor(sorted.length / 2)];
+}
+
+/**
+ * Build a typical simple-tariff offer at the default power from the loaded offers:
+ * median fixed term and median energy price
+ * @param {Array<Object>|null} offers - Loaded offers
+ * @returns {Object} Synthetic offer accepted by calculateMonthlyCost
+ */
+export function typicalOffer(offers = null) {
+  const atPower = (offers || []).filter(o => o.Pot_Cont === DEFAULT_POWER && o.TF > 0);
+  const simple = atPower.filter(o => o.Contagem === 1 && o['TV|TVFV|TVP'] > 0);
+
+  return {
+    Contagem: 1,
+    Pot_Cont: DEFAULT_POWER,
+    TF: atPower.length > 0 ? median(atPower.map(o => o.TF)) : FALLBACK_TF,
+    'TV|TVFV|TVP': simple.length > 0 ? median(simple.map(o => o['TV|TVFV|TVP'])) : FALLBACK_TV
+  };
+}
+
 /**
  * Estimate consumption (kWh) from monthly bill amount
- * Uses data-driven median price from loaded offers if available
+ * Inverts calculateMonthlyCost on the typical offer by bisection, so the estimate
+ * uses exactly the same formula (and taxes) as the costs shown afterwards
  * @param {number} monthlyBill - Monthly bill amount in euros
  * @param {Array<Object>} offers - Optional: loaded offers for data-driven estimation
  * @returns {number} Estimated consumption in kWh
  */
 export function estimateConsumption(monthlyBill, offers = null) {
-  // Data-driven: compute median price from offers if available
-  let avgPricePerKwh = 0.18; // Fallback default
-  
-  if (offers && offers.length > 0) {
-    // Filter for simple tariff, default power, valid offers
-    const relevant = offers.filter(o => 
-      o.Contagem === 1 && 
-      o.Pot_Cont === DEFAULT_POWER &&
-      o.TF > 0 &&
-      o['TV|TVFV|TVP'] > 0
-    );
-    
-    if (relevant.length > 0) {
-      // Compute median of TF + TV for default power
-      const prices = relevant.map(o => {
-        const tfPerMonth = o.TF * DAYS_PER_MONTH;
-        const tv = o['TV|TVFV|TVP'];
-        // Estimate: assume 200 kWh/month average for price calculation
-        const totalPerKwh = (tfPerMonth / 200) + tv;
-        return totalPerKwh;
-      }).sort((a, b) => a - b);
-      
-      const medianIndex = Math.floor(prices.length / 2);
-      avgPricePerKwh = prices[medianIndex] || 0.18;
-    }
+  const typical = typicalOffer(offers);
+  const costAt = kWh => calculateMonthlyCost(typical, kWh, DEFAULT_POWER);
+
+  let low = 0;
+  let high = MAX_ESTIMATE_KWH;
+  for (let i = 0; i < 50; i++) {
+    const mid = (low + high) / 2;
+    if (costAt(mid) < monthlyBill) low = mid;
+    else high = mid;
   }
-  
-  // Reverse calculation: monthlyBill = (fixedTerm + variableTerm + taxes) * VAT
-  const withoutVAT = monthlyBill / VAT;
-  
-  // Estimate fixed term (using median from data if available, else default)
-  let avgFixedTerm = 0.25 * DAYS_PER_MONTH; // Default fallback
-  if (offers && offers.length > 0) {
-    const relevant = offers.filter(o => 
-      o.Pot_Cont === DEFAULT_POWER &&
-      o.TF > 0
-    );
-    if (relevant.length > 0) {
-      const fixedTerms = relevant.map(o => o.TF * DAYS_PER_MONTH).sort((a, b) => a - b);
-      const medianIndex = Math.floor(fixedTerms.length / 2);
-      avgFixedTerm = fixedTerms[medianIndex] || avgFixedTerm;
-    }
-  }
-  
-  const withoutFixed = withoutVAT - avgFixedTerm - AUDIOVISUAL_TAX;
-  const consumption = withoutFixed / avgPricePerKwh;
-  
+
   // Clamp to reasonable bounds
-  return Math.max(50, Math.min(5000, Math.round(consumption)));
+  return Math.max(MIN_ESTIMATE_KWH, Math.min(MAX_ESTIMATE_KWH, Math.round(low)));
 }
 
 /**

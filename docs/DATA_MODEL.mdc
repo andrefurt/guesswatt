@@ -206,33 +206,12 @@ function calcularCustoMensal(potencia, consumoKwh, tipoTarifa, oferta, distribui
 
 ### Estimate Consumption from Invoice Amount
 
-```javascript
-/**
- * Reverse-calculate consumption from monthly bill
- * Used for €/month quick input
- * 
- * @param {number} valorFatura - Monthly bill amount (€)
- * @param {number} potencia - Assumed power (default: 4.6 kVA)
- * @param {number} precoMedioKwh - Average price (default: 0.18 €/kWh)
- * @returns {number} Estimated monthly consumption (kWh)
- */
-function estimarConsumo(valorFatura, potencia = 4.6, precoMedioKwh = 0.18) {
-  // Remove VAT
-  const semIva = valorFatura / (1 + IVA);
-  
-  // Remove fixed costs (estimated)
-  const termoFixoEstimado = 0.25 * DIAS_MES; // ~€7.50/month
-  const custosFixos = termoFixoEstimado + AUDIOVISUAL;
-  
-  // Remaining is variable consumption
-  const termoVariavel = semIva - custosFixos;
-  
-  // Estimate kWh
-  const consumoKwh = termoVariavel / precoMedioKwh;
-  
-  return Math.max(0, Math.round(consumoKwh));
-}
-```
+`estimateConsumption` in `js/calculator.js` inverts `calculateMonthlyCost` by bisection on a
+typical offer (`typicalOffer`): the median fixed term at 4.6 kVA and the median simple-tariff
+energy price in the loaded data. The estimate therefore uses the same formula and taxes as the
+costs shown afterwards; the fixed term is counted once. The result is clamped to 50 to 5000 kWh.
+Without data it falls back to 0.25 €/day and 0.18 €/kWh. The selftest pins the round trip
+(kWh to bill to kWh, within 1 kWh).
 
 ### Find Best Offer
 
