@@ -304,7 +304,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
       <div class="info-row">
         <div class="info-row-inner">
           <span class="info-row-label">Quanto tempo demora</span>
-          <span class="info-row-value">4 a 5 dias</span>
+          <span class="info-row-value">Até 3 semanas</span>
         </div>
       </div>
       <div class="disclaimer-row">
