@@ -98,6 +98,14 @@ async function runSelftest() {
     }
   });
   
+  // Test 5a: Domestic only (ADR-020)
+  test('no non-domestic (Ndom) offers', () => {
+    const nonDomestic = offers.filter(o => o.segmento === 'Ndom');
+    if (nonDomestic.length > 0) {
+      throw new Error(`Found ${nonDomestic.length} Ndom offers (should be filtered at build time)`);
+    }
+  });
+
   // Test 5b: Lock-in detection
   test('lock-in detection fields present', () => {
     const withLockIn = offers.filter(o => o.hasLockIn === true);
