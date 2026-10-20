@@ -451,7 +451,7 @@ The `offers.json` file is built from CSVs and contains enriched offer data:
   validFrom: "01/01/2025",        // Offer start date
   validTo: "31/12/2025",          // Offer end date
   isIndexed: false,              // Indexed prices flag
-  hasLockIn: false,               // Lock-in period flag
+  hasLockIn: false,               // Lock-in: FiltroFidelização S/N decides; text only when the flag is empty
   lockInMonths: null,             // Lock-in duration (months)
   promotion: null,               // Promotion metadata
   isCampaignActive: null          // Campaign active status
