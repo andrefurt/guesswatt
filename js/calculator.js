@@ -20,11 +20,14 @@ import {
 const IEC_KWH = 0.001; // Special consumption tax (€/kWh)
 
 // Consumption distribution assumptions (when unknown)
+// ERSE's simulator assumes 40% vazio for all three of its typical consumers
+// (Manual do Simulador, "Pressupostos considerados", p. 15)
 const BI_HORARIA = {
-  vazio: 0.35,      // 22h-08h
-  foraVazio: 0.65   // 08h-22h
+  vazio: 0.40,      // 22h-08h
+  foraVazio: 0.60   // 08h-22h
 };
 
+// Not from an official source: ERSE publishes no tri-hourly typical split
 const TRI_HORARIA = {
   vazio: 0.30,      // night
   cheias: 0.50,     // mid-day
