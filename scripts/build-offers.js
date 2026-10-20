@@ -702,10 +702,10 @@ function buildOffers() {
     }
   }
   
-  // Date of the prices: the downloader's date when it just ran, else the one the previous build kept.
+  // Date of the prices: ERSE's export date when the downloader just ran, else the one the previous build kept.
   // Never the build time: rebuilding old CSVs must not make them look fresh.
   const sourceUpdatedAt = meta.updatedAt || meta.build?.sourceUpdatedAt || null;
-  const sourceDateNote = meta.updatedAt ? 'Date the downloader fetched the CSVs from ERSE' : (meta.build?.sourceDateNote || null);
+  const sourceDateNote = meta.updatedAt ? "ERSE's export date, from the name of the ZIP the downloader fetched" : (meta.build?.sourceDateNote || null);
   
   meta.build = {
     builtAt: new Date().toISOString(),

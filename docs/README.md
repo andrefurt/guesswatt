@@ -106,7 +106,7 @@ This directory contains all project documentation organized by topic. Each docum
 - ADR-002: Vanilla JS, No Framework
 - ADR-003: No Build Step
 - ADR-004: ERSE CSVs as Primary Source
-- ADR-005: Manual CSV Updates
+- ADR-005: Manual CSV Updates (superseded: weekly fetch-based refresh)
 - ADR-006: ERSE Insights Every 4 Months
 - ADR-007: Single €/month Input with PDF Option
 - ADR-008: Estimate vs Precise (Two Modes)

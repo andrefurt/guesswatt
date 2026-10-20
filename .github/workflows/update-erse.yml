@@ -37,22 +37,6 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-browsers
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-      
-      - name: Install Playwright
-        run: |
-          npm init -y
-          npm install playwright
-      
-      - name: Install Chromium
-        run: npx playwright install chromium
-      
       - name: Download ERSE CSV
         run: |
           set -e
@@ -72,7 +56,7 @@ jobs:
         id: changes
         run: |
           set +e
-          git diff --quiet data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv data/last-update.json 2>/dev/null
+          git diff --quiet data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv 2>/dev/null
           if [ $? -ne 0 ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Changes detected in data files"
@@ -88,7 +72,7 @@ jobs:
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv data/last-update.json
+          git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv
           git commit -m "chore: update ERSE data $(date +%Y-%m-%d)" || exit 0
           git push origin HEAD:main || (echo "❌ Failed to push changes" && exit 1)
       

@@ -19,7 +19,7 @@ Decisões técnicas e de produto documentadas. Cada ADR segue o formato: context
 
 ### Dados
 - [ADR-004](#adr-004-csvs-da-erse-como-fonte-primária) CSVs da ERSE como Fonte Primária
-- [ADR-005](#adr-005-actualização-manual-dos-csvs) Actualização Manual dos CSVs
+- [ADR-005](#adr-005-actualização-manual-dos-csvs) Actualização Manual dos CSVs, substituído em outubro de 2026
 - [ADR-006](#adr-006-insights-erse-a-cada-4-meses) Insights ERSE a Cada 4 Meses
 
 ### Input & Cálculo
@@ -172,7 +172,17 @@ Usar os CSVs do simulador ERSE como fonte única de verdade.
 
 **Data:** Novembro 2024 (v1), mantido em v2
 
-**Status:** ✅ Aceite
+**Status:** 🔄 Substituído (outubro de 2026)
+
+**Substituição (2026-10-20, decisão do dono):** a actualização é automática e semanal, só com
+`fetch`, sem Playwright (auditoria de outubro de 2026, PIPE-1). A premissa "curl não funciona" deixou
+de ser verdade: `https://simuladorprecos.erse.pt/config/Settings.json` indica o ZIP actual em
+`csvPath`, e o nome do ZIP traz a data da exportação da ERSE ("20261019 172747 CSV.zip"), que passa a
+ser a data dos preços mostrada na página. `scripts/download-erse.js` lê o ZIP em memória com `zlib`,
+sem dependências. Se a ERSE mudar o formato, o script falha com uma mensagem clara e os dados
+publicados ficam como estavam.
+
+A decisão original fica abaixo como registo.
 
 **Contexto:**
 Os CSVs da ERSE actualizam mensalmente. Opções:
