@@ -1,0 +1,13 @@
+{
+  "year": 2026,
+  "description": "Network-access tariff (TAR), fixed term, BTN up to 20.7 kVA. Only the powers that get reduced VAT on it (3.45 kVA or below) are used.",
+  "unit": "EUR/day",
+  "source": "ERSE, Diretiva n.º 10/2025, tarifas e preços para 2026, f) Tarifa de Acesso às Redes em BTN ≤ 20,7 kVA",
+  "sourceUrl": "https://www.erse.pt/media/lamnmp31/diretiva-erse-10-2025-tep-se-2026.pdf",
+  "readAt": "2026-10-21",
+  "fixedTermByPower": {
+    "1.15": 0.0573,
+    "2.3": 0.1145,
+    "3.45": 0.1718
+  }
+}

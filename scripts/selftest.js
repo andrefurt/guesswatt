@@ -370,19 +370,72 @@ async function runSelftest() {
   const BI = { COM: 'TEST', COD_Proposta: 'B1', Contagem: 2, Pot_Cont: 4.6, TF: 0.3, 'TV|TVFV|TVP': 0.20, 'TVV|TVC': 0.10 };
   const TRI = { COM: 'TEST', COD_Proposta: 'T1', Contagem: 3, Pot_Cont: 4.6, TF: 0.3, 'TV|TVFV|TVP': 0.25, 'TVV|TVC': 0.15, TVVz: 0.08 };
 
+  // Fixed parts at 4.6 kVA: fixed term 0.3*30*1.23 = 11.07, IEC 0.2*1.23 = 0.246,
+  // CAV 2.85*1.06 = 3.021, DGEG 0.07*1.23 = 0.0861; all 200 kWh get the 6% rate
   test('golden: simple tariff, 200 kWh at 4.6 kVA', () => {
-    // (0.3*30 + 200*0.15 + 200*0.001 + 2.85) * 1.23
-    expectCost(calculateMonthlyCost(SIMPLE, 200, 4.6), 51.7215, 'simple');
+    // 200*0.15*1.06 + 11.07 + 0.246 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(SIMPLE, 200, 4.6), 46.2231, 'simple');
   });
 
   test('golden: bi-hourly tariff, default 35/65 split', () => {
-    // (9 + 200*0.35*0.10 + 200*0.65*0.20 + 0.2 + 2.85) * 1.23
-    expectCost(calculateMonthlyCost(BI, 200, 4.6), 55.4115, 'bi-hourly');
+    // (200*0.35*0.10 + 200*0.65*0.20)*1.06 + 11.07 + 0.246 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(BI, 200, 4.6), 49.4031, 'bi-hourly');
   });
 
   test('golden: tri-hourly tariff, default 30/50/20 split', () => {
-    // (9 + 200*(0.30*0.08 + 0.50*0.15 + 0.20*0.25) + 0.2 + 2.85) * 1.23
-    expectCost(calculateMonthlyCost(TRI, 200, 4.6), 51.4755, 'tri-hourly');
+    // 200*(0.30*0.08 + 0.50*0.15 + 0.20*0.25)*1.06 + 11.07 + 0.246 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(TRI, 200, 4.6), 46.0111, 'tri-hourly');
+  });
+
+  test('golden: above 200 kWh the rest of the energy pays 23%', () => {
+    // 400 kWh: 60*(0.5*1.06 + 0.5*1.23) + 11.07 + 0.4*1.23 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(SIMPLE, 400, 4.6), 83.3691, 'simple 400 kWh');
+  });
+
+  test('golden: a household of 5 or more gets 300 kWh at 6%', () => {
+    // 400 kWh: 60*(0.75*1.06 + 0.25*1.23) + 11.07 + 0.492 + 3.021 + 0.0861
+    expectCost(calculateMonthlyCost(SIMPLE, 400, 4.6, null, { largeHousehold: true }), 80.8191, 'large household');
+  });
+
+  test('golden: above 6.9 kVA everything but the CAV pays 23%', () => {
+    const offer = { ...SIMPLE, Pot_Cont: 10.35, TF: 0.5 };
+    // (15 + 75 + 0.5 + 0.07)*1.23 + 3.021
+    expectCost(calculateMonthlyCost(offer, 500, 10.35), 114.4221, '10.35 kVA');
+  });
+
+  test('golden: at 3.45 kVA the TAR share of the fixed term pays 6%', () => {
+    const offer = { ...SIMPLE, Pot_Cont: 3.45, TF: 0.25 };
+    const tar = { fixedTermByPower: { '3.45': 0.1718 } };
+    // fixed 7.5: 5.154*1.06 + 2.346*1.23; energy 30*1.06; IEC 0.246; CAV 3.021; DGEG 0.0861
+    expectCost(calculateMonthlyCost(offer, 200, 3.45, null, { tar }), 43.50192, 'tar share');
+  });
+
+  // ERSExplica "Aplicação do IVA na fatura de eletricidade", examples 1, 3 and 4.
+  // They use the 2022 thresholds (100 kWh, 150 kWh for large households), passed explicitly.
+  test('golden: ERSE Exemplo 1 (simple, 3.45 kVA, 160 kWh) = 37.73', () => {
+    const offer = { Contagem: 1, Pot_Cont: 3.45, TF: 0.0904 + 0.0758, 'TV|TVFV|TVP': 0.1599 };
+    const tar = { fixedTermByPower: { '3.45': 0.0904 } };
+    expectCost(calculateMonthlyCost(offer, 160, 3.45, null, { tar, reducedVatKwh: 100 }), 37.73, 'Exemplo 1');
+  });
+
+  const ERSE_BI = { Contagem: 2, Pot_Cont: 6.9, TF: 0.3160, 'TV|TVFV|TVP': 0.1926, 'TVV|TVC': 0.1073 };
+  const ERSE_SPLIT = { vazio: 80 / 250, foraVazio: 170 / 250 };
+  test('golden: ERSE Exemplo 3 (bi-hourly, 6.9 kVA, 250 kWh) = 63.10', () => {
+    expectCost(calculateMonthlyCost(ERSE_BI, 250, 6.9, ERSE_SPLIT, { reducedVatKwh: 100 }), 63.10, 'Exemplo 3');
+  });
+
+  test('golden: ERSE Exemplo 4 (large household, same profile) = 61.69', () => {
+    expectCost(calculateMonthlyCost(ERSE_BI, 250, 6.9, ERSE_SPLIT, { reducedVatKwh: 150 }), 61.69, 'Exemplo 4');
+  });
+
+  test('data/tar.json covers every power with reduced VAT on the fixed term', () => {
+    const tar = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'tar.json'), 'utf8'));
+    for (const power of ['1.15', '2.3', '3.45']) {
+      const value = tar.fixedTermByPower?.[power];
+      if (typeof value !== 'number' || value <= 0 || value > 0.5) {
+        throw new Error(`missing or implausible TAR for ${power} kVA: ${value}`);
+      }
+    }
   });
 
   test('golden: ranking picks the cheapest offer without lock-in', () => {

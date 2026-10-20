@@ -48,9 +48,12 @@ export async function loadCSV(url) {
 
 /**
  * Load offers.json (preferred) or fallback to CSV files
- * @returns {Promise<{prices: Array<Object>, conditions: Array<Object>}>} Parsed data
+ * Also loads data/tar.json in parallel for the tax context
+ * @returns {Promise<{prices: Array<Object>, conditions: Array<Object>, offers: Array<Object>|null, tar: Object|null}>} Parsed data
  */
 export async function loadOffers() {
+  const tarRequest = loadAccessTariffs();
+
   try {
     // Try to load offers.json first
     const response = await fetch('data/offers.json');
@@ -115,7 +118,7 @@ export async function loadOffers() {
       });
       const conditions = Array.from(conditionsMap.values());
       
-      return { prices, conditions, offers }; // Include raw offers for new code
+      return { prices, conditions, offers, tar: await tarRequest }; // Include raw offers for new code
     }
   } catch (error) {
     console.warn('⚠️  Could not load offers.json, falling back to CSV:', error.message);
@@ -125,7 +128,22 @@ export async function loadOffers() {
   const prices = await loadCSV('data/Precos_ELEGN.csv');
   const conditions = await loadCSV('data/CondComerciais.csv');
   console.log(`✅ Loaded ${prices.length} prices and ${conditions.length} conditions from CSV`);
-  return { prices, conditions, offers: null };
+  return { prices, conditions, offers: null, tar: await tarRequest };
+}
+
+/**
+ * Load the network-access (TAR) fixed terms used for the reduced VAT on the fixed term
+ * @returns {Promise<Object|null>} data/tar.json, or null when it cannot be loaded
+ *   (costs at 3.45 kVA or below then use the standard rate on the whole fixed term)
+ */
+async function loadAccessTariffs() {
+  try {
+    const response = await fetch('data/tar.json');
+    if (response.ok) return await response.json();
+  } catch (error) {
+    console.warn('⚠️  Could not load tar.json:', error.message);
+  }
+  return null;
 }
 
 /**

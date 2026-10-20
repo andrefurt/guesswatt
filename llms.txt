@@ -37,7 +37,7 @@ Podes:
 ## Fórmula de cálculo
 
 ```
-Custo mensal = (Termo fixo × 30 dias) + (Termo variável × consumo kWh) + Taxas + IVA 23%
+Custo mensal = (Termo fixo × 30 dias) + (Termo variável × consumo kWh) + Taxas (audiovisual, IEC, DGEG), com IVA por componente: 6% nos primeiros 200 kWh (300 kWh em casas com 5 ou mais pessoas) até 6,9 kVA e na parte de acesso às redes do termo fixo até 3,45 kVA; 23% no resto; audiovisual a 6%
 ```
 
 ### Tipos de tarifa

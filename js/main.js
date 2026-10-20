@@ -120,10 +120,11 @@ async function handleEstimateSubmit(e) {
   
   try {
     // 1. Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions, offers } = await loadOffers();
+    const { prices, conditions, offers, tar } = await loadOffers();
+    const tax = { tar };
     
     // 2. Estimar consumo (data-driven if offers available)
-    const consumption = estimateConsumption(monthlyBill, offers);
+    const consumption = estimateConsumption(monthlyBill, offers, tax);
     
     // 3. Use offers.json if available (already filtered to ELE-only at build time)
     // Otherwise filter CSV data to ELE-only
@@ -161,7 +162,7 @@ async function handleEstimateSubmit(e) {
     }
     
     // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
-    const best = findBestOffer(offersToSearch, consumption, DEFAULT_POWER);
+    const best = findBestOffer(offersToSearch, consumption, DEFAULT_POWER, tax);
     
     // 5. Enriquecer com nome da tarifa e metadata (if not already enriched)
     const enrichedBest = offers ? best : enrichOffer(best, conditions);
@@ -216,7 +217,8 @@ async function handlePreciseSubmit(e) {
     }
     
     // 2. Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions, offers } = await loadOffers();
+    const { prices, conditions, offers, tar } = await loadOffers();
+    const tax = { tar };
     
     // 3. Use offers.json if available (already filtered to ELE-only at build time)
     // Otherwise filter CSV data to ELE-only
@@ -254,7 +256,7 @@ async function handlePreciseSubmit(e) {
     }
     
     // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
-    const best = findBestOfferForTariff(offersToSearch, consumption, power, tariffType);
+    const best = findBestOfferForTariff(offersToSearch, consumption, power, tariffType, null, tax);
     
     // 5. Enriquecer com nome da tarifa e metadata (if not already enriched)
     const enrichedBest = offers ? best : enrichOffer(best, conditions);
@@ -286,7 +288,7 @@ async function handlePreciseSubmit(e) {
         // Calcular custo com a melhor oferta do operador actual
         const currentProviderCosts = currentProviderOffers.map(offer => ({
           ...offer,
-          monthlyCost: calculateMonthlyCost(offer, consumption, power)
+          monthlyCost: calculateMonthlyCost(offer, consumption, power, null, tax)
         }));
         
         // Ordenar por custo e pegar a mais barata

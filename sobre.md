@@ -21,8 +21,10 @@ Usamos os dados oficiais da ERSE (Entidade Reguladora dos Serviços Energéticos
 Para cada tarifa, calculamos:
 - Termo fixo (€/dia) × 30 dias
 - Termo variável (€/kWh) × consumo mensal
-- Taxas (audiovisual, IEC)
-- IVA a 23%
+- Taxas: contribuição audiovisual, IEC e taxa da DGEG
+- IVA a 6% nos primeiros 200 kWh do mês (300 kWh em casas com 5 ou mais pessoas), até 6,9 kVA
+- IVA a 6% na parte do termo fixo que paga o acesso às redes, até 3,45 kVA
+- IVA a 23% no resto, exceto na contribuição audiovisual, que paga 6%
 
 ## Fonte dos dados
 
