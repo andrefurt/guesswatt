@@ -1,6 +1,6 @@
 {
   "build": {
-    "builtAt": "2026-10-20T23:22:37.769Z",
+    "builtAt": "2026-10-20T23:23:18.843Z",
     "sourceUpdatedAt": null,
     "offersCount": 5492,
     "rowCounts": {
@@ -13,10 +13,10 @@
       "lockInExcluded": false
     },
     "statistics": {
-      "lockInCount": 769,
+      "lockInCount": 313,
       "lockInBySourceTotals": {
         "field": 313,
-        "text": 456
+        "text": 0
       },
       "activeOffersCount": 0,
       "promotionsWithMetadataCount": 306,
@@ -243,22 +243,6 @@
     ],
     "lockInSamples": [
       {
-        "COM": "EDPSU",
-        "COD_Proposta": "TUR",
-        "NomeProposta": "Condições de preço regulado",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Não tem fidelização Tarifa Regulada de Último Recurso e Tarifas em regime equiparado -"
-      },
-      {
-        "COM": "CUR",
-        "COD_Proposta": "CUR",
-        "NomeProposta": "Tarifa Mercado Regulado",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Não tem fidelização Tarifa Transitória -"
-      },
-      {
         "COM": "ALFAENERGIA",
         "COD_Proposta": "ALFAENERGIA_02",
         "NomeProposta": "Tarifa ALFA GÁS FIXO BP< PIONEIROS 2025",
@@ -347,30 +331,6 @@
         "snippet": "Para a modalidades de contratação em Preço Indexado que tenham um período de fidelização nos termos da cláusula 19 do RRC, a denúncia antecipada do Contrato pel"
       },
       {
-        "COM": "DOUROGAS",
-        "COD_Proposta": "DOUROGAS_03",
-        "NomeProposta": "Gás Natural - MAIS POUPANÇA",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Adesão 100% online com Débito direto, fatura eletrónica e sem fidelização. Atualizado com tarifas acesso a 01 Outubro 2025."
-      },
-      {
-        "COM": "ELERGONE",
-        "COD_Proposta": "ELERGONE_01",
-        "NomeProposta": "Elergone Corporate",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Oferta para BTN Empresarial, Tarifa Simples, Bi-Horária e Tri-Horária, para todas as classes de potência, preço indexado ao mercado diário OMIE (média mensal),"
-      },
-      {
-        "COM": "END",
-        "COD_Proposta": "END_03",
-        "NomeProposta": "Tarifa A Sua Empresa",
-        "lockInSource": "text",
-        "lockInMonths": null,
-        "snippet": "Com a Tarifa A Sua Empresa tem um desconto sobre o termo de energia permanente de 8% + 10% aplicável durante os 3 primeiros meses sem complicações nem fidelizaç"
-      },
-      {
         "COM": "EZUENERGIA",
         "COD_Proposta": "EZUENERGIA_08",
         "NomeProposta": "Tarifa EZU Outono Multibanco Empresas",
@@ -401,11 +361,51 @@
         "lockInSource": "field",
         "lockInMonths": 12,
         "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      },
+      {
+        "COM": "EZUENERGIA",
+        "COD_Proposta": "EZUENERGIA_03",
+        "NomeProposta": "Tarifa EZU Indexada Empresas Maxi",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      },
+      {
+        "COM": "EZUENERGIA",
+        "COD_Proposta": "EZUENERGIA_05",
+        "NomeProposta": "Tarifa EZU Indexada Empresas Multibanco",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "No caso de rescisão do Contrato pelo Cliente, antes do final do período de duração acordado, o Cliente perderá o direito a todos os descontos ou benefícios apli"
+      },
+      {
+        "COM": "GALP",
+        "COD_Proposta": "GALP_08",
+        "NomeProposta": "Junta+ Eletricidade Verde & Gás Natural & Combustível & Galp 360 Casa Fidelização 12 Meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização é aplicável aos serviços adicionais por um período de 12 meses. Em caso de rescisão antecipada dos serviços adicionais, a penalização calculada pelo"
+      },
+      {
+        "COM": "GALP",
+        "COD_Proposta": "GALP_13",
+        "NomeProposta": "Junta+ Eletricidade Verde & Gás Natural & Combustível & Galp 360 Casa Fidelização 12 Meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização é aplicável aos serviços adicionais por um período de 12 meses. Em caso de rescisão antecipada dos serviços adicionais, a penalização calculada pelo"
+      },
+      {
+        "COM": "GALP",
+        "COD_Proposta": "GALP_14",
+        "NomeProposta": "Junta+ Eletricidade Verde & Gás Natural & Combustível & Galp 360 Casa Fidelização 12 Meses",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Fidelização é aplicável aos serviços adicionais por um período de 12 meses. Em caso de rescisão antecipada dos serviços adicionais, a penalização calculada pelo"
       }
     ],
     "lockInBySource": {
-      "field": 15,
-      "text": 5
+      "field": 20,
+      "text": 0
     },
     "promotionParsedSamples": [
       {

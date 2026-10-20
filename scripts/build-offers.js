@@ -204,82 +204,49 @@ function discoverPromotionFields(conditions) {
 }
 
 /**
+ * Extract a lock-in duration in months from free text ("12 meses", "1 ano")
+ * @returns {number|null}
+ */
+function extractLockInMonths(text) {
+  const monthMatch = text.match(/(\d+)\s*(?:meses?|mês)/i);
+  if (monthMatch) return parseInt(monthMatch[1], 10);
+  const yearMatch = text.match(/(\d+)\s*(?:anos?|ano)/i);
+  if (yearMatch) return parseInt(yearMatch[1], 10) * 12;
+  return null;
+}
+
+/**
  * Detect lock-in from condition data
- * Returns: { hasLockIn: boolean, lockInMonths: number|null, lockInSource: string|null }
+ * ERSE's FiltroFidelização (S/N) decides. The text is read only when the flag is empty,
+ * and a negated phrase ("sem fidelização", "não tem fidelização") never counts.
+ * Returns: { hasLockIn: boolean, lockInMonths: number|null, lockInSource: 'field'|'text'|null }
  */
 function detectLockIn(condition) {
-  // 1. Check explicit flag
   const explicitFlag = normalizeString(condition.FiltroFidelização || '');
-  if (explicitFlag === 'S') {
-    // Try to extract months from DuracaoContrato or text
-    let months = null;
-    const duracao = normalizeString(condition.DuracaoContrato || '');
-    if (duracao && /^\d+$/.test(duracao)) {
-      months = parseInt(duracao, 10);
-    }
-    
-    // Try to extract from text fields
-    if (!months) {
-      const textFields = [
-        condition.TxTFidelização || '',
-        condition.TxTOferta || '',
-        condition.TxTRestricoesAdic || ''
-      ].join(' ').toLowerCase();
-      
-      // Look for patterns like "12 meses", "1 ano", "24 meses"
-      const monthMatch = textFields.match(/(\d+)\s*(?:meses?|mês|mês)/i);
-      if (monthMatch) {
-        months = parseInt(monthMatch[1], 10);
-      } else {
-        const yearMatch = textFields.match(/(\d+)\s*(?:anos?|ano)/i);
-        if (yearMatch) {
-          months = parseInt(yearMatch[1], 10) * 12;
-        }
-      }
-    }
-    
-    return {
-      hasLockIn: true,
-      lockInMonths: months,
-      lockInSource: months ? 'field' : 'text'
-    };
-  }
-  
-  // 2. Infer from text if flag is missing but text suggests lock-in
   const textFields = [
     condition.TxTFidelização || '',
     condition.TxTOferta || '',
     condition.TxTRestricoesAdic || ''
   ].join(' ').toLowerCase();
-  
-  const lockInKeywords = ['fideliza', 'permanência', 'permanencia', 'penaliza', 'obrigatória', 'obrigatoria'];
-  const hasLockInKeyword = lockInKeywords.some(keyword => textFields.includes(keyword));
-  
-  if (hasLockInKeyword) {
-    // Try to extract months
-    let months = null;
-    const monthMatch = textFields.match(/(\d+)\s*(?:meses?|mês|mês)/i);
-    if (monthMatch) {
-      months = parseInt(monthMatch[1], 10);
-    } else {
-      const yearMatch = textFields.match(/(\d+)\s*(?:anos?|ano)/i);
-      if (yearMatch) {
-        months = parseInt(yearMatch[1], 10) * 12;
-      }
-    }
-    
-    return {
-      hasLockIn: true,
-      lockInMonths: months,
-      lockInSource: 'text'
-    };
+
+  if (explicitFlag === 'S') {
+    const duracao = normalizeString(condition.DuracaoContrato || '');
+    const months = /^\d+$/.test(duracao) ? parseInt(duracao, 10) : extractLockInMonths(textFields);
+    return { hasLockIn: true, lockInMonths: months, lockInSource: 'field' };
   }
-  
-  return {
-    hasLockIn: false,
-    lockInMonths: null,
-    lockInSource: null
-  };
+
+  if (explicitFlag === 'N') {
+    return { hasLockIn: false, lockInMonths: null, lockInSource: null };
+  }
+
+  // Flag missing: infer from text, ignoring negated mentions
+  const withoutNegations = textFields.replace(/(sem|não tem|nao tem|não há|nao ha|isento de)\s+(período de\s+)?(fideliza\w*|permanência|permanencia)/g, '');
+  const lockInKeywords = ['fideliza', 'permanência', 'permanencia', 'penaliza'];
+  if (lockInKeywords.some(keyword => withoutNegations.includes(keyword))) {
+    return { hasLockIn: true, lockInMonths: extractLockInMonths(withoutNegations), lockInSource: 'text' };
+  }
+
+  return { hasLockIn: false, lockInMonths: null, lockInSource: null };
 }
 
 /**

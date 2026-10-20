@@ -126,6 +126,21 @@ async function runSelftest() {
     console.log(`   Found ${withLockIn.length} lock-in offers, ${withoutLockIn.length} without lock-in`);
   });
   
+  // Test 5b2: Lock-in follows ERSE's S/N flag ("sem fidelização" is not lock-in)
+  test('offers that ERSE marks without lock-in are not excluded', () => {
+    const known = offers.filter(o =>
+      (o.COM === 'EDPSU' && o.COD_Proposta === 'TUR') ||
+      (o.COM === 'IBELECTRA' && o.COD_Proposta === 'IBELECTRA_01')
+    );
+    if (known.length === 0) {
+      throw new Error('TUR and IBELECTRA_01 are missing from offers.json');
+    }
+    const wrong = known.filter(o => o.hasLockIn !== false);
+    if (wrong.length > 0) {
+      throw new Error(`${wrong.length} TUR/IBELECTRA_01 rows marked as lock-in`);
+    }
+  });
+
   // Test 5c: Promotion parsing
   test('promotion parsing sanity checks', () => {
     const withPromotion = offers.filter(o => o.promotion !== null && o.promotion !== undefined);
