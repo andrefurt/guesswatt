@@ -1,39 +1,32 @@
 /**
  * ERSE CSV Downloader
- * 
- * Downloads the latest electricity pricing data from ERSE
- * using Playwright to handle the JavaScript-rendered page.
- * 
- * Features:
- * - Exponential backoff retries
- * - Deterministic temp dir cleanup
- * - Validates both required CSVs after extraction
- * - Writes data/meta.json with timestamp, row counts, source URL
- * 
+ *
+ * Downloads the latest electricity pricing data from ERSE's price simulator with plain fetch,
+ * no browser (ADR-005 superseded):
+ * 1. Settings.json names the current ZIP in `csvPath` (a URL with spaces, encoded here).
+ * 2. The ZIP's name carries ERSE's export date ("20261019 172747 CSV.zip"); that date, not the
+ *    download time, becomes `updatedAt` in data/meta.json, which build-offers.js publishes.
+ * 3. The ZIP is read in memory with zlib. Its entries use Windows paths (`csv\Precos_ELEGN.csv`),
+ *    so names are normalised to their basename.
+ *
  * Usage:
  *   node scripts/download-erse.js
- * 
- * Requirements:
- *   npm install playwright
- *   npx playwright install chromium
  */
 
-const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const zlib = require('zlib');
 
-const ERSE_URL = 'https://simuladorprecos.erse.pt';
+const SETTINGS_URL = 'https://simuladorprecos.erse.pt/config/Settings.json';
+const ERSE_HOST = 'simuladorprecos.erse.pt';
 const DATA_DIR = path.join(__dirname, '..', 'data');
-const TEMP_DIR = path.join(require('os').tmpdir(), 'erse-download');
+const REQUIRED_FILES = ['Precos_ELEGN.csv', 'CondComerciais.csv'];
 
 // Retry configuration
 const MAX_RETRIES = 3;
 const INITIAL_DELAY_MS = 1000;
+const TIMEOUT_MS = 60000;
 
-/**
- * Sleep for specified milliseconds
- */
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -59,247 +52,154 @@ async function retryWithBackoff(fn, maxRetries = MAX_RETRIES) {
   throw lastError;
 }
 
+async function fetchOk(url) {
+  const response = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+  if (!response.ok) {
+    throw new Error(`${url} answered ${response.status} ${response.statusText}`);
+  }
+  return response;
+}
+
 /**
- * Clean up temp directory deterministically
+ * Reads csvPath from Settings.json and checks it still points to an ERSE ZIP.
  */
-function cleanupTempDir() {
-  if (fs.existsSync(TEMP_DIR)) {
-    try {
-      fs.rmSync(TEMP_DIR, { recursive: true, force: true });
-    } catch (error) {
-      console.warn(`⚠️  Could not clean temp dir: ${error.message}`);
+async function getZipUrl() {
+  const settings = await retryWithBackoff(async () => (await fetchOk(SETTINGS_URL)).json());
+  const csvPath = settings?.csvPath;
+  if (typeof csvPath !== 'string') {
+    throw new Error(`Settings.json has no csvPath; keys found: ${Object.keys(settings || {}).join(', ')}`);
+  }
+
+  const url = new URL(encodeURI(csvPath));
+  if (url.protocol !== 'https:' || url.hostname !== ERSE_HOST || !url.pathname.toLowerCase().endsWith('.zip')) {
+    throw new Error(`csvPath is not an https ZIP on ${ERSE_HOST}: ${csvPath}`);
+  }
+  return { url: url.href, csvPath };
+}
+
+/**
+ * ERSE's export date from the ZIP name ("20261019 172747 CSV.zip"), as midnight UTC of that day.
+ */
+function parseExportDate(csvPath) {
+  const match = path.posix.basename(csvPath).match(/^(\d{4})(\d{2})(\d{2})\D/);
+  if (!match) {
+    throw new Error(`No export date in the ZIP name: ${csvPath}`);
+  }
+  const [, year, month, day] = match;
+  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  if (date.getUTCMonth() !== Number(month) - 1 || date.getUTCDate() !== Number(day)) {
+    throw new Error(`Invalid export date in the ZIP name: ${csvPath}`);
+  }
+  return date.toISOString();
+}
+
+/**
+ * Reads every file in a ZIP buffer through its central directory.
+ * Returns a Map of basename to contents (Buffer).
+ */
+function unzip(buffer) {
+  // End of central directory record: signature 0x06054b50, within the last 64 KB + 22 bytes
+  let eocd = -1;
+  for (let i = buffer.length - 22; i >= Math.max(0, buffer.length - 65557); i--) {
+    if (buffer.readUInt32LE(i) === 0x06054b50) {
+      eocd = i;
+      break;
     }
   }
-}
+  if (eocd === -1) throw new Error('Not a ZIP file: no end of central directory');
 
-/**
- * Ensure directory exists
- */
-function ensureDir(dir) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  const entryCount = buffer.readUInt16LE(eocd + 10);
+  let offset = buffer.readUInt32LE(eocd + 16);
+  const files = new Map();
+
+  for (let n = 0; n < entryCount; n++) {
+    if (buffer.readUInt32LE(offset) !== 0x02014b50) throw new Error('Corrupt ZIP central directory');
+    const method = buffer.readUInt16LE(offset + 10);
+    const compressedSize = buffer.readUInt32LE(offset + 20);
+    const nameLength = buffer.readUInt16LE(offset + 28);
+    const extraLength = buffer.readUInt16LE(offset + 30);
+    const commentLength = buffer.readUInt16LE(offset + 32);
+    const localOffset = buffer.readUInt32LE(offset + 42);
+    const name = buffer.toString('utf8', offset + 46, offset + 46 + nameLength);
+    offset += 46 + nameLength + extraLength + commentLength;
+
+    if (name.endsWith('/') || name.endsWith('\\')) continue; // directory entry
+
+    // The local header repeats name and extra field with its own lengths
+    if (buffer.readUInt32LE(localOffset) !== 0x04034b50) throw new Error(`Corrupt ZIP entry: ${name}`);
+    const dataStart = localOffset + 30 + buffer.readUInt16LE(localOffset + 26) + buffer.readUInt16LE(localOffset + 28);
+    const data = buffer.subarray(dataStart, dataStart + compressedSize);
+
+    let contents;
+    if (method === 0) contents = data;
+    else if (method === 8) contents = zlib.inflateRawSync(data);
+    else throw new Error(`Unsupported ZIP compression method ${method} for ${name}`);
+
+    // ERSE builds the ZIP on Windows: `csv\Precos_ELEGN.csv`
+    files.set(name.split(/[\\/]/).pop(), contents);
   }
+  return files;
 }
 
 /**
- * Count lines in CSV file (excluding empty lines)
+ * Count lines in CSV contents (excluding empty lines)
  */
-function countCSVLines(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  return content.split('\n').filter(line => line.trim().length > 0).length;
+function countCSVLines(contents) {
+  return contents.toString('utf8').split('\n').filter(line => line.trim().length > 0).length;
 }
 
-/**
- * Write meta.json with download metadata
- */
-function writeMeta(sourceUrl, precosPath, condPath) {
-  const precosLines = countCSVLines(precosPath);
-  const condLines = countCSVLines(condPath);
-  const timestamp = new Date().toISOString();
-  
-  const meta = {
-    updatedAt: timestamp,
-    sourceUrl: sourceUrl,
-    files: {
-      'Precos_ELEGN.csv': {
-        rows: precosLines - 1, // Exclude header
-        path: 'data/Precos_ELEGN.csv'
-      },
-      'CondComerciais.csv': {
-        rows: condLines - 1, // Exclude header
-        path: 'data/CondComerciais.csv'
-      }
-    }
-  };
-  
-  const metaPath = path.join(DATA_DIR, 'meta.json');
-  fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
-  console.log(`📝 Wrote metadata to ${metaPath}`);
-  
-  // Also write last-update.json for footer sync
-  const now = new Date();
-  const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
-                  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-  const lastUpdate = {
-    month: months[now.getMonth()],
-    year: now.getFullYear().toString()
-  };
-  
-  const lastUpdatePath = path.join(DATA_DIR, 'last-update.json');
-  fs.writeFileSync(lastUpdatePath, JSON.stringify(lastUpdate, null, 2));
-  console.log(`📝 Wrote last update to ${lastUpdatePath}`);
-  
-  return meta;
-}
-
-/**
- * Main download function
- */
 async function downloadERSE() {
   console.log('🔄 Starting ERSE data download...');
-  
-  // Cleanup temp dir before starting
-  cleanupTempDir();
-  ensureDir(TEMP_DIR);
-  ensureDir(DATA_DIR);
-  
-  const browser = await chromium.launch({
-    headless: true
+
+  const { url, csvPath } = await getZipUrl();
+  const updatedAt = parseExportDate(csvPath);
+  console.log(`📡 ${url}`);
+  console.log(`📅 ERSE export date: ${updatedAt.slice(0, 10)}`);
+
+  const zip = await retryWithBackoff(async () => {
+    const buffer = Buffer.from(await (await fetchOk(url)).arrayBuffer());
+    if (buffer.length < 1000) {
+      throw new Error(`Downloaded file too small: ${buffer.length} bytes`);
+    }
+    return buffer;
   });
-  
-  try {
-    const context = await browser.newContext({
-      acceptDownloads: true
-    });
-    
-    const page = await context.newPage();
-    
-    console.log(`📡 Navigating to ${ERSE_URL}...`);
-    await page.goto(ERSE_URL, { 
-      waitUntil: 'networkidle',
-      timeout: 60000 
-    });
-    
-    // Wait for page to fully load
-    await page.waitForTimeout(3000);
-    
-    console.log('🔍 Looking for CSV download link...');
-    
-    // Try multiple selectors (ERSE might change their UI)
-    const selectors = [
-      'text=CSV',
-      'text=Ofertas comerciais (CSV)',
-      'a[href*=".zip"]',
-      'button:has-text("CSV")',
-      '[download*="CSV"]'
-    ];
-    
-    let downloadLink = null;
-    for (const selector of selectors) {
-      try {
-        downloadLink = await page.$(selector);
-        if (downloadLink) {
-          console.log(`✅ Found download link with selector: ${selector}`);
-          break;
-        }
-      } catch (e) {
-        continue;
-      }
+  console.log(`📦 File size: ${(zip.length / 1024).toFixed(1)} KB`);
+
+  const files = unzip(zip);
+  console.log('📄 Files in the ZIP:', [...files.keys()]);
+
+  const meta = { updatedAt, sourceUrl: url, files: {} };
+  for (const name of REQUIRED_FILES) {
+    const contents = files.get(name);
+    if (!contents) {
+      throw new Error(`Missing ${name}. Found: ${[...files.keys()].join(', ')}`);
     }
-    
-    if (!downloadLink) {
-      // Log page content for debugging
-      const content = await page.content();
-      console.log('Page content (first 2000 chars):', content.substring(0, 2000));
-      throw new Error('Could not find CSV download link');
+    if (contents.length < 100) {
+      throw new Error(`${name} too small: ${contents.length} bytes`);
     }
-    
-    // Start download with retry
-    console.log('📥 Starting download...');
-    const zipPath = path.join(TEMP_DIR, 'erse.zip');
-    
-    await retryWithBackoff(async () => {
-      const [download] = await Promise.all([
-        page.waitForEvent('download', { timeout: 30000 }),
-        downloadLink.click()
-      ]);
-      
-      await download.saveAs(zipPath);
-      
-      // Verify file exists and has content
-      const stats = fs.statSync(zipPath);
-      if (stats.size < 1000) {
-        throw new Error(`Downloaded file too small: ${stats.size} bytes`);
-      }
-      console.log(`📦 File size: ${(stats.size / 1024).toFixed(1)} KB`);
-    });
-    
-    // Extract ZIP
-    console.log('📂 Extracting ZIP...');
-    const extractDir = path.join(TEMP_DIR, 'extracted');
-    if (fs.existsSync(extractDir)) {
-      fs.rmSync(extractDir, { recursive: true });
-    }
-    fs.mkdirSync(extractDir, { recursive: true });
-    
-    execSync(`unzip -o "${zipPath}" -d "${extractDir}"`, { stdio: 'inherit' });
-    
-    // Find CSV files
-    const files = fs.readdirSync(extractDir);
-    console.log('📄 Extracted files:', files);
-    
-    const precosFile = files.find(f => f.toLowerCase().includes('precos') && f.endsWith('.csv'));
-    const condFile = files.find(f => f.toLowerCase().includes('cond') && f.endsWith('.csv'));
-    
-    if (!precosFile || !condFile) {
-      throw new Error(`Missing required CSV files. Found: ${files.join(', ')}`);
-    }
-    
-    const precosPath = path.join(extractDir, precosFile);
-    const condPath = path.join(extractDir, condFile);
-    
-    // Validate files have content
-    const precosStats = fs.statSync(precosPath);
-    const condStats = fs.statSync(condPath);
-    
-    if (precosStats.size < 100) {
-      throw new Error(`Precos_ELEGN.csv too small: ${precosStats.size} bytes`);
-    }
-    if (condStats.size < 100) {
-      throw new Error(`CondComerciais.csv too small: ${condStats.size} bytes`);
-    }
-    
-    // Copy to data directory
-    console.log('📋 Copying to data directory...');
-    
-    const finalPrecosPath = path.join(DATA_DIR, 'Precos_ELEGN.csv');
-    const finalCondPath = path.join(DATA_DIR, 'CondComerciais.csv');
-    
-    fs.copyFileSync(precosPath, finalPrecosPath);
-    fs.copyFileSync(condPath, finalCondPath);
-    
-    // Write metadata
-    const meta = writeMeta(ERSE_URL, finalPrecosPath, finalCondPath);
-    
-    console.log('');
-    console.log('✅ Update complete!');
-    console.log(`   - Precos_ELEGN.csv: ${meta.files['Precos_ELEGN.csv'].rows} rows`);
-    console.log(`   - CondComerciais.csv: ${meta.files['CondComerciais.csv'].rows} rows`);
-    console.log(`   - Updated at: ${meta.updatedAt}`);
-    
-    // Cleanup
-    cleanupTempDir();
-    
-  } catch (error) {
-    console.error('❌ Error:', error.message);
-    
-    // Take screenshot for debugging
-    try {
-      const contexts = await browser.contexts();
-      const page = contexts[0]?.pages()[0];
-      if (page) {
-        const screenshotPath = path.join(require('os').tmpdir(), 'erse-error.png');
-        await page.screenshot({ path: screenshotPath });
-        console.log(`📸 Screenshot saved to ${screenshotPath}`);
-      }
-    } catch (e) {
-      // Ignore screenshot errors
-    }
-    
-    cleanupTempDir();
-    process.exit(1);
-  } finally {
-    await browser.close();
+    meta.files[name] = { rows: countCSVLines(contents) - 1, path: `data/${name}` };
   }
+
+  // Write only after both files passed, so a failed run leaves data/ as it was
+  for (const name of REQUIRED_FILES) {
+    fs.writeFileSync(path.join(DATA_DIR, name), files.get(name));
+  }
+  fs.writeFileSync(path.join(DATA_DIR, 'meta.json'), JSON.stringify(meta, null, 2));
+
+  console.log('');
+  console.log('✅ Update complete!');
+  for (const name of REQUIRED_FILES) {
+    console.log(`   - ${name}: ${meta.files[name].rows} rows`);
+  }
+  console.log(`   - ERSE date: ${meta.updatedAt}`);
 }
 
 // Run
 if (require.main === module) {
   downloadERSE().catch(error => {
-    console.error('Fatal error:', error);
+    console.error('❌ Error:', error.message);
     process.exit(1);
   });
 }
 
-module.exports = { downloadERSE };
-
+module.exports = { downloadERSE, parseExportDate, unzip };

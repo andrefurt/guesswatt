@@ -12,7 +12,7 @@ node scripts/selftest.js              # data and calculation tests; part of the 
 git config core.hooksPath .githooks   # once per clone, so the git hooks run
 ```
 
-Data refresh (needs Playwright, normally left to the weekly Action):
+Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 `node scripts/download-erse.js && node scripts/build-offers.js && node scripts/selftest.js`.
 
 ## Rules the tools cannot check

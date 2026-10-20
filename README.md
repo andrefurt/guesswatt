@@ -76,8 +76,7 @@ guesswatt/
 │   ├── CondComerciais.csv  # Commercial conditions from ERSE
 │   ├── offers.json         # Built/optimized offers (preferred)
 │   ├── tar.json            # Yearly ERSE access tariff (fixed term) for reduced VAT
-│   ├── meta.json           # Metadata (price date, row counts)
-│   └── last-update.json    # Legacy, no longer read by the page
+│   └── meta.json           # Metadata (price date, row counts)
 ├── scripts/                # Build and maintenance scripts
 │   ├── download-erse.js    # Download latest ERSE CSVs
 │   ├── build-offers.js     # Build offers.json from CSVs
@@ -142,8 +141,8 @@ All data comes from **ERSE** (Portuguese Energy Services Regulatory Authority):
 ### Update Process
 
 1. **Download** (`scripts/download-erse.js`):
-   - Downloads latest CSVs from ERSE simulator
-   - Uses Playwright to handle JavaScript-rendered page
+   - Reads the current ZIP from ERSE's `Settings.json` (`csvPath`) with plain `fetch`, no browser
+   - Records ERSE's export date from the ZIP name as the price date in `meta.json`
    - Validates both required CSVs
 
 2. **Build** (`scripts/build-offers.js`):
