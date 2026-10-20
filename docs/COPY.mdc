@@ -675,7 +675,14 @@ A calcular poupança...      (não "Por favor aguarde...")
 GuessWatts compara tarifas de eletricidade em Portugal.
 Não somos uma empresa de energia. Não vendemos nada.
 
-Dados: ERSE (atualizado mensalmente)
+Dados: ERSE, preços de dezembro de 2025.
+```
+
+A data vem de `data/meta.json` (`build.sourceUpdatedAt`) e é escrita por `js/data-date.js`; nunca se
+promete uma frequência de atualização. Quando os preços têm mais de 45 dias, aparece por baixo:
+
+```
+Estes preços têm mais de 45 dias. Confirma no site do operador antes de mudar.
 ```
 
 ---

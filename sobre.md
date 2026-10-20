@@ -32,7 +32,7 @@ Os dados vêm directamente da ERSE:
 - Preços por tarifa, potência e tipo de contagem
 - Condições comerciais (fidelização, contactos, links)
 
-Actualizamos mensalmente quando a ERSE publica novos dados.
+Usamos os dados publicados pela ERSE; a data dos preços aparece no fundo de cada página.
 
 ## Limitações
 

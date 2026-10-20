@@ -436,10 +436,6 @@
     color: var(--color-foreground-primary);
   }
 
-  .form-note[hidden] {
-    display: none;
-  }
-
   .form-row {
     display: flex;
     flex-wrap: wrap;

@@ -450,11 +450,12 @@
 
       <!-- Footer -->
       <footer class="footer">
-        <p class="footer-text">Guesswatts compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a> (atualizado mensalmente)</p>
-        <div class="footer-updated">
+        <p class="footer-text">Guesswatts compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a><span id="data-date" hidden>, preços de <time></time></span>.</p>
+        <!-- Shown by js/data-date.js when the prices are more than 45 days old -->
+        <p class="footer-updated" id="data-stale" hidden>
           <i class="ph-duotone ph-clock" aria-hidden="true"></i>
-          <span>Actualizado em Novembro de 2025</span>
-        </div>
+          <span>Estes preços têm mais de 45 dias. Confirma no site do operador antes de mudar.</span>
+        </p>
       </footer>
     </div>
   </div>
@@ -515,7 +516,7 @@
             <li>Condições comerciais (fidelização, contactos telefónicos, links para adesão)</li>
             <li>Informações sobre comercializadores e logótipos</li>
           </ul>
-          <p class="about-text">Actualizamos mensalmente quando a <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a> publica novos dados. O processamento é feito localmente no teu navegador — os teus dados nunca saem do teu dispositivo.</p>
+          <p class="about-text">Usamos os dados publicados pela <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a>; a data dos preços aparece no fundo de cada página. O processamento é feito localmente no teu navegador — os teus dados nunca saem do teu dispositivo.</p>
         </section>
         
         <section aria-labelledby="limitations" class="about-section">
@@ -534,6 +535,7 @@
 
   <script type="module" src="components.js"></script>
   <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/data-date.js"></script>
   <script>
     // Animated ASCII thunderbolt
     function initThunderbolt() {
