@@ -455,7 +455,8 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
     }
     
     // Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions, offers } = await loadOffers();
+    const { prices, conditions, offers, tar } = await loadOffers();
+    const tax = { tar };
     
     // Use offers.json if available (already filtered to ELE-only at build time)
     // Otherwise filter CSV data to ELE-only
@@ -497,7 +498,9 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
       offersToSearch, 
       pdfData.consumption, 
       pdfData.power, 
-      pdfData.tariffType
+      pdfData.tariffType,
+      null,
+      tax
     );
     
     if (!best) {
@@ -535,7 +538,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
         // Calcular custo com a melhor oferta do operador actual
         const currentProviderCosts = currentProviderOffers.map(offer => ({
           ...offer,
-          monthlyCost: calculateMonthlyCost(offer, pdfData.consumption, pdfData.power)
+          monthlyCost: calculateMonthlyCost(offer, pdfData.consumption, pdfData.power, null, tax)
         }));
         
         // Ordenar por custo e pegar a mais barata

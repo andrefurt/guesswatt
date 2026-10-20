@@ -184,19 +184,16 @@ fixedTerm = TF × 30
 // Bi-hourly: consumption × (0.35 × TVV + 0.65 × TVFV)
 // Tri-hourly: consumption × (0.30 × TVVz + 0.50 × TVC + 0.20 × TVP)
 
-// Taxes
-iec = consumption × 0.001
-subtotal = fixedTerm + variableTerm + iec + 2.85
-total = subtotal × 1.23  // VAT
+// Taxes: IEC 0.001 €/kWh, DGEG 0.07 €/month, audiovisual 2.85 €/month
+// VAT per component (6% or 23%): see "Taxes and VAT" in docs/DATA_MODEL.mdc
 ```
 
 ### Consumption Estimation
 
 When only monthly bill amount is provided:
 
-1. Remove VAT (÷ 1.23)
-2. Subtract fixed costs (estimated fixed term + audiovisual tax)
-3. Divide remainder by average price per kWh (data-driven median)
+1. Build a typical offer from the data (median fixed term and median energy price at 4.6 kVA)
+2. Find the consumption whose monthly cost on that offer equals the bill (bisection on the cost formula)
 
 ### Best Offer Selection
 

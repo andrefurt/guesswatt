@@ -334,21 +334,27 @@ custoMensal = (TF × 30) + (consumo × 0.35 × TVV) + (consumo × 0.65 × TVFV)
 // Tri-horária (com distribuição assumida)
 custoMensal = (TF × 30) + (consumo × 0.30 × TVVz) + (consumo × 0.50 × TVC) + (consumo × 0.20 × TVP)
 
-// Taxas e IVA
-subtotal = custoMensal + IEC + audiovisual
-total = subtotal × 1.23
+// Taxas e IVA por componente (revisto em outubro de 2026)
+total = energia com IVA a 6%/23% + termo fixo com IVA a 6%/23%
+      + IEC × 1.23 + DGEG × 1.23 + audiovisual × 1.06
 ```
 
 **Constantes:**
-- IVA: 23%
-- Audiovisual: €2.85/mês
-- IEC: €0.001/kWh
+- IVA: 6% nos primeiros 200 kWh por 30 dias (300 kWh em famílias de 5 ou mais) até 6,9 kVA; 6% na parte de acesso às redes (TAR) do termo fixo até 3,45 kVA; 23% no resto
+- Audiovisual: €2.85/mês, IVA 6%
+- IEC: €0.001/kWh, IVA 23%
+- Taxa DGEG: €0.07/mês, IVA 23%
 - Dias/mês: 30
 
+**Revisão (outubro de 2026):** a v2 aplicava IVA a 23% a tudo e omitia a taxa DGEG, o que
+sobrestimava o custo mensal em 7 a 12% até 6,9 kVA (auditoria de outubro de 2026, ACC-1). O IVA
+passou a ser aplicado por componente, como no ERSExplica da ERSE; o TAR do termo fixo vem de
+`data/tar.json`. Detalhe em `docs/DATA_MODEL.mdc`, "Taxes and VAT".
+
 **Consequências:**
-- ✅ Alinhado com fórmula ERSE
-- ✅ Validado contra facturas reais
-- ⚠️ Variação ±2% vs factura real (simplificação IVA)
+- ✅ Reproduz os exemplos 1, 3 e 4 do ERSExplica ao cêntimo (selftest)
+- ⚠️ Uma fonte anual a mais: `data/tar.json` muda com as tarifas da ERSE de cada ano
+- ⚠️ Não modela tarifa social nem as taxas das regiões autónomas
 
 ---
 

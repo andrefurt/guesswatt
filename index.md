@@ -33,7 +33,7 @@ Podes:
 ## Fórmula de cálculo
 
 ```
-Custo = (Termo fixo × 30) + (Termo variável × consumo) + Taxas + IVA 23%
+Custo = (Termo fixo × 30) + (Termo variável × consumo) + Taxas (audiovisual, IEC, DGEG), com IVA por componente (6% ou 23%; ver /sobre)
 ```
 
 ## Fonte dos dados

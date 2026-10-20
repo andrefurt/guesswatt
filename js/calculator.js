@@ -3,7 +3,18 @@
  * Pure business logic for cost calculations, offer filtering, and consumption estimation
  */
 
-import { VAT, DAYS_PER_MONTH, AUDIOVISUAL_TAX, DEFAULT_POWER } from './config.js';
+import {
+  VAT,
+  VAT_REDUCED,
+  REDUCED_VAT_MAX_POWER,
+  REDUCED_VAT_KWH,
+  REDUCED_VAT_KWH_LARGE_HOUSEHOLD,
+  REDUCED_FIXED_VAT_MAX_POWER,
+  DGEG_FEE,
+  DAYS_PER_MONTH,
+  AUDIOVISUAL_TAX,
+  DEFAULT_POWER
+} from './config.js';
 import { detectCycleType } from './utils.js';
 
 // Constants from DATA_MODEL.mdc
@@ -57,11 +68,12 @@ export function typicalOffer(offers = null) {
  * uses exactly the same formula (and taxes) as the costs shown afterwards
  * @param {number} monthlyBill - Monthly bill amount in euros
  * @param {Array<Object>} offers - Optional: loaded offers for data-driven estimation
+ * @param {Object} tax - Optional tax context (see calculateMonthlyCost)
  * @returns {number} Estimated consumption in kWh
  */
-export function estimateConsumption(monthlyBill, offers = null) {
+export function estimateConsumption(monthlyBill, offers = null, tax = {}) {
   const typical = typicalOffer(offers);
-  const costAt = kWh => calculateMonthlyCost(typical, kWh, DEFAULT_POWER);
+  const costAt = kWh => calculateMonthlyCost(typical, kWh, DEFAULT_POWER, null, tax);
 
   let low = 0;
   let high = MAX_ESTIMATE_KWH;
@@ -77,14 +89,15 @@ export function estimateConsumption(monthlyBill, offers = null) {
 
 /**
  * Calculate monthly cost for an offer
- * Implements full calculation with IEC, proper tariff splitting, and VAT
+ * Implements full calculation with IEC, DGEG, proper tariff splitting, and VAT per component
  * @param {Object} offer - Offer object from CSV/JSON
  * @param {number} consumption - Consumption in kWh
  * @param {number} power - Power in kVA
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
+ * @param {Object} tax - Optional tax context: { tar (data/tar.json), largeHousehold, reducedVatKwh }
  * @returns {number} Monthly cost in euros (with VAT)
  */
-export function calculateMonthlyCost(offer, consumption, power, distribution = null) {
+export function calculateMonthlyCost(offer, consumption, power, distribution = null, tax = {}) {
   const tariffType = offer.Contagem || 1;
   const fixedTerm = (offer.TF || 0) * DAYS_PER_MONTH;
   
@@ -121,12 +134,46 @@ export function calculateMonthlyCost(offer, consumption, power, distribution = n
     variableTerm = consumption * tv;
   }
   
-  // Taxes
-  const iec = consumption * IEC_KWH;
-  const subtotal = fixedTerm + variableTerm + iec + AUDIOVISUAL_TAX;
-  const total = subtotal * VAT;
-  
-  return total;
+  // VAT per component. Energy: reduced rate on the first kWh up to the threshold,
+  // prorated across periods. Fixed term: reduced rate on its network-access (TAR) share.
+  const reducedKwh = power <= REDUCED_VAT_MAX_POWER ? reducedVatKwh(tax) : 0;
+  const reducedShare = consumption > 0 ? Math.min(1, reducedKwh / consumption) : 0;
+  const energy =
+    variableTerm * reducedShare * VAT_REDUCED +
+    variableTerm * (1 - reducedShare) * VAT;
+
+  const tarPerDay = power <= REDUCED_FIXED_VAT_MAX_POWER ? accessFixedPerDay(tax, power) : 0;
+  const fixedReduced = Math.min(fixedTerm, tarPerDay * DAYS_PER_MONTH);
+  const fixed = fixedReduced * VAT_REDUCED + (fixedTerm - fixedReduced) * VAT;
+
+  const iec = consumption * IEC_KWH * VAT;
+  const audiovisual = AUDIOVISUAL_TAX * VAT_REDUCED;
+  const dgeg = DGEG_FEE * VAT;
+
+  return energy + fixed + iec + audiovisual + dgeg;
+}
+
+/**
+ * kWh per 30 days that get the reduced VAT rate
+ * @param {Object} tax - Tax context: { largeHousehold, reducedVatKwh }
+ * @returns {number}
+ */
+function reducedVatKwh(tax) {
+  if (typeof tax.reducedVatKwh === 'number') return tax.reducedVatKwh;
+  return tax.largeHousehold ? REDUCED_VAT_KWH_LARGE_HOUSEHOLD : REDUCED_VAT_KWH;
+}
+
+/**
+ * Network-access (TAR) fixed term for a power, from data/tar.json
+ * @param {Object} tax - Tax context: { tar }
+ * @param {number} power - Power in kVA
+ * @returns {number} €/day, 0 when the table has no value
+ */
+function accessFixedPerDay(tax, power) {
+  const table = tax.tar?.fixedTermByPower;
+  if (!table) return 0;
+  const key = String(Number(String(power).replace(',', '.')));
+  return table[key] || 0;
 }
 
 /**
@@ -138,8 +185,8 @@ export function calculateMonthlyCost(offer, consumption, power, distribution = n
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
  * @returns {Object} Object with monthlyCostBase, monthlyCostPromo, and promotionApplied
  */
-export function calculateMonthlyCostWithPromotion(offer, consumption, power, distribution = null) {
-  const monthlyCostBase = calculateMonthlyCost(offer, consumption, power, distribution);
+export function calculateMonthlyCostWithPromotion(offer, consumption, power, distribution = null, tax = {}) {
+  const monthlyCostBase = calculateMonthlyCost(offer, consumption, power, distribution, tax);
   
   // Promotions are NOT applied to calculations (metadata only)
   // This ensures we don't make speculative savings claims
@@ -159,8 +206,8 @@ export function calculateMonthlyCostWithPromotion(offer, consumption, power, dis
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
  * @returns {number} Annual cost in euros (base cost only, no promotions)
  */
-export function calculateAnnualEffectiveCost(offer, consumption, power, distribution = null) {
-  const monthlyCostBase = calculateMonthlyCost(offer, consumption, power, distribution);
+export function calculateAnnualEffectiveCost(offer, consumption, power, distribution = null, tax = {}) {
+  const monthlyCostBase = calculateMonthlyCost(offer, consumption, power, distribution, tax);
   
   // Promotions are NOT applied - use base cost only for conservative, trustworthy pricing
   return monthlyCostBase * 12;
@@ -172,10 +219,11 @@ export function calculateAnnualEffectiveCost(offer, consumption, power, distribu
  * @param {Array<Object>} offers - Array of offer objects
  * @param {number} consumption - Consumption in kWh
  * @param {number} power - Power in kVA
+ * @param {Object} tax - Optional tax context (see calculateMonthlyCost)
  * @returns {Object} Best offer object with monthlyCost and annualCostEffective properties
  * @throws {Error} If no valid offers found
  */
-export function findBestOffer(offers, consumption, power) {
+export function findBestOffer(offers, consumption, power, tax = {}) {
   // Filtrar ofertas válidas (exclude lock-in by default)
   const valid = offers.filter(o => {
     const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
@@ -193,9 +241,9 @@ export function findBestOffer(offers, consumption, power) {
   
   // Calcular custos para cada uma
   const withCosts = valid.map(o => {
-    const monthlyCost = calculateMonthlyCost(o, consumption, power);
-    const annualCostEffective = calculateAnnualEffectiveCost(o, consumption, power);
-    const { monthlyCostBase, monthlyCostPromo } = calculateMonthlyCostWithPromotion(o, consumption, power);
+    const monthlyCost = calculateMonthlyCost(o, consumption, power, null, tax);
+    const annualCostEffective = calculateAnnualEffectiveCost(o, consumption, power, null, tax);
+    const { monthlyCostBase, monthlyCostPromo } = calculateMonthlyCostWithPromotion(o, consumption, power, null, tax);
     
     return {
       ...o,
@@ -245,10 +293,11 @@ export function findBestOffer(offers, consumption, power) {
  * @param {number} power - Power in kVA
  * @param {number} tariffType - Tariff type (1=simples, 2=bi-horária, 3=tri-horária)
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
+ * @param {Object} tax - Optional tax context (see calculateMonthlyCost)
  * @returns {Object} Best offer object with monthlyCost and annualCostEffective properties
  * @throws {Error} If no valid offers found
  */
-export function findBestOfferForTariff(offers, consumption, power, tariffType = 1, distribution = null) {
+export function findBestOfferForTariff(offers, consumption, power, tariffType = 1, distribution = null, tax = {}) {
   // Normalize power to number for comparison
   const normalizedPower = typeof power === 'number' ? power : parseFloat(String(power).replace(',', '.'));
   const normalizedTariffType = typeof tariffType === 'number' ? tariffType : parseInt(tariffType);
@@ -280,9 +329,9 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
   
   // Calcular custos para cada uma
   const withCosts = valid.map(o => {
-    const monthlyCost = calculateMonthlyCost(o, consumption, power, distribution);
-    const annualCostEffective = calculateAnnualEffectiveCost(o, consumption, power, distribution);
-    const { monthlyCostBase, monthlyCostPromo } = calculateMonthlyCostWithPromotion(o, consumption, power, distribution);
+    const monthlyCost = calculateMonthlyCost(o, consumption, power, distribution, tax);
+    const annualCostEffective = calculateAnnualEffectiveCost(o, consumption, power, distribution, tax);
+    const { monthlyCostBase, monthlyCostPromo } = calculateMonthlyCostWithPromotion(o, consumption, power, distribution, tax);
     
     return {
       ...o,

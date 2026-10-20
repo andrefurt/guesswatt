@@ -130,10 +130,11 @@ const fullOffer = { ...offer, ...conditions };
 ### Constants
 
 ```javascript
-const IVA = 0.23;                    // 23% VAT
 const DIAS_MES = 30;                 // Days per month
-const AUDIOVISUAL = 2.85;            // Monthly TV tax (€)
-const IEC_KWH = 0.001;               // Special consumption tax (€/kWh)
+const AUDIOVISUAL = 2.85;            // Monthly TV tax (€), VAT 6%
+const IEC_KWH = 0.001;               // Special consumption tax (€/kWh), VAT 23%
+const DGEG = 0.07;                   // Monthly DGEG fee (€), VAT 23%
+// VAT rates and thresholds live in js/config.js; see "Taxes and VAT" below
 
 // Consumption distribution assumptions (when unknown)
 const BI_HORARIA = {
@@ -195,14 +196,27 @@ function calcularCustoMensal(potencia, consumoKwh, tipoTarifa, oferta, distribui
       consumoKwh * dist.ponta * oferta.TVP;
   }
   
-  // Taxes
-  const iec = consumoKwh * IEC_KWH;
-  const subtotal = termoFixo + termoVariavel + iec + AUDIOVISUAL;
-  const iva = subtotal * IVA;
-  
-  return subtotal + iva;
+  // Taxes and VAT are applied per component: see "Taxes and VAT" below
 }
 ```
+
+### Taxes and VAT
+
+`calculateMonthlyCost` in `js/calculator.js` applies VAT per component, as ERSE's
+"ERSExplica: Aplicação do IVA na fatura de eletricidade" does:
+
+- **Energy:** 6% on the first 200 kWh per 30 days (300 kWh for households of 5 or more) at
+  6.9 kVA or below, 23% on the rest (Lei 38/2024). For bi- and tri-hourly tariffs the 6% share is
+  prorated across the periods, as in ERSE's Exemplo 3.
+- **Fixed term:** 6% on its network-access (TAR) share at 3.45 kVA or below, 23% on the rest
+  (DL 60/2019). The TAR fixed term per power comes from `data/tar.json` (ERSE Diretiva 10/2025
+  for 2026), which the loader fetches next to offers.json.
+- **IEC** (0.001 €/kWh) and the **DGEG fee** (0.07 €/month, Portaria 311/2002): 23%.
+- **Audiovisual contribution** (2.85 €/month): 6%.
+
+The household size is a `tax` option (`largeHousehold`). The selftest reproduces ERSE's examples
+1, 3 and 4 to the cent; they use the 2022 thresholds (100 and 150 kWh), passed as `reducedVatKwh`.
+Not modelled: the social tariff, and Madeira and Azores rates.
 
 ### Estimate Consumption from Invoice Amount
 
