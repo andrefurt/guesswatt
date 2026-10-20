@@ -331,8 +331,14 @@ function extractPromotion(condition, prioritizedColumns = null) {
   let fixedEuroMonth = null;
   let discountContext = '';
   
+  // "até ao max de 450€/mês" is a cap on some other benefit, not a discount on the bill
+  const capBefore = /(?:m[aá]x(?:imo)?\.?|até|limite|teto|tecto)(?:\s+(?:ao|a|o|de))*\s*$/i;
+
   for (const pattern of discountPatterns) {
     const match = textFields.match(pattern);
+    if (match && capBefore.test(textFields.slice(Math.max(0, match.index - 20), match.index))) {
+      continue;
+    }
     if (match) {
       const amount = parseFloat(match[1].replace(',', '.'));
       if (amount > 0 && isFinite(amount)) {
@@ -457,7 +463,8 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
     segmento: normalizeString(condition.Segmento || ''),
     validFrom: normalizeString(condition['Data ini'] || ''),
     validTo: normalizeString(condition['Data fim'] || ''),
-    isIndexed: normalizeString(condition.FiltroPrecosIndex || '') === 'S',
+    // ERSE renamed the column FiltroPrecosIndex_ELE in 2026; older exports use the plain name
+    isIndexed: normalizeString(condition.FiltroPrecosIndex_ELE ?? condition.FiltroPrecosIndex ?? '') === 'S',
     // Conditioned offer (members, referral codes, other contracts): kept as a savings baseline for
     // its own customers, never recommended
     isRestricted: normalizeString(condition['FiltroRestrições'] || '') === 'S',
