@@ -126,7 +126,7 @@ ES6 modules with clear separation of concerns:
 - **State management**: URL-based state (no localStorage)
 - **Business logic**: Pure functions in `calculator.js`
 - **UI logic**: Component initialization and event handling
-- **Data loading**: CSV/JSON parsing with fallback support
+- **Data loading**: `offers.json` built from the ERSE CSVs at build time (no CSV parsing in the browser)
 
 ## 📊 Data Pipeline
 

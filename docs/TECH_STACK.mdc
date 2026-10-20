@@ -231,7 +231,7 @@ js/
 ├── ui-components.js    → UI component initialization (tabs, tooltips, dropdowns)
 ├── ui-handlers.js     → Event handlers (copy, delete, show/hide results)
 ├── ui-renderer.js     → Result rendering and DOM manipulation
-└── utils.js           → Utility functions (CSV/JSON loading, data parsing)
+└── utils.js           → Data loading (offers.json, tar.json, meta.json date) and formatting helpers
 ```
 
 **Note**: The current implementation consolidates some functionality. Components like modals and toasts are implemented inline where needed, following the principle of simplicity over abstraction.
@@ -247,7 +247,7 @@ Each module exports clean public API with JSDoc comments:
  * Calculate monthly cost for an offer
  * Implements full calculation with IEC, proper tariff splitting, and VAT
  * 
- * @param {Object} offer - Offer object from CSV/JSON
+ * @param {Object} offer - Offer object from offers.json
  * @param {number} consumption - Consumption in kWh
  * @param {number} power - Power in kVA
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
@@ -616,7 +616,7 @@ Targeting modern browsers only:
 | HTML | <10KB | Single page |
 | CSS | <15KB | No framework bloat |
 | JS | <30KB | Vanilla, no deps |
-| CSV (initial) | ~300KB | Cached after first load |
+| offers.json | loaded on submit | Cached after first load |
 | Total | <400KB | Fast on 3G |
 
 ---
@@ -635,10 +635,10 @@ Targeting modern browsers only:
    - Attach form submit handlers
 
 2. **Data Loading** (`utils.js`):
-   - Prefers `offers.json` (optimized, pre-filtered)
-   - Falls back to CSV parsing if JSON unavailable
-   - Filters to electricity-only offers
-   - Returns normalized offer objects
+   - Loads `offers.json` (built from the ERSE CSVs, electricity-only and domestic), with
+     `tar.json` and the price date from `meta.json` in parallel
+   - No CSV fallback in the browser (removed in October 2026): if `offers.json` fails, the
+     request fails and no result is shown
 
 3. **Form Submission**:
    - **Estimate mode**: Monthly bill → estimate consumption → find best offer → render
@@ -668,7 +668,7 @@ User Input
     ↓
 Form Handler (main.js)
     ↓
-Load Data (utils.js) → offers.json or CSV
+Load Data (utils.js) → offers.json
     ↓
 Calculate (calculator.js) → Best Offer
     ↓
