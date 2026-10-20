@@ -156,6 +156,15 @@ Button:       Ver quanto perco
 - Se arrasta/clica PDF → cálculo preciso
 - O ícone de PDF é um affordance subtil, não distrai
 
+**Agregado familiar** (checkbox abaixo do input, desmarcada por omissão; vale para os três modos):
+
+```
+Label:        Somos 5 ou mais pessoas em casa
+```
+
+Marcada, o IVA a 6% aplica-se aos primeiros 300 kWh do mês em vez de 200 (ver "Taxes and VAT" em
+`docs/DATA_MODEL.mdc`). Deixada como está, não acrescenta nenhum passo.
+
 **Estados de erro:**
 
 ```

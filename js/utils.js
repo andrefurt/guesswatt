@@ -147,6 +147,14 @@ async function loadAccessTariffs() {
 }
 
 /**
+ * Whether the person said the household has 5 or more people (reduced VAT up to 300 kWh)
+ * @returns {boolean}
+ */
+export function isLargeHousehold() {
+  return document.getElementById('large-household')?.checked === true;
+}
+
+/**
  * Format phone number to Portuguese format (XXX XXX XXX)
  * @param {string|number} phone - Phone number to format
  * @returns {string|null} Formatted phone number or null if invalid
