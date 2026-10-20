@@ -110,8 +110,7 @@ export async function loadOffers() {
               newCustomerOnly: offer.newCustomerOnly,
               requiresDirectDebit: offer.requiresDirectDebit,
               requiresEBill: offer.requiresEBill,
-              campaignSummary: offer.campaignSummary,
-              isCampaignActive: offer.isCampaignActive
+              campaignSummary: offer.campaignSummary
             }
           });
         }

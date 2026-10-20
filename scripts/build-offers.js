@@ -63,6 +63,14 @@ function normalizeNumber(value) {
 }
 
 /**
+ * Number field that may be empty: null when empty, the number otherwise
+ */
+function optionalNumber(value) {
+  if (normalizeString(value) === '') return null;
+  return normalizeNumber(value);
+}
+
+/**
  * Normalize string field (trim, handle empty)
  */
 function normalizeString(value) {
@@ -422,6 +430,10 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
     validFrom: normalizeString(condition['Data ini'] || ''),
     validTo: normalizeString(condition['Data fim'] || ''),
     isIndexed: normalizeString(condition.FiltroPrecosIndex || '') === 'S',
+    // Eligibility: annual consumption band (kWh/year) and mandatory services (€/year, with VAT)
+    consMinYear: optionalNumber(condition.ConsIni_ELE),
+    consMaxYear: optionalNumber(condition.ConsFim_ELE),
+    serviceCostYear: optionalNumber(condition['CustoServicos_c/IVA (€/ano)']) || 0,
     hasLockIn: lockIn.hasLockIn,
     lockInMonths: lockIn.lockInMonths,
     lockInSource: lockIn.lockInSource,
@@ -442,32 +454,9 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
   }
   metadata.campaignSummary = summaryParts.join(' | ').substring(0, 200);
   
-  // Compute isOfferActive based on offer validity dates (Data ini/Data fim)
-  // These dates represent when the offer/proposal is valid, not promotion-specific dates
-  let isOfferActive = null;
-  if (metadata.validFrom && metadata.validTo) {
-    try {
-      const fromDate = parseDate(metadata.validFrom);
-      const toDate = parseDate(metadata.validTo);
-      const now = new Date();
-      // Set time to UTC midnight for date-only comparison
-      const fromUTC = new Date(Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate()));
-      const toUTC = new Date(Date.UTC(toDate.getFullYear(), toDate.getMonth(), toDate.getDate()));
-      const nowUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-      isOfferActive = fromUTC <= nowUTC && nowUTC <= toUTC;
-    } catch (e) {
-      isOfferActive = null; // Unknown
-    }
-  }
-  
-  metadata.isOfferActive = isOfferActive;
-  
-  // Compute isPromotionActive ONLY if we have promotion-specific dates
-  // Since CSV doesn't have promo-specific dates, this will be null
-  // Keep isCampaignActive for backwards compatibility (maps to isOfferActive for now)
-  metadata.isCampaignActive = isOfferActive; // Backwards compatibility
-  metadata.isPromotionActive = null; // No promo-specific dates in CSV
-  
+  // Whether the offer is active depends on the day it is viewed, so the browser decides it
+  // from validFrom/validTo (isOfferEligible in js/calculator.js); nothing date-dependent is baked in.
+
   // Update promotion object with isActive field if promotion exists
   if (promotion) {
     // Since we don't have promo-specific dates, use offer validity as proxy
@@ -476,17 +465,6 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
   }
   
   return metadata;
-}
-
-/**
- * Parse date string (DD/MM/YYYY format)
- */
-function parseDate(dateStr) {
-  const parts = dateStr.split('/');
-  if (parts.length === 3) {
-    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-  }
-  throw new Error(`Invalid date format: ${dateStr}`);
 }
 
 /**
@@ -586,9 +564,9 @@ function buildOffers() {
       requiresDirectDebit: false,
       requiresEBill: false,
       campaignSummary: '',
-      isOfferActive: null,
-      isCampaignActive: null, // Backwards compatibility
-      isPromotionActive: null
+      consMinYear: null,
+      consMaxYear: null,
+      serviceCostYear: 0
     };
     
     // Build offer object
@@ -617,7 +595,6 @@ function buildOffers() {
   // Count statistics
   const lockInCount = offers.filter(o => o.hasLockIn === true).length;
   const promotionMetadataCount = offers.filter(o => o.promotion !== null).length;
-  const activeOffersCount = offers.filter(o => o.isOfferActive === true).length;
   
   // Lock-in totals by source (across ALL offers, not just samples)
   const lockInBySourceTotals = { field: 0, text: 0 };
@@ -686,7 +663,6 @@ function buildOffers() {
   console.log(`✅ Built ${offers.length} offers`);
   console.log(`   - Lock-in offers (excluded): ${lockInCount}`);
   console.log(`   - Lock-in by source: field=${lockInBySourceTotals.field}, text=${lockInBySourceTotals.text}`);
-  console.log(`   - Active offers: ${activeOffersCount}`);
   console.log(`   - Offers with promotion metadata: ${promotionMetadataCount} (not applied to calculations)`);
   console.log(`   - Promotions with known active status: ${promotionsWithKnownActiveStatus}`);
   console.log(`   - Promotions active: ${promotionsActiveCount}`);
@@ -746,7 +722,6 @@ function buildOffers() {
     statistics: {
       lockInCount: lockInCount,
       lockInBySourceTotals: lockInBySourceTotals,
-      activeOffersCount: activeOffersCount,
       promotionsWithMetadataCount: promotionMetadataCount,
       promotionsWithKnownActiveStatusCount: promotionsWithKnownActiveStatus,
       promotionsActiveCount: promotionsActiveCount,

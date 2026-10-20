@@ -1,6 +1,6 @@
 {
   "build": {
-    "builtAt": "2026-10-20T23:24:53.645Z",
+    "builtAt": "2026-10-20T23:27:47.606Z",
     "sourceUpdatedAt": null,
     "offersCount": 5492,
     "rowCounts": {
@@ -46,7 +46,6 @@
         "field": 313,
         "text": 0
       },
-      "activeOffersCount": 0,
       "promotionsWithMetadataCount": 306,
       "promotionsWithKnownActiveStatusCount": 0,
       "promotionsActiveCount": 0,
