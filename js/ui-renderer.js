@@ -27,35 +27,32 @@ function extractDomain(websiteUrl) {
 }
 
 /**
- * Generate provider logo HTML with hybrid fallback approach
+ * Provider logo with hybrid fallback approach
  * @param {string} providerCode - Provider code
  * @param {string|null} websiteUrl - Provider website URL
- * @returns {string} HTML string with logo image and fallback icon
+ * @returns {Node[]} Logo image and fallback icon, or the fallback icon alone
  */
-function getProviderIcon(providerCode, websiteUrl = null) {
+function createProviderIcon(providerCode, websiteUrl = null) {
   const domain = extractDomain(websiteUrl);
-  
+  const icon = document.createElement('i');
+  icon.className = 'ph-duotone ph-lightning';
+
   // If no domain, return default icon
   if (!domain) {
-    return `<i class="ph-duotone ph-lightning"></i>`;
+    return [icon];
   }
-  
-  // Generate logo URLs
-  const clearbitUrl = `https://logo.clearbit.com/${domain}`;
-  const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-  
-  // Return HTML with image and fallback chain
-  // Use data attributes to store fallback URLs for JavaScript handler
-  return `
-    <img 
-      src="${clearbitUrl}" 
-      alt="${providerCode}" 
-      class="provider-logo"
-      data-favicon="${faviconUrl}"
-      data-provider="${providerCode}"
-    />
-    <i class="ph-duotone ph-lightning provider-icon-fallback" style="display:none;"></i>
-  `;
+
+  // Fallback URLs live in data attributes for the error handler
+  const img = document.createElement('img');
+  img.src = `https://logo.clearbit.com/${encodeURIComponent(domain)}`;
+  img.alt = providerCode;
+  img.className = 'provider-logo';
+  img.dataset.favicon = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+  img.dataset.provider = providerCode;
+
+  icon.classList.add('provider-icon-fallback');
+  icon.style.display = 'none';
+  return [img, icon];
 }
 
 /**
@@ -118,210 +115,71 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   const formattedPhone = formatPhone(enrichedBest.phone);
   const rawPhone = String(enrichedBest.phone || '').replace(/\D/g, '');
   
-  // Estimate mode knows the bill, not the tariff behind it, so it places the best offer in the
-  // market instead of claiming a saving (ADR-011 superseded); "Poupas" is for Preciso only
-  const displaySavings = savings;
-  let marketSummaryHTML = '';
-  if (isEstimate && typeof enrichedBest.marketMedianCost === 'number') {
-    marketSummaryHTML = `
-      <div class="market-summary">
-        <p>A melhor oferta custa cerca de €${Math.round(enrichedBest.monthlyCost)}/mês. Metade das ofertas custa mais de €${Math.round(enrichedBest.marketMedianCost)}/mês.</p>
-        <button type="button" class="market-summary-link" id="go-precise">Para saberes quanto poupas, usa o modo Preciso.</button>
-      </div>
-    `;
+  // Every ERSE value goes in through textContent or a DOM property, never through markup
+  const card = document.getElementById('result-card-template').content.cloneNode(true);
+  const slot = name => card.querySelector(`[data-slot="${name}"]`);
+
+  slot('provider-icon').append(...createProviderIcon(enrichedBest.COM, enrichedBest.website));
+  slot('provider-name').textContent = providerName;
+  slot('provider-plan').textContent = toTitleCase(formatTariffName(enrichedBest.tariffName || 'Tarifa Simples', enrichedBest.Contagem || 1, enrichedBest.cycleType || null));
+  slot('consumption').textContent = `${consumption} kWh`;
+  slot('power').textContent = `${power} kVA`;
+  slot('monthly-cost').textContent = `€${enrichedBest.monthlyCost.toFixed(2)}`;
+
+  if (formattedPhone) {
+    slot('phone').querySelector('button').dataset.phone = rawPhone;
+    slot('phone-text').textContent = formattedPhone;
+  } else {
+    slot('phone').remove();
   }
-  
-  // Build campaign badge HTML
-  let campaignBadgeHTML = '';
+
+  if (enrichedBest.website) {
+    const link = slot('website').querySelector('a');
+    link.href = enrichedBest.website;
+    link.setAttribute('aria-label', `Visitar website da ${providerName}`);
+  } else {
+    slot('website').remove();
+  }
+
   // Ranked offers are always active today (isOfferEligible), so a promotion on one is current
-  if (enrichedBest.promotion) {
-    campaignBadgeHTML = `
-      <div class="badge">
-        <div class="badge-inner">CAMPANHA</div>
-      </div>
-    `;
+  if (!enrichedBest.promotion) {
+    slot('campaign').remove();
   }
 
   // Indexed prices follow the wholesale market: the cost shown uses the prices of the data date
-  let indexedRowHTML = '';
   if (enrichedBest.isIndexed) {
-    const priceDate = enrichedBest.dataDate ? `valores de ${formatShortDataMonth(enrichedBest.dataDate)}` : 'varia com o mercado';
-    indexedRowHTML = `
-      <div class="data-row">
-        <div class="data-row-inner">
-          <div class="data-row-label">
-            <i class="ph-duotone ph-chart-line"></i>
-            <span>Preço indexado</span>
-          </div>
-          <span class="data-row-value">${priceDate}</span>
-        </div>
-      </div>
-    `;
+    slot('indexed-date').textContent = enrichedBest.dataDate ? `valores de ${formatShortDataMonth(enrichedBest.dataDate)}` : 'varia com o mercado';
+  } else {
+    slot('indexed').remove();
   }
-  
-  // Build savings bar HTML
-  let savingsBarHTML = '';
-  if (displaySavings && displaySavings.yearly > 0) {
-    savingsBarHTML = `
-      <div class="savings-bar">
-        <div class="savings-bar-inner">
-          <i class="ph-duotone ph-lightbulb"></i>
-          <span>Poupas</span>
-          <span>€${displaySavings.monthly.toFixed(2)}/mês,</span>
-          <span>€${displaySavings.yearly.toFixed(2)}/ano</span>
-        </div>
-      </div>
-    `;
-  }
-  
-  // Build phone button HTML
-  let phoneButtonHTML = '';
-  if (formattedPhone) {
-    phoneButtonHTML = `
-      <div class="btn-slot">
-        <button class="btn copy-phone-btn" type="button" data-phone="${rawPhone}">
-          <span class="btn-icon">
-            <i class="ph-duotone ph-phone"></i>
-          </span>
-          <span>${formattedPhone}</span>
-        </button>
-      </div>
-    `;
-  }
-  
-  // Build website button HTML
-  let websiteButtonHTML = '';
-  if (enrichedBest.website) {
-    websiteButtonHTML = `
-      <div class="btn-slot">
-        <a href="${enrichedBest.website}" target="_blank" rel="noopener" class="btn btn-suffix" aria-label="Visitar website da ${providerName}">
-          <span class="btn-icon">
-            <i class="ph-duotone ph-globe"></i>
-          </span>
-        </a>
-      </div>
-    `;
-  }
-  
-  // Build the full result card HTML matching design.html structure
-  const resultHTML = `
-    <!-- Card Header -->
-    <div class="result-card-header">
-      <div class="result-card-top">
-        <div class="provider-icon">
-          ${getProviderIcon(enrichedBest.COM, enrichedBest.website)}
-        </div>
-        <div class="result-card-actions">
-          ${phoneButtonHTML}
-          ${websiteButtonHTML}
-        </div>
-      </div>
-      <div class="result-card-info">
-        <p class="provider-name">${providerName}</p>
-        <p class="provider-plan">${toTitleCase(formatTariffName(enrichedBest.tariffName || 'Tarifa Simples', enrichedBest.Contagem || 1, enrichedBest.cycleType || null))}</p>
-      </div>
-    </div>
 
-    <!-- Card Data -->
-    <div class="result-data">
-      <div class="data-row">
-        <div class="data-row-inner">
-          <div class="data-row-label">
-            <i class="ph-duotone ph-chart-line"></i>
-            <span>Consumo estimado <span class="muted">(mês)</span></span>
-          </div>
-          <span class="data-row-value">${consumption} kWh</span>
-        </div>
-      </div>
-      <div class="data-row">
-        <div class="data-row-inner">
-          <div class="data-row-label">
-            <i class="ph-duotone ph-lightning"></i>
-            <span>Potência</span>
-          </div>
-          <span class="data-row-value">${power} kVA</span>
-        </div>
-      </div>
-      <div class="data-row">
-        <div class="data-row-inner">
-          <div class="data-row-label">
-            <i class="ph-duotone ph-currency-eur"></i>
-            <span>Custo mensal</span>
-          </div>
-          <div class="data-row-value-group">
-            ${campaignBadgeHTML}
-            <span class="data-row-value">€${enrichedBest.monthlyCost.toFixed(2)}</span>
-          </div>
-        </div>
-      </div>
-      ${indexedRowHTML}
-
-      ${savingsBarHTML}
-      ${marketSummaryHTML}
-    </div>
-  `;
-  
-  // Build info section HTML
-  const infoHTML = `
-    <div class="result-info">
-      <div class="info-row">
-        <div class="info-row-inner">
-          <span class="info-row-label">Como mudar</span>
-          <span class="info-row-value">Diz que queres aderir à "${toTitleCase(enrichedBest.tariffName || 'tarifa')}"</span>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="info-row-inner">
-          <span class="info-row-label">Dados necessários</span>
-          <div class="tags-group">
-            <div class="tag">
-              <div class="tag-inner">
-                <i class="ph-duotone ph-identification-card"></i>
-                <span>CPE</span>
-              </div>
-            </div>
-            <div class="tag">
-              <div class="tag-inner">
-                <i class="ph-duotone ph-file-text"></i>
-                <span>NIF</span>
-              </div>
-            </div>
-            <div class="tag">
-              <div class="tag-inner">
-                <i class="ph-duotone ph-map-pin"></i>
-                <span>MORADA</span>
-              </div>
-            </div>
-            <div class="tag">
-              <div class="tag-inner">
-                <i class="ph-duotone ph-phone"></i>
-                <span>TELEFONE</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="info-row-inner">
-          <span class="info-row-label">Quanto tempo demora</span>
-          <span class="info-row-value">Até 3 semanas</span>
-        </div>
-      </div>
-      <div class="disclaimer-row">
-        <p class="disclaimer-text">Não precisas de notificar o teu operador atual ou pagar qualquer valor. O novo operador trata do processo do início ao fim.</p>
-      </div>
-    </div>
-  `;
-  
-  // Cache result for tab switching
-  if (currentMode && setTabResult) {
-    setTabResult(currentMode, resultHTML + infoHTML);
+  if (savings && savings.yearly > 0) {
+    slot('savings-monthly').textContent = `€${savings.monthly.toFixed(2)}/mês,`;
+    slot('savings-yearly').textContent = `€${savings.yearly.toFixed(2)}/ano`;
+  } else {
+    slot('savings').remove();
   }
-  
+
+  // Estimate mode knows the bill, not the tariff behind it, so it places the best offer in the
+  // market instead of claiming a saving (ADR-011 superseded); "Poupas" is for Preciso only
+  if (isEstimate && typeof enrichedBest.marketMedianCost === 'number') {
+    slot('market-text').textContent = `A melhor oferta custa cerca de €${Math.round(enrichedBest.monthlyCost)}/mês. Metade das ofertas custa mais de €${Math.round(enrichedBest.marketMedianCost)}/mês.`;
+  } else {
+    slot('market').remove();
+  }
+
+  const info = document.getElementById('result-info-template').content.firstElementChild.cloneNode(true);
+  info.querySelector('[data-slot="how-to-switch"]').textContent = `Diz que queres aderir à "${toTitleCase(enrichedBest.tariffName || 'tarifa')}"`;
+
   // Update result div content
-  resultDiv.innerHTML = resultHTML;
+  resultDiv.replaceChildren(card);
   resultDiv.style.display = 'block';
-  
+
+  // Cache result for tab switching (serialised from the DOM above, so already escaped)
+  if (currentMode && setTabResult) {
+    setTabResult(currentMode, resultDiv.innerHTML + info.outerHTML);
+  }
+
   // Insert info section AFTER result-card-slot (matches design.html structure)
   const resultCardSlot = document.querySelector('.result-card-slot');
   if (resultCardSlot) {
@@ -331,7 +189,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
       existingInfo.remove();
     }
     // Insert info section after result-card-slot (inside result-card-container)
-    resultCardSlot.insertAdjacentHTML('afterend', infoHTML);
+    resultCardSlot.after(info);
   }
   
   // Update results subtitle based on mode

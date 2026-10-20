@@ -79,6 +79,34 @@ function normalizeString(value) {
 }
 
 /**
+ * ERSE free text shown on the page: drops the characters that could break out of markup
+ * (< > ") and control characters. The page renders with textContent; this is the second layer.
+ */
+function safeText(value) {
+  return normalizeString(value).replace(/[<>"\u0000-\u001f\u007f]/g, '');
+}
+
+/**
+ * ERSE link shown on the page: the first value that parses as an http or https URL, else ''.
+ * Some LinkOfertaCom cells hold plain text, so the supplier's LinkCOM is the fallback.
+ */
+function safeUrl(...values) {
+  for (const value of values) {
+    const text = normalizeString(value);
+    if (!text) continue;
+    try {
+      const url = new URL(text);
+      if ((url.protocol === 'https:' || url.protocol === 'http:') && !/[<>"\s]/.test(text)) {
+        return text;
+      }
+    } catch (e) {
+      // Not a URL: try the next value
+    }
+  }
+  return '';
+}
+
+/**
  * Normalize text for token matching (lowercase, remove accents)
  */
 function normalizeTextForTokens(text) {
@@ -417,14 +445,14 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
   const lockIn = detectLockIn(condition);
   const promotion = extractPromotion(condition, prioritizedColumns);
   
-  const tariffName = normalizeString(condition.NomeProposta || condition.COD_Proposta);
+  const tariffName = safeText(condition.NomeProposta || condition.COD_Proposta);
   const cycleType = detectCycleType(tariffName);
   
   const metadata = {
     tariffName: tariffName,
     cycleType: cycleType, // 'daily' | 'weekly' | null
-    website: normalizeString(condition.LinkOfertaCom || condition.LinkCOM || ''),
-    phone: normalizeString(condition.ContactoComercialTel || ''),
+    website: safeUrl(condition.LinkOfertaCom, condition.LinkCOM),
+    phone: safeText(condition.ContactoComercialTel),
     fornecimento: normalizeString(condition.Fornecimento || ''),
     segmento: normalizeString(condition.Segmento || ''),
     validFrom: normalizeString(condition['Data ini'] || ''),
@@ -450,10 +478,10 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
   // Build campaign summary from available text fields
   const summaryParts = [];
   if (condition.TxTOferta) {
-    summaryParts.push(normalizeString(condition.TxTOferta).substring(0, 100));
+    summaryParts.push(safeText(condition.TxTOferta).substring(0, 100));
   }
   if (condition.TxTFidelização && lockIn.hasLockIn) {
-    summaryParts.push(`Fidelização: ${normalizeString(condition.TxTFidelização).substring(0, 50)}`);
+    summaryParts.push(`Fidelização: ${safeText(condition.TxTFidelização).substring(0, 50)}`);
   }
   metadata.campaignSummary = summaryParts.join(' | ').substring(0, 200);
   
@@ -553,7 +581,7 @@ function buildOffers() {
     
     // Extract campaign metadata (use prioritized columns from discovery)
     const campaign = condition ? extractCampaignMetadata(condition, prioritizedColumns) : {
-      tariffName: price.COD_Proposta,
+      tariffName: safeText(price.COD_Proposta),
       cycleType: null, // No cycle info without condition data
       website: '',
       phone: '',
@@ -764,5 +792,5 @@ if (require.main === module) {
   }
 }
 
-module.exports = { buildOffers };
+module.exports = { buildOffers, safeText, safeUrl };
 
