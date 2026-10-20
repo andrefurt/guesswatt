@@ -4,7 +4,7 @@
  */
 
 import { PROVIDERS } from './config.js';
-import { findBestOfferForTariff, calculateMonthlyCost, enrichOffer } from './calculator.js';
+import { findBestOfferForTariff, calculateMonthlyCost } from './calculator.js';
 import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { setInvoiceData } from './ui-handlers.js';
@@ -454,53 +454,18 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
       resultDiv.style.display = 'block';
     }
     
-    // Carregar dados (prefers offers.json, falls back to CSV)
-    const { prices, conditions, offers, tar, dataDate } = await loadOffers();
-    const tax = { tar, largeHousehold: isLargeHousehold() };
-    
-    // Use offers.json if available (already filtered to ELE-only at build time)
-    // Otherwise filter CSV data to ELE-only
-    let offersToSearch;
-    if (offers && offers.length > 0) {
-      // offers.json already contains ELE-only offers with all metadata
-      offersToSearch = offers;
-    } else {
-      // CSV fallback: filter to ELE-only
-      const electricityOnly = prices.filter(p => {
-        const condition = conditions.find(c => 
-          c.COM === p.COM && c.COD_Proposta === p.COD_Proposta
-        );
-        if (condition && condition.Fornecimento) {
-          return condition.Fornecimento === 'ELE';
-        }
-        // If no condition data, assume electricity (backward compatibility)
-        return true;
-      });
-      // Convert to offer-like format for compatibility
-      offersToSearch = electricityOnly.map(p => ({
-        ...p,
-        tariffName: '',
-        website: '',
-        phone: '',
-        fornecimento: '',
-        segmento: '',
-        validFrom: '',
-        validTo: '',
-        isIndexed: false,
-        hasLockIn: false,
-        promotion: null,
-        isCampaignActive: null
-      }));
-    }
+    // Carregar dados
+    const { offers, tar, dataDate } = await loadOffers();
+    const context = { tar, largeHousehold: isLargeHousehold() };
     
     // Encontrar melhor oferta (filters lock-in, uses annual effective cost)
     const best = findBestOfferForTariff(
-      offersToSearch, 
+      offers, 
       pdfData.consumption, 
       pdfData.power, 
       pdfData.tariffType,
       null,
-      tax
+      context
     );
     
     if (!best) {
@@ -508,8 +473,8 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
       return;
     }
     
-    // Enriquecer com nome da tarifa e metadata (if not already enriched)
-    const enrichedBest = { ...(offers ? best : enrichOffer(best, conditions)), dataDate };
+    // Juntar a data dos preços (mostrada nas ofertas indexadas)
+    const enrichedBest = { ...best, dataDate };
     
     // Calcular poupança vs operador actual (se detectado)
     let savings = null;
@@ -519,7 +484,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
       const normalizedTariffType = typeof pdfData.tariffType === 'number' ? pdfData.tariffType : parseInt(pdfData.tariffType);
       
       // Encontrar ofertas do operador actual com mesma potência e tarifa
-      const currentProviderOffers = offersToSearch.filter(o => {
+      const currentProviderOffers = offers.filter(o => {
         const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
         const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
         const contagem = typeof o.Contagem === 'number' ? o.Contagem : parseInt(o.Contagem);
@@ -538,7 +503,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
         // Calcular custo com a melhor oferta do operador actual
         const currentProviderCosts = currentProviderOffers.map(offer => ({
           ...offer,
-          monthlyCost: calculateMonthlyCost(offer, pdfData.consumption, pdfData.power, null, tax)
+          monthlyCost: calculateMonthlyCost(offer, pdfData.consumption, pdfData.power, null, context)
         }));
         
         // Ordenar por custo e pegar a mais barata

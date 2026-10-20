@@ -15,7 +15,6 @@ import {
   AUDIOVISUAL_TAX,
   DEFAULT_POWER
 } from './config.js';
-import { detectCycleType } from './utils.js';
 
 // Constants from DATA_MODEL.mdc
 const IEC_KWH = 0.001; // Special consumption tax (€/kWh)
@@ -91,7 +90,7 @@ export function estimateConsumption(monthlyBill, offers = null, context = {}) {
 /**
  * Calculate monthly cost for an offer
  * Implements full calculation with IEC, DGEG, proper tariff splitting, and VAT per component
- * @param {Object} offer - Offer object from CSV/JSON
+ * @param {Object} offer - Offer object from offers.json
  * @param {number} consumption - Consumption in kWh
  * @param {number} power - Power in kVA
  * @param {Object} distribution - Optional: actual consumption distribution for bi/tri tariffs
@@ -438,53 +437,3 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
   
   return best; // melhor oferta
 }
-
-/**
- * Enrich offer with commercial data and campaign metadata
- * @param {Object} offer - Offer object
- * @param {Array<Object>} conditions - Commercial conditions array
- * @returns {Object} Enriched offer object with campaign metadata
- */
-export function enrichOffer(offer, conditions) {
-  const condition = conditions.find(c => 
-    c.COM === offer.COM && 
-    c.COD_Proposta === offer.COD_Proposta
-  );
-  
-  // If condition has _enriched metadata (from offers.json), use it
-  if (condition?._enriched) {
-    return {
-      ...offer,
-      ...condition._enriched,
-      tariffName: condition._enriched.tariffName || offer.COD_Proposta,
-      phone: condition._enriched.phone || condition?.ContactoComercialTel || null,
-      website: condition._enriched.website || condition?.LinkOfertaCom || condition?.LinkCOM || null
-    };
-  }
-  
-  // Fallback: extract from condition object (CSV mode)
-  const tariffName = condition?.NomeProposta || offer.COD_Proposta;
-  
-  // Detect cycle type from tariff name (for CSV fallback)
-  const cycleType = tariffName ? detectCycleType(tariffName) : null;
-  
-  return {
-    ...offer,
-    tariffName: tariffName,
-    cycleType: cycleType, // Include cycleType for CSV fallback
-    phone: condition?.ContactoComercialTel || null,
-    website: condition?.LinkOfertaCom || condition?.LinkCOM || null,
-    fornecimento: condition?.Fornecimento || '',
-    segmento: condition?.Segmento || '',
-    validFrom: condition?.['Data ini'] || '',
-    validTo: condition?.['Data fim'] || '',
-    isIndexed: condition?.FiltroPrecosIndex === 'S',
-    hasLockIn: condition?.FiltroFidelização === 'S',
-    newCustomerOnly: false,
-    requiresDirectDebit: false,
-    requiresEBill: false,
-    campaignSummary: condition?.TxTOferta ? String(condition.TxTOferta).substring(0, 200) : '',
-    isCampaignActive: null // Would need date parsing to determine
-  };
-}
-
