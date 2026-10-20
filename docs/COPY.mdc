@@ -169,7 +169,7 @@ Marcada, o IVA a 6% aplica-se aos primeiros 300 kWh do mês em vez de 200 (ver "
 
 ```
 Vazio:        Precisamos de um valor para calcular
-Inválido:     Introduz um valor entre €30 e €500
+Inválido:     Indica um valor entre 20 € e 500 €.   (abaixo do cartão; valida em JS)
 PDF erro:     Não conseguimos ler este PDF. Tenta com o valor em €.
 ```
 
@@ -289,6 +289,17 @@ Nota:  Não encontrámos o consumo na fatura. Preenche o valor que falta.
 Label:  Preço indexado
 Valor:  valores de dez. 2025     (mês e ano dos preços, de meta.json)
 ```
+
+---
+
+**Modo estimado** (substitui "Poupas" quando só há o valor da fatura; ADR-011):
+
+```
+A melhor oferta custa cerca de €66/mês. Metade das ofertas custa mais de €87/mês.
+[Para saberes quanto poupas, usa o modo Preciso.]
+```
+
+"Poupas €X/mês" aparece só no modo preciso, contra a tarifa do operador atual.
 
 ---
 

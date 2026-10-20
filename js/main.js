@@ -9,7 +9,8 @@ import {
   estimateConsumption, 
   calculateMonthlyCost, 
   findBestOffer, 
-  findBestOfferForTariff
+  findBestOfferForTariff,
+  marketMedianCost
 } from './calculator.js';
 import { 
   initPDFUpload, 
@@ -100,6 +101,10 @@ function setManualFormVisible(visible) {
 // FORM HANDLERS
 // =============================================================================
 
+// Estimate mode accepts bills in this range (€/month)
+const MIN_BILL = 20;
+const MAX_BILL = 500;
+
 /**
  * Handler for estimate form submission
  * @param {Event} e - Form submit event
@@ -107,10 +112,19 @@ function setManualFormVisible(visible) {
 async function handleEstimateSubmit(e) {
   e.preventDefault();
   
-  const monthlyBill = parseFloat(document.getElementById('monthly-bill').value);
+  const monthlyBill = parseFloat(String(document.getElementById('monthly-bill').value).replace(',', '.'));
   const resultDiv = document.getElementById('result');
   
   if (!resultDiv) return;
+  
+  // The estimate only holds for typical household bills
+  const billNote = document.getElementById('estimate-note');
+  if (!(monthlyBill >= MIN_BILL && monthlyBill <= MAX_BILL)) {
+    if (billNote) billNote.hidden = false;
+    document.getElementById('monthly-bill')?.focus();
+    return;
+  }
+  if (billNote) billNote.hidden = true;
   
   resultDiv.innerHTML = '<p>A calcular...</p>';
   
@@ -129,10 +143,14 @@ async function handleEstimateSubmit(e) {
     // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
     const best = findBestOffer(offers, consumption, DEFAULT_POWER, context);
     
-    // 5. Juntar a data dos preços (mostrada nas ofertas indexadas)
-    const enrichedBest = { ...best, dataDate };
+    // 5. Juntar a data dos preços e a mediana do mercado (o modo estimado não mostra poupança)
+    const enrichedBest = {
+      ...best,
+      dataDate,
+      marketMedianCost: marketMedianCost(offers, consumption, DEFAULT_POWER, 1, null, context)
+    };
     
-    // 6. Renderizar resultado (usa monthlyBill para calcular poupança)
+    // 6. Renderizar resultado
     renderResult(enrichedBest, consumption, DEFAULT_POWER, monthlyBill, null, true, getCurrentMode(), setTabResult);
     
   } catch (error) {
@@ -344,6 +362,14 @@ function init() {
       setManualFormVisible(false);
     });
   }
+  
+  // "Usa o modo Preciso" in an estimate result: back to the form, on the Preciso tab
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#go-precise')) {
+      hideResults();
+      document.getElementById('tab-preciso')?.click();
+    }
+  });
   
   // Inicializar tooltips
   initTooltips();

@@ -436,6 +436,10 @@
     color: var(--color-foreground-primary);
   }
 
+  .estimate-note {
+    padding-top: var(--space-3);
+  }
+
   .form-row {
     display: flex;
     flex-wrap: wrap;
