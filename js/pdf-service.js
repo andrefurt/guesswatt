@@ -5,7 +5,7 @@
 
 import { PROVIDERS } from './config.js';
 import { findBestOfferForTariff, calculateMonthlyCost, enrichOffer } from './calculator.js';
-import { loadOffers, toTitleCase, formatTariffName } from './utils.js';
+import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { setInvoiceData } from './ui-handlers.js';
 
@@ -456,7 +456,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
     
     // Carregar dados (prefers offers.json, falls back to CSV)
     const { prices, conditions, offers, tar } = await loadOffers();
-    const tax = { tar };
+    const tax = { tar, largeHousehold: isLargeHousehold() };
     
     // Use offers.json if available (already filtered to ELE-only at build time)
     // Otherwise filter CSV data to ELE-only

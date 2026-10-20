@@ -397,6 +397,13 @@ async function runSelftest() {
     expectCost(calculateMonthlyCost(SIMPLE, 400, 4.6, null, { largeHousehold: true }), 80.8191, 'large household');
   });
 
+  test('golden: at 250 kWh the household answer changes the cost', () => {
+    // Fixed parts: 11.07 + 0.25*1.23 + 3.021 + 0.0861 = 14.4846
+    // No: 200*0.15*1.06 + 50*0.15*1.23 + 14.4846; yes: 250*0.15*1.06 + 14.4846
+    expectCost(calculateMonthlyCost(SIMPLE, 250, 4.6), 55.5096, 'household no');
+    expectCost(calculateMonthlyCost(SIMPLE, 250, 4.6, null, { largeHousehold: true }), 54.2346, 'household yes');
+  });
+
   test('golden: above 6.9 kVA everything but the CAV pays 23%', () => {
     const offer = { ...SIMPLE, Pot_Cont: 10.35, TF: 0.5 };
     // (15 + 75 + 0.5 + 0.07)*1.23 + 3.021

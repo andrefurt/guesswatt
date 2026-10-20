@@ -4,7 +4,7 @@
  */
 
 import { DEFAULT_POWER, PROVIDERS } from './config.js';
-import { loadOffers, toTitleCase } from './utils.js';
+import { loadOffers, toTitleCase, isLargeHousehold } from './utils.js';
 import { 
   estimateConsumption, 
   calculateMonthlyCost, 
@@ -121,7 +121,7 @@ async function handleEstimateSubmit(e) {
   try {
     // 1. Carregar dados (prefers offers.json, falls back to CSV)
     const { prices, conditions, offers, tar } = await loadOffers();
-    const tax = { tar };
+    const tax = { tar, largeHousehold: isLargeHousehold() };
     
     // 2. Estimar consumo (data-driven if offers available)
     const consumption = estimateConsumption(monthlyBill, offers, tax);
@@ -218,7 +218,7 @@ async function handlePreciseSubmit(e) {
     
     // 2. Carregar dados (prefers offers.json, falls back to CSV)
     const { prices, conditions, offers, tar } = await loadOffers();
-    const tax = { tar };
+    const tax = { tar, largeHousehold: isLargeHousehold() };
     
     // 3. Use offers.json if available (already filtered to ELE-only at build time)
     // Otherwise filter CSV data to ELE-only
