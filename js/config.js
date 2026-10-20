@@ -15,22 +15,34 @@ export const DAYS_PER_MONTH = 30;
 export const DEFAULT_POWER = 4.6; // kVA mais comum
 export const AUDIOVISUAL_TAX = 2.85; // €/mês, taxed at the reduced rate
 
+// Display names for ERSE supplier codes (COM). ERSE publishes codes only, so the names are
+// kept here; the selftest fails if a code in data/offers.json has no name, or a name has no offers.
 export const PROVIDERS = {
+  'ALFAENERGIA': 'Alfa Energia',
+  'AUDAX': 'Audax Renovables',
+  'COOP': 'Coopérnico',
+  'EDPC': 'EDP Comercial',
   'EDPSU': 'SU Eletricidade',
-  'EDPC': 'EDP Comercial', 
   'END': 'Endesa',
+  'ENIPLENITUDE': 'Plenitude',
+  'EZUENERGIA': 'EZU Energia',
+  'G9ENERGY': 'G9 Energy',
   'GALP': 'Galp',
   'GOLD': 'Goldenergy',
-  'IBER': 'Iberdrola',
-  'MEO': 'MEO Energia',
-  'REPSOL': 'Repsol',
-  'ACCIONA': 'Acciona',
-  'ENAT': 'Energia Naturalis',
+  'IBD': 'Iberdrola',
+  'IBELECTRA': 'Ibelectra',
+  'JAFPLUS': 'JAF Plus',
+  'LOGICA': 'Lógica Energy',
   'LUZBOA': 'Luzboa',
+  'LUZIGAS': 'Luzigás',
+  'MEOENERGIA': 'MEO Energia',
   'MUON': 'Muon',
-  'PLEN': 'Plenitude',
-  'AQUILA': 'Aquila',
-  'COOPERNICO': 'Coopérnico',
-  'YLCE': 'Ylce'
+  'NABALIAENERGIA': 'Nabalia Energia',
+  'NOSSAENERGIA': 'Nossa Energia',
+  'OENEO': 'Oeneo',
+  'PORTULOGOS': 'Portulogos',
+  'REPSOL': 'Repsol',
+  'USENERGY': 'US Energy',
+  'YESENERGY': 'Yes Energy'
 };
 

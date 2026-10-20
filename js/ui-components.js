@@ -236,7 +236,8 @@ export function populateProvidersDropdown() {
   const providerSelect = document.getElementById('current-provider');
   if (!providerSelect) return;
   
-  Object.entries(PROVIDERS).forEach(([code, name]) => {
+  const byName = Object.entries(PROVIDERS).sort(([, a], [, b]) => a.localeCompare(b, 'pt'));
+  byName.forEach(([code, name]) => {
     const option = document.createElement('option');
     option.value = code;
     option.textContent = name;

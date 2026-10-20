@@ -1,6 +1,6 @@
 {
   "build": {
-    "builtAt": "2026-10-20T23:23:18.843Z",
+    "builtAt": "2026-10-20T23:24:53.645Z",
     "sourceUpdatedAt": null,
     "offersCount": 5492,
     "rowCounts": {
@@ -11,6 +11,34 @@
       "fornecimento": "ELE only (excluded GN and DUAL)",
       "segmento": "Dom and Tod only (excluded Ndom)",
       "lockInExcluded": false
+    },
+    "providers": {
+      "EDPSU": 33,
+      "ALFAENERGIA": 62,
+      "AUDAX": 184,
+      "COOP": 66,
+      "EDPC": 853,
+      "END": 591,
+      "ENIPLENITUDE": 247,
+      "EZUENERGIA": 132,
+      "G9ENERGY": 198,
+      "GALP": 853,
+      "GOLD": 257,
+      "IBD": 410,
+      "IBELECTRA": 270,
+      "JAFPLUS": 23,
+      "LOGICA": 23,
+      "LUZBOA": 132,
+      "LUZIGAS": 130,
+      "MEOENERGIA": 42,
+      "MUON": 62,
+      "NABALIAENERGIA": 58,
+      "NOSSAENERGIA": 62,
+      "OENEO": 66,
+      "PORTULOGOS": 33,
+      "REPSOL": 626,
+      "USENERGY": 33,
+      "YESENERGY": 46
     },
     "statistics": {
       "lockInCount": 313,

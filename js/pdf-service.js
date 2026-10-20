@@ -266,7 +266,7 @@ export function parseInvoiceText(text) {
   else if (patterns.endesa.test(text)) provider = 'END';
   else if (patterns.galp.test(text)) provider = 'GALP';
   else if (patterns.goldenergy.test(text)) provider = 'GOLD';
-  else if (patterns.iberdrola.test(text)) provider = 'IBER';
+  else if (patterns.iberdrola.test(text)) provider = 'IBD';
   
   // Detectar tipo de tarifa
   let tariffType = 1; // Default: simples
