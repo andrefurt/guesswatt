@@ -1,0 +1,9 @@
+#!/bin/sh
+# Runs the repo's gate before a commit. The command comes from alfred.json (commands.check).
+check=$(node -e 'try{process.stdout.write(require("./alfred.json").commands?.check??"")}catch{}' 2>/dev/null)
+[ -z "$check" ] && exit 0
+sh -c "$check" >/dev/null 2>&1 || {
+	printf 'pre-commit: `%s` failed; run it and fix before committing\n' "$check" >&2
+	sh -c "$check" 2>&1 | tail -20 >&2
+	exit 1
+}

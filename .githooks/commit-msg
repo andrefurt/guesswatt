@@ -1,0 +1,23 @@
+#!/bin/sh
+# Refuses tool attribution and off-format subjects. Installed with `git config core.hooksPath .githooks`,
+# so it runs for every author and every tool.
+LC_ALL=C
+export LC_ALL
+file="$1"
+fail() { printf 'commit-msg: %s\n' "$1" >&2; exit 1; }
+
+if grep -iqE '^(co-authored-by|claude-session):.*(claude|anthropic)|generated with|noreply@anthropic\.com' "$file"; then
+	fail "tool attribution found; this repo does not attribute commits to tools"
+fi
+if grep -q "$(printf '\342\200\224')" "$file"; then
+	fail "em dash in the message; use a colon, a comma or a full stop"
+fi
+subject=$(grep -vE '^\s*#' "$file" | sed -n '1p')
+case "$subject" in
+	"") fail "empty subject" ;;
+	"Merge "*|"Revert \""*) exit 0 ;;
+	[[:upper:]]*) fail "subject starts with a capital; write it lowercase, in the imperative (add, fix, move)" ;;
+	*.) fail "subject ends with a full stop" ;;
+esac
+[ ${#subject} -le 72 ] || fail "subject longer than 72 characters"
+exit 0

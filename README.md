@@ -37,6 +37,9 @@ Simply visit the website. No installation needed—it's a static site that works
 git clone https://github.com/yourusername/guesswatt.git
 cd guesswatt
 
+# Once per clone: run the repo's git hooks (commit message format, tests before commit)
+git config core.hooksPath .githooks
+
 # Serve locally (no build step required)
 python3 -m http.server 8000
 # or

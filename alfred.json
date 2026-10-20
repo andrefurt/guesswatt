@@ -1,0 +1,18 @@
+{
+  "tier": "product",
+  "commands": {
+    "dev": "python3 -m http.server 8000",
+    "check": "node scripts/selftest.js && for f in js/*.js components.js scripts/*.js; do node --check \"$f\" || exit 1; done"
+  },
+  "protectedBranches": [
+    "main"
+  ],
+  "stopCheck": true,
+  "dependencies": "ask",
+  "text": {
+    "exempt": [
+      ".claude/skills/better-",
+      ".claude/skills/diagnosing-bugs/"
+    ]
+  }
+}
