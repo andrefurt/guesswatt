@@ -552,6 +552,16 @@ async function runSelftest() {
     }
   });
 
+  test('golden: the market median skips offers that could not win', () => {
+    const pool = [0.10, 0.15, 0.20].map((tv, i) => ({ ...SIMPLE, COD_Proposta: `M${i}`, 'TV|TVFV|TVP': tv }));
+    const excluded = [
+      { ...SIMPLE, COD_Proposta: 'LOCK', 'TV|TVFV|TVP': 0.99, hasLockIn: true },
+      { ...SIMPLE, COD_Proposta: 'RESTR', 'TV|TVFV|TVP': 0.99, isRestricted: true }
+    ];
+    // Median of the three costs is the TV 0.15 one: 46.2231
+    expectCost(calculator.marketMedianCost([...pool, ...excluded], 200, 4.6, 1), 46.2231, 'median');
+  });
+
   test('golden: equal costs break ties by name', () => {
     const b = { ...SIMPLE, COD_Proposta: 'B', tariffName: 'Beta' };
     const a = { ...SIMPLE, COD_Proposta: 'A', tariffName: 'Alfa' };

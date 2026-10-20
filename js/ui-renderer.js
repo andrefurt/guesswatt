@@ -118,19 +118,18 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   const formattedPhone = formatPhone(enrichedBest.phone);
   const rawPhone = String(enrichedBest.phone || '').replace(/\D/g, '');
   
-  // Calculate savings for estimate mode
-  let estimateSavings = null;
-  if (monthlyBill && !savings) {
-    const monthlySavings = monthlyBill - enrichedBest.monthlyCost;
-    if (monthlySavings > 0) {
-      estimateSavings = {
-        monthly: monthlySavings,
-        yearly: monthlySavings * 12
-      };
-    }
+  // Estimate mode knows the bill, not the tariff behind it, so it places the best offer in the
+  // market instead of claiming a saving (ADR-011 superseded); "Poupas" is for Preciso only
+  const displaySavings = savings;
+  let marketSummaryHTML = '';
+  if (isEstimate && typeof enrichedBest.marketMedianCost === 'number') {
+    marketSummaryHTML = `
+      <div class="market-summary">
+        <p>A melhor oferta custa cerca de €${Math.round(enrichedBest.monthlyCost)}/mês. Metade das ofertas custa mais de €${Math.round(enrichedBest.marketMedianCost)}/mês.</p>
+        <button type="button" class="market-summary-link" id="go-precise">Para saberes quanto poupas, usa o modo Preciso.</button>
+      </div>
+    `;
   }
-  
-  const displaySavings = savings || estimateSavings;
   
   // Build campaign badge HTML
   let campaignBadgeHTML = '';
@@ -258,6 +257,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
       ${indexedRowHTML}
 
       ${savingsBarHTML}
+      ${marketSummaryHTML}
     </div>
   `;
   

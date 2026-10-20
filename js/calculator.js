@@ -339,6 +339,27 @@ export function findBestOffer(offers, consumption, power, context = {}) {
 }
 
 /**
+ * Median monthly cost of the offers that could win for this profile (same filters as
+ * findBestOfferForTariff). Used in estimate mode to place the best offer in the market;
+ * the median is robust to the few offers that bundle equipment.
+ * @returns {number|null} €/month, null when no offer qualifies
+ */
+export function marketMedianCost(offers, consumption, power, tariffType = 1, distribution = null, context = {}) {
+  const costs = offers
+    .filter(o =>
+      Math.abs(o.Pot_Cont - power) < 0.01 &&
+      o.Contagem === tariffType &&
+      o.TF > 0 &&
+      (o['TV|TVFV|TVP'] || 0) > 0 &&
+      o.hasLockIn !== true &&
+      o.isRestricted !== true &&
+      isOfferEligible(o, consumption, context.asOf))
+    .map(o => calculateMonthlyCost(o, consumption, power, distribution, context))
+    .sort((a, b) => a - b);
+  return costs.length > 0 ? median(costs) : null;
+}
+
+/**
  * Find best offer for specific tariff type
  * Excludes lock-in and ineligible offers (isOfferEligible) and uses annual effective cost for ranking
  * @param {Array<Object>} offers - Array of offer objects

@@ -29,7 +29,7 @@ Decisões técnicas e de produto documentadas. Cada ADR segue o formato: context
 - [ADR-010](#adr-010-defaults-assumidos) Defaults Assumidos
 
 ### Output & UX
-- [ADR-011](#adr-011-loss-framing) Loss Framing ("Perdes €X")
+- [ADR-011](#adr-011-loss-framing) Loss Framing ("Perdes €X"), substituído em outubro de 2026
 - [ADR-012](#adr-012-cartão-de-oferta-com-detalhes-expansíveis) Cartão de Oferta com Detalhes Expansíveis
 - [ADR-013](#adr-013-tooltips-para-termos-técnicos) Tooltips para Termos Técnicos
 - [ADR-014](#adr-014-top-n-ofertas-não-todas) Top N Ofertas, Não Todas
@@ -392,7 +392,18 @@ auditoria FE-1).
 
 **Data:** Novembro 2025 (v2)
 
-**Status:** ✅ Aceite
+**Status:** 🔄 Substituído (outubro de 2026)
+
+**Substituição (2026-10-20, decisão do dono):** a mensagem de perda nunca chegou ao código, que
+mostrava "Poupas" também no modo estimado. Aí a poupança comparava a mediana do mercado com a melhor
+oferta, não a tarifa da pessoa, e qualquer fatura acima de cerca de €22 mostrava uma poupança
+(auditoria de outubro de 2026, UX-1). Agora:
+- **Modo estimado:** "A melhor oferta custa cerca de €Y/mês. Metade das ofertas custa mais de
+  €Z/mês." (mediana das ofertas que podem ganhar, que as ofertas com equipamento incluído não
+  distorcem), seguido de um botão para o modo Preciso. Aceita faturas de 20 € a 500 €.
+- **Modo preciso:** "Poupas €X/mês" contra a oferta mais barata do operador atual, como antes.
+
+A decisão original fica abaixo como registo.
 
 **Contexto:**
 Como apresentar o resultado? Opções:
