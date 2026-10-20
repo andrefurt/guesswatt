@@ -370,10 +370,13 @@ export function showPDFData(data, onDataShown) {
   const tariffName = formatTariffName(tariffNameRaw, data.tariffType, data.cycleType);
   
   // Update drop area text to show loaded state
-  dropAreaText.innerHTML = `
-    <p>✓ Factura carregada</p>
-    <p class="pdf-data-summary">${providerName} · ${tariffName} · ${data.consumption} kWh · ${data.power} kVA</p>
-  `;
+  // Values read from the PDF go in as text, never as markup
+  const loaded = document.createElement('p');
+  loaded.textContent = '✓ Factura carregada';
+  const summary = document.createElement('p');
+  summary.className = 'pdf-data-summary';
+  summary.textContent = `${providerName} · ${tariffName} · ${data.consumption} kWh · ${data.power} kVA`;
+  dropAreaText.replaceChildren(loaded, summary);
   
   // Hide manual link
   if (manualLink) manualLink.style.display = 'none';

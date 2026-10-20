@@ -729,6 +729,28 @@ async function runSelftest() {
     console.log(`   Prices from ${value.slice(0, 10)}`);
   });
 
+  // Test 10d: ERSE free text and links reach the page only after build-offers.js cleans them
+  test('ERSE text and links are safe to show', () => {
+    const { safeText, safeUrl } = require('./build-offers.js');
+    if (/[<>"]/.test(safeText('Tarifa"><img src=x onerror=alert(1)>'))) {
+      throw new Error('safeText keeps markup characters');
+    }
+    if (safeUrl('javascript:alert(1)') !== '' || safeUrl('data:text/html,x') !== '') {
+      throw new Error('safeUrl accepts a non-http link');
+    }
+    if (safeUrl('ver site', 'https://example.pt') !== 'https://example.pt') {
+      throw new Error('safeUrl does not fall back to the second link');
+    }
+
+    const unsafe = offers.filter(o =>
+      [o.tariffName, o.phone, o.campaignSummary].some(v => /[<>"]/.test(v || '')) ||
+      (o.website && !/^https?:\/\/[^\s<>"]+$/.test(o.website))
+    );
+    if (unsafe.length > 0) {
+      throw new Error(`${unsafe.length} offers have unsafe text or links (rebuild offers.json): ${unsafe.slice(0, 3).map(o => o.COD_Proposta).join(', ')}`);
+    }
+  });
+
   // Test 11: Promotion discovery validation
   test('promotion discovery validation', () => {
     if (!fs.existsSync(META_PATH)) {
