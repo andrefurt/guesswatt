@@ -226,7 +226,8 @@ Flexbox-based, composable patterns.
 js/
 ├── main.js             → Application entry point, state management, form handlers
 ├── calculator.js       → Pure business logic: cost calculations, offer filtering
-├── config.js          → Configuration constants (VAT, default power, providers)
+├── config.js          → Configuration constants (VAT rates, fees, default power, providers)
+├── data-date.js       → Footer: date of the prices and the stale notice (every page)
 ├── pdf-service.js     → PDF parsing (client-side with PDF.js)
 ├── ui-components.js    → UI component initialization (tabs, tooltips, dropdowns)
 ├── ui-handlers.js     → Event handlers (copy, delete, show/hide results)

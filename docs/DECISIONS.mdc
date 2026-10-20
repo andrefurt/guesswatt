@@ -403,6 +403,10 @@ oferta, não a tarifa da pessoa, e qualquer fatura acima de cerca de €22 mostr
   distorcem), seguido de um botão para o modo Preciso. Aceita faturas de 20 € a 500 €.
 - **Modo preciso:** "Poupas €X/mês" contra a oferta mais barata do operador atual, como antes.
 
+Decisão do dono (2026-10-21) sobre o número do mercado: a mediana, escrita como "Metade das
+ofertas custa mais de €Z/mês", e não a média, que as ofertas com equipamento puxavam para €103 numa
+fatura de €80.
+
 A decisão original fica abaixo como registo.
 
 **Contexto:**
