@@ -24,3 +24,5 @@ says the fix.
 8. The supplier is "fornecedor" in everything a user reads. "Operador" in PT energy is the network
    operator (E-REDES), so it is never the supplier; "comercializador", ERSE's term, appears only as
    an explanation beside "fornecedor".
+9. A verdict shows the number it rests on: "Poupas 0,80 €/mês. É pouco para compensar a mudança",
+   not only "Já tens uma boa tarifa". A threshold the person cannot see reads as a hidden rule.
