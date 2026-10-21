@@ -18,84 +18,7 @@ import {
 } from './pdf-service.js';
 import { initTooltips, initTabs, populateProvidersDropdown } from './ui-components.js';
 import { renderResult } from './ui-renderer.js';
-import { initUIHandlers, showResults, hideResults, setEstimadoData, setInvoiceData } from './ui-handlers.js';
-
-// =============================================================================
-// STATE MANAGEMENT
-// =============================================================================
-
-// Application state
-const state = {
-  // Tab results cache
-  tabResults: {
-    estimate: null,
-    precise: null
-  },
-  
-  // Current active mode
-  currentMode: 'estimate',
-  
-  // Manual form visibility
-  manualFormVisible: false
-};
-
-/**
- * Get current mode
- * @returns {string} Current mode ('estimate' or 'precise')
- */
-function getCurrentMode() {
-  return state.currentMode;
-}
-
-/**
- * Set current mode
- * @param {string} mode - Mode to set ('estimate' or 'precise')
- */
-function setCurrentMode(mode) {
-  state.currentMode = mode;
-}
-
-/**
- * Get tab result for a mode
- * @param {string} mode - Mode to get result for
- * @returns {string|null} Cached HTML result or null
- */
-function getTabResult(mode) {
-  return state.tabResults[mode] || null;
-}
-
-/**
- * Set tab result for a mode
- * @param {string} mode - Mode to set result for
- * @param {string} html - HTML result string
- */
-function setTabResult(mode, html) {
-  state.tabResults[mode] = html;
-}
-
-/**
- * Clear tab result for a mode
- * @param {string} mode - Mode to clear result for
- */
-function clearTabResult(mode) {
-  state.tabResults[mode] = null;
-}
-
-/**
- * Get manual form visibility
- * @returns {boolean} Whether manual form is visible
- */
-function getManualFormVisible() {
-  return state.manualFormVisible;
-}
-
-/**
- * Set manual form visibility
- * @param {boolean} visible - Whether manual form should be visible
- */
-function setManualFormVisible(visible) {
-  state.manualFormVisible = visible;
-}
+import { initUIHandlers, hideResults, setEstimadoData, setInvoiceData } from './ui-handlers.js';
 
 // =============================================================================
 // FORM HANDLERS
@@ -151,7 +74,7 @@ async function handleEstimateSubmit(e) {
     };
     
     // 6. Renderizar resultado
-    renderResult(enrichedBest, consumption, DEFAULT_POWER, monthlyBill, null, true, getCurrentMode(), setTabResult);
+    renderResult(enrichedBest, consumption, DEFAULT_POWER, monthlyBill, null, true);
     
   } catch (error) {
     resultDiv.innerHTML = `<p class="error">Erro: ${error.message}</p>`;
@@ -261,7 +184,7 @@ async function handlePreciseSubmit(e) {
     }
     
     // 6. Renderizar resultado (isEstimate: false para modo Preciso)
-    renderResult(enrichedBest, consumption, power, null, savings, false, getCurrentMode(), setTabResult);
+    renderResult(enrichedBest, consumption, power, null, savings, false);
     
   } catch (error) {
     resultDiv.innerHTML = `<p class="error">Erro: ${error.message}</p>`;
@@ -274,11 +197,11 @@ async function handlePreciseSubmit(e) {
 // =============================================================================
 
 /**
- * Wrapper for calculateFromPDF that provides current mode
+ * Compare the offers for the invoice read from the PDF
  * @returns {Promise<void>}
  */
 async function calculateFromPDFWrapper() {
-  return calculateFromPDF(renderResult, getCurrentMode(), setTabResult);
+  return calculateFromPDF(renderResult);
 }
 
 // =============================================================================
@@ -335,10 +258,10 @@ function init() {
   }
   
   // Inicializar tabs
-  initTabs(setCurrentMode, getTabResult);
+  initTabs();
   
   // Inicializar PDF upload (pass calculateFromPDFWrapper as callback for auto-calculation)
-  initPDFUpload(clearTabResult, setManualFormVisible, getManualFormVisible, calculateFromPDFWrapper);
+  initPDFUpload(calculateFromPDFWrapper);
   
   // Event delegation for manual-link (can be recreated dynamically)
   const inputSlot = document.getElementById('input-slot');
@@ -357,8 +280,6 @@ function init() {
         inputSlot.classList.add('manual-mode');
       }
       // CSS handles visibility via .preciso-mode.manual-mode .manual-form
-      
-      setManualFormVisible(true);
     }
   });
   
@@ -372,8 +293,6 @@ function init() {
         inputSlot.classList.remove('manual-mode');
         // Keep preciso-mode class - CSS shows drop-area when manual-mode is removed
       }
-      
-      setManualFormVisible(false);
     });
   }
   
@@ -385,7 +304,6 @@ function init() {
     hideResults();
     document.getElementById('tab-preciso')?.click();
     inputSlot?.classList.add('preciso-mode', 'manual-mode');
-    setManualFormVisible(true);
     document.getElementById('consumption').value = consumption;
     document.getElementById('power').value = power;
     document.getElementById('tariff-type').value = tariff;

@@ -679,7 +679,7 @@ files each row counts. To raise a limit, change it here and give the reason in t
 | `index.html` | the page, with its icon sprite | 16 KB |
 | `sobre.html` | the page, with its icon sprite | 16 KB |
 | `CSS` | every file in css/, summed | 32 KB |
-| `JavaScript` | every file in js/, plus components.js, summed | 40 KB |
+| `JavaScript` | every file in js/, summed | 40 KB |
 | `Landing page` | index.html, all CSS and JS, and Inter latin | 150 KB |
 <!-- /size-check -->
 

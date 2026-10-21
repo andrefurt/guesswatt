@@ -28,7 +28,6 @@ const PRECACHE = [
   'index.md',
   'sobre.md',
   'manifest.webmanifest',
-  'components.js',
   'css/tokens.css',
   'css/reset.css',
   'css/base.css',

@@ -145,13 +145,9 @@ export function initTooltips() {
 
 /**
  * Initialize tabs functionality
- * @param {Function} setCurrentMode - Function to set current mode
- * @param {Function} getTabResult - Function to get tab result
  */
-export function initTabs(setCurrentMode, getTabResult) {
+export function initTabs() {
   const tabs = document.querySelectorAll('.tab');
-  const forms = document.querySelectorAll('.mode-form');
-  const resultDiv = document.getElementById('result');
   const tabsWrapper = document.getElementById('tabs-wrapper');
   const tabsIndicator = document.getElementById('tabs-indicator');
   const tabEstimado = document.getElementById('tab-estimado');
@@ -187,7 +183,6 @@ export function initTabs(setCurrentMode, getTabResult) {
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const mode = tab.dataset.mode;
-      setCurrentMode(mode);
       
       // Update tab active state
       tabs.forEach(t => {
@@ -213,18 +208,6 @@ export function initTabs(setCurrentMode, getTabResult) {
       
       // CSS now handles all visibility via parent .preciso-mode and .manual-mode classes
       // No need to toggle .active on individual elements
-      
-      // Mostrar/esconder resultado da tab atual
-      const cachedResult = getTabResult(mode);
-      if (resultDiv) {
-        if (cachedResult) {
-          resultDiv.innerHTML = cachedResult;
-          resultDiv.style.display = 'block';
-        } else {
-          resultDiv.innerHTML = '';
-          resultDiv.style.display = 'none';
-        }
-      }
     });
   });
 }
