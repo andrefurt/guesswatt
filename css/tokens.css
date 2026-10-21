@@ -4,7 +4,8 @@
  * Complete design system tokens.
  * All visual decisions derive from these tokens.
  * 
- * Color Format: OKLCH with hex fallback for browser compatibility
+ * Colour: OKLCH, no fallback. A tint of a role is derived from it, oklch(from the role l c h / N),
+ *   so the dark block redefines the roles and the tints follow
  * Typography: Fluid clamp() values for responsive scaling
  * Spacing: Fluid clamp() values for responsive spacing
  */
@@ -40,6 +41,11 @@
   /* ═══════════════════════════════════════════════════════════
      COLORS - one name per role (audit 4.16). OKLCH only: every browser the site targets reads it.
      ═══════════════════════════════════════════════════════════ */
+
+  /* Ink: what borders and track tints are drawn with, black on light and white on dark */
+  --color-ink: oklch(0% 0 0);
+  /* Positive: the money-saved green of the savings bar, its tint and its glow */
+  --color-positive: oklch(64.5% 0.053 161);
   
   /* Text */
   --color-text: oklch(40% 0.04 135); /* body and UI text */
@@ -56,23 +62,24 @@
   --color-surface: oklch(100% 0 0);
   --color-surface-raised: oklch(95% 0 0); /* active tab, icon tiles, raised blocks */
   --color-surface-card: linear-gradient(90deg, oklch(95% 0 0) 1.07%, oklch(94% 0 0) 99.89%);
-  --color-bg-tabs: rgba(0, 0, 0, 0.03); /* tabs track */
+  --color-surface-overlay: var(--color-surface); /* opaque, so nothing shows through the copy menu */
+  --color-bg-tabs: oklch(from var(--color-ink) l c h / 0.03); /* tabs track */
   --color-bg-drop-area: oklch(92% 0 0);
   --color-bg-drop-area-dragging: oklch(89% 0 0);
   --color-bg-form-input: oklch(97% 0 0);
-  --color-savings-bar-bg: rgba(113, 152, 131, 0.08);
-  --color-warning-soft: rgba(255, 193, 7, 0.1);
+  --color-savings-bar-bg: oklch(from var(--color-positive) l c h / 0.08);
+  --color-warning-soft: oklch(84.4% 0.172 85 / 0.1); /* amber, the data-age notice */
   
-  /* Glass: the white edges and translucent fills the light theme draws with (dark mode retunes them) */
-  --color-highlight: white; /* the 0.5 to 1px inner edge on cards and buttons */
-  --color-highlight-soft: rgba(255, 255, 255, 0.5);
-  --color-highlight-strong: rgba(255, 255, 255, 0.75); /* form field edge */
-  --color-divider: rgba(255, 255, 255, 0.3); /* rows in the result info */
-  --color-divider-strong: rgba(255, 255, 255, 0.4); /* rows in the result card */
-  --color-control: rgba(255, 255, 255, 0.2); /* button and menu fill */
-  --color-control-hover: rgba(255, 255, 255, 0.4);
-  --color-control-subtle: rgba(255, 255, 255, 0.1);
-  --color-surface-sunken: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 64.03%, rgba(0, 0, 0, 0.016) 100%);
+  /* Glass: white edges and translucent white fills, at an opacity per theme (dark mode retunes them) */
+  --color-highlight: oklch(100% 0 0); /* the 0.5 to 1px inner edge on cards and buttons */
+  --color-highlight-soft: oklch(100% 0 0 / 0.5);
+  --color-highlight-strong: oklch(100% 0 0 / 0.75); /* form field edge */
+  --color-divider: oklch(100% 0 0 / 0.3); /* rows in the result info */
+  --color-divider-strong: oklch(100% 0 0 / 0.4); /* rows in the result card */
+  --color-control: oklch(100% 0 0 / 0.2); /* button fill */
+  --color-control-hover: oklch(100% 0 0 / 0.4);
+  --color-control-subtle: oklch(100% 0 0 / 0.1);
+  --color-surface-sunken: linear-gradient(180deg, oklch(0% 0 0 / 0.02) 64.03%, oklch(0% 0 0 / 0.016) 100%);
   --color-hover-tint: oklch(from var(--color-text) l c h / 0.04);
   --color-press-tint: oklch(from var(--color-text) l c h / 0.08);
   --color-backdrop: oklch(0% 0 0 / 0.5);
@@ -80,7 +87,7 @@
   /* Accent */
   --color-accent: oklch(25% 0.02 145);
   --color-accent-hover: oklch(20% 0.02 145);
-  --color-accent-soft: rgba(53, 68, 61, 0.08); /* accent at 8% */
+  --color-accent-soft: oklch(from var(--color-accent) l c h / 0.08);
   
   /* Focus ring: every :focus-visible uses it (reset.css). 12.9:1 on the page background; on dark
      buttons the 2px offset leaves the page colour between button and ring */
@@ -89,11 +96,11 @@
   --focus-ring-offset: 2px;
   
   /* Borders */
-  --color-border: rgba(0, 0, 0, 0.10);
-  --color-border-strong: rgba(0, 0, 0, 0.12);
-  --color-border-dashed: rgba(0, 0, 0, 0.16);
-  --color-border-drag: rgba(0, 0, 0, 0.32); /* drop area while a file is dragged over */
-  --color-border-accent: rgba(53, 68, 61, 0.4); /* accent at 40% */
+  --color-border: oklch(from var(--color-ink) l c h / 0.1);
+  --color-border-strong: oklch(from var(--color-ink) l c h / 0.12);
+  --color-border-dashed: oklch(from var(--color-ink) l c h / 0.16);
+  --color-border-drag: oklch(from var(--color-ink) l c h / 0.32); /* drop area while a file is dragged over */
+  --color-border-accent: oklch(from var(--color-accent) l c h / 0.4);
   
   /* ═══════════════════════════════════════════════════════════
      TYPOGRAPHY - Fluid scaling with clamp()
@@ -188,22 +195,24 @@
      SHADOWS
      ═══════════════════════════════════════════════════════════ */
   
-  --shadow-xs: 0px 2px 4px 0px rgba(0, 0, 0, 0.02); /* Extra small shadow, subtle elevation */
-  --shadow-md: 0px 4px 8px 0px rgba(0, 0, 0, 0.04); /* Medium shadow, cards */
+  /* Shadows are black and highlights white in both themes; the savings bar carries the positive
+     green and the submit ring the accent */
+  --shadow-xs: 0px 2px 4px 0px oklch(0% 0 0 / 0.02); /* Extra small shadow, subtle elevation */
+  --shadow-md: 0px 4px 8px 0px oklch(0% 0 0 / 0.04); /* Medium shadow, cards */
   
-  --shadow-inset-light: -2px 2px 8px 0px rgba(0, 0, 0, 0.04) inset,
-                        2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset; /* Light inset shadow, cards */
-  --shadow-inset-dark: -1px 1px 4px 0px rgba(113, 152, 131, 0.04) inset; /* Dark inset shadow, savings bar */
-  --shadow-savings-bar: 0px 4px 8px 0px rgba(113, 152, 131, 0.08); /* Savings bar outer shadow */
+  --shadow-inset-light: -2px 2px 8px 0px oklch(0% 0 0 / 0.04) inset,
+                        2px -2px 8px 0px oklch(100% 0 0 / 0.3) inset; /* Light inset shadow, cards */
+  --shadow-inset-dark: -1px 1px 4px 0px oklch(from var(--color-positive) l c h / 0.04) inset; /* Dark inset shadow, savings bar */
+  --shadow-savings-bar: 0px 4px 8px 0px oklch(from var(--color-positive) l c h / 0.08); /* Savings bar outer shadow */
   
-  --shadow-button: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
-                   0px 0px 0px 1px #35443D; /* Submit button shadow */
-  --shadow-button-inset: 0px 1px 0px 0px rgba(255, 255, 255, 0.25) inset; /* Button inset highlight */
+  --shadow-button: 0px 1px 2px 0px oklch(0% 0 0 / 0.3),
+                   0px 0px 0px 1px var(--color-accent); /* Submit button shadow */
+  --shadow-button-inset: 0px 1px 0px 0px oklch(100% 0 0 / 0.25) inset; /* Button inset highlight */
   
-  --shadow-icon: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.12),
-                 0px 1px 4px 0px rgba(0, 0, 0, 0.08); /* Icon container shadow */
-  --shadow-icon-inset: 1px -1px 2px 0px rgba(255, 255, 255, 0.5) inset,
-                       -1px 1px 2px 0px rgba(0, 0, 0, 0.04) inset; /* Icon inset shadow */
+  --shadow-icon: 0px 0px 0px 0.5px oklch(0% 0 0 / 0.12),
+                 0px 1px 4px 0px oklch(0% 0 0 / 0.08); /* Icon container shadow */
+  --shadow-icon-inset: 1px -1px 2px 0px oklch(100% 0 0 / 0.5) inset,
+                       -1px 1px 2px 0px oklch(0% 0 0 / 0.04) inset; /* Icon inset shadow */
   
   /* ═══════════════════════════════════════════════════════════
      ANIMATION - Timing and easing
@@ -239,7 +248,8 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   DARK THEME (audit 4.16a): the same roles, retuned. The page background is the dark theme-color
+   DARK THEME (audit 4.16a): the same roles, retuned; the tints derived from a role follow it, and
+   only those whose opacity differs on dark are restated. The page background is the dark theme-color
    both pages already declare (#1C241C), so the browser bar matches. Contrast, measured: text 10:1 or
    more on every surface, secondary text 5:1 or more, errors 5.7:1, the focus ring 11:1.
    ═══════════════════════════════════════════════════════════ */
@@ -250,50 +260,50 @@
     --color-text-secondary: oklch(70% 0.01 0);
     --color-text-field: oklch(97% 0 0);
     --color-text-on-accent: oklch(24.96% 0.0188 145); /* dark text on the light accent */
+    --color-ink: oklch(100% 0 0);
     --color-error: oklch(74% 0.14 27);
     
     --color-bg: oklch(24.96% 0.0188 145); /* #1C241C */
     --color-surface: oklch(31% 0.02 145);
     --color-surface-raised: oklch(29% 0.02 145);
     --color-surface-card: linear-gradient(90deg, oklch(28% 0.02 145) 1.07%, oklch(27% 0.02 145) 99.89%);
-    --color-bg-tabs: rgba(255, 255, 255, 0.04);
+    --color-bg-tabs: oklch(from var(--color-ink) l c h / 0.04);
     --color-bg-drop-area: oklch(22% 0.02 145);
     --color-bg-drop-area-dragging: oklch(26% 0.02 145);
     --color-bg-form-input: oklch(21% 0.015 145);
-    --color-savings-bar-bg: rgba(113, 152, 131, 0.16);
-    --color-warning-soft: rgba(255, 193, 7, 0.12);
+    --color-savings-bar-bg: oklch(from var(--color-positive) l c h / 0.16);
+    --color-warning-soft: oklch(84.4% 0.172 85 / 0.12);
     
-    --color-highlight: rgba(255, 255, 255, 0.08);
-    --color-highlight-soft: rgba(255, 255, 255, 0.06);
-    --color-highlight-strong: rgba(255, 255, 255, 0.12);
-    --color-divider: rgba(255, 255, 255, 0.08);
-    --color-divider-strong: rgba(255, 255, 255, 0.1);
-    --color-control: rgba(255, 255, 255, 0.04);
-    --color-control-hover: rgba(255, 255, 255, 0.08);
-    --color-control-subtle: rgba(255, 255, 255, 0.03);
-    --color-surface-sunken: linear-gradient(180deg, rgba(0, 0, 0, 0.12) 64.03%, rgba(0, 0, 0, 0.1) 100%);
+    --color-highlight: oklch(100% 0 0 / 0.08);
+    --color-highlight-soft: oklch(100% 0 0 / 0.06);
+    --color-highlight-strong: oklch(100% 0 0 / 0.12);
+    --color-divider: oklch(100% 0 0 / 0.08);
+    --color-divider-strong: oklch(100% 0 0 / 0.1);
+    --color-control: oklch(100% 0 0 / 0.04);
+    --color-control-hover: oklch(100% 0 0 / 0.08);
+    --color-control-subtle: oklch(100% 0 0 / 0.03);
+    --color-surface-sunken: linear-gradient(180deg, oklch(0% 0 0 / 0.12) 64.03%, oklch(0% 0 0 / 0.1) 100%);
     
     --color-accent: oklch(88% 0.05 140); /* light on dark: the submit fill and the focus ring */
     --color-accent-hover: oklch(94% 0.04 140);
-    --color-accent-soft: rgba(199, 224, 193, 0.08);
     
-    --color-border: rgba(255, 255, 255, 0.12);
-    --color-border-strong: rgba(255, 255, 255, 0.16);
-    --color-border-dashed: rgba(255, 255, 255, 0.22);
-    --color-border-drag: rgba(255, 255, 255, 0.4);
-    --color-border-accent: rgba(199, 224, 193, 0.5);
+    --color-border: oklch(from var(--color-ink) l c h / 0.12);
+    --color-border-strong: oklch(from var(--color-ink) l c h / 0.16);
+    --color-border-dashed: oklch(from var(--color-ink) l c h / 0.22);
+    --color-border-drag: oklch(from var(--color-ink) l c h / 0.4);
+    --color-border-accent: oklch(from var(--color-accent) l c h / 0.5);
     
     /* White inset highlights would glow on dark: they become faint */
-    --shadow-inset-light: -2px 2px 8px 0px rgba(0, 0, 0, 0.2) inset,
-                          2px -2px 8px 0px rgba(255, 255, 255, 0.03) inset;
-    --shadow-button: 0px 1px 2px 0px rgba(0, 0, 0, 0.5),
-                     0px 0px 0px 1px oklch(80% 0.04 135);
-    --shadow-button-inset: 0px 1px 0px 0px rgba(255, 255, 255, 0.3) inset;
-    --shadow-icon: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.4),
-                   0px 1px 4px 0px rgba(0, 0, 0, 0.3);
-    --shadow-icon-inset: 1px -1px 2px 0px rgba(255, 255, 255, 0.04) inset,
-                         -1px 1px 2px 0px rgba(0, 0, 0, 0.2) inset;
-    --shadow-xs: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0px 4px 8px 0px rgba(0, 0, 0, 0.3);
+    --shadow-inset-light: -2px 2px 8px 0px oklch(0% 0 0 / 0.2) inset,
+                          2px -2px 8px 0px oklch(100% 0 0 / 0.03) inset;
+    --shadow-button: 0px 1px 2px 0px oklch(0% 0 0 / 0.5),
+                     0px 0px 0px 1px oklch(80% 0.04 135); /* a step below the accent; 3.1 reworks submit */
+    --shadow-button-inset: 0px 1px 0px 0px oklch(100% 0 0 / 0.3) inset;
+    --shadow-icon: 0px 0px 0px 0.5px oklch(0% 0 0 / 0.4),
+                   0px 1px 4px 0px oklch(0% 0 0 / 0.3);
+    --shadow-icon-inset: 1px -1px 2px 0px oklch(100% 0 0 / 0.04) inset,
+                         -1px 1px 2px 0px oklch(0% 0 0 / 0.2) inset;
+    --shadow-xs: 0px 2px 4px 0px oklch(0% 0 0 / 0.2);
+    --shadow-md: 0px 4px 8px 0px oklch(0% 0 0 / 0.3);
   }
 }
