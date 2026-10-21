@@ -3,12 +3,24 @@
  * Data loading, phone and name formatting, and small helpers
  */
 
+let offersRequest = null;
+
 /**
- * Load data/offers.json, with data/tar.json and the data date in parallel
+ * Load data/offers.json, with data/tar.json and the data date in parallel.
+ * Fetched once per page load: later calls share the same promise, and a failed load is
+ * forgotten so the next call retries. Callers must not mutate the returned offers.
  * @returns {Promise<{offers: Array<Object>, tar: Object|null, dataDate: Date|null}>}
  * @throws {Error} When offers.json cannot be loaded
  */
-export async function loadOffers() {
+export function loadOffers() {
+  offersRequest ??= fetchOffers().catch(error => {
+    offersRequest = null;
+    throw error;
+  });
+  return offersRequest;
+}
+
+async function fetchOffers() {
   const tarRequest = loadAccessTariffs();
   const dataDateRequest = loadDataDate();
 
