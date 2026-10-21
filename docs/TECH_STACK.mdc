@@ -56,7 +56,7 @@ css/
 └── main.css                      → App-specific styles (linked last)
 ```
 
-**Modular approach**: Each component type has its own CSS file for maintainability. Both pages link every file with its own `<link>`, in cascade order (tokens, reset, base, animations, components, utilities, main). No `@import`: it chains a request after main.css and delays first paint (audit PERF-2). A new CSS file gets a `<link>` in index.html and sobre.html.
+**Modular approach**: Each component type has its own CSS file for maintainability. Both pages link every file with its own `<link>`, in cascade order (tokens, reset, base, animations, components, utilities, main). No `@import`: it chains a request after main.css and delays first paint (audit PERF-2). A new CSS file gets a `<link>` in index.html and sobre.html, and an entry in `PRECACHE` in `sw.js` (the selftest fails without it).
 
 ### Color System (OKLCH)
 
