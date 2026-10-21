@@ -8,7 +8,7 @@ Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.
 
 ## Porquê
 
-Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem comparar — e perde dinheiro.
+Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem comparar, e perde dinheiro.
 
 Mudar de fornecedor é gratuito, demora no máximo 3 semanas e não requer qualquer intervenção técnica. Mas quase ninguém o faz.
 
@@ -28,7 +28,7 @@ Para cada tarifa, calculamos:
 
 ## Fonte dos dados
 
-Os dados vêm directamente da ERSE:
+Os dados vêm diretamente da ERSE:
 - Preços por tarifa, potência e tipo de contagem
 - Condições comerciais (fidelização, contactos, links)
 
@@ -37,12 +37,12 @@ Usamos os dados publicados pela ERSE; a data dos preços aparece no fundo de cad
 ## Limitações
 
 - Estimativas baseadas em consumo médio podem variar ±15% do real
-- Tarifas indexadas (preço variável) não são comparáveis directamente
-- Algumas ofertas têm condições especiais não reflectidas nos dados
+- Tarifas indexadas (preço variável) não são comparáveis diretamente
+- Algumas ofertas têm condições especiais não refletidas nos dados
 
 ## Quem faz isto
 
-Projecto pessoal de Andrefurt. Código aberto, sem fins lucrativos.
+Projeto pessoal de Andrefurt. Código aberto, sem fins lucrativos.
 
 GitHub: https://github.com/andrefurt/guesswatt
 

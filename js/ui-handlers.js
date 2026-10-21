@@ -8,7 +8,7 @@
  * - Delete button: returns to input view with animation
  */
 
-import { toTitleCase } from './utils.js';
+import { toTitleCase, formatEuro, formatNumber } from './utils.js';
 
 import { resetPDFData } from './pdf-service.js';
 
@@ -98,8 +98,8 @@ function initCopyButton() {
       const isAboutPage = window.location.pathname.includes('sobre');
       const pageTitle = isAboutPage ? 'Sobre' : 'GuessWatts';
       const pageDescription = isAboutPage 
-        ? 'Informação sobre o projecto GuessWatts'
-        : 'Comparador de tarifas de electricidade em Portugal';
+        ? 'Informação sobre o projeto GuessWatts'
+        : 'Comparador de tarifas de eletricidade em Portugal';
       
       // Use production URL instead of localhost
       const currentUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -477,10 +477,10 @@ export function setInvoiceData(data, fromPDF = false) {
     pillTariff.textContent = toTitleCase(data.tariff);
   }
   if (pillConsumption && data.consumption) {
-    pillConsumption.textContent = `${data.consumption} kWh`;
+    pillConsumption.textContent = `${formatNumber(data.consumption)} kWh`;
   }
   if (pillPower && data.power) {
-    pillPower.textContent = `${data.power} kVA`;
+    pillPower.textContent = `${formatNumber(data.power)} kVA`;
   }
   
   // Show/hide PDF icon based on source
@@ -505,7 +505,7 @@ export function setEstimadoData(amount) {
   
   const pillAmount = document.getElementById('pill-amount');
   if (pillAmount) {
-    pillAmount.textContent = `€${amount}`;
+    pillAmount.textContent = formatEuro(amount, Number.isInteger(amount) ? 0 : 2);
   }
 }
 

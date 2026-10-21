@@ -295,7 +295,7 @@ Valor:  valores de dez. 2025     (mês e ano dos preços, de meta.json)
 **Modo estimado** (substitui "Poupas" quando só há o valor da fatura; ADR-011):
 
 ```
-A melhor oferta custa cerca de €66/mês. Metade das ofertas custa mais de €87/mês.
+A melhor oferta custa cerca de 66 €/mês. Metade das ofertas custa mais de 87 €/mês.
 [Para saberes quanto poupas, usa o modo Preciso.]
 ```
 
@@ -306,8 +306,8 @@ A melhor oferta custa cerca de €66/mês. Metade das ofertas custa mais de €8
 **Sem poupança para mostrar** (`resultVerdict` em `js/ui-renderer.js`; o cartão nunca fica calado):
 
 ```
-Poupança de €1/mês ou menos (Preciso):
-  Já tens uma boa tarifa. Nenhuma oferta te poupa mais de €1/mês.
+Poupança de 1 €/mês ou menos (Preciso):
+  Já tens uma boa tarifa. Nenhuma oferta te poupa mais de 1 €/mês.
 
 Fatura ao nível da oferta mais barata (Estimado, no topo da caixa do mercado):
   Já tens uma boa tarifa. A tua fatura já está ao nível da oferta mais barata.
@@ -321,7 +321,7 @@ Operador sem tarifas para esta potência e tipo de tarifa:
   por isso não sabemos quanto poupas.
 ```
 
-O limite de €1/mês (`GOOD_TARIFF_MARGIN`): abaixo disso, mudar não compensa o trabalho.
+O limite de 1 €/mês (`GOOD_TARIFF_MARGIN`): abaixo disso, mudar não compensa o trabalho.
 
 ---
 

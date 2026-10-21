@@ -12,7 +12,7 @@ const tooltipContent = {
   'tarifa-simples': 'Preço único a qualquer hora do dia.',
   'tarifa-bihoraria': 'Dois preços: mais barato à noite (22h-8h), mais caro de dia.',
   'tarifa-trihoraria': 'Três preços: vazio (noite), cheias (dia), ponta (mais caro, horas de pico).',
-  'cpe': 'Código de Ponto de Entrega. Identifica o teu contador. Está na factura, normalmente no canto superior.',
+  'cpe': 'Código de Ponto de Entrega. Identifica o teu contador. Está na fatura, normalmente no canto superior.',
   'consumo-mensal': 'Quantidade de energia que gastas por mês, medida em kWh.',
   'termo-fixo': 'Valor que pagas por dia, independentemente do consumo.',
   'termo-variavel': 'Preço por cada kWh que consomes.',

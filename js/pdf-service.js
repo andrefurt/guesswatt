@@ -5,7 +5,7 @@
 
 import { PROVIDERS } from './config.js';
 import { findBestOfferForTariff, calculateMonthlyCost } from './calculator.js';
-import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
+import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold, formatNumber } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { setInvoiceData } from './ui-handlers.js';
 
@@ -363,7 +363,7 @@ export function showPDFData(data, onDataShown) {
   if (!dropArea || !dropAreaText) return;
   
   // Mostrar dados extraídos no drop area
-  const providerNameRaw = data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detectado';
+  const providerNameRaw = data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detetado';
   const providerName = toTitleCase(providerNameRaw);
   
   // Build tariff name with cycle info if available
@@ -374,10 +374,10 @@ export function showPDFData(data, onDataShown) {
   // Update drop area text to show loaded state
   // Values read from the PDF go in as text, never as markup
   const loaded = document.createElement('p');
-  loaded.textContent = '✓ Factura carregada';
+  loaded.textContent = '✓ Fatura carregada';
   const summary = document.createElement('p');
   summary.className = 'pdf-data-summary';
-  summary.textContent = `${providerName} · ${tariffName} · ${data.consumption} kWh · ${data.power} kVA`;
+  summary.textContent = `${providerName} · ${tariffName} · ${formatNumber(data.consumption)} kWh · ${formatNumber(data.power)} kVA`;
   dropAreaText.replaceChildren(loaded, summary);
   
   // Hide manual link
@@ -449,7 +449,7 @@ export function clearPDF(clearTabResult) {
  */
 export async function handlePDFFile(file, clearTabResult, onDataShown) {
   if (file.type !== 'application/pdf') {
-    alert('Por favor selecciona um ficheiro PDF.');
+    alert('Por favor seleciona um ficheiro PDF.');
     return;
   }
   
@@ -467,7 +467,7 @@ export async function handlePDFFile(file, clearTabResult, onDataShown) {
       pdfData = extracted;
       showPDFData(extracted, onDataShown);
     } else {
-      alert('Não foi possível extrair dados desta factura. Tenta introduzir manualmente.');
+      alert('Não foi possível extrair dados desta fatura. Tenta introduzir manualmente.');
       clearPDF(clearTabResult);
     }
   } catch (error) {
@@ -552,7 +552,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
     // Juntar a data dos preços (mostrada nas ofertas indexadas)
     const enrichedBest = { ...best, dataDate, currentProvider: pdfData.provider || null };
     
-    // Calcular poupança vs operador actual (se detectado)
+    // Calcular poupança vs operador actual (se detetado)
     let savings = null;
     if (pdfData.provider) {
       // Normalize power for comparison (use same tolerance as findBestOfferForTariff)

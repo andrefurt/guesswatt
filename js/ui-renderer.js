@@ -5,7 +5,7 @@
  */
 
 import { PROVIDERS } from './config.js';
-import { formatPhone, toTitleCase, formatTariffName, formatShortDataMonth } from './utils.js';
+import { formatPhone, toTitleCase, formatTariffName, formatShortDataMonth, formatEuro, formatNumber } from './utils.js';
 import { initTooltips } from './ui-components.js';
 import { showResults, getPillMode } from './ui-handlers.js';
 
@@ -126,7 +126,7 @@ function resultVerdict(best, monthlyBill, savings, isEstimate) {
   if (savings) {
     return savings.monthly > GOOD_TARIFF_MARGIN
       ? null
-      : { text: `Já tens uma boa tarifa. Nenhuma oferta te poupa mais de €${GOOD_TARIFF_MARGIN}/mês.` };
+      : { text: `Já tens uma boa tarifa. Nenhuma oferta te poupa mais de ${formatEuro(GOOD_TARIFF_MARGIN, 0)}/mês.` };
   }
   if (!best.currentProvider) {
     return { text: 'Escolhe o teu operador para saberes quanto poupas.', chooseProvider: true };
@@ -167,9 +167,9 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   slot('provider-icon').append(...createProviderIcon(enrichedBest.COM, enrichedBest.website));
   slot('provider-name').textContent = providerName;
   slot('provider-plan').textContent = toTitleCase(formatTariffName(enrichedBest.tariffName || 'Tarifa Simples', enrichedBest.Contagem || 1, enrichedBest.cycleType || null));
-  slot('consumption').textContent = `${consumption} kWh`;
-  slot('power').textContent = `${power} kVA`;
-  slot('monthly-cost').textContent = `€${enrichedBest.monthlyCost.toFixed(2)}`;
+  slot('consumption').textContent = `${formatNumber(consumption)} kWh`;
+  slot('power').textContent = `${formatNumber(power)} kVA`;
+  slot('monthly-cost').textContent = formatEuro(enrichedBest.monthlyCost);
 
   if (formattedPhone) {
     slot('phone').querySelector('button').dataset.phone = rawPhone;
@@ -199,8 +199,8 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   }
 
   if (savings && savings.monthly > GOOD_TARIFF_MARGIN) {
-    slot('savings-monthly').textContent = `€${savings.monthly.toFixed(2)}/mês,`;
-    slot('savings-yearly').textContent = `€${savings.yearly.toFixed(2)}/ano`;
+    slot('savings-monthly').textContent = `${formatEuro(savings.monthly)}/mês,`;
+    slot('savings-yearly').textContent = `${formatEuro(savings.yearly)}/ano`;
   } else {
     slot('savings').remove();
   }
@@ -229,7 +229,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   // Estimate mode knows the bill, not the tariff behind it, so it places the best offer in the
   // market instead of claiming a saving (ADR-011 superseded); "Poupas" is for Preciso only
   if (isEstimate && typeof enrichedBest.marketMedianCost === 'number') {
-    slot('market-text').textContent = `A melhor oferta custa cerca de €${Math.round(enrichedBest.monthlyCost)}/mês. Metade das ofertas custa mais de €${Math.round(enrichedBest.marketMedianCost)}/mês.`;
+    slot('market-text').textContent = `A melhor oferta custa cerca de ${formatEuro(enrichedBest.monthlyCost, 0)}/mês. Metade das ofertas custa mais de ${formatEuro(enrichedBest.marketMedianCost, 0)}/mês.`;
   } else {
     slot('market').remove();
   }
@@ -262,15 +262,15 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   const resultsSubtitle = document.getElementById('results-subtitle');
   if (resultsSubtitle) {
     if (isEstimate) {
-      resultsSubtitle.textContent = `Estimativa feita tendo por base uma tarifa simples, uma família de 2 adultos e 1 criança, com uma potência contratada de ${power} kVA.`;
+      resultsSubtitle.textContent = `Estimativa feita tendo por base uma tarifa simples, uma família de 2 adultos e 1 criança, com uma potência contratada de ${formatNumber(power)} kVA.`;
     } else {
-      resultsSubtitle.textContent = `Cálculo preciso com base nos teus dados: ${consumption} kWh de consumo mensal e ${power} kVA de potência contratada.`;
+      resultsSubtitle.textContent = `Cálculo preciso com base nos teus dados: ${formatNumber(consumption)} kWh de consumo mensal e ${formatNumber(power)} kVA de potência contratada.`;
     }
   }
   
   // Update input pill amount (only for estimado mode, preciso uses setInvoiceData)
   if (pillAmount && monthlyBill && getPillMode() === 'estimado') {
-    pillAmount.textContent = `€${monthlyBill}`;
+    pillAmount.textContent = formatEuro(monthlyBill, Number.isInteger(monthlyBill) ? 0 : 2);
   }
   
   // Force browser to process DOM changes before triggering animations
