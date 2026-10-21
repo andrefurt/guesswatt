@@ -484,12 +484,12 @@ Also: DS-11, DS-16, DS-17, MOT-7, PWA-10 (doc part).
 
 ## 4. Questions for the owner
 
-Most important first, each with a recommendation.
+Most important first, each with a recommendation. The owner answered questions 1 to 4 on 2026-10-21, all as recommended; the rest are open.
 
-1. **Result heading (R-1).** Should the heading carry the verdict (the saving, "já tens uma boa tarifa", or the market figure) instead of a fixed "Melhor proposta"? *Recommendation: yes. The offer becomes the support under it.*
-2. **Dark ramp (D-1).** Keep #1C241C as a brand colour, or go near-neutral? *Recommendation: near-neutral surfaces (chroma 0.004 or less on hue 145) with the page bg about L 19%, green only in text-strong, links and accent, and theme-color following the bg.*
-3. **Fluidity (L-3).** *Recommendation: fluid where it shows (headings and vertical rhythm on a 320 to 1280 clamp), static rem for UI text and control padding, and a header that wraps on content. Not 1 px ramps everywhere.*
-4. **Touch targets (C-4).** A 44 px minimum on touch screens only (`pointer: coarse`), keeping the desktop density? *Recommendation: yes.*
+1. **Result heading (R-1).** Should the heading carry the verdict (the saving, "já tens uma boa tarifa", or the market figure) instead of a fixed "Melhor proposta"? *Recommendation: yes. The offer becomes the support under it.* **Decision (2026-10-21): yes.**
+2. **Dark ramp (D-1).** Keep #1C241C as a brand colour, or go near-neutral? *Recommendation: near-neutral surfaces (chroma 0.004 or less on hue 145) with the page bg about L 19%, green only in text-strong, links and accent, and theme-color following the bg.* **Decision (2026-10-21): near-neutral, as recommended.**
+3. **Fluidity (L-3).** *Recommendation: fluid where it shows (headings and vertical rhythm on a 320 to 1280 clamp), static rem for UI text and control padding, and a header that wraps on content. Not 1 px ramps everywhere.* **Decision (2026-10-21): fluid where it shows, as recommended.**
+4. **Touch targets (C-4).** A 44 px minimum on touch screens only (`pointer: coarse`), keeping the desktop density? *Recommendation: yes.* **Decision (2026-10-21): yes, touch only.**
 5. **Menu surface (L-4).** A new opaque surface token for the menu in both themes? *Recommendation: yes.*
 6. **Result entrance (M-1).** The full entrance on every submit, or on the first result only? *Recommendation: the first result only, then a 150 ms fade.* Related: should the tab indicator move as one piece (its width snaps today, by design)? *Recommendation: yes, with `clip-path` or an inner `scaleX`, both compositor-only, and the TECH_STACK motion rule amended to allow clip-path.*
 7. **PDF offline (P-2).** A separate vendor cache plus an honest message, or precache PDF.js (about 378 KB gzip per visitor)? *Recommendation: the separate cache, no precache.*
