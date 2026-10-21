@@ -1,6 +1,6 @@
 /**
  * UI Handlers Module
- * The logo link, the delete button, the About panel, results visibility and the input pill.
+ * The logo link, the delete button, results visibility and the input pill.
  * The copy menu is in page-actions.js, which sobre.html loads on its own.
  */
 
@@ -291,87 +291,7 @@ function initLogoLink() {
   });
 }
 
-// =============================================================================
-// ABOUT PANEL
-// =============================================================================
-
-/**
- * Initialize about panel
- */
-function initAboutPanel() {
-  const aboutBtn = document.getElementById('about-btn');
-  const aboutOverlay = document.getElementById('about-panel-overlay');
-  const aboutPanel = document.getElementById('about-panel');
-  const aboutClose = document.getElementById('about-panel-close');
-  
-  if (!aboutBtn || !aboutOverlay || !aboutPanel || !aboutClose) return;
-  
-  // Open panel
-  aboutBtn.addEventListener('click', () => {
-    aboutOverlay.setAttribute('aria-hidden', 'false');
-    aboutBtn.setAttribute('aria-expanded', 'true');
-    aboutOverlay.classList.add('is-open');
-    // Focus close button for accessibility
-    setTimeout(() => aboutClose.focus(), 100);
-    // Prevent body scroll
-    document.body.style.overflow = 'hidden';
-  });
-  
-  // Close panel
-  function closePanel() {
-    aboutOverlay.setAttribute('aria-hidden', 'true');
-    aboutBtn.setAttribute('aria-expanded', 'false');
-    aboutOverlay.classList.remove('is-open');
-    // Restore body scroll
-    document.body.style.overflow = '';
-    // Return focus to button
-    aboutBtn.focus();
-  }
-  
-  aboutClose.addEventListener('click', closePanel);
-  
-  // Close on overlay click
-  aboutOverlay.addEventListener('click', (e) => {
-    if (e.target === aboutOverlay) {
-      closePanel();
-    }
-  });
-  
-  // Close on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && aboutOverlay.classList.contains('is-open')) {
-      closePanel();
-    }
-  });
-  
-  // Trap focus within panel
-  aboutPanel.addEventListener('keydown', (e) => {
-    if (e.key !== 'Tab') return;
-    
-    const focusableElements = aboutPanel.querySelectorAll(
-      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-    
-    if (e.shiftKey) {
-      // Shift + Tab
-      if (document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      // Tab
-      if (document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement.focus();
-      }
-    }
-  });
-}
-
 export function initUIHandlers() {
   initLogoLink();
   initDeleteButton();
-  initAboutPanel();
 }

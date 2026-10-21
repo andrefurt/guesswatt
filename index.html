@@ -213,12 +213,12 @@
 
       <div class="top-bar-actions">
         <div class="btn-slot">
-          <button class="btn" id="about-btn" type="button" aria-label="Saber mais sobre GuessWatts" aria-expanded="false" aria-controls="about-panel">
+          <a href="sobre.html" class="btn" id="about-btn">
             <span class="btn-icon" aria-hidden="true">
               <svg class="icon" aria-hidden="true"><use href="#ph-info-duotone"/></svg>
             </span>
             <span>Sobre</span>
-          </button>
+          </a>
         </div>
         <div class="btn-slot">
           <div class="segmented-btn">
@@ -635,79 +635,6 @@
           <span>Estes preços têm mais de 45 dias. Confirma no site do operador antes de mudar.</span>
         </p>
       </footer>
-    </div>
-  </div>
-
-  <!-- About Panel -->
-  <div class="about-panel-overlay" id="about-panel-overlay" aria-hidden="true">
-    <div class="about-panel" id="about-panel" role="dialog" aria-modal="true" aria-labelledby="about-panel-title">
-      <div class="about-panel-header">
-        <h1 id="about-panel-title" class="about-title">GuessWatts</h1>
-        <button class="about-panel-close" id="about-panel-close" type="button" aria-label="Fechar painel">
-          <span class="btn-icon" aria-hidden="true">
-            <svg class="icon" aria-hidden="true"><use href="#ph-x"/></svg>
-          </span>
-        </button>
-      </div>
-      <div class="about-panel-content">
-        <section aria-labelledby="what-is" class="about-section">
-          <h2 id="what-is" class="about-heading">O que é isto</h2>
-          <p class="about-text">GuessWatts compara tarifas de eletricidade em Portugal. Mostras quanto pagas, nós dizemos se estás a pagar demais e qual a melhor alternativa.</p>
-          <p class="about-text">Não somos uma empresa de energia. Não vendemos nada. Não ganhamos comissões.</p>
-        </section>
-        
-        <section aria-labelledby="why" class="about-section">
-          <h2 id="why" class="about-heading">Porquê</h2>
-          <p class="about-text">Portugal tem um mercado livre de eletricidade desde 2006. Existem mais de 40 comercializadores e centenas de tarifas diferentes. A maioria das pessoas fica no mesmo fornecedor durante anos sem mudar, a gastar mais do que devia.</p>
-          <p class="about-text">Mudar de fornecedor é gratuito, demora no máximo 3 semanas e não requer qualquer intervenção técnica. Mas quase ninguém o faz.</p>
-          <p class="about-text">GuessWatts existe para quebrar essa inércia.</p>
-        </section>
-        
-        <section aria-labelledby="how-it-works" class="about-section">
-          <h2 id="how-it-works" class="about-heading">Como funciona</h2>
-          <p class="about-text">GuessWatts oferece duas formas de calcular:</p>
-          <p class="about-text"><strong>Modo Estimado:</strong> Introduzes apenas o valor que pagas por mês (em euros). O sistema estima o teu consumo com base nos dados médios do mercado e mostra-te a melhor oferta disponível.</p>
-          <p class="about-text"><strong>Modo Preciso:</strong> Podes fazer o upload da tua fatura em PDF (o sistema extrai automaticamente os dados) ou introduzir manualmente o consumo, potência contratada e tipo de tarifa. Com estes dados, o cálculo é mais exato.</p>
-          <p class="about-text">Em ambos os casos, o sistema compara todas as ofertas disponíveis no mercado português e apresenta-te a melhor opção, incluindo quanto poupas por ano e os contactos do comercializador.</p>
-        </section>
-        
-        <section aria-labelledby="how-calculate" class="about-section">
-          <h2 id="how-calculate" class="about-heading">Como calculamos</h2>
-          <p class="about-text">Usamos os dados oficiais da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a> (Entidade Reguladora dos Serviços Energéticos), a mesma fonte usada pelo simulador oficial.</p>
-          <p class="about-text">Para cada tarifa, calculamos:</p>
-          <ul class="about-list">
-            <li>Termo fixo (€/dia) × 30 dias</li>
-            <li>Termo variável (€/kWh) × consumo mensal (ajustado conforme o tipo de tarifa: simples, bi-horária ou tri-horária)</li>
-            <li>Taxas: contribuição audiovisual, IEC e taxa da DGEG</li>
-            <li>IVA a 6% nos primeiros 200 kWh do mês (300 kWh em casas com 5 ou mais pessoas), até 6,9 kVA</li>
-            <li>IVA a 6% na parte do termo fixo que paga o acesso às redes, até 3,45 kVA</li>
-            <li>IVA a 23% no resto, exceto na contribuição audiovisual, que paga 6%</li>
-          </ul>
-          <p class="about-text">Comparamos todas as ofertas disponíveis para o teu perfil (potência contratada e tipo de tarifa) e ordenamos por custo anual efetivo. Por predefinição, excluímos ofertas com fidelização obrigatória.</p>
-        </section>
-        
-        <section aria-labelledby="data-source" class="about-section">
-          <h2 id="data-source" class="about-heading">Fonte dos dados</h2>
-          <p class="about-text">Os dados vêm diretamente da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a>:</p>
-          <ul class="about-list">
-            <li>Preços por tarifa, potência contratada e tipo de contagem</li>
-            <li>Condições comerciais (fidelização, contactos telefónicos, links para adesão)</li>
-            <li>Informações sobre comercializadores e logótipos</li>
-          </ul>
-          <p class="about-text">Usamos os dados publicados pela <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a>; a data dos preços aparece no fundo de cada página. O processamento é feito localmente no teu navegador: os teus dados nunca saem do teu dispositivo.</p>
-        </section>
-        
-        <section aria-labelledby="limitations" class="about-section">
-          <h2 id="limitations" class="about-heading">Limitações</h2>
-          <p class="about-text">O modo estimado baseia-se em médias do mercado e pode variar até ±15% do valor real. Para maior precisão, usa o modo preciso com a tua fatura.</p>
-          <p class="about-text">Tarifas indexadas (com preço variável consoante o mercado) não são diretamente comparáveis com tarifas fixas. Algumas ofertas podem ter condições especiais ou promoções não refletidas nos dados oficiais.</p>
-          <p class="about-text">O cálculo assume que o teu perfil de consumo se mantém constante ao longo do ano. Se tens variações sazonais significativas, os resultados podem diferir.</p>
-        </section>
-        
-        <section aria-labelledby="who" class="about-section">
-          <p class="about-text">Sugestões, correções ou contribuições: <a href="https://github.com/andrefurt/guesswatt" target="_blank" rel="noopener" class="about-link">github.com/andrefurt/guesswatt</a></p>
-        </section>
-      </div>
     </div>
   </div>
 

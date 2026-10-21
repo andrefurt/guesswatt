@@ -126,12 +126,16 @@
     position: relative;
   }
   
+  /* A hidden view is also visibility: hidden, so its controls leave the tab order and the
+     accessibility tree. visibility flips at the end of the fade out and at the start of the fade in,
+     so the animation still shows. */
   .input-group,
   .drop-area {
     transition: 
       opacity var(--duration-slow) var(--ease-bounce),
       transform var(--duration-slow) var(--ease-bounce),
-      filter var(--duration-slow) var(--ease-bounce);
+      filter var(--duration-slow) var(--ease-bounce),
+      visibility var(--duration-slow);
   }
   
   /* Estimado view - default visible, RELATIVE position */
@@ -160,6 +164,7 @@
     transform: translateY(var(--space-2));
     filter: blur(2px); /* Fixed blur value - not responsive */
     pointer-events: none;
+    visibility: hidden;
     position: absolute;
     top: 0;
     left: 0;
@@ -174,6 +179,7 @@
     transform: translateY(calc(var(--space-2) * -1));
     filter: blur(2px); /* Fixed blur value - not responsive */
     pointer-events: none;
+    visibility: hidden;
     position: absolute; /* NOW becomes absolute */
     top: 0;
     left: 0;
@@ -185,6 +191,7 @@
     transform: translateY(0);
     filter: blur(0);
     pointer-events: auto;
+    visibility: visible;
     position: relative; /* NOW becomes relative to take space */
   }
   
@@ -388,6 +395,7 @@
     padding-top: var(--space-3);
     opacity: 0;
     pointer-events: none;
+    visibility: hidden; /* see .input-group, .drop-area above */
     position: absolute;
     top: 0;
     left: 0;
@@ -397,13 +405,15 @@
     transition: 
       opacity var(--duration-slow) var(--ease-bounce),
       transform var(--duration-slow) var(--ease-bounce),
-      filter var(--duration-slow) var(--ease-bounce);
+      filter var(--duration-slow) var(--ease-bounce),
+      visibility var(--duration-slow);
   }
   
   /* Show manual form when manual-mode is active */
   .preciso-mode.manual-mode .manual-form {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
     position: relative;
     transform: translateY(0);
     filter: blur(0);
@@ -412,6 +422,7 @@
   .preciso-mode.manual-mode .drop-area {
     opacity: 0;
     pointer-events: none;
+    visibility: hidden;
     position: absolute;
     transform: translateY(calc(var(--space-2) * -1));
     filter: blur(2px); /* Fixed blur value - not responsive */
