@@ -210,30 +210,6 @@ function init() {
   // Popular dropdown de fornecedores
   populateProvidersDropdown();
   
-  // Event delegation for copy phone button (works for both new and cached results)
-  const resultDiv = document.getElementById('result');
-  if (resultDiv) {
-    resultDiv.addEventListener('click', async (e) => {
-      const copyPhoneBtn = e.target.closest('.copy-phone-btn');
-      if (copyPhoneBtn) {
-        e.preventDefault();
-        const phone = copyPhoneBtn.dataset.phone;
-        if (phone) {
-          try {
-            await navigator.clipboard.writeText(phone);
-            const originalText = copyPhoneBtn.textContent;
-            copyPhoneBtn.textContent = '✓ Copiado!';
-            setTimeout(() => {
-              copyPhoneBtn.textContent = originalText;
-            }, 2000);
-          } catch (err) {
-            console.error('Failed to copy phone:', err);
-          }
-        }
-      }
-    });
-  }
-  
   // Inicializar tabs
   initTabs();
   

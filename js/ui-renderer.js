@@ -185,7 +185,8 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   slot('monthly-cost').textContent = formatEuro(enrichedBest.monthlyCost);
 
   if (formattedPhone) {
-    slot('phone').querySelector('button').dataset.phone = rawPhone;
+    // A call, not a copy: on a phone it dials (PT numbers, +351)
+    slot('phone').querySelector('a').href = `tel:${rawPhone.length === 9 ? '+351' : ''}${rawPhone}`;
     slot('phone-text').textContent = formattedPhone;
   } else {
     slot('phone').remove();
@@ -194,7 +195,9 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   if (enrichedBest.website) {
     const link = slot('website').querySelector('a');
     link.href = enrichedBest.website;
-    link.setAttribute('aria-label', `Visitar website da ${providerName}`);
+    // Named by where it goes: ERSE's link is the offer's page, sometimes a PDF
+    const isPDF = /\.pdf($|[?#])/i.test(enrichedBest.website);
+    link.setAttribute('aria-label', `Ver a oferta no site do fornecedor${isPDF ? ' (PDF)' : ''}, abre numa nova janela`);
   } else {
     slot('website').remove();
   }
@@ -248,7 +251,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   }
 
   const info = document.getElementById('result-info-template').content.firstElementChild.cloneNode(true);
-  info.querySelector('[data-slot="how-to-switch"]').textContent = `Diz que queres aderir à "${toTitleCase(enrichedBest.tariffName || 'tarifa')}"`;
+  info.querySelector('[data-slot="how-to-switch"]').textContent = `Liga ou entra no site e pede a oferta "${toTitleCase(enrichedBest.tariffName || 'tarifa')}"`;
 
   // Update result div content
   resultDiv.replaceChildren(card);

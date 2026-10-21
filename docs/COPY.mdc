@@ -420,6 +420,21 @@ e não constituem uma proposta vinculativa...
 
 ### Guia de Mudança
 
+**O que está construído** (`#result-info-template` em `index.html`, preenchido por `js/ui-renderer.js`):
+
+```
+Telefone:       ligação tel: (+351), não copia
+Site:           ícone; nome acessível "Ver a oferta no site do fornecedor[ (PDF)], abre numa nova janela"
+Como mudar:     Liga ou entra no site e pede a oferta "<nome da oferta>"
+Dados:          CPE · NIF · MORADA · TELEFONE · LEITURA DO CONTADOR · IBAN, SE PAGAS POR DÉBITO
+Quanto tempo:   Até 3 semanas
+Aviso:          Mudar é gratuito e o novo fornecedor trata de tudo: não precisas de avisar o atual.
+                Se o teu contrato atual tem fidelização, vê na fatura até quando; sair antes pode
+                ter custos.
+```
+
+O resto desta secção é a versão completa do guia, ainda por construir.
+
 **Intro:**
 
 ```
