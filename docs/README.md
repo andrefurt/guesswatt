@@ -14,9 +14,7 @@ This directory contains all project documentation organized by topic. Each docum
 | **[TECH_STACK.mdc](./TECH_STACK.mdc)** | Technology decisions, CSS architecture, JS patterns, accessibility requirements | **Always** - Core technical reference |
 | **[DATA_MODEL.mdc](./DATA_MODEL.mdc)** | CSV schemas, calculation formulas, data relationships, ERSE insights structure | When working with data or calculations |
 | **[DECISIONS.mdc](./DECISIONS.mdc)** | Architecture Decision Records (ADRs) - technical and product decisions with rationale | **Always** - Understand why decisions were made |
-| **[IMPLEMENTATION.mdc](./IMPLEMENTATION.mdc)** | Phase-by-phase implementation plan with tasks, deliverables, and checklists | When planning new features or reviewing implementation status |
 | **[COPY.mdc](./COPY.mdc)** | Tone of voice, all UI copy, tooltips, error states, Portuguese glossary | When writing or reviewing user-facing text |
-| **[CURSOR_RULES.mdc](./CURSOR_RULES.mdc)** | AI assistant behavior, project context, coding standards | **Always** - Rules for AI-assisted development |
 | **[DEVELOPMENT.md](./DEVELOPMENT.md)** | Complete development guide: setup, workflow, testing, debugging | When setting up development environment or contributing |
 
 ## 🎯 Quick Navigation
@@ -25,19 +23,18 @@ This directory contains all project documentation organized by topic. Each docum
 
 1. Start with **[TECH_STACK.mdc](./TECH_STACK.mdc)** to understand the architecture
 2. Read **[DECISIONS.mdc](./DECISIONS.mdc)** to understand why things are built this way
-3. Review **[CURSOR_RULES.mdc](./CURSOR_RULES.mdc)** for coding standards
+3. Review CLAUDE.md and `.claude/rules/` for the rules and coding standards
 4. Check **[DATA_MODEL.mdc](./DATA_MODEL.mdc)** when working with calculations
 
 ### For Product/Design
 
 1. Read **[CONCEPT.mdc](./CONCEPT.mdc)** for product vision and user flows
 2. Review **[COPY.mdc](./COPY.mdc)** for tone of voice and UI copy
-3. Check **[IMPLEMENTATION.mdc](./IMPLEMENTATION.mdc)** for feature status
 
 ### For Contributors
 
 1. Read **[DEVELOPMENT.md](./DEVELOPMENT.md)** for setup and workflow
-2. Read **[CURSOR_RULES.mdc](./CURSOR_RULES.mdc)** for coding standards
+2. Read CLAUDE.md and `.claude/rules/` for the rules and coding standards
 3. Review **[DECISIONS.mdc](./DECISIONS.mdc)** before proposing changes
 4. Check **[TECH_STACK.mdc](./TECH_STACK.mdc)** for technical constraints
 
@@ -129,35 +126,6 @@ This directory contains all project documentation organized by topic. Each docum
 
 ---
 
-### IMPLEMENTATION.mdc
-
-**Purpose**: Phase-by-phase implementation plan with tasks and deliverables
-
-**Contents**:
-- Phase 0: Foundation (tokens, reset, base)
-- Phase 1.1: Simplified Input (with PDF option)
-- Phase 1.2: Loss-Focused Result with Offer Card
-- Phase 1.3: Switching Guide with Real Data
-- Phase 1.4: Tooltips & Info Modals
-- Phase 2.1: Refine Flow (Manual Input)
-- Phase 2.2: Calendar Reminder
-- Phase 2.3: Share Functionality
-- Phase 3: Offers List
-- Phase 4: PDF Parsing
-- Phase 5: ERSE Insights Integration
-- Phase 6: Polish & Refinement
-
-Each phase includes:
-- Goal and deliverables
-- Tasks checklist
-- Decisions to document
-- A11y checklist
-- Implementation log template
-
-**When to update**: When phases are completed or new phases are added
-
----
-
 ### COPY.mdc
 
 **Purpose**: Tone of voice, all UI copy, and content guidelines
@@ -173,29 +141,6 @@ Each phase includes:
 - Copy review checklist
 
 **When to update**: When UI copy changes or new sections are added
-
----
-
-### CURSOR_RULES.mdc
-
-**Purpose**: AI assistant behavior and coding standards
-
-**Contents**:
-- Project context
-- Role definition
-- Code standards (general, CSS, JavaScript)
-- File structure
-- Accessibility requirements
-- Animation philosophy
-- Portuguese language guidelines
-- Data handling
-- Error handling
-- Comments guidelines
-- Git commit format
-- Performance budget
-- Quick reference table
-
-**When to update**: When coding standards change or new patterns are established
 
 ## 🔄 Documentation Maintenance
 
@@ -214,7 +159,6 @@ Each phase includes:
 
 3. **When adding features**:
    - Document decisions in DECISIONS.mdc
-   - Update IMPLEMENTATION.mdc with new phases
    - Add copy to COPY.mdc
    - Update TECH_STACK.mdc if patterns change
 
@@ -255,12 +199,11 @@ Each document should have:
 ### Week 2: Deep Dive
 
 1. Read [DATA_MODEL.mdc](./DATA_MODEL.mdc) - Understand the data
-2. Read [IMPLEMENTATION.mdc](./IMPLEMENTATION.mdc) - Understand the roadmap
-3. Read [COPY.mdc](./COPY.mdc) - Understand the voice
+2. Read [COPY.mdc](./COPY.mdc) - Understand the voice
 
 ### Week 3: Contributing
 
-1. Read [CURSOR_RULES.mdc](./CURSOR_RULES.mdc) - Understand the standards
+1. Read CLAUDE.md and `.claude/rules/`: the rules
 2. Review codebase with documentation in hand
 3. Start contributing with documentation as reference
 

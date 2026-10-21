@@ -240,16 +240,14 @@ Comprehensive documentation is available in the `docs/` directory:
 - **[TECH_STACK.mdc](docs/TECH_STACK.mdc)**: Technical architecture, CSS/JS patterns
 - **[DATA_MODEL.mdc](docs/DATA_MODEL.mdc)**: CSV schemas, calculation formulas
 - **[DECISIONS.mdc](docs/DECISIONS.mdc)**: Architecture Decision Records (ADRs)
-- **[IMPLEMENTATION.mdc](docs/IMPLEMENTATION.mdc)**: Phase-by-phase implementation plan
 - **[COPY.mdc](docs/COPY.mdc)**: Tone of voice, UI copy, glossary
-- **[CURSOR_RULES.mdc](docs/CURSOR_RULES.mdc)**: AI assistant behavior rules
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please:
 
 1. Read the documentation in `docs/`
-2. Follow the code standards outlined in `docs/CURSOR_RULES.mdc`
+2. Follow the rules in CLAUDE.md and `.claude/rules/`
 3. Ensure accessibility requirements are met
 4. Test in multiple browsers (Chrome, Safari, Firefox)
 5. Test with keyboard navigation and screen readers

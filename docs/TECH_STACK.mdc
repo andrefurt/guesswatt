@@ -83,7 +83,7 @@ guesswatt/
 │   ├── size-check.js    → Gzip budget below (gate)
 │   └── rules-check.js   → The greppable CLAUDE.md and .claude/rules/ rules (gate)
 ├── tests/smoke.mjs     → Page flows in a headless browser, CI only (ADR-025)
-├── docs/               → Product, copy, data, architecture and decision docs, and audit/
+├── docs/               → Product, copy, data, architecture and decision docs; audit/ and archive/ (history, not maintained)
 ├── .github/            → CI, the weekly data refresh, the @claude workflow, the PR template
 ├── .githooks/          → commit-msg and pre-commit (the gate)
 └── .claude/            → Agent rules, settings and repo skills

@@ -1,8 +1,7 @@
----
-description: "Phase-by-phase implementation plan with tasks, deliverables, and a11y checklists"
-globs:
-  alwaysApply: false
----
+> **Archived on 2026-10-21 (audit task 6.3).** The original build plan, kept for history and no longer
+> maintained: much of it was never built or was built differently. What is built is in `docs/DECISIONS.mdc`;
+> how to work is in `CLAUDE.md`. `docs/CURSOR_RULES.mdc` was deleted the same day: its rules now live in
+> `CLAUDE.md` and `.claude/rules/`.
 
 # GuessWatts - Implementation Phases
 
