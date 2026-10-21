@@ -431,8 +431,9 @@
           <!-- Result Card Slot + Card -->
           <div class="result-card-slot">
             <div class="result-card">
-              <!-- Card content populated dynamically by ui-renderer.js -->
-              <div id="result" role="status" aria-live="polite">
+              <!-- Card content populated dynamically by ui-renderer.js. Not a live region: focus moves
+                   to the heading (ui-handlers.js showResults) and #form-status carries the errors -->
+              <div id="result">
                 <!-- Card Header + Card Data populated here -->
               </div>
             </div>
