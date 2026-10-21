@@ -639,28 +639,24 @@ carregar a tua fatura para um cálculo mais preciso.
 [Tentar novamente]
 ```
 
-**Erro de carregamento:**
+**Linha de estado** (uma só, por baixo do cartão de entrada: `STATUS` e `setStatus` em `js/main.js`;
+erros a vermelho `--color-error`, sem `alert()`, o detalhe técnico vai para a consola):
 
 ```
-Algo correu mal.
+A calcular…                                    (só se a resposta demorar mais de 300 ms)
 
-Não conseguimos carregar os dados das tarifas.
-Podes tentar novamente ou voltar mais tarde.
-
+Não conseguimos carregar os dados das tarifas. Tenta novamente ou volta mais tarde.
 [Tentar novamente]
-```
 
-**Erro de PDF:**
+Não encontrámos ofertas para esta potência e este tipo de tarifa. Experimenta outra potência ou tarifa.
 
-```
-Não conseguimos ler esta fatura.
+Indica um valor entre 20 € e 500 €.            (Estimado, fora do intervalo; foco no campo)
+Indica o consumo mensal em kWh.                (Preciso, sem consumo; foco no campo)
 
-O formato não é reconhecido. Por agora, 
-suportamos faturas da EDP, Endesa, Galp e Goldenergy.
+Escolhe um ficheiro PDF.                       (o ficheiro não é um PDF)
 
-Podes introduzir os valores manualmente.
-
-[Introduzir manualmente]
+Não conseguimos ler esta fatura. Podes introduzir os valores à mão.
+[Introduzir manualmente]                       (abre o formulário manual com foco no Operador)
 ```
 
 ---

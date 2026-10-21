@@ -417,10 +417,11 @@ export function clearPDF() {
  * Handle PDF file upload
  * @param {File} file - PDF file
  * @param {Function} onInvoice - Receives the invoice when consumption and power were both found
+ * @param {Function} onProblem - Receives 'not-pdf' or 'unreadable'; main.js shows the message
  */
-export async function handlePDFFile(file, onInvoice) {
+export async function handlePDFFile(file, onInvoice, onProblem) {
   if (file.type !== 'application/pdf') {
-    alert('Por favor seleciona um ficheiro PDF.');
+    onProblem('not-pdf');
     return;
   }
   
@@ -438,13 +439,13 @@ export async function handlePDFFile(file, onInvoice) {
       showPDFData(extracted);
       onInvoice(extracted);
     } else {
-      alert('Não foi possível extrair dados desta fatura. Tenta introduzir manualmente.');
       clearPDF();
+      onProblem('unreadable');
     }
   } catch (error) {
     console.error('Erro ao processar PDF:', error);
-    alert('Erro ao processar o PDF. Tenta introduzir manualmente.');
     clearPDF();
+    onProblem('unreadable');
   }
 }
 
@@ -487,8 +488,9 @@ function openManualFormWithPDFData(found) {
 /**
  * Initialize PDF upload functionality
  * @param {Function} onInvoice - Receives a complete invoice (main.js runs the comparison)
+ * @param {Function} onProblem - Receives 'not-pdf' or 'unreadable'
  */
-export function initPDFUpload(onInvoice) {
+export function initPDFUpload(onInvoice, onProblem) {
   const dropArea = document.getElementById('precise-mode');
   const pdfInput = document.getElementById('pdf-input');
   const inputSlot = document.getElementById('input-slot');
@@ -519,14 +521,14 @@ export function initPDFUpload(onInvoice) {
     e.preventDefault();
     if (inputSlot) inputSlot.classList.remove('dragging');
     if (!dropArea.classList.contains('has-file') && e.dataTransfer.files.length) {
-      handlePDFFile(e.dataTransfer.files[0], onInvoice);
+      handlePDFFile(e.dataTransfer.files[0], onInvoice, onProblem);
     }
   });
   
   // File input change
   pdfInput.addEventListener('change', (e) => {
     if (e.target.files.length) {
-      handlePDFFile(e.target.files[0], onInvoice);
+      handlePDFFile(e.target.files[0], onInvoice, onProblem);
     }
   });
 }

@@ -431,8 +431,12 @@
           </div>
         </div>
 
-        <!-- Estimate mode: shown when the bill is outside 20 to 500 € (main.js) -->
-        <p class="form-note estimate-note" id="estimate-note" role="alert" hidden>Indica um valor entre 20 € e 500 €.</p>
+        <!-- The one status line for both forms and the PDF (main.js setStatus): loading, errors and
+             their next step. Always rendered, so screen readers announce what is written into it. -->
+        <div class="form-status" id="form-status" role="status">
+          <p class="form-status-text" id="form-status-text"></p>
+          <button type="button" class="form-status-action" id="form-status-action" hidden></button>
+        </div>
 
         <!-- Household size: picks the 200 or 300 kWh reduced-VAT threshold -->
         <div class="household-option">
