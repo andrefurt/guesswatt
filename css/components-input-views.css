@@ -253,9 +253,16 @@
     margin: 0;
   }
   
-  /* No visible focus state - clean UI */
+  /* The ring goes on the whole row (.input-field below), so the € and /Mês sit inside it */
   .value-input:focus {
     outline: none;
+  }
+  
+  .input-field:has(.value-input:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    /* Drawn inside the row: the input slot clips anything outside it */
+    outline-offset: calc((var(--focus-ring-width) + var(--focus-ring-offset)) * -1);
+    border-radius: var(--radius-md);
   }
   
   .value-input::placeholder {
@@ -480,14 +487,10 @@
     pointer-events: none;
   }
   
-  .form-input-content:focus-within {
-    border-color: var(--color-border-accent);
-    box-shadow: none; /* Shadow removed */
-  }
-  
-  /* Remove focus outline on mouse click, keep for keyboard navigation */
-  .form-input-content:focus-within:not(:focus-visible) {
-    border-color: var(--color-border-default);
+  /* Text fields match :focus-visible on every focus, so the ring shows for mouse and keyboard */
+  .form-input-content:has(.form-input:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
   
   .form-input {
