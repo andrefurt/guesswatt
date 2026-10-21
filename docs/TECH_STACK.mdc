@@ -489,6 +489,8 @@ loads only for characters outside Portuguese.
 
 Time targets, measured with the audit's lab method (Slow 4G, 4x CPU, HTTP/2): first contentful paint
 about 1.8 s or less, with every icon on that first frame.
+Measure over HTTP/2, as GitHub Pages serves it: `python3 -m http.server` is HTTP/1.1, so the 15 CSS
+files load in waves of six and a change that cuts requests looks faster than it is.
 
 ---
 
