@@ -4,7 +4,8 @@
  * the inputs, never the result: opening it runs the comparison again on the current prices.
  *
  *   ?f=80&d=2026-10                       estimate: monthly bill in €
- *   ?c=250&p=4.6&t=1&s=IBD&h=1&d=2026-10  precise: kWh/month, kVA, tariff type, supplier (optional)
+ *   ?c=250&p=4.6&t=1&s=IBD&h=1&d=2026-10  precise: kWh/month, kVA, tariff type, supplier (optional;
+ *                                         "outro" for one not in the data)
  *   h=1  household of 5 or more (either mode)    d  month of the prices the link was made with
  *
  * Every value is coerced and range-checked on the way in: a URL is input from anyone, and these
@@ -45,7 +46,7 @@ export function readState(search) {
     const tariffType = ['1', '2', '3'].includes(params.get('t')) ? Number(params.get('t')) : null;
     if (consumption === null || power === null || tariffType === null) return null;
     const supplier = params.get('s');
-    const provider = supplier && Object.hasOwn(PROVIDERS, supplier) ? supplier : null;
+    const provider = supplier && (Object.hasOwn(PROVIDERS, supplier) || supplier === 'outro') ? supplier : null;
     return { input: { mode: 'precise', consumption, power, tariffType, provider }, largeHousehold, dataMonth };
   }
 

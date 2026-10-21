@@ -333,6 +333,9 @@ Sem fornecedor (Preciso, manual ou PDF sem fornecedor reconhecido):
   Escolhe o teu fornecedor para saberes quanto poupas.
   [Escolher o fornecedor]    (volta ao formulário com os valores e o foco no Fornecedor)
 
+"Outro" (último na lista: fornecedor fora dos dados da ERSE):
+  O teu fornecedor não está nos dados da ERSE que usamos, por isso não sabemos quanto poupas.
+
 Fornecedor sem tarifas para esta potência e tipo de tarifa:
   Não encontrámos tarifas de <Fornecedor> com esta potência e este tipo de tarifa,
   por isso não sabemos quanto poupas.

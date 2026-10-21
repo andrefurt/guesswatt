@@ -114,18 +114,18 @@ async function runSelftest() {
   });
 
   // Test 5a2: Supplier codes the UI and the PDF parser use exist in the data
-  test('every supplier code has a name and offers', () => {
+  // Supplier churn never fails the gate: the dropdown follows the data (ui-components.js) and the
+  // refresh opens a "Name the new supplier codes" issue (validate-data.js --supplier-names)
+  test('supplier names follow the data (warnings only) and the PDF parser emits codes', () => {
     const inData = new Set(offers.map(o => o.COM));
     const unnamed = [...inData].filter(code => !PROVIDERS[code]);
     const withoutOffers = Object.keys(PROVIDERS).filter(code => !inData.has(code));
     const parserCodes = [...fs.readFileSync(PDF_SERVICE_PATH, 'utf8').matchAll(/provider = '([A-Z0-9]+)'/g)].map(m => m[1]);
     const parserUnknown = parserCodes.filter(code => !inData.has(code));
-    const problems = [];
-    if (unnamed.length) problems.push(`no name in PROVIDERS: ${unnamed.join(', ')}`);
-    if (withoutOffers.length) problems.push(`no offers for: ${withoutOffers.join(', ')}`);
-    if (parserUnknown.length) problems.push(`PDF parser emits codes with no offers: ${parserUnknown.join(', ')}`);
-    if (parserCodes.length === 0) problems.push('found no provider codes in pdf-service.js');
-    if (problems.length) throw new Error(problems.join('; '));
+    if (unnamed.length) console.warn(`   ⚠️  no name in PROVIDERS (shown as the code): ${unnamed.join(', ')}`);
+    if (withoutOffers.length) console.warn(`   ⚠️  named but no offers (left out of the dropdown): ${withoutOffers.join(', ')}`);
+    if (parserUnknown.length) console.warn(`   ⚠️  PDF parser emits codes with no offers: ${parserUnknown.join(', ')}`);
+    if (parserCodes.length === 0) throw new Error('found no provider codes in pdf-service.js');
     console.log(`   ${inData.size} suppliers, ${parserCodes.length} detectable from a PDF`);
   });
 
