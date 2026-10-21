@@ -27,7 +27,8 @@ Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 
 ## Rules
 
-`scripts/rules-check.js` tests the part of rules 1, 3, 4 and 7 a grep can see; the rest is judgement.
+`scripts/rules-check.js` tests the part of rules 1, 3, 4 and 7 a grep can see, that every file the
+site loads is in git, and that doc links open; the rest is judgement.
 
 1. No framework and no build step: the browser loads the files as they are in the repo.
 2. All processing stays in the browser; the user's data never leaves the device.
