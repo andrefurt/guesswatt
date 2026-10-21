@@ -334,14 +334,28 @@ export function parseInvoiceText(text) {
 }
 
 /**
+ * Switch the drop area between its empty state (hint, "Escolher fatura", manual link) and a line
+ * about the PDF. Both states are in index.html; only their hidden flags and text change, so the
+ * buttons keep their listeners and nothing goes through innerHTML.
+ * @param {string|null} status - null for the empty state
+ * @param {string} [summary] - What was read, as text
+ */
+function setDropArea(status, summary = '') {
+  const dropArea = document.getElementById('precise-mode');
+  if (!dropArea) return;
+  dropArea.querySelector('.drop-area-empty').hidden = status !== null;
+  const loaded = dropArea.querySelector('.drop-area-loaded');
+  loaded.hidden = status === null;
+  loaded.querySelector('.drop-area-status').textContent = status || '';
+  loaded.querySelector('.pdf-data-summary').textContent = summary;
+  dropArea.classList.toggle('has-file', status !== null);
+}
+
+/**
  * Show PDF loading state
  */
 export function showPDFLoading() {
-  const dropArea = document.getElementById('precise-mode');
-  const dropAreaText = dropArea?.querySelector('.drop-area-text p');
-  if (dropAreaText) {
-    dropAreaText.textContent = 'A processar PDF...';
-  }
+  setDropArea('A ler a fatura…');
 }
 
 /**
@@ -349,68 +363,21 @@ export function showPDFLoading() {
  * @param {Object} data - Extracted invoice data
  */
 export function showPDFData(data) {
-  const dropArea = document.getElementById('precise-mode');
-  const dropAreaText = dropArea?.querySelector('.drop-area-text');
-  const manualLink = document.getElementById('manual-link');
-  
-  if (!dropArea || !dropAreaText) return;
-  
-  // Mostrar dados extraídos no drop area
-  const providerNameRaw = data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detetado';
-  const providerName = toTitleCase(providerNameRaw);
-  
-  // Build tariff name with cycle info if available
+  const providerName = toTitleCase(data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detetado');
   const tariffNameRaw = data.tariffType === 1 ? 'Simples' : 
                         data.tariffType === 2 ? 'Bi-horária' : 'Tri-horária';
   const tariffName = formatTariffName(tariffNameRaw, data.tariffType, data.cycleType);
-  
-  // Update drop area text to show loaded state
   // Values read from the PDF go in as text, never as markup
-  const loaded = document.createElement('p');
-  loaded.textContent = '✓ Fatura carregada';
-  const summary = document.createElement('p');
-  summary.className = 'pdf-data-summary';
-  summary.textContent = `${providerName} · ${tariffName} · ${formatNumber(data.consumption)} kWh · ${formatNumber(data.power)} kVA`;
-  dropAreaText.replaceChildren(loaded, summary);
-  
-  // Hide manual link
-  if (manualLink) manualLink.style.display = 'none';
-  
-  // Mark drop area as having file
-  dropArea.classList.add('has-file');
+  setDropArea('✓ Fatura lida', `${providerName} · ${tariffName} · ${formatNumber(data.consumption)} kWh · ${formatNumber(data.power)} kVA`);
 }
 
 /**
  * Clear PDF data and reset UI
  */
 export function clearPDF() {
-  const dropArea = document.getElementById('precise-mode');
-  const dropAreaText = dropArea?.querySelector('.drop-area-text');
-  const manualLink = document.getElementById('manual-link');
   const pdfInput = document.getElementById('pdf-input');
-  
   if (pdfInput) pdfInput.value = '';
-  
-  // Restaurar UI
-  if (dropAreaText) {
-    dropAreaText.innerHTML = `
-      <p>Clica ou arrasta a tua fatura PDF</p>
-      <a href="#" id="manual-link" aria-label="Introduzir dados da fatura manualmente">Adicionar dados manualmente</a>
-    `;
-  }
-  
-  // Remove has-file class
-  if (dropArea) dropArea.classList.remove('has-file');
-  
-  // Show manual link
-  if (manualLink) manualLink.style.display = 'inline';
-  
-  // Esconder resultado quando PDF é removido
-  const resultDiv = document.getElementById('result');
-  if (resultDiv) {
-    resultDiv.style.display = 'none';
-    resultDiv.innerHTML = '';
-  }
+  setDropArea(null);
 }
 
 /**
@@ -497,10 +464,11 @@ export function initPDFUpload(onInvoice, onProblem) {
   
   if (!dropArea || !pdfInput) return;
   
-  // Clicar na drop area abre file picker (exceto no link manual)
+  // "Escolher fatura" is the keyboard way in; a click anywhere else on the area does the same for a
+  // pointer (except on the manual link)
   dropArea.addEventListener('click', (e) => {
-    const manualLink = e.target.closest('#manual-link');
-    if (!dropArea.classList.contains('has-file') && !manualLink) {
+    if (e.target.closest('#manual-link')) return;
+    if (!dropArea.classList.contains('has-file')) {
       pdfInput.click();
     }
   });

@@ -138,6 +138,15 @@
       visibility var(--duration-slow);
   }
   
+  /* The view being shown is visible at once (0s), so a script can focus a field in it in the same
+     frame; only the view being hidden waits for its fade out. Durations follow the transition list
+     above and in .manual-form: opacity, transform, filter, visibility. */
+  .input-slot:not(.preciso-mode) .input-group,
+  .preciso-mode:not(.manual-mode) .drop-area,
+  .preciso-mode.manual-mode .manual-form {
+    transition-duration: var(--duration-slow), var(--duration-slow), var(--duration-slow), 0s;
+  }
+  
   /* Estimado view - default visible, RELATIVE position */
   .input-group {
     display: flex;
@@ -365,19 +374,40 @@
     color: var(--color-foreground-primary);
   }
   
-  .drop-area-text a {
+  /* The two states (index.html) lay out as if their children were direct ones */
+  .drop-area-empty,
+  .drop-area-loaded {
+    display: contents;
+  }
+  
+  .drop-area-pick,
+  .drop-area-link {
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-default-tracking);
-    color: var(--color-foreground-secondary);
     text-decoration: underline;
+    text-underline-offset: var(--space-1);
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
   }
   
-  .drop-area-text a:hover {
-    opacity: 0.6;
+  .drop-area-pick {
+    font-weight: var(--font-medium);
+    color: var(--color-foreground-primary);
+  }
+  
+  .drop-area-link {
+    margin-top: var(--space-2);
+    color: var(--color-foreground-secondary);
+  }
+  
+  .drop-area-pick:hover,
+  .drop-area-link:hover {
+    text-decoration-thickness: 2px;
   }
   
   .file-input {

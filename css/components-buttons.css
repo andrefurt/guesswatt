@@ -312,6 +312,7 @@
     opacity: 1;
     pointer-events: auto;
     visibility: visible;
+    transition-duration: var(--duration-slow), var(--duration-slow), 0s; /* visible at once */
     transform: scale(1);
   }
   
