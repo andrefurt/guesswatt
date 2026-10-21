@@ -131,6 +131,9 @@ function resultVerdict(best, monthlyBill, savings, isEstimate) {
   if (!best.currentProvider) {
     return { text: 'Escolhe o teu fornecedor para saberes quanto poupas.', chooseProvider: true };
   }
+  if (best.currentProvider === 'outro') {
+    return { text: 'O teu fornecedor não está nos dados da ERSE que usamos, por isso não sabemos quanto poupas.' };
+  }
   const name = toTitleCase(PROVIDERS[best.currentProvider] || best.currentProvider);
   return { text: `Não encontrámos tarifas de ${name} com esta potência e este tipo de tarifa, por isso não sabemos quanto poupas.` };
 }

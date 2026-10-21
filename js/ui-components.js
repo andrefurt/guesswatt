@@ -212,19 +212,36 @@ export function initTabs() {
   });
 }
 
+// Last option: a supplier that is not in ERSE's data (main.js and ui-renderer.js handle "outro")
+export const OTHER_PROVIDER = 'outro';
+
 /**
- * Populate providers dropdown
+ * Fill the supplier dropdown: every named supplier at once, so a link (url-state.js) can select
+ * one before the data loads, then "Outro"
  */
 export function populateProvidersDropdown() {
   const providerSelect = document.getElementById('current-provider');
   if (!providerSelect) return;
-  
   const byName = Object.entries(PROVIDERS).sort(([, a], [, b]) => a.localeCompare(b, 'pt'));
-  byName.forEach(([code, name]) => {
-    const option = document.createElement('option');
-    option.value = code;
-    option.textContent = name;
-    providerSelect.appendChild(option);
-  });
+  byName.forEach(([code, name]) => providerSelect.append(new Option(name, code)));
+  providerSelect.append(new Option('Outro', OTHER_PROVIDER));
+}
+
+/**
+ * Match the dropdown to the suppliers in the data (meta.json build.providers): drop the named ones
+ * with no offers this week, and add a new code under its ERSE code until PROVIDERS names it. So a
+ * supplier entering or leaving the market changes the list, never breaks the page or the refresh.
+ * @param {string[]|null} codes - null when meta.json could not be read (the list stays as it is)
+ */
+export function matchProvidersToData(codes) {
+  const providerSelect = document.getElementById('current-provider');
+  if (!providerSelect || !codes) return;
+  const inData = new Set(codes);
+  for (const option of [...providerSelect.options]) {
+    const keep = !option.value || option.value === OTHER_PROVIDER || inData.has(option.value) || option.selected;
+    if (!keep) option.remove();
+  }
+  const other = [...providerSelect.options].find(option => option.value === OTHER_PROVIDER);
+  codes.filter(code => !PROVIDERS[code]).sort().forEach(code => providerSelect.insertBefore(new Option(code, code), other));
 }
 

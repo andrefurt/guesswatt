@@ -8,20 +8,33 @@
 
 /**
  * The price date, and whether the service worker answered from this device's copy because the
- * network failed (sw.js marks those responses)
- * @returns {Promise<{date: Date|null, offline: boolean}>}
+ * network failed (sw.js marks those responses), and the supplier codes in the data
+ * @returns {Promise<{date: Date|null, offline: boolean, providers: string[]|null}>}
  */
-export async function loadDataStatus() {
+let statusRequest = null;
+
+export function loadDataStatus() {
+  // One request per page (the footer, the comparison and the supplier list all ask); a failed one
+  // is forgotten so the next call tries again
+  statusRequest ??= fetchDataStatus().then(status => {
+    if (!status.date) statusRequest = null;
+    return status;
+  });
+  return statusRequest;
+}
+
+async function fetchDataStatus() {
+  const none = { date: null, offline: false, providers: null };
   try {
     const response = await fetch('data/meta.json');
-    if (!response.ok) return { date: null, offline: false };
+    if (!response.ok) return none;
     const offline = response.headers.has('X-GuessWatts-Offline');
     const { build } = await response.json();
     const value = build?.sourceUpdatedAt;
-    return { date: value ? new Date(value) : null, offline };
+    return { date: value ? new Date(value) : null, offline, providers: build?.providers ? Object.keys(build.providers) : null };
   } catch (error) {
     console.warn('⚠️  Could not load meta.json:', error.message);
-    return { date: null, offline: false };
+    return none;
   }
 }
 

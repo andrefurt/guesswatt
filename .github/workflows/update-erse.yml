@@ -75,6 +75,24 @@ jobs:
             gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file tar.log
           fi
 
+      # A supplier code with no name gets its own issue and does not block the prices: the page lists
+      # it under its ERSE code until js/config.js PROVIDERS names it
+      - name: Check supplier names
+        id: names
+        continue-on-error: true
+        run: node scripts/validate-data.js --supplier-names 2>&1 | tee names.log
+
+      - name: Open the supplier names issue
+        if: steps.names.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="Name the new supplier codes"
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ -z "$number" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file names.log
+          fi
+
       - name: Check for changes
         id: changes
         run: |

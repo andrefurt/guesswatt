@@ -7,12 +7,12 @@ import { PROVIDERS } from './config.js';
 import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
 import { compare } from './calculator.js';
 import { initPDFUpload } from './pdf-service.js';
-import { initTooltips, initTabs, populateProvidersDropdown } from './ui-components.js';
+import { initTooltips, initTabs, populateProvidersDropdown, matchProvidersToData, OTHER_PROVIDER } from './ui-components.js';
 import { renderResult } from './ui-renderer.js';
 import { initUIHandlers, hideResults, setEstimadoData, setInvoiceData } from './ui-handlers.js';
 import { initPageActions } from './page-actions.js';
 import { readState, writeState, monthOf } from './url-state.js';
-import { formatDataMonth } from './data-date.js';
+import { formatDataMonth, loadDataStatus } from './data-date.js';
 
 // =============================================================================
 // COMPARISON
@@ -183,7 +183,7 @@ function handlePreciseSubmit(e) {
   const provider = document.getElementById('current-provider').value || null;
 
   setInvoiceData({
-    provider: provider ? toTitleCase(PROVIDERS[provider] || provider) : 'Manual',
+    provider: provider === OTHER_PROVIDER ? 'Outro' : provider ? toTitleCase(PROVIDERS[provider] || provider) : 'Manual',
     tariff: TARIFF_NAMES[tariffType] || 'Simples',
     consumption,
     power
@@ -247,8 +247,9 @@ function init() {
   initPageActions();
   initUIHandlers();
   
-  // Popular dropdown de fornecedores
+  // Popular dropdown de fornecedores, then match it to this week's data
   populateProvidersDropdown();
+  loadDataStatus().then(({ providers }) => matchProvidersToData(providers));
   
   // Inicializar tabs
   initTabs();
