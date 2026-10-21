@@ -53,6 +53,20 @@
   }
   
   /* Hover state: foreground color at 4% opacity */
+  /* The Ω is the app icon's glyph (Inter v20 greek, wght 500), drawn as SVG: the Inter subsets the
+     page serves have no Ω, so as text it fell back to a system font. Sized to Inter's cap height. */
+  .logo-mark {
+    width: calc(0.7275em * 1360 / 1510);
+    height: 0.7275em;
+    fill: currentColor;
+    flex-shrink: 0;
+    align-self: baseline; /* its bottom sits on the text baseline, as the glyph did */
+  }
+  
+  .logo > span {
+    align-self: baseline;
+  }
+  
   .logo:hover {
     background: oklch(from var(--color-foreground-primary) l c h / 0.04);
   }
