@@ -43,7 +43,7 @@ const shownSaving = savings => Math.round(savings.monthly * 100) / 100;
 function resultVerdict(best, monthlyBill, savings, isEstimate) {
   if (isEstimate) {
     return monthlyBill && monthlyBill <= best.monthlyCost + GOOD_TARIFF_MARGIN
-      ? { text: 'Já tens uma boa tarifa. A tua fatura já está ao nível da oferta mais barata.' }
+      ? { text: `A tua fatura (${formatEuro(monthlyBill)}/mês) já está ao nível da oferta mais barata (${formatEuro(best.monthlyCost)}/mês): já tens uma boa tarifa.` }
       : null;
   }
   if (savings) {
