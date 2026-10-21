@@ -6,7 +6,6 @@
 
 import { PROVIDERS } from './config.js';
 import { formatPhone, toTitleCase, formatTariffName, formatShortDataMonth, formatEuro, formatNumber } from './utils.js';
-import { initTooltips } from './ui-components.js';
 import { showResults, getPillMode } from './ui-handlers.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -223,8 +222,5 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
       showResults();
     });
   });
-  
-  // Reinitialize tooltips after rendering
-  initTooltips();
 
 }

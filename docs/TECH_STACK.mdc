@@ -64,7 +64,7 @@ guesswatt/
 │   ├── page-actions.js → Copy button and its menu (every page; imports nothing)
 │   ├── sobre.js        → sobre.html's entry point (the copy menu); a file because the CSP runs no inline script
 │   ├── pdf-service.js  → Loads PDF.js (self-hosted in vendor/pdfjs/) and reads the invoice; computes nothing
-│   ├── ui-components.js → UI component initialization (tabs, tooltips, dropdowns)
+│   ├── ui-components.js → Tabs and the supplier dropdown
 │   ├── ui-handlers.js  → Logo, delete, About, show/hide results, the input pill
 │   ├── ui-renderer.js  → Result rendering and DOM manipulation
 │   ├── url-state.js    → The result's inputs in the URL (ADR-018): read, coerced, written
@@ -502,7 +502,6 @@ about 1.8 s or less, with every icon on that first frame.
    - Populate provider dropdown
    - Initialize tabs system
    - Initialize PDF upload handler
-   - Initialize tooltips
    - Attach form submit handlers
 
 2. **Data Loading** (`utils.js`):

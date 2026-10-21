@@ -7,7 +7,7 @@ import { PROVIDERS } from './config.js';
 import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
 import { compare } from './calculator.js';
 import { initPDFUpload } from './pdf-service.js';
-import { initTooltips, initTabs, populateProvidersDropdown, matchProvidersToData, OTHER_PROVIDER } from './ui-components.js';
+import { initTabs, populateProvidersDropdown, matchProvidersToData, OTHER_PROVIDER } from './ui-components.js';
 import { renderResult } from './ui-renderer.js';
 import { initUIHandlers, hideResults, setEstimadoData, setInvoiceData } from './ui-handlers.js';
 import { initPageActions } from './page-actions.js';
@@ -333,9 +333,6 @@ function init() {
       document.getElementById('tab-preciso')?.click();
     }
   });
-  
-  // Inicializar tooltips
-  initTooltips();
   
   // Attach form handlers
   const estimateForm = document.getElementById('estimate-form');
