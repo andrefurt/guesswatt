@@ -303,6 +303,28 @@ A melhor oferta custa cerca de €66/mês. Metade das ofertas custa mais de €8
 
 ---
 
+**Sem poupança para mostrar** (`resultVerdict` em `js/ui-renderer.js`; o cartão nunca fica calado):
+
+```
+Poupança de €1/mês ou menos (Preciso):
+  Já tens uma boa tarifa. Nenhuma oferta te poupa mais de €1/mês.
+
+Fatura ao nível da oferta mais barata (Estimado, no topo da caixa do mercado):
+  Já tens uma boa tarifa. A tua fatura já está ao nível da oferta mais barata.
+
+Sem operador (Preciso, manual ou PDF sem operador reconhecido):
+  Escolhe o teu operador para saberes quanto poupas.
+  [Escolher o operador]      (volta ao formulário com os valores e o foco no Operador)
+
+Operador sem tarifas para esta potência e tipo de tarifa:
+  Não encontrámos tarifas de <Operador> com esta potência e este tipo de tarifa,
+  por isso não sabemos quanto poupas.
+```
+
+O limite de €1/mês (`GOOD_TARIFF_MARGIN`): abaixo disso, mudar não compensa o trabalho.
+
+---
+
 ### Lista de Ofertas (expandida)
 
 Quando clica "Ver mais X ofertas":

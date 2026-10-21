@@ -212,7 +212,7 @@ async function handlePreciseSubmit(e) {
     const best = findBestOfferForTariff(offers, consumption, power, tariffType, null, context);
     
     // 5. Juntar a data dos preços (mostrada nas ofertas indexadas)
-    const enrichedBest = { ...best, dataDate };
+    const enrichedBest = { ...best, dataDate, currentProvider: currentProvider || null };
     
     // 6. Calcular poupança se houver operador actual
     let savings = null;
@@ -251,13 +251,12 @@ async function handlePreciseSubmit(e) {
         const currentProviderCost = bestCurrentOffer.monthlyCost;
         const monthlySavings = currentProviderCost - enrichedBest.monthlyCost;
         
-        if (monthlySavings > 0) {
-          savings = {
-            monthly: monthlySavings,
-            yearly: monthlySavings * 12,
-            vsProvider: toTitleCase(PROVIDERS[currentProvider] || currentProvider)
-          };
-        }
+        // Kept at zero or below too: the result then says the tariff is already fine
+        savings = {
+          monthly: monthlySavings,
+          yearly: monthlySavings * 12,
+          vsProvider: toTitleCase(PROVIDERS[currentProvider] || currentProvider)
+        };
       }
     }
     
@@ -377,6 +376,21 @@ function init() {
       setManualFormVisible(false);
     });
   }
+  
+  // "Escolher o operador" in a result with no supplier: back to the manual form, values kept
+  document.addEventListener('click', (e) => {
+    const choose = e.target.closest('#choose-provider');
+    if (!choose) return;
+    const { consumption, power, tariff } = choose.dataset;
+    hideResults();
+    document.getElementById('tab-preciso')?.click();
+    inputSlot?.classList.add('preciso-mode', 'manual-mode');
+    setManualFormVisible(true);
+    document.getElementById('consumption').value = consumption;
+    document.getElementById('power').value = power;
+    document.getElementById('tariff-type').value = tariff;
+    document.getElementById('current-provider')?.focus();
+  });
   
   // "Usa o modo Preciso" in an estimate result: back to the form, on the Preciso tab
   document.addEventListener('click', (e) => {

@@ -550,7 +550,7 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
     }
     
     // Juntar a data dos preços (mostrada nas ofertas indexadas)
-    const enrichedBest = { ...best, dataDate };
+    const enrichedBest = { ...best, dataDate, currentProvider: pdfData.provider || null };
     
     // Calcular poupança vs operador actual (se detectado)
     let savings = null;
@@ -589,13 +589,12 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
         const currentProviderCost = bestCurrentOffer.monthlyCost;
         const monthlySavings = currentProviderCost - enrichedBest.monthlyCost;
         
-        if (monthlySavings > 0) {
-          savings = {
-            monthly: monthlySavings,
-            yearly: monthlySavings * 12,
-            vsProvider: toTitleCase(PROVIDERS[pdfData.provider] || pdfData.provider)
-          };
-        }
+        // Kept at zero or below too: the result then says the tariff is already fine
+        savings = {
+          monthly: monthlySavings,
+          yearly: monthlySavings * 12,
+          vsProvider: toTitleCase(PROVIDERS[pdfData.provider] || pdfData.provider)
+        };
       }
     }
     
