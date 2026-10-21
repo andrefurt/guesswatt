@@ -76,11 +76,11 @@ guesswatt/
 │   ├── CondComerciais.csv  # Commercial conditions from ERSE
 │   ├── offers.json         # Built/optimized offers (preferred)
 │   ├── tar.json            # Yearly ERSE access tariff (fixed term) for reduced VAT
-│   ├── meta.json           # Metadata (price date, row counts)
-│   └── last-update.json    # Legacy, no longer read by the page
+│   └── meta.json           # Metadata (price date, row counts)
 ├── scripts/                # Build and maintenance scripts
 │   ├── download-erse.js    # Download latest ERSE CSVs
 │   ├── build-offers.js     # Build offers.json from CSVs
+│   ├── validate-data.js    # Data bounds before a refresh is pushed
 │   └── selftest.js         # Validation tests
 └── docs/                   # Documentation
     ├── README.md           # This file
@@ -101,7 +101,7 @@ guesswatt/
 - **Styling**: Modern CSS with OKLCH colors, custom properties, clamp()
 - **Hosting**: Static hosting (GitHub Pages compatible)
 - **Build**: None—files are served directly
-- **Dependencies**: Zero runtime dependencies (except PDF.js for PDF parsing)
+- **Dependencies**: Zero runtime dependencies; PDF.js 3.11.174 is self-hosted in `vendor/pdfjs/` and loads only when a PDF is used
 
 ### Design Principles
 
@@ -142,8 +142,8 @@ All data comes from **ERSE** (Portuguese Energy Services Regulatory Authority):
 ### Update Process
 
 1. **Download** (`scripts/download-erse.js`):
-   - Downloads latest CSVs from ERSE simulator
-   - Uses Playwright to handle JavaScript-rendered page
+   - Reads the current ZIP from ERSE's `Settings.json` (`csvPath`) with plain `fetch`, no browser
+   - Records ERSE's export date from the ZIP name as the price date in `meta.json`
    - Validates both required CSVs
 
 2. **Build** (`scripts/build-offers.js`):
@@ -152,7 +152,12 @@ All data comes from **ERSE** (Portuguese Energy Services Regulatory Authority):
    - Filters electricity-only offers
    - Outputs optimized `offers.json`
 
-3. **Validate** (`scripts/selftest.js`):
+3. **Check the bounds** (`scripts/validate-data.js`):
+   - Every CSV column the build reads is present
+   - Offer and supplier floors, price and promotion ranges, TAR values
+   - No jump against the last commit (offer count, suppliers, median price, price date)
+
+4. **Validate** (`scripts/selftest.js`):
    - Ensures offers exist and have required fields
    - Validates no gas-only offers
    - Tests calculation samples
@@ -166,11 +171,14 @@ node scripts/download-erse.js
 # Build offers.json from CSVs
 node scripts/build-offers.js
 
+# Check the data bounds
+node scripts/validate-data.js
+
 # Run validation tests
 node scripts/selftest.js
 
-# Or run all three in sequence
-node scripts/download-erse.js && node scripts/build-offers.js && node scripts/selftest.js
+# Or run all four in sequence
+node scripts/download-erse.js && node scripts/build-offers.js && node scripts/validate-data.js && node scripts/selftest.js
 ```
 
 ## 🧮 Calculation Logic
@@ -215,7 +223,7 @@ When only monthly bill amount is provided:
 
 ### Typography
 
-- **Font**: Inter (via Google Fonts)
+- **Font**: Inter, self-hosted in `vendor/fonts/` (latin and latin-ext subsets, SIL OFL 1.1)
 - **Scale**: Fluid typography with `clamp()`
 - **Base**: 16px at 320px → 18px at 1280px
 

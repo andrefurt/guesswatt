@@ -24,9 +24,7 @@
   <meta property="twitter:title" content="GuessWatts - Comparador de Tarifas de Electricidade">
   <meta property="twitter:description" content="Compara tarifas de electricidade em Portugal usando dados oficiais da ERSE. Descobre se estás a pagar mais do que devias e encontra a melhor proposta.">
   
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="vendor/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/main.css">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   
@@ -439,6 +437,144 @@
           </div>
           <!-- Result Info Section inserted here by ui-renderer.js (after result-card-slot) -->
         </div>
+
+        <!-- Filled by ui-renderer.js with textContent: ERSE data never goes through innerHTML -->
+        <template id="result-card-template">
+          <div class="result-card-header">
+            <div class="result-card-top">
+              <div class="provider-icon" data-slot="provider-icon"></div>
+              <div class="result-card-actions">
+                <div class="btn-slot" data-slot="phone">
+                  <button class="btn copy-phone-btn" type="button">
+                    <span class="btn-icon">
+                      <i class="ph-duotone ph-phone"></i>
+                    </span>
+                    <span data-slot="phone-text"></span>
+                  </button>
+                </div>
+                <div class="btn-slot" data-slot="website">
+                  <a target="_blank" rel="noopener" class="btn btn-suffix">
+                    <span class="btn-icon">
+                      <i class="ph-duotone ph-globe"></i>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="result-card-info">
+              <p class="provider-name" data-slot="provider-name"></p>
+              <p class="provider-plan" data-slot="provider-plan"></p>
+            </div>
+          </div>
+
+          <div class="result-data">
+            <div class="data-row">
+              <div class="data-row-inner">
+                <div class="data-row-label">
+                  <i class="ph-duotone ph-chart-line"></i>
+                  <span>Consumo estimado <span class="muted">(mês)</span></span>
+                </div>
+                <span class="data-row-value" data-slot="consumption"></span>
+              </div>
+            </div>
+            <div class="data-row">
+              <div class="data-row-inner">
+                <div class="data-row-label">
+                  <i class="ph-duotone ph-lightning"></i>
+                  <span>Potência</span>
+                </div>
+                <span class="data-row-value" data-slot="power"></span>
+              </div>
+            </div>
+            <div class="data-row">
+              <div class="data-row-inner">
+                <div class="data-row-label">
+                  <i class="ph-duotone ph-currency-eur"></i>
+                  <span>Custo mensal</span>
+                </div>
+                <div class="data-row-value-group">
+                  <div class="badge" data-slot="campaign">
+                    <div class="badge-inner">CAMPANHA</div>
+                  </div>
+                  <span class="data-row-value" data-slot="monthly-cost"></span>
+                </div>
+              </div>
+            </div>
+            <div class="data-row" data-slot="indexed">
+              <div class="data-row-inner">
+                <div class="data-row-label">
+                  <i class="ph-duotone ph-chart-line"></i>
+                  <span>Preço indexado</span>
+                </div>
+                <span class="data-row-value" data-slot="indexed-date"></span>
+              </div>
+            </div>
+
+            <div class="savings-bar" data-slot="savings">
+              <div class="savings-bar-inner">
+                <i class="ph-duotone ph-lightbulb"></i>
+                <span>Poupas</span>
+                <span data-slot="savings-monthly"></span>
+                <span data-slot="savings-yearly"></span>
+              </div>
+            </div>
+            <div class="market-summary" data-slot="market">
+              <p data-slot="market-text"></p>
+              <button type="button" class="market-summary-link" id="go-precise">Para saberes quanto poupas, usa o modo Preciso.</button>
+            </div>
+          </div>
+        </template>
+
+        <template id="result-info-template">
+          <div class="result-info">
+            <div class="info-row">
+              <div class="info-row-inner">
+                <span class="info-row-label">Como mudar</span>
+                <span class="info-row-value" data-slot="how-to-switch"></span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-row-inner">
+                <span class="info-row-label">Dados necessários</span>
+                <div class="tags-group">
+                  <div class="tag">
+                    <div class="tag-inner">
+                      <i class="ph-duotone ph-identification-card"></i>
+                      <span>CPE</span>
+                    </div>
+                  </div>
+                  <div class="tag">
+                    <div class="tag-inner">
+                      <i class="ph-duotone ph-file-text"></i>
+                      <span>NIF</span>
+                    </div>
+                  </div>
+                  <div class="tag">
+                    <div class="tag-inner">
+                      <i class="ph-duotone ph-map-pin"></i>
+                      <span>MORADA</span>
+                    </div>
+                  </div>
+                  <div class="tag">
+                    <div class="tag-inner">
+                      <i class="ph-duotone ph-phone"></i>
+                      <span>TELEFONE</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-row-inner">
+                <span class="info-row-label">Quanto tempo demora</span>
+                <span class="info-row-value">Até 3 semanas</span>
+              </div>
+            </div>
+            <div class="disclaimer-row">
+              <p class="disclaimer-text">Não precisas de notificar o teu operador atual ou pagar qualquer valor. O novo operador trata do processo do início ao fim.</p>
+            </div>
+          </div>
+        </template>
       </div>
 
       <!-- Footer -->

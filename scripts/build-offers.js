@@ -79,6 +79,34 @@ function normalizeString(value) {
 }
 
 /**
+ * ERSE free text shown on the page: drops the characters that could break out of markup
+ * (< > ") and control characters. The page renders with textContent; this is the second layer.
+ */
+function safeText(value) {
+  return normalizeString(value).replace(/[<>"\u0000-\u001f\u007f]/g, '');
+}
+
+/**
+ * ERSE link shown on the page: the first value that parses as an http or https URL, else ''.
+ * Some LinkOfertaCom cells hold plain text, so the supplier's LinkCOM is the fallback.
+ */
+function safeUrl(...values) {
+  for (const value of values) {
+    const text = normalizeString(value);
+    if (!text) continue;
+    try {
+      const url = new URL(text);
+      if ((url.protocol === 'https:' || url.protocol === 'http:') && !/[<>"\s]/.test(text)) {
+        return text;
+      }
+    } catch (e) {
+      // Not a URL: try the next value
+    }
+  }
+  return '';
+}
+
+/**
  * Normalize text for token matching (lowercase, remove accents)
  */
 function normalizeTextForTokens(text) {
@@ -303,8 +331,14 @@ function extractPromotion(condition, prioritizedColumns = null) {
   let fixedEuroMonth = null;
   let discountContext = '';
   
+  // "até ao max de 450€/mês" is a cap on some other benefit, not a discount on the bill
+  const capBefore = /(?:m[aá]x(?:imo)?\.?|até|limite|teto|tecto)(?:\s+(?:ao|a|o|de))*\s*$/i;
+
   for (const pattern of discountPatterns) {
     const match = textFields.match(pattern);
+    if (match && capBefore.test(textFields.slice(Math.max(0, match.index - 20), match.index))) {
+      continue;
+    }
     if (match) {
       const amount = parseFloat(match[1].replace(',', '.'));
       if (amount > 0 && isFinite(amount)) {
@@ -417,19 +451,20 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
   const lockIn = detectLockIn(condition);
   const promotion = extractPromotion(condition, prioritizedColumns);
   
-  const tariffName = normalizeString(condition.NomeProposta || condition.COD_Proposta);
+  const tariffName = safeText(condition.NomeProposta || condition.COD_Proposta);
   const cycleType = detectCycleType(tariffName);
   
   const metadata = {
     tariffName: tariffName,
     cycleType: cycleType, // 'daily' | 'weekly' | null
-    website: normalizeString(condition.LinkOfertaCom || condition.LinkCOM || ''),
-    phone: normalizeString(condition.ContactoComercialTel || ''),
+    website: safeUrl(condition.LinkOfertaCom, condition.LinkCOM),
+    phone: safeText(condition.ContactoComercialTel),
     fornecimento: normalizeString(condition.Fornecimento || ''),
     segmento: normalizeString(condition.Segmento || ''),
     validFrom: normalizeString(condition['Data ini'] || ''),
     validTo: normalizeString(condition['Data fim'] || ''),
-    isIndexed: normalizeString(condition.FiltroPrecosIndex || '') === 'S',
+    // ERSE renamed the column FiltroPrecosIndex_ELE in 2026; older exports use the plain name
+    isIndexed: normalizeString(condition.FiltroPrecosIndex_ELE ?? condition.FiltroPrecosIndex ?? '') === 'S',
     // Conditioned offer (members, referral codes, other contracts): kept as a savings baseline for
     // its own customers, never recommended
     isRestricted: normalizeString(condition['FiltroRestrições'] || '') === 'S',
@@ -450,10 +485,10 @@ function extractCampaignMetadata(condition, prioritizedColumns = null) {
   // Build campaign summary from available text fields
   const summaryParts = [];
   if (condition.TxTOferta) {
-    summaryParts.push(normalizeString(condition.TxTOferta).substring(0, 100));
+    summaryParts.push(safeText(condition.TxTOferta).substring(0, 100));
   }
   if (condition.TxTFidelização && lockIn.hasLockIn) {
-    summaryParts.push(`Fidelização: ${normalizeString(condition.TxTFidelização).substring(0, 50)}`);
+    summaryParts.push(`Fidelização: ${safeText(condition.TxTFidelização).substring(0, 50)}`);
   }
   metadata.campaignSummary = summaryParts.join(' | ').substring(0, 200);
   
@@ -553,7 +588,7 @@ function buildOffers() {
     
     // Extract campaign metadata (use prioritized columns from discovery)
     const campaign = condition ? extractCampaignMetadata(condition, prioritizedColumns) : {
-      tariffName: price.COD_Proposta,
+      tariffName: safeText(price.COD_Proposta),
       cycleType: null, // No cycle info without condition data
       website: '',
       phone: '',
@@ -702,10 +737,10 @@ function buildOffers() {
     }
   }
   
-  // Date of the prices: the downloader's date when it just ran, else the one the previous build kept.
+  // Date of the prices: ERSE's export date when the downloader just ran, else the one the previous build kept.
   // Never the build time: rebuilding old CSVs must not make them look fresh.
   const sourceUpdatedAt = meta.updatedAt || meta.build?.sourceUpdatedAt || null;
-  const sourceDateNote = meta.updatedAt ? 'Date the downloader fetched the CSVs from ERSE' : (meta.build?.sourceDateNote || null);
+  const sourceDateNote = meta.updatedAt ? "ERSE's export date, from the name of the ZIP the downloader fetched" : (meta.build?.sourceDateNote || null);
   
   meta.build = {
     builtAt: new Date().toISOString(),
@@ -764,5 +799,5 @@ if (require.main === module) {
   }
 }
 
-module.exports = { buildOffers };
+module.exports = { buildOffers, safeText, safeUrl, detectLockIn };
 

@@ -24,10 +24,12 @@ export function loadPDFJS() {
       return;
     }
     
+    // PDF.js 3.11.174, self-hosted (pdfjs-dist from npm, checked against the registry's sha512),
+    // so the invoice never meets a third-party script
     const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.src = 'vendor/pdfjs/pdf.min.js';
     script.onload = () => {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdfjs/pdf.worker.min.js';
       resolve();
     };
     script.onerror = reject;
@@ -47,7 +49,8 @@ export async function extractPDFData(file) {
   }
   
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  // isEvalSupported: false stops a crafted font in the PDF from running code (CVE-2024-4367)
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, isEvalSupported: false }).promise;
   
   let fullText = '';
   for (let i = 1; i <= pdf.numPages; i++) {
@@ -369,10 +372,13 @@ export function showPDFData(data, onDataShown) {
   const tariffName = formatTariffName(tariffNameRaw, data.tariffType, data.cycleType);
   
   // Update drop area text to show loaded state
-  dropAreaText.innerHTML = `
-    <p>✓ Factura carregada</p>
-    <p class="pdf-data-summary">${providerName} · ${tariffName} · ${data.consumption} kWh · ${data.power} kVA</p>
-  `;
+  // Values read from the PDF go in as text, never as markup
+  const loaded = document.createElement('p');
+  loaded.textContent = '✓ Factura carregada';
+  const summary = document.createElement('p');
+  summary.className = 'pdf-data-summary';
+  summary.textContent = `${providerName} · ${tariffName} · ${data.consumption} kWh · ${data.power} kVA`;
+  dropAreaText.replaceChildren(loaded, summary);
   
   // Hide manual link
   if (manualLink) manualLink.style.display = 'none';
