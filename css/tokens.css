@@ -156,6 +156,7 @@
      ═══════════════════════════════════════════════════════════ */
   
   --space-1: clamp(0.25rem, 0.2rem + 0.25vw, 0.3125rem); /* 4px → 5px */
+  --space-1-5: 0.375rem; /* 6px: control padding, which until now borrowed --radius-sm (audit D-4) */
   --space-2: clamp(0.5rem, 0.45rem + 0.25vw, 0.5625rem); /* 8px → 9px */
   --space-3: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem); /* 12px → 13px */
   --space-4: clamp(1rem, 0.9rem + 0.5vw, 1.125rem); /* 16px → 18px */
@@ -167,6 +168,10 @@
      LAYOUT - Fluid scaling
      ═══════════════════════════════════════════════════════════ */
   
+  /* Control heights: every button, tab and field is one of the two (data-size="sm" and "md") */
+  --control-height-sm: 2rem; /* 32px */
+  --control-height-md: 2.25rem; /* 36px */
+
   --content-width: clamp(20rem, 90vw, 36.25rem); /* 320px → 580px, responsive */
   --space-top-card: clamp(4rem, 8vw, 8.6875rem); /* 64px → 139px, responsive */
   --max-width-prose: 65ch; /* Optimal reading width */
