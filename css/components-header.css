@@ -124,18 +124,18 @@
     background: var(--color-control);
   }
   
-  /* Estimate mode: symmetric padding, 32px height */
+  /* Estimate mode: the delete button sets the 32px height and closes the pill on the right */
   .input-pill-inner:has(.input-pill-estimado) {
-    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right - equal padding */
-    gap: var(--radius-sm); /* 6px gap between content and delete button - matches Figma gap-[6px] */
-    min-height: calc(var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm)); /* 32px - matches button height */
+    padding: 0 0 0 var(--space-2);
+    gap: 0; /* the 32px button's own inset spaces the × from the value */
+    min-height: var(--control-height-sm);
   }
   
-  /* Preciso mode: reduced padding, 32px height */
+  /* Preciso mode: the same, with the PDF icon closer to the edge */
   .input-pill-inner:has(.input-pill-preciso) {
-    padding: var(--space-1) var(--radius-sm); /* 4px top/bottom, 6px left/right */
+    padding: 0 0 0 var(--space-1-5);
     gap: var(--space-2); /* 8px gap between icon and content */
-    min-height: calc(var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm)); /* 32px - matches button height */
+    min-height: var(--control-height-sm);
   }
   
   /* Preciso mode without PDF icon (manual): no gap, content starts immediately */
@@ -206,40 +206,10 @@
     color: var(--color-text-secondary);
   }
   
-  /* Delete button (suffix) - smaller padding for estimate card */
+  /* The delete button is an icon button (components-buttons.css); the pill keeps it from shrinking */
   .input-pill-delete {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* Reduced padding for smaller icon button */
-    /* Icon size is var(--text-base-size) (14px), use smaller padding */
-    padding: var(--space-1); /* 4px padding - smaller than calculated value */
-    border: none;
-    box-shadow: none;
-    /* Remove gap since icon-only button doesn't need spacing */
-    gap: 0;
-    cursor: pointer;
-    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
-    flex-shrink: 0; /* Prevent button from shrinking */
+    flex-shrink: 0;
   }
-  
-  .input-pill-delete:active {
-    transform: scale(0.97);
-  }
-
-  .input-pill-delete .btn-icon {
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  /* Remove input-pill-delete-inner wrapper - not needed with segmented button pattern */
-    
   
   /* ═══════════════════════════════════════════════════════════
      INPUT PILL - TWO MODES
