@@ -29,6 +29,11 @@ body {
   color: var(--foreground);
   background-color: var(--bg);
   min-height: 100vh;
+  /* Installed (standalone) on a phone with a notch or home indicator, viewport-fit=cover lets the
+     page reach the screen edges; these insets keep content clear of them. 0 everywhere else. */
+  padding:
+    env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* Form elements - ensure Inter font */
