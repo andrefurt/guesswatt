@@ -80,14 +80,14 @@
   <div class="page-wrapper" id="page-wrapper">
     <!-- Top Bar -->
     <header class="top-bar">
-      <a href="index.html" class="logo" id="logo-link" aria-label="Voltar ao início">
-        <span>Ω</span>
+      <a href="index.html" class="logo" id="logo-link">
+        <span aria-hidden="true">Ω</span>
         <span>GuessWatts</span>
       </a>
 
       <div class="top-bar-actions">
         <div class="btn-slot">
-          <a href="sobre.html" class="btn" aria-label="Saber mais sobre GuessWatts" aria-current="page">
+          <a href="sobre.html" class="btn" aria-current="page">
             <span class="btn-icon" aria-hidden="true">
               <svg class="icon" aria-hidden="true"><use href="#ph-info-duotone"/></svg>
             </span>
@@ -96,47 +96,48 @@
         </div>
         <div class="btn-slot">
           <div class="segmented-btn">
-            <button class="btn copy-btn" id="copy-btn" type="button" aria-label="Copiar página">
+            <button class="btn copy-btn" id="copy-btn" type="button">
               <!-- Default state -->
               <div class="copy-btn-content copy-btn-default">
                 <span class="btn-icon" aria-hidden="true">
                   <svg class="icon" aria-hidden="true"><use href="#ph-copy-duotone"/></svg>
                 </span>
-                <span>Copy page</span>
+                <span>Copiar página</span>
               </div>
               <!-- Copied state -->
-              <div class="copy-btn-content copy-btn-copied">
+              <div class="copy-btn-content copy-btn-copied" aria-hidden="true">
                 <span class="btn-icon" aria-hidden="true">
                   <svg class="icon" aria-hidden="true"><use href="#ph-check-duotone"/></svg>
                 </span>
-                <span>Copied</span>
+                <span>Copiado</span>
               </div>
             </button>
+            <span class="sr-only" id="copy-status" role="status"></span>
             <div class="segmented-divider"></div>
             <div class="dropdown-wrapper" id="dropdown-wrapper">
-              <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-haspopup="true" aria-controls="dropdown-menu">
+              <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-controls="dropdown-menu">
                 <span class="btn-icon" aria-hidden="true">
                   <svg class="icon" aria-hidden="true"><use href="#ph-caret-down"/></svg>
                 </span>
               </button>
-              <div class="dropdown-menu" id="dropdown-menu" role="menu" aria-labelledby="dropdown-trigger">
-                <button class="dropdown-item" data-action="markdown" type="button" role="menuitem">
+              <div class="dropdown-menu" id="dropdown-menu">
+                <button class="dropdown-item" data-action="markdown" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon" aria-hidden="true"><use href="#ph-code-duotone"/></svg>
                   </span>
                   <span>Copy as markdown</span>
                 </button>
-                <button class="dropdown-item" data-action="chatgpt" type="button" role="menuitem">
+                <button class="dropdown-item" data-action="chatgpt" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon icon-brand" aria-hidden="true"><use href="#brand-chatgpt"/></svg>
                   </span>
-                  <span>Open in ChatGPT</span>
+                  <span>Abrir no ChatGPT</span>
                 </button>
-                <button class="dropdown-item" data-action="claude" type="button" role="menuitem">
+                <button class="dropdown-item" data-action="claude" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon icon-brand" aria-hidden="true"><use href="#brand-claude"/></svg>
                   </span>
-                  <span>Open in Claude</span>
+                  <span>Abrir no Claude</span>
                 </button>
               </div>
             </div>

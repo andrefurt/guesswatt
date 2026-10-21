@@ -5,6 +5,7 @@
  */
 
 import { toTitleCase, formatEuro, formatNumber } from './utils.js';
+import { clearPDF } from './pdf-service.js';
 
 // =============================================================================
 // STATE - Track invoice data for input pill
@@ -82,9 +83,9 @@ export function hideResults() {
   // Update tabs
   if (tabEstimado && tabPreciso) {
     tabEstimado.classList.add('active');
-    tabEstimado.setAttribute('aria-selected', 'true');
+    tabEstimado.setAttribute('aria-pressed', 'true');
     tabPreciso.classList.remove('active');
-    tabPreciso.setAttribute('aria-selected', 'false');
+    tabPreciso.setAttribute('aria-pressed', 'false');
   }
   
   // Move indicator to estimado tab
@@ -229,28 +230,8 @@ export function clearInvoiceData() {
   if (pillConsumption) pillConsumption.textContent = '';
   if (pillPower) pillPower.textContent = '';
   
-  // Reset file input
-  const pdfInput = document.getElementById('pdf-input');
-  if (pdfInput) pdfInput.value = '';
-  
-  // Reset precise mode drop area to initial state
-  const dropArea = document.getElementById('precise-mode');
-  const dropAreaText = dropArea?.querySelector('.drop-area-text');
-  const manualLink = document.getElementById('manual-link');
-  
-  // Remove has-file class
-  if (dropArea) dropArea.classList.remove('has-file');
-  
-  // Restore original drop area content
-  if (dropAreaText) {
-    dropAreaText.innerHTML = `
-      <p>Clica ou arrasta a tua fatura PDF</p>
-      <a href="#" id="manual-link" aria-label="Introduzir dados da fatura manualmente">Adicionar dados manualmente</a>
-    `;
-  }
-  
-  // Show manual link
-  if (manualLink) manualLink.style.display = 'inline';
+  // Back to the empty drop area
+  clearPDF();
   
   // Reset manual form fields
   const preciseForm = document.getElementById('precise-form');

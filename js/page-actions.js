@@ -11,6 +11,15 @@
 let copyTimeout = null;
 
 /**
+ * Say the copy result to screen readers (#copy-status is visually hidden)
+ * @param {string} text
+ */
+function announce(text) {
+  const status = document.getElementById('copy-status');
+  if (status) status.textContent = text;
+}
+
+/**
  * Extract HTML content from page and convert to markdown format
  * Similar to shadcn/ui - copies the HTML structure as markdown
  */
@@ -19,7 +28,7 @@ function extractPageContent() {
   const doc = document.cloneNode(true);
   
   // Remove elements we don't want in the copy
-  const elementsToRemove = doc.querySelectorAll('script, style, noscript, .visually-hidden, [aria-hidden="true"]');
+  const elementsToRemove = doc.querySelectorAll('script, style, noscript, .visually-hidden, .sr-only, [aria-hidden="true"]');
   elementsToRemove.forEach(el => el.remove());
   
   // Get the main content area
@@ -105,24 +114,17 @@ url: ${currentUrl}
       
       const fullContent = frontmatter + htmlContent;
       await navigator.clipboard.writeText(fullContent);
+      announce('Página copiada.');
       
-      // Add copied state with blur transition
+      // "Copiado" shows only when the copy worked
       copyBtn.classList.add('copied');
-      
-      // Reset after 2 seconds
       clearTimeout(copyTimeout);
       copyTimeout = setTimeout(() => {
         copyBtn.classList.remove('copied');
       }, 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
-      // Don't show alert - just silently fail and show copied state anyway
-      // This matches shadcn behavior where it always shows feedback
-      copyBtn.classList.add('copied');
-      clearTimeout(copyTimeout);
-      copyTimeout = setTimeout(() => {
-        copyBtn.classList.remove('copied');
-      }, 2000);
+      announce('Não foi possível copiar a página.');
     }
   });
 }
@@ -161,12 +163,22 @@ function initDropdown() {
     }
   });
   
-  // Close on escape key
+  const close = () => {
+    dropdownWrapper.classList.remove('open');
+    dropdownTrigger.setAttribute('aria-expanded', 'false');
+  };
+  
+  // Escape closes it; focus inside the menu goes back to the trigger, since the items are hidden
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      dropdownWrapper.classList.remove('open');
-      dropdownTrigger.setAttribute('aria-expanded', 'false');
-    }
+    if (e.key !== 'Escape' || !dropdownWrapper.classList.contains('open')) return;
+    const focusWasInside = dropdownMenu.contains(document.activeElement);
+    close();
+    if (focusWasInside) dropdownTrigger.focus();
+  });
+  
+  // Tabbing out of the menu closes it (a disclosure, not a modal)
+  dropdownWrapper.addEventListener('focusout', function(e) {
+    if (e.relatedTarget && !dropdownWrapper.contains(e.relatedTarget)) close();
   });
   
   // Handle dropdown item clicks

@@ -159,8 +159,8 @@
   <div class="page-wrapper" id="page-wrapper">
     <!-- Top Bar -->
     <header class="top-bar">
-      <a href="#" class="logo" id="logo-link" aria-label="Voltar ao início">
-        <span>Ω</span>
+      <a href="#" class="logo" id="logo-link">
+        <span aria-hidden="true">Ω</span>
         <span>GuessWatts</span>
       </a>
 
@@ -222,47 +222,48 @@
         </div>
         <div class="btn-slot">
           <div class="segmented-btn">
-            <button class="btn copy-btn" id="copy-btn" type="button" aria-label="Copiar página">
+            <button class="btn copy-btn" id="copy-btn" type="button">
               <!-- Default state -->
               <div class="copy-btn-content copy-btn-default">
                 <span class="btn-icon" aria-hidden="true">
                   <svg class="icon" aria-hidden="true"><use href="#ph-copy-duotone"/></svg>
                 </span>
-                <span>Copy page</span>
+                <span>Copiar página</span>
               </div>
               <!-- Copied state -->
-              <div class="copy-btn-content copy-btn-copied">
+              <div class="copy-btn-content copy-btn-copied" aria-hidden="true">
                 <span class="btn-icon" aria-hidden="true">
                   <svg class="icon" aria-hidden="true"><use href="#ph-check-duotone"/></svg>
                 </span>
-                <span>Copied</span>
+                <span>Copiado</span>
               </div>
             </button>
+            <span class="sr-only" id="copy-status" role="status"></span>
             <div class="segmented-divider"></div>
             <div class="dropdown-wrapper" id="dropdown-wrapper">
-              <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-haspopup="true" aria-controls="dropdown-menu">
+              <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-controls="dropdown-menu">
                 <span class="btn-icon" aria-hidden="true">
                   <svg class="icon" aria-hidden="true"><use href="#ph-caret-down"/></svg>
                 </span>
               </button>
-              <div class="dropdown-menu" id="dropdown-menu" role="menu" aria-labelledby="dropdown-trigger">
-                <button class="dropdown-item" data-action="markdown" type="button" role="menuitem">
+              <div class="dropdown-menu" id="dropdown-menu">
+                <button class="dropdown-item" data-action="markdown" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon" aria-hidden="true"><use href="#ph-code-duotone"/></svg>
                   </span>
-                  <span>View as markdown</span>
+                  <span>Ver em markdown</span>
                 </button>
-                <button class="dropdown-item" data-action="chatgpt" type="button" role="menuitem">
+                <button class="dropdown-item" data-action="chatgpt" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon icon-brand" aria-hidden="true"><use href="#brand-chatgpt"/></svg>
                   </span>
-                  <span>Open in ChatGPT</span>
+                  <span>Abrir no ChatGPT</span>
                 </button>
-                <button class="dropdown-item" data-action="claude" type="button" role="menuitem">
+                <button class="dropdown-item" data-action="claude" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon icon-brand" aria-hidden="true"><use href="#brand-claude"/></svg>
                   </span>
-                  <span>Open in Claude</span>
+                  <span>Abrir no Claude</span>
                 </button>
               </div>
             </div>
@@ -285,19 +286,19 @@
           <div class="input-content">
             <!-- Tabs with sliding indicator animation -->
             <div class="input-top">
-              <div class="tabs-wrapper" id="tabs-wrapper" role="tablist" aria-label="Tipo de entrada">
+              <div class="tabs-wrapper" id="tabs-wrapper" role="group" aria-label="Tipo de entrada">
                 <!-- Sliding indicator -->
                 <div class="tabs-indicator" id="tabs-indicator" aria-hidden="true"></div>
                 
                 <!-- Tab buttons -->
                 <div class="tabs-list">
-                  <button class="tab-btn tab active" data-tab="estimado" data-mode="estimate" id="tab-estimado" type="button" role="tab" aria-selected="true" aria-controls="estimate-form">
+                  <button class="tab-btn tab active" data-tab="estimado" data-mode="estimate" id="tab-estimado" type="button" aria-pressed="true">
                     <span class="btn-icon" aria-hidden="true">
                       <svg class="icon" aria-hidden="true"><use href="#ph-lightbulb-duotone"/></svg>
                     </span>
                     <span>Estimado</span>
                   </button>
-                  <button class="tab-btn tab" data-tab="preciso" data-mode="precise" id="tab-preciso" type="button" role="tab" aria-selected="false" aria-controls="precise-mode">
+                  <button class="tab-btn tab" data-tab="preciso" data-mode="precise" id="tab-preciso" type="button" aria-pressed="false">
                     <span class="btn-icon" aria-hidden="true">
                       <svg class="icon" aria-hidden="true"><use href="#ph-target-duotone"/></svg>
                     </span>
@@ -311,7 +312,7 @@
             <div class="views-container">
               <!-- Input Group (Estimado view) -->
               <div class="input-group" id="input-group">
-                <form id="estimate-form" role="tabpanel" aria-labelledby="tab-estimado">
+                <form id="estimate-form">
                   <div class="input-field">
                     <label for="monthly-bill" class="visually-hidden">Valor mensal da fatura</label>
                     <div class="input-value">
@@ -328,14 +329,22 @@
               </div>
 
               <!-- Drop Area (Preciso view) -->
-              <div class="drop-area" id="precise-mode" role="tabpanel" aria-labelledby="tab-preciso">
-                <input type="file" class="file-input" id="pdf-input" accept=".pdf" aria-label="Selecionar ficheiro PDF da fatura">
+              <div class="drop-area" id="precise-mode">
+                <input type="file" class="file-input" id="pdf-input" accept=".pdf" tabindex="-1" aria-hidden="true">
                 <div class="drop-area-icon" aria-hidden="true">
                   <svg class="icon" aria-hidden="true"><use href="#ph-file-pdf-duotone"/></svg>
                 </div>
                 <div class="drop-area-text">
-                  <p>Clica ou arrasta a tua fatura PDF</p>
-                  <a href="#" id="manual-link" aria-label="Introduzir dados da fatura manualmente">Adicionar dados manualmente</a>
+                  <!-- Before a PDF; pdf-service.js swaps it for the summary below, and back -->
+                  <div class="drop-area-empty">
+                    <p id="pdf-hint">Arrasta a tua fatura em PDF para aqui, ou</p>
+                    <button type="button" class="drop-area-pick" id="pdf-pick" aria-describedby="pdf-hint">Escolher fatura</button>
+                    <button type="button" class="drop-area-link" id="manual-link">Adicionar dados manualmente</button>
+                  </div>
+                  <div class="drop-area-loaded" hidden>
+                    <p class="drop-area-status"></p>
+                    <p class="pdf-data-summary"></p>
+                  </div>
                 </div>
               </div>
 
@@ -422,7 +431,7 @@
 
                   <!-- Row 3: Link + Submit -->
                   <div class="form-footer">
-                    <button class="form-link" id="pdf-link" type="button" aria-label="Voltar para carregar fatura PDF">Adicionar fatura em pdf</button>
+                    <button class="form-link" id="pdf-link" type="button">Adicionar fatura em PDF</button>
                     <button class="submit-btn" id="manual-submit-btn" type="submit">Submeter</button>
                   </div>
                 </form>
