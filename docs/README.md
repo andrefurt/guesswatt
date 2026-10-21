@@ -98,27 +98,41 @@ This directory contains all project documentation organized by topic. Each docum
 
 **Purpose**: Architecture Decision Records (ADRs) documenting technical and product decisions
 
-**Contents**:
+**Contents** (each ADR is Implemented, Accepted not built, or Superseded; the status is in the ADR):
 - ADR-001: Client-Side Only
 - ADR-002: Vanilla JS, No Framework
 - ADR-003: No Build Step
 - ADR-004: ERSE CSVs as Primary Source
-- ADR-005: Manual CSV Updates (superseded: weekly fetch-based refresh)
-- ADR-006: ERSE Insights Every 4 Months
+- ADR-005: Manual CSV Updates (superseded by ADR-027)
+- ADR-006: ERSE Insights Every 4 Months (not built)
 - ADR-007: Single €/month Input with PDF Option
 - ADR-008: Estimate vs Precise (Two Modes)
 - ADR-009: Calculation Formula
 - ADR-010: Assumed Defaults
-- ADR-011: Loss Framing
-- ADR-012: Offer Card with Expandable Details
-- ADR-013: Tooltips for Technical Terms
-- ADR-014: Top N Offers, Not All
+- ADR-011: Loss Framing (superseded by ADR-028)
+- ADR-012: Offer Card with Expandable Details (not built)
+- ADR-013: Tooltips for Technical Terms (not built)
+- ADR-014: Top N Offers, Not All (not built)
 - ADR-015: Real Contacts from CSV
-- ADR-016: Calendar: 2 Months Default
+- ADR-016: Calendar: 2 Months Default (not built)
 - ADR-017: PDF Parsing Client-Side
 - ADR-018: URL State for Bookmarks
 - ADR-019: Portuguese (PT-PT) Only
 - ADR-020: Domestic Segment Only
+- ADR-021: Provider Logos, Hybrid Cascading Fallback (superseded by ADR-029)
+- ADR-022: Conditioned and Indexed Offers
+- ADR-023: Installable and Offline App (PWA)
+- ADR-024: Content Security Policy, Own Origin Only
+- ADR-025: Playwright in CI Only
+- ADR-026: Claude Fixes Issues on a Branch, Only When the Owner Asks
+- ADR-027: Weekly Automatic Refresh and the Price Date
+- ADR-028: Estimate Mode Compares with the Market
+- ADR-029: One Neutral Mark for Every Supplier
+- ADR-030: Promotions Do Not Enter the Cost
+- ADR-031: Offers with Lock-in Are Never Recommended
+- ADR-032: Self-Hosted Assets
+- ADR-033: Asking about Households of 5 or More
+- ADR-034: Dark Mode from the System
 
 **When to update**: When making new architectural decisions (create new ADR)
 
