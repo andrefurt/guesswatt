@@ -211,7 +211,8 @@ function calcularCustoMensal(potencia, consumoKwh, tipoTarifa, oferta, distribui
   prorated across the periods, as in ERSE's Exemplo 3.
 - **Fixed term:** 6% on its network-access (TAR) share at 3.45 kVA or below, 23% on the rest
   (DL 60/2019). The TAR fixed term per power comes from `data/tar.json` (ERSE Diretiva 10/2025
-  for 2026), which the loader fetches next to offers.json.
+  for 2026), which the loader fetches next to offers.json. It is updated by hand once a year;
+  the weekly refresh opens an issue when its `year` is not the current one.
 - **IEC** (0.001 €/kWh) and the **DGEG fee** (0.07 €/month, Portaria 311/2002): 23%.
 - **Audiovisual contribution** (2.85 €/month): 6%.
 
