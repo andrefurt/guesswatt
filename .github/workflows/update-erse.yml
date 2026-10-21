@@ -1,82 +1,124 @@
-# GitHub Actions Workflow - Auto Update ERSE Data
-# 
-# This workflow automatically downloads the latest CSV data from ERSE,
-# builds offers.json, validates it, and commits only when data changes.
+# Weekly ERSE data refresh
 #
-# Schedule: Weekly (every Monday at 09:00 UTC)
-# - Weekly is safer than monthly: catches ERSE updates faster
-# - Monday gives ERSE time to publish weekend updates
-# - 09:00 UTC = 10:00 WET / 11:00 CEST (business hours in Portugal)
+# Downloads ERSE's CSVs with plain fetch (scripts/download-erse.js), builds offers.json, runs the
+# gate, and pushes to main only when the CSVs or offers.json changed. meta.json alone never counts:
+# its build time changes on every run.
 #
-# Manual trigger: Actions tab → "Update ERSE Data" → "Run workflow"
+# On any failure nothing is pushed, the data files are kept as an artifact, and one issue
+# "ERSE data refresh failed" is opened (or commented on, if it is already open) with the log tail.
+#
+# Schedule: every Monday at 09:00 UTC. Manual trigger: Actions tab, "Update ERSE Data", "Run workflow".
 
 name: Update ERSE Data
 
 on:
   schedule:
-    # Runs every Monday at 09:00 UTC
     - cron: '0 9 * * 1'
-  
-  # Allows manual trigger from GitHub UI
   workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: update-erse
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
-      contents: write
-    
+      contents: write # push the refreshed data to main
+      issues: write # open the failure issue
+      pages: write # request a Pages build after the push
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
-      
+          persist-credentials: false
+
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '20'
-      
-      - name: Download ERSE CSV
-        run: |
-          set -e
-          node scripts/download-erse.js || (echo "❌ Failed to download ERSE CSV" && exit 1)
-      
+          node-version: '24'
+
+      - name: Download ERSE CSVs
+        run: node scripts/download-erse.js 2>&1 | tee -a refresh.log
+
       - name: Build offers.json
-        run: |
-          set -e
-          node scripts/build-offers.js || (echo "❌ Failed to build offers.json" && exit 1)
-      
+        run: node scripts/build-offers.js 2>&1 | tee -a refresh.log
+
       - name: Run self-tests
-        run: |
-          set -e
-          node scripts/selftest.js || (echo "❌ Self-tests failed" && exit 1)
-      
+        run: node scripts/selftest.js 2>&1 | tee -a refresh.log
+
       - name: Check for changes
         id: changes
         run: |
-          set +e
-          git diff --quiet data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv 2>/dev/null
-          if [ $? -ne 0 ]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Changes detected in data files"
-            git status --short data/
+          if git diff --quiet -- data/Precos_ELEGN.csv data/CondComerciais.csv data/offers.json; then
+            echo "No change in the CSVs or offers.json"
           else
-            echo "No changes detected in data files"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git status --short data/
           fi
-          set -e
-      
+
       - name: Commit and push
         if: steps.changes.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -e
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv
-          git commit -m "chore: update ERSE data $(date +%Y-%m-%d)" || exit 0
-          git push origin HEAD:main || (echo "❌ Failed to push changes" && exit 1)
-      
-      - name: No changes detected
-        if: steps.changes.outputs.changed != 'true'
-        run: echo "✅ No changes in CSV data - skipping commit"
+          git commit -m "update erse data $(date -u +%Y-%m-%d)"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
 
+      # Pushes made with GITHUB_TOKEN may not start a Pages build on their own
+      - name: Request a Pages build
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
+
+      - name: Keep the data and log
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: erse-refresh-${{ github.run_id }}
+          path: |
+            data/
+            refresh.log
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Open or update the failure issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="ERSE data refresh failed"
+          {
+            echo "The weekly refresh failed on $(date -u +%Y-%m-%d). Nothing was pushed; the site keeps the last good data."
+            echo
+            echo "Run: ${RUN_URL} (the data files and log are attached as an artifact)."
+            echo
+            echo "Common causes:"
+            echo "- A new supplier code: name it in \`js/config.js\` PROVIDERS (ERSE publishes codes, never names)."
+            echo "- ERSE changed Settings.json, the ZIP or a CSV column: see \`scripts/download-erse.js\` and \`scripts/build-offers.js\`."
+            echo
+            echo "Last 60 lines of the log:"
+            echo
+            echo '```'
+            tail -n 60 refresh.log 2>/dev/null || echo "(no log: the job failed before the download)"
+            echo '```'
+          } > issue.md
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --repo "$GITHUB_REPOSITORY" --body-file issue.md
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file issue.md
+          fi
