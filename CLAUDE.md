@@ -12,6 +12,8 @@ node scripts/selftest.js              # data and calculation tests; part of the 
 git config core.hooksPath .githooks   # once per clone, so the git hooks run
 ```
 
+CI (`.github/workflows/ci.yml`) runs the same check on every push and pull request.
+
 Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 `node scripts/download-erse.js && node scripts/build-offers.js && node scripts/validate-data.js && node scripts/selftest.js`.
 `validate-data.js` holds the data bounds (headers, ranges, the jump against HEAD); `selftest.js` tests the code.
