@@ -1,239 +1,57 @@
 # GuessWatts
 
-> Compare electricity tariffs in Portugal. Discover if you're overpaying.
+> Compare electricity tariffs in Portugal. See whether you are paying too much.
 
-**GuessWatts** is a free, open-source tool that helps Portuguese consumers find better electricity tariffs. It compares all available offers from the Portuguese energy market regulator (ERSE) and shows you exactly how much you could save by switching.
+GuessWatts compares every electricity offer published by ERSE, the Portuguese energy regulator, with
+what you pay now, and tells you which one is cheapest for you and how to switch. It is free, open
+source and runs at [guesswatts.com](https://guesswatts.com).
 
-## 🎯 What It Does
+## What it does
 
-- **Quick estimate**: Enter your monthly bill amount (€) and get instant results
-- **Precise calculation**: Upload your PDF invoice or enter detailed consumption data
-- **Best offer discovery**: Finds the cheapest tariff for your profile
-- **Actionable guidance**: Step-by-step instructions on how to switch providers
-- **Zero backend**: Everything runs in your browser; your data never leaves your device
+- **Estimado:** type your monthly bill in euros and see how it compares with the market.
+- **Preciso:** upload your PDF invoice or type its numbers, and see what the cheapest offer saves you.
+- **The best offer for you:** domestic offers only; offers with a lock-in or reserved for a group are
+  left out, and indexed offers are labelled with the price date.
+- **How to switch:** the supplier's contacts from ERSE's data and the steps to change.
+- **Private:** everything runs in your browser, and the invoice never leaves your device. The result
+  lives in the URL, so it can be shared as a link.
+- **Works offline** after the first visit, and installs as an app.
 
-## ✨ Key Features
-
-- **Two input modes**:
-  - **Estimate**: Single €/month input for instant results
-  - **Precise**: PDF upload or manual entry for accurate calculations
-  
-- **Loss framing**: Shows "You're losing €X/year" instead of generic savings
-- **Real provider contacts**: Phone numbers and links from official ERSE data
-- **No lock-in filtering**: Excludes offers with mandatory contract periods by default
-- **Accessible**: aims for WCAG 2.2 AA, keyboard navigable, screen reader friendly
-- **Privacy-first**: All processing happens client-side; no data collection
-
-## 🚀 Quick Start
-
-### For Users
-
-Simply visit the website. No installation needed: it's a static site that works in any modern browser.
-
-### For Developers
+## Run it locally
 
 ```bash
-# Clone the repository
 git clone https://github.com/andrefurt/guesswatt.git
 cd guesswatt
-
-# Once per clone: run the repo's git hooks (commit message format, tests before commit)
-git config core.hooksPath .githooks
-
-# Serve locally (no build step required)
-python3 -m http.server 8000
-# or
-npx serve .
-
-# Open http://localhost:8000
+git config core.hooksPath .githooks   # once per clone: the commit checks and the gate
+python3 -m http.server 8000           # then open http://localhost:8000
 ```
 
-## 📁 Project Structure
+There is no build step: the browser loads the files as they are in the repo. It needs an HTTP server,
+not `file://`. Setup, tests, the data refresh and troubleshooting are in
+[`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
 
-The file map lives in [`docs/TECH_STACK.mdc`](docs/TECH_STACK.mdc#file-map) (File Map).
+## How it works
 
-## 🏗️ Architecture
+- **Data:** a weekly GitHub Action (`.github/workflows/update-erse.yml`) downloads ERSE's tariff
+  export, builds `data/offers.json`, checks it against bounds and pushes it when prices change. The
+  page shows the date of the prices.
+- **Calculation:** `js/calculator.js` owns the formulas and the ranking;
+  [`docs/DATA_MODEL.mdc`](docs/DATA_MODEL.mdc) explains them.
+- **Stack:** plain JavaScript modules and CSS, no framework and no backend. PDF.js and the Inter font
+  are self-hosted in `vendor/`. [`docs/TECH_STACK.mdc`](docs/TECH_STACK.mdc) has the architecture and
+  the file map.
+- **Accessibility:** aims for WCAG 2.2 AA.
 
-### Technology Stack
+## Documentation
 
-- **Frontend**: Vanilla JavaScript (ES6+ modules), no framework
-- **Styling**: Modern CSS with OKLCH colors, custom properties, clamp()
-- **Hosting**: Static hosting (GitHub Pages compatible)
-- **Build**: None, files are served directly
-- **Dependencies**: Zero runtime dependencies; PDF.js 3.11.174 is self-hosted in `vendor/pdfjs/` and loads only when a PDF is used
+[`docs/README.md`](docs/README.md) says which doc owns what. Why something is the way it is:
+[`docs/DECISIONS.mdc`](docs/DECISIONS.mdc).
 
-### Design Principles
+## Contributing
 
-1. **Simplicity**: No build step, no framework, no abstractions
-2. **Performance**: a gzip size budget checked in the gate, first paint about 1.8 s on Slow 4G (see `docs/TECH_STACK.mdc`)
-3. **Accessibility**: aims for WCAG 2.2 AA, keyboard-first design
-4. **Privacy**: Client-side processing only, no data collection
-5. **Maintainability**: Clean, documented code that lasts
+Read [`CLAUDE.md`](CLAUDE.md) for the rules and [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the
+workflow. Issues: [GitHub Issues](https://github.com/andrefurt/guesswatt/issues).
 
-### CSS Architecture
+## License
 
-Modular CSS with design tokens:
-
-- **Design tokens** (`tokens.css`): Colors (OKLCH), spacing, typography, animations
-- **Reset** (`reset.css`): Modern CSS reset
-- **Base** (`base.css`): Typography and defaults
-- **Components** (`components-*.css`): Component-specific styles
-- **Utilities** (`utilities.css`): Helper classes
-
-### JavaScript Architecture
-
-ES6 modules with clear separation of concerns:
-
-- **State management**: URL-based state (no localStorage)
-- **Business logic**: Pure functions in `calculator.js`
-- **UI logic**: Component initialization and event handling
-- **Data loading**: `offers.json` built from the ERSE CSVs at build time (no CSV parsing in the browser)
-
-## 📊 Data Pipeline
-
-### Data Sources
-
-All data comes from **ERSE** (Portuguese Energy Services Regulatory Authority):
-
-1. **Price data** (`Precos_ELEGN.csv`): ~13K rows of tariff prices
-2. **Commercial conditions** (`CondComerciais.csv`): ~700 rows of offer metadata
-
-### Update Process
-
-1. **Download** (`scripts/download-erse.js`):
-   - Reads the current ZIP from ERSE's `Settings.json` (`csvPath`) with plain `fetch`, no browser
-   - Records ERSE's export date from the ZIP name as the price date in `meta.json`
-   - Validates both required CSVs
-
-2. **Build** (`scripts/build-offers.js`):
-   - Joins CSVs on `COM` + `COD_Proposta`
-   - Normalizes numbers (comma → dot)
-   - Filters electricity-only offers
-   - Outputs optimized `offers.json`
-
-3. **Check the bounds** (`scripts/validate-data.js`):
-   - Every CSV column the build reads is present
-   - Offer and supplier floors, price and promotion ranges, TAR values
-   - No jump against the last commit (offer count, suppliers, median price, price date)
-
-4. **Validate** (`scripts/selftest.js`):
-   - Ensures offers exist and have required fields
-   - Validates no gas-only offers
-   - Tests calculation samples
-
-### Running Data Updates
-
-The weekly Action (`.github/workflows/update-erse.yml`, Mondays) runs these steps with plain
-`fetch` and pushes when the prices changed, so a manual run is only for testing a script change.
-
-```bash
-# Download latest ERSE data
-node scripts/download-erse.js
-
-# Build offers.json from CSVs
-node scripts/build-offers.js
-
-# Check the data bounds
-node scripts/validate-data.js
-
-# Run validation tests
-node scripts/selftest.js
-
-# Or run all four in sequence
-node scripts/download-erse.js && node scripts/build-offers.js && node scripts/validate-data.js && node scripts/selftest.js
-```
-
-## 🧮 Calculation Logic
-
-`js/calculator.js` owns the formulas, the estimate and the ranking; [`docs/DATA_MODEL.mdc`](docs/DATA_MODEL.mdc)
-explains them in prose.
-
-## 🎨 Design System
-
-`css/tokens.css` is the only owner of the token values (colour, type, spacing, motion);
-[`docs/TECH_STACK.mdc`](docs/TECH_STACK.mdc) names the tokens and their roles.
-
-- **Font**: Inter, self-hosted in `vendor/fonts/` (latin and latin-ext subsets, SIL OFL 1.1)
-- **Colour**: OKLCH, with light and dark values that follow the system setting
-- **Reduced motion**: every animation and transition respects `prefers-reduced-motion`
-
-## ♿ Accessibility
-
-### Requirements
-
-- Aims for **WCAG 2.2 AA**
-- **Keyboard navigation** throughout
-- **Screen reader** tested (VoiceOver, NVDA)
-- **Focus visible** at all times
-- **Color contrast** ≥4.5:1 (text), ≥3:1 (UI)
-- **Touch targets** ≥44px
-
-### Implementation
-
-- Semantic HTML (`<button>`, `<dialog>`, `<details>`)
-- ARIA labels where needed
-- Live regions for dynamic content
-- Focus trapping in modals
-- Skip links for keyboard users
-
-## 🧪 Development
-
-### Code Standards
-
-- **JavaScript**: ES6+ modules, JSDoc comments, descriptive names
-- **CSS**: BEM-ish naming, custom properties, no magic numbers
-- **HTML**: Semantic elements, proper ARIA attributes
-- **Comments**: Explain WHY, not WHAT
-
-### File Naming
-
-- `kebab-case.js` → JavaScript modules
-- `kebab-case.css` → CSS files
-- `PascalCase` → Classes (in docs only)
-- `camelCase` → Functions, variables
-- `SCREAMING_SNAKE` → Constants
-
-### Git Commits
-
-Lowercase, imperative subject of at most 72 characters, no full stop, one logical change per commit,
-no tool attribution; `.githooks/commit-msg` checks it. Example: `add the tri-hourly split to the estimate`.
-
-## 📚 Documentation
-
-Comprehensive documentation is available in the `docs/` directory:
-
-- **[CONCEPT.mdc](docs/CONCEPT.mdc)**: Product vision, user flows, LOVE framework
-- **[TECH_STACK.mdc](docs/TECH_STACK.mdc)**: Technical architecture, CSS/JS patterns
-- **[DATA_MODEL.mdc](docs/DATA_MODEL.mdc)**: CSV schemas, calculation formulas
-- **[DECISIONS.mdc](docs/DECISIONS.mdc)**: Architecture Decision Records (ADRs)
-- **[COPY.mdc](docs/COPY.mdc)**: Tone of voice, UI copy, glossary
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Read the documentation in `docs/`
-2. Follow the rules in CLAUDE.md and `.claude/rules/`
-3. Ensure accessibility requirements are met
-4. Test in multiple browsers (Chrome, Safari, Firefox)
-5. Test with keyboard navigation and screen readers
-
-## 📄 License
-
-MIT License, see [LICENSE](LICENSE).
-
-## 🙏 Acknowledgments
-
-- **ERSE** for providing open tariff data
-- **Portuguese consumers** for feedback and testing
-
-## 🔗 Links
-
-- **Website**: [guesswatts.com](https://guesswatts.com)
-- **Issues**: [GitHub Issues](https://github.com/andrefurt/guesswatt/issues)
-- **ERSE Simulator**: [ERSE Website](https://www.erse.pt/)
-
----
-
-**Made with ❤️ for Portuguese consumers**
-
+MIT, see [LICENSE](LICENSE). The tariff data is ERSE's ([erse.pt](https://www.erse.pt/)).
