@@ -97,6 +97,32 @@ export function formatShortDataMonth(date) {
   return `${month} ${year}`;
 }
 
+// PT-PT number formats: "54,28 €", "4,6". Intl puts a no-break space before the €.
+const EURO = {
+  0: new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }),
+  2: new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
+};
+const NUMBER = new Intl.NumberFormat('pt-PT', { maximumFractionDigits: 2 });
+
+/**
+ * Format euros the PT-PT way: "54,28 €"
+ * @param {number} value
+ * @param {0|2} [decimals=2] - 0 for rounded figures ("cerca de 65 €")
+ * @returns {string}
+ */
+export function formatEuro(value, decimals = 2) {
+  return EURO[decimals].format(value);
+}
+
+/**
+ * Format a number the PT-PT way, up to 2 decimals: "4,6", "250"
+ * @param {number|string} value
+ * @returns {string}
+ */
+export function formatNumber(value) {
+  return NUMBER.format(Number(value));
+}
+
 /**
  * Whether the person said the household has 5 or more people (reduced VAT up to 300 kWh)
  * @returns {boolean}

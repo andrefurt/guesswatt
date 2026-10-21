@@ -1,12 +1,12 @@
 # GuessWatts
 
-Ferramenta de comparação de tarifas de electricidade em Portugal.
+Ferramenta de comparação de tarifas de eletricidade em Portugal.
 
 ## Como funciona
 
 ### Modo Estimativa
 
-Introduz o valor mensal da tua factura (€/mês). O sistema assume:
+Introduz o valor mensal da tua fatura (€/mês). O sistema assume:
 
 - Potência: 4.6 kVA (mais comum em Portugal)
 - Tarifa: Simples (preço único)
@@ -16,7 +16,7 @@ Introduz o valor mensal da tua factura (€/mês). O sistema assume:
 
 Podes:
 
-- Carregar a factura em PDF (extracção automática)
+- Carregar a fatura em PDF (extracção automática)
 - Introduzir manualmente: potência, consumo, tipo de tarifa
 
 ## Glossário
