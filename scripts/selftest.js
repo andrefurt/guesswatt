@@ -765,6 +765,14 @@ async function runSelftest() {
     if (missing.length) throw new Error(`PRECACHE in sw.js lists files that do not exist: ${missing.join(', ')}`);
   });
 
+  test('sw.js keeps the VERSION line the weekly refresh rewrites', () => {
+    const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
+    const lines = sw.match(/^const VERSION = '\d{4}-\d{2}-\d{2}';$/gm) || [];
+    if (lines.length !== 1) {
+      throw new Error("sw.js needs exactly one line \"const VERSION = 'YYYY-MM-DD';\": update-erse.yml sets it to the price date");
+    }
+  });
+
   test('promotion discovery validation', () => {
     if (!fs.existsSync(META_PATH)) {
       return; // Skip if meta.json doesn't exist
