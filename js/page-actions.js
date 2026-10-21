@@ -11,6 +11,16 @@
 let copyTimeout = null;
 
 /**
+ * The page's address without its query: a result's figures live in the query (url-state.js) and
+ * never go into the copied text or the AI prompt links
+ * @returns {string}
+ */
+function pageURL() {
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  return (local ? 'https://guesswatts.com' : location.origin) + location.pathname;
+}
+
+/**
  * Say the copy result to screen readers (#copy-status is visually hidden)
  * @param {string} text
  */
@@ -95,10 +105,7 @@ function initCopyButton() {
         ? 'Informação sobre o projeto GuessWatts'
         : 'Comparador de tarifas de eletricidade em Portugal';
       
-      // Use production URL instead of localhost
-      const currentUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://guesswatts.com' + window.location.pathname
-        : window.location.href;
+      const currentUrl = pageURL();
       
       // Extract HTML content from current page
       const htmlContent = extractPageContent();
@@ -278,10 +285,7 @@ async function handleDropdownAction(action) {
       break;
       
     case 'chatgpt':
-      // Use production URL instead of localhost
-      const productionUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://guesswatts.com' + window.location.pathname
-        : window.location.href;
+      const productionUrl = pageURL();
       const chatGPTPrompt = encodeURIComponent(
         `I'm looking at this GuessWatts electricity tariff comparison tool: ${productionUrl}\n\n` +
         `GuessWatts compares electricity tariffs in Portugal using official ERSE data. ` +
@@ -293,10 +297,7 @@ async function handleDropdownAction(action) {
       break;
       
     case 'claude':
-      // Use production URL instead of localhost
-      const productionUrlClaude = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://guesswatts.com' + window.location.pathname
-        : window.location.href;
+      const productionUrlClaude = pageURL();
       const claudePrompt = encodeURIComponent(
         `I'm looking at this GuessWatts electricity tariff comparison tool: ${productionUrlClaude}\n\n` +
         `GuessWatts compares electricity tariffs in Portugal using official ERSE data. ` +

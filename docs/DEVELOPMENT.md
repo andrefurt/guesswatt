@@ -68,6 +68,7 @@ guesswatt/
 │   ├── ui-components.js     # UI initialization
 │   ├── ui-handlers.js       # Event handlers
 │   ├── ui-renderer.js       # Result rendering
+│   ├── url-state.js         # Result inputs in the URL (ADR-018)
 │   └── utils.js             # Utilities (includes formatTariffName)
 ├── data/                   # Data files
 │   ├── Precos_ELEGN.csv    # Price data

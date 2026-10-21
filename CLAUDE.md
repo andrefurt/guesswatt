@@ -23,7 +23,8 @@ Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 
 1. No framework and no build step: the browser loads the files as they are in the repo.
 2. All processing stays in the browser; the user's data never leaves the device.
-3. App state lives in the URL, not in localStorage, so a result can be shared as a link.
+3. App state lives in the URL, not in localStorage, so a result can be shared as a link
+   (`js/url-state.js`, ADR-018: plain params, coerced on the way in).
 4. User-facing text is PT-PT and uses "tu"; never "você", never Brazilian forms.
 5. Semantic HTML first: `<button>`, `<dialog>`, `<details>` before custom widgets.
 6. Every interactive element works with the keyboard, shows focus and respects reduced motion.

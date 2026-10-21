@@ -54,6 +54,9 @@ export function hideResults() {
   if (pageWrapper) {
     pageWrapper.classList.remove('results-view');
   }
+
+  // The URL describes the result (url-state.js); with the result gone, it goes too
+  history.replaceState(null, '', location.pathname);
   
   // Reset input pill mode (CSS handles visibility via .results-view)
   if (inputPill) {
