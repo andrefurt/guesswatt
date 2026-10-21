@@ -225,13 +225,14 @@ Flexbox-based, composable patterns.
 
 ```
 js/
-├── main.js             → Application entry point, state management, form handlers
-├── calculator.js       → Pure business logic: cost calculations, offer filtering
+├── main.js             → Entry point: form handlers and runComparison(), the one path every flow ends in
+├── calculator.js       → Pure business logic: costs, ranking, and compare() (best offer, saving, market median)
 ├── config.js          → Configuration constants (VAT rates, fees, default power, providers)
-├── data-date.js       → Footer: date of the prices and the stale notice (every page)
-├── pdf-service.js     → PDF parsing (client-side with PDF.js, self-hosted in vendor/pdfjs/)
+├── data-date.js       → Footer: date of the prices and the stale notice (every page; imports nothing)
+├── page-actions.js    → Copy button and its menu (every page; imports nothing)
+├── pdf-service.js     → Loads PDF.js (self-hosted in vendor/pdfjs/) and reads the invoice; computes nothing
 ├── ui-components.js    → UI component initialization (tabs, tooltips, dropdowns)
-├── ui-handlers.js     → Event handlers (copy, delete, show/hide results)
+├── ui-handlers.js     → Logo, delete, About, show/hide results, the input pill
 ├── ui-renderer.js     → Result rendering and DOM manipulation
 └── utils.js           → Data loading (offers.json, tar.json, meta.json date) and formatting helpers
 
@@ -698,7 +699,7 @@ about 1.8 s or less, with every icon on that first frame.
 
 1. **Initialization** (`main.js`):
    - DOM ready → `init()` called
-   - Initialize UI handlers (copy, dropdown, delete)
+   - Initialize the copy menu (page-actions.js) and the UI handlers (logo, delete)
    - Populate provider dropdown
    - Initialize tabs system
    - Initialize PDF upload handler
@@ -711,12 +712,12 @@ about 1.8 s or less, with every icon on that first frame.
    - No CSV fallback in the browser (removed in October 2026): if `offers.json` fails, the
      request fails and no result is shown
 
-3. **Form Submission**:
-   - **Estimate mode**: Monthly bill → estimate consumption → find best offer → render
-   - **Precise mode**: Consumption + power + tariff → find best offer → render
+3. **Form Submission**: the estimate form, the manual form and a read PDF each build an input
+   and call `runComparison()` (main.js), which loads the data and calls `compare()` in
+   calculator.js. The saving against the current supplier exists only there
+   (`currentSupplierSaving`). sobre.html loads only data-date.js and page-actions.js.
 
 4. **Result Rendering** (`ui-renderer.js`):
-   - Calculate savings (vs current or vs average)
    - Clone `#result-card-template` and `#result-info-template` (in `index.html`) and fill them with
      `textContent` and DOM properties: ERSE text and links never go through `innerHTML` (rule 7).
      `scripts/build-offers.js` also strips markup characters and non-http links at build time.
@@ -726,24 +727,20 @@ about 1.8 s or less, with every icon on that first frame.
      - Fallback 2: Generic lightning icon (`ph-lightning-duotone` from the sprite)
    - Insert into DOM
    - Initialize logo fallback handlers
-   - Cache result for tab switching
    - Show results view, hide input view
 
-5. **Tab Switching**:
-   - Check cache for mode
-   - If cached: restore HTML immediately
-   - If not cached: show input form for that mode
+5. **Tab Switching**: shows that mode's form; a result is never cached per tab
 
 ### Data Flow
 
 ```
 User Input
     ↓
-Form Handler (main.js)
+Form Handler or PDF (main.js, pdf-service.js)
     ↓
-Load Data (utils.js) → offers.json
+runComparison (main.js) → Load Data (utils.js) → offers.json
     ↓
-Calculate (calculator.js) → Best Offer
+compare (calculator.js) → best offer, saving, market median
     ↓
 Render (ui-renderer.js) → DOM from <template>
     ↓

@@ -65,7 +65,8 @@ guesswatt/
 │   ├── calculator.js       # Cost calculation logic
 │   ├── config.js           # Configuration constants
 │   ├── data-date.js        # Footer price date and stale notice
-│   ├── pdf-service.js      # PDF parsing (client-side)
+│   ├── page-actions.js     # Copy button and menu (both pages)
+│   ├── pdf-service.js      # PDF reading (client-side)
 │   ├── ui-components.js    # UI component initialization
 │   ├── ui-handlers.js      # Event handlers
 │   ├── ui-renderer.js      # Result rendering

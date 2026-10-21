@@ -461,3 +461,55 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
   
   return best; // melhor oferta
 }
+
+/**
+ * Monthly saving of the best offer against the person's current supplier: that supplier's cheapest
+ * offer for the same power and tariff type (lock-in and conditions included, since the person may
+ * be on any of them). Zero or negative means the current supplier already matches the best offer.
+ * @param {Array<Object>} offers
+ * @param {string} provider - ERSE supplier code (COM)
+ * @param {number} bestMonthlyCost - Monthly cost of the best offer
+ * @returns {{monthly: number, yearly: number}|null} null when the supplier has no offer for this profile
+ */
+export function currentSupplierSaving(offers, provider, consumption, power, tariffType, bestMonthlyCost, distribution = null, context = {}) {
+  const costs = offers
+    .filter(o =>
+      o.COM === provider &&
+      o.TF > 0 &&
+      (o['TV|TVFV|TVP'] || o.TV || 0) > 0 &&
+      Math.abs(o.Pot_Cont - power) < 0.01 &&
+      o.Contagem === tariffType)
+    .map(o => calculateMonthlyCost(o, consumption, power, distribution, context));
+  if (costs.length === 0) return null;
+  const monthly = Math.min(...costs) - bestMonthlyCost;
+  return { monthly, yearly: monthly * 12 };
+}
+
+/**
+ * The one comparison every flow runs (estimate form, manual form, PDF)
+ * @param {Array<Object>} offers
+ * @param {Object} input - { mode: 'estimate', bill } or
+ *   { mode: 'precise', consumption, power, tariffType, distribution?, provider? }
+ * @param {Object} context - See calculateMonthlyCost
+ * @returns {{best: Object, consumption: number, power: number, savings: Object|null, marketMedianCost: number|null}}
+ * @throws {Error} When no offer qualifies for the profile
+ */
+export function compare(offers, input, context = {}) {
+  if (input.mode === 'estimate') {
+    const consumption = estimateConsumption(input.bill, offers, context);
+    const best = findBestOffer(offers, consumption, DEFAULT_POWER, context);
+    return {
+      best,
+      consumption,
+      power: DEFAULT_POWER,
+      savings: null, // estimate mode knows the bill, not the tariff behind it (ADR-011 superseded)
+      marketMedianCost: marketMedianCost(offers, consumption, DEFAULT_POWER, 1, null, context)
+    };
+  }
+  const { consumption, power, tariffType, distribution = null, provider = null } = input;
+  const best = findBestOfferForTariff(offers, consumption, power, tariffType, distribution, context);
+  const savings = provider
+    ? currentSupplierSaving(offers, provider, consumption, power, tariffType, best.monthlyCost, distribution, context)
+    : null;
+  return { best, consumption, power, savings, marketMedianCost: null };
+}
