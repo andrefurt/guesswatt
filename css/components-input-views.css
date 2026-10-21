@@ -592,14 +592,19 @@
   }
   
   /* Select dropdown */
+  /* min-width: 0 on both: a select's min-content width is its longest option, so as a flex item it
+     would not shrink below it and would push its chevron out of the box (Fornecedor at 375 px) */
   .form-select-wrapper {
     position: relative;
     flex: 1;
     display: flex;
+    min-width: 0;
   }
   
   .form-select {
     flex: 1;
+    min-width: 0;
+    text-overflow: ellipsis; /* a long supplier name ends in … at 375 px */
     height: 100%;
     padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
     padding-right: var(--space-8);
