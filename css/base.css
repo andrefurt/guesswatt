@@ -13,11 +13,6 @@
     scroll-behavior: smooth;
   }
 
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    scroll-behavior: auto;
-  }
-}
 
 /* Body */
 body {
@@ -86,16 +81,17 @@ h2 {
   letter-spacing: var(--text-lg-tracking);
 }
 
+/* A scale that steps down: h3 was as large as h1 (audit UI-13) */
 h3 {
-  font-size: var(--text-xl-size);
-  line-height: var(--text-xl-leading);
-  letter-spacing: var(--text-xl-tracking);
+  font-size: var(--text-md-size);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--text-lg-tracking);
 }
 
 h4 {
-  font-size: var(--text-lg-size);
-  line-height: var(--text-lg-leading);
-  letter-spacing: var(--text-lg-tracking);
+  font-size: var(--text-default-size);
+  line-height: var(--text-default-leading);
+  letter-spacing: var(--text-default-tracking);
 }
 
 h5, h6 {

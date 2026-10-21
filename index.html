@@ -108,7 +108,7 @@
   </svg>
   <!-- /icon sprite -->
   <!-- Skip to main content link for keyboard users -->
-  <a href="#input-view" class="skip-link">Saltar para o conteúdo principal</a>
+  <a href="#main" class="skip-link">Saltar para o conteúdo principal</a>
   <div class="page-wrapper" id="page-wrapper">
     <!-- Top Bar -->
     <header class="top-bar">
@@ -227,7 +227,9 @@
 
     <div class="content-wrapper">
       <!-- ==================== INPUT VIEW ==================== -->
-      <main class="card input-view" id="input-view" tabindex="-1">
+      <!-- One main landmark for both views (audit A11Y-13); the skip link lands here -->
+      <main class="content-main" id="main" tabindex="-1">
+      <section class="card input-view" id="input-view">
         <!-- Title -->
         <div class="title-section">
           <h1 class="title">Quanto pagas de eletricidade por mês?</h1>
@@ -414,7 +416,7 @@
             </div>
           </div>
         </div>
-      </main>
+      </section>
 
       <!-- ==================== RESULTS VIEW ==================== -->
       <div class="results-content" id="results-view">
@@ -592,6 +594,8 @@
           </div>
         </template>
       </div>
+
+      </main>
 
       <!-- Footer -->
       <footer class="footer">
