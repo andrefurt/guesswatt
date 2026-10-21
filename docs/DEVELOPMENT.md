@@ -241,11 +241,8 @@ See [`docs/DATA_MODEL.mdc`](./DATA_MODEL.mdc) for detailed information about:
 
 ### Current Targets
 
-- **HTML**: <10KB
-- **CSS**: <15KB
-- **JS**: <30KB
-- **Data**: ~300KB (cached after first load)
-- **Total**: <400KB
+The budget lives in `docs/TECH_STACK.mdc` (Performance Budget). `node scripts/size-check.js` checks it
+and runs in the gate.
 
 ### Optimization Tips
 

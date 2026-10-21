@@ -622,13 +622,26 @@ Targeting modern browsers only:
 
 ## Performance Budget
 
-| Metric | Target | Rationale |
-|--------|--------|-----------|
-| HTML | <10KB | Single page |
-| CSS | <15KB | No framework bloat |
-| JS | <30KB | Vanilla, no deps |
-| offers.json | loaded on submit | Cached after first load |
-| Total | <400KB | Fast on 3G |
+The only copy of the budget. Sizes are gzip, as the server sends them (1 KB = 1,000 bytes), and
+`scripts/size-check.js` checks this table in the gate. It reads the limits from here and owns which
+files each row counts. To raise a limit, change it here and give the reason in the commit.
+
+<!-- size-check -->
+| Row | What it counts | Limit |
+|-----|----------------|-------|
+| `index.html` | the page, with its icon sprite | 16 KB |
+| `sobre.html` | the page, with its icon sprite | 16 KB |
+| `CSS` | every file in css/, summed | 32 KB |
+| `JavaScript` | every file in js/, plus components.js, summed | 40 KB |
+| `Landing page` | index.html, all CSS and JS, and Inter latin | 150 KB |
+<!-- /size-check -->
+
+Not counted: PDF.js (`vendor/pdfjs/`, about 378 KB gzip) loads only when someone picks a PDF;
+`data/offers.json` loads on submit and its bounds live in `scripts/validate-data.js`; Inter latin-ext
+loads only for characters outside Portuguese.
+
+Time targets, measured with the audit's lab method (Slow 4G, 4x CPU, HTTP/2): first contentful paint
+about 1.8 s or less, with every icon on that first frame.
 
 ---
 

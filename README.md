@@ -106,7 +106,7 @@ guesswatt/
 ### Design Principles
 
 1. **Simplicity**: No build step, no framework, no abstractions
-2. **Performance**: <400KB total, <3s Time to Interactive
+2. **Performance**: a gzip size budget checked in the gate, first paint about 1.8 s on Slow 4G (see `docs/TECH_STACK.mdc`)
 3. **Accessibility**: WCAG 2.1 AA compliant, keyboard-first design
 4. **Privacy**: Client-side processing only, no data collection
 5. **Maintainability**: Clean, documented code that lasts
