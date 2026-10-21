@@ -193,10 +193,12 @@ function initDropdown() {
     item.addEventListener('click', function() {
       const action = this.dataset.action;
       
-      // Close dropdown with slight delay for click feedback
+      // Close dropdown with slight delay for click feedback. The item is hidden with it, so focus
+      // goes back to the trigger instead of falling to <body>
       setTimeout(() => {
-        dropdownWrapper.classList.remove('open');
-        dropdownTrigger.setAttribute('aria-expanded', 'false');
+        const focusWasInside = dropdownMenu.contains(document.activeElement) || document.activeElement === document.body;
+        close();
+        if (focusWasInside) dropdownTrigger.focus();
       }, 100);
       
       // Handle actions

@@ -399,6 +399,11 @@
     -webkit-user-select: none;
   }
   
+  /* A comparison is running (main.js runComparison); full disabled styling comes with the button system */
+  .submit-btn[aria-disabled="true"] {
+    cursor: progress;
+  }
+  
   .submit-btn:active {
     transform: scale(0.97);
   }
