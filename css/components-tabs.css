@@ -40,7 +40,7 @@
     top: 0;
     left: 0;
     height: 100%;
-    background: var(--color-bg-tabs-active);
+    background: var(--color-surface-raised);
     border: 0.5px solid white;
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-icon);
@@ -70,7 +70,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     transition: transform var(--duration-normal) var(--ease-bounce);
     position: relative;
     z-index: 1;

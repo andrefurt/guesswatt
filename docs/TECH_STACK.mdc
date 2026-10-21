@@ -62,29 +62,17 @@ css/
 
 OKLCH provides perceptually uniform colors - equal lightness values look equally bright to humans.
 
-```css
-:root {
-  /* Neutral scale */
-  --color-gray-0: oklch(99% 0 0);      /* Background */
-  --color-gray-1: oklch(97% 0 0);      /* Surface */
-  --color-gray-2: oklch(92% 0 0);      /* Border */
-  --color-gray-3: oklch(80% 0 0);      /* Border hover */
-  --color-gray-4: oklch(55% 0 0);      /* Text muted */
-  --color-gray-5: oklch(35% 0 0);      /* Text secondary */
-  --color-gray-6: oklch(20% 0 0);      /* Text primary */
-  
-  /* Accent (green) */
-  --color-accent: oklch(55% 0.18 145);
-  --color-accent-soft: oklch(94% 0.05 145);
-  --color-accent-hover: oklch(48% 0.18 145);
-  
-  /* Semantic */
-  --color-danger: oklch(55% 0.2 25);
-  --color-danger-soft: oklch(94% 0.05 25);
-  --color-warning: oklch(70% 0.15 85);
-  --color-warning-soft: oklch(95% 0.05 85);
-}
-```
+`css/tokens.css` owns the values; this lists the roles, one name each (audit 4.16). A component
+uses the role, never a raw colour:
+
+| Role | Token |
+|---|---|
+| Text, strong text (headings, links), secondary text | `--color-text`, `--color-text-strong`, `--color-text-secondary` |
+| Values in form fields, text on the accent, errors | `--color-text-field`, `--color-text-on-accent`, `--color-error` |
+| Page, surface, raised surface, card | `--color-bg`, `--color-surface`, `--color-surface-raised`, `--color-surface-card` |
+| Accent (buttons, focus), its hover and 8% tint | `--color-accent`, `--color-accent-hover`, `--color-accent-soft` |
+| Focus ring | `--color-focus-ring`, `--focus-ring-width`, `--focus-ring-offset` |
+| Borders | `--color-border`, `--color-border-strong`, `--color-border-dashed`, `--color-border-accent` |
 
 **Why OKLCH over HSL:**
 - `oklch(50% ...)` green and `oklch(50% ...)` red look equally bright
@@ -468,13 +456,13 @@ const state = {
 
 .button-secondary {
   background: transparent;
-  border-color: var(--color-gray-2);
-  color: var(--color-gray-6);
+  border-color: var(--color-border);
+  color: var(--color-text);
 }
 
 .button-secondary:hover {
-  background: var(--color-gray-1);
-  border-color: var(--color-gray-3);
+  background: var(--color-surface-raised);
+  border-color: var(--color-border-strong);
 }
 ```
 
