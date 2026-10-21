@@ -145,35 +145,8 @@ node scripts/download-erse.js && node scripts/build-offers.js && node scripts/va
 
 ## 🧮 Calculation Logic
 
-### Monthly Cost Formula
-
-```javascript
-// Fixed term (daily charge × 30 days)
-fixedTerm = TF × 30
-
-// Variable term (depends on tariff type)
-// Simple: consumption × TV
-// Bi-hourly: consumption × (0.40 × TVV + 0.60 × TVFV), or the split read from a PDF bill
-// Tri-hourly: consumption × (0.30 × TVVz + 0.50 × TVC + 0.20 × TVP)
-
-// Taxes: IEC 0.001 €/kWh, DGEG 0.07 €/month, audiovisual 2.85 €/month
-// VAT per component (6% or 23%): see "Taxes and VAT" in docs/DATA_MODEL.mdc
-```
-
-### Consumption Estimation
-
-When only monthly bill amount is provided:
-
-1. Build a typical offer from the data (median fixed term and median energy price at 4.6 kVA)
-2. Find the consumption whose monthly cost on that offer equals the bill (bisection on the cost formula)
-
-### Best Offer Selection
-
-1. Filter valid offers (electricity-only, matching power/tariff, no lock-in)
-2. Calculate monthly cost for each offer
-3. Calculate annual effective cost (12 × monthly)
-4. Sort by annual cost (primary), then monthly cost (tiebreaker)
-5. Return best offer
+`js/calculator.js` owns the formulas, the estimate and the ranking; [`docs/DATA_MODEL.mdc`](docs/DATA_MODEL.mdc)
+explains them in prose.
 
 ## 🎨 Design System
 
@@ -222,15 +195,8 @@ When only monthly bill amount is provided:
 
 ### Git Commits
 
-```
-type(scope): description
-
-feat(calculator): add bi-hourly tariff support
-fix(modal): trap focus correctly
-style(tokens): update color palette to OKLCH
-docs(readme): add installation instructions
-refactor(state): simplify URL encoding
-```
+Lowercase, imperative subject of at most 72 characters, no full stop, one logical change per commit,
+no tool attribution; `.githooks/commit-msg` checks it. Example: `add the tri-hourly split to the estimate`.
 
 ## 📚 Documentation
 

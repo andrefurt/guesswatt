@@ -83,21 +83,15 @@ git checkout -b feature/your-feature-name
 # Make changes
 # ...
 
-# Commit with conventional format
-git commit -m "feat(scope): description"
+# Commit (lowercase, imperative, at most 72 characters)
+git commit -m "add the tri-hourly split to the estimate"
 
 # Push and create PR
 git push origin feature/your-feature-name
 ```
 
-**Commit types**:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation
-- `style`: Formatting
-- `refactor`: Code restructuring
-- `test`: Tests
-- `chore`: Maintenance
+Lowercase, imperative subject of at most 72 characters, no full stop, one logical change per commit,
+no tool attribution; `.githooks/commit-msg` checks it. Example: `add the tri-hourly split to the estimate`.
 
 ## Testing
 
@@ -152,7 +146,7 @@ The weekly Action (`.github/workflows/update-erse.yml`, Mondays) runs these step
 5. **Commit changes**:
    ```bash
    git add data/
-   git commit -m "chore(data): update ERSE data"
+   git commit -m "update erse data"
    ```
 
 ### Data Pipeline
