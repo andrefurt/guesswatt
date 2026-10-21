@@ -50,7 +50,6 @@ open `http://localhost:8000/?sw`; loading the page again without `?sw` removes i
 ```
 guesswatt/
 ├── index.html              # Main HTML file
-├── components.js           # Component definitions
 ├── css/                    # Stylesheets
 │   ├── tokens.css          # Design tokens
 │   ├── reset.css           # CSS reset

@@ -707,40 +707,7 @@
     </div>
   </div>
 
-  <script type="module" src="components.js"></script>
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/data-date.js"></script>
-  <script>
-    // Animated ASCII thunderbolt
-    function initThunderbolt() {
-      const thunderboltElement = document.querySelector('.thunderbolt-ascii');
-      if (!thunderboltElement) return;
-      
-      const frames = [
-        '    ⚡    ',
-        '   ⚡ ⚡   ',
-        '  ⚡   ⚡  ',
-        ' ⚡     ⚡ ',
-        '⚡       ⚡',
-        ' ⚡     ⚡ ',
-        '  ⚡   ⚡  ',
-        '   ⚡ ⚡   ',
-        '    ⚡    ',
-        '   ⚡ ⚡   ',
-        '  ⚡   ⚡  ',
-        ' ⚡     ⚡ ',
-        '⚡       ⚡',
-        ' ⚡     ⚡ ',
-        '  ⚡   ⚡  ',
-        '   ⚡ ⚡   '
-      ];
-      
-      let frameIndex = 0;
-      setInterval(() => {
-        thunderboltElement.textContent = frames[frameIndex];
-        frameIndex = (frameIndex + 1) % frames.length;
-      }, 150); // 150ms per frame for smooth animation
-    }
-  </script>
 </body>
 </html>

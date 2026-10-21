@@ -6,12 +6,10 @@
 import { PROVIDERS } from './config.js';
 import { findBestOfferForTariff, calculateMonthlyCost } from './calculator.js';
 import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold, formatNumber } from './utils.js';
-import { initTooltips } from './ui-components.js';
 import { setInvoiceData } from './ui-handlers.js';
 
 // PDF data state (managed by this module)
 let pdfData = null;
-let showManualForm = null; // setManualFormVisible from main.js, kept by initPDFUpload
 
 /**
  * Load PDF.js library dynamically
@@ -402,9 +400,8 @@ export function showPDFData(data, onDataShown) {
 
 /**
  * Clear PDF data and reset UI
- * @param {Function} clearTabResult - Function to clear tab result
  */
-export function clearPDF(clearTabResult) {
+export function clearPDF() {
   const dropArea = document.getElementById('precise-mode');
   const dropAreaText = dropArea?.querySelector('.drop-area-text');
   const manualLink = document.getElementById('manual-link');
@@ -434,20 +431,14 @@ export function clearPDF(clearTabResult) {
     resultDiv.style.display = 'none';
     resultDiv.innerHTML = '';
   }
-  
-  // Limpar resultado da tab
-  if (clearTabResult) {
-    clearTabResult('precise');
-  }
 }
 
 /**
  * Handle PDF file upload
  * @param {File} file - PDF file
- * @param {Function} clearTabResult - Function to clear tab result
  * @param {Function} onDataShown - Callback to call after showing data
  */
-export async function handlePDFFile(file, clearTabResult, onDataShown) {
+export async function handlePDFFile(file, onDataShown) {
   if (file.type !== 'application/pdf') {
     alert('Por favor seleciona um ficheiro PDF.');
     return;
@@ -461,19 +452,19 @@ export async function handlePDFFile(file, clearTabResult, onDataShown) {
     const extracted = await extractPDFData(file);
     
     if (extracted && (!extracted.consumption || !extracted.power)) {
-      clearPDF(clearTabResult);
+      clearPDF();
       openManualFormWithPDFData(extracted);
     } else if (extracted) {
       pdfData = extracted;
       showPDFData(extracted, onDataShown);
     } else {
       alert('Não foi possível extrair dados desta fatura. Tenta introduzir manualmente.');
-      clearPDF(clearTabResult);
+      clearPDF();
     }
   } catch (error) {
     console.error('Erro ao processar PDF:', error);
     alert('Erro ao processar o PDF. Tenta introduzir manualmente.');
-    clearPDF(clearTabResult);
+    clearPDF();
   }
 }
 
@@ -484,7 +475,6 @@ export async function handlePDFFile(file, clearTabResult, onDataShown) {
 function openManualFormWithPDFData(found) {
   const inputSlot = document.getElementById('input-slot');
   inputSlot?.classList.add('preciso-mode', 'manual-mode');
-  if (showManualForm) showManualForm(true);
 
   const setSelect = (id, value) => {
     const select = document.getElementById(id);
@@ -517,10 +507,8 @@ function openManualFormWithPDFData(found) {
 /**
  * Calculate best offer from PDF data
  * @param {Function} renderResult - Function to render result
- * @param {string} currentMode - Current mode ('estimate' or 'precise')
- * @param {Function} setTabResult - Function to set tab result
  */
-export async function calculateFromPDF(renderResult, currentMode, setTabResult) {
+export async function calculateFromPDF(renderResult) {
   if (!pdfData) return;
   
   try {
@@ -599,20 +587,12 @@ export async function calculateFromPDF(renderResult, currentMode, setTabResult) 
     }
     
     // Renderizar resultado
-    renderResult(enrichedBest, pdfData.consumption, pdfData.power, null, savings, false, currentMode, setTabResult);
+    renderResult(enrichedBest, pdfData.consumption, pdfData.power, null, savings, false);
     
   } catch (error) {
     console.error('Erro ao calcular:', error);
     alert('Erro ao calcular. Tenta novamente.');
   }
-}
-
-/**
- * Get current PDF data
- * @returns {Object|null} Current PDF data or null
- */
-export function getPDFData() {
-  return pdfData;
 }
 
 /**
@@ -624,18 +604,14 @@ export function resetPDFData() {
 
 /**
  * Initialize PDF upload functionality
- * @param {Function} clearTabResult - Function to clear tab result
- * @param {Function} setManualFormVisible - Function to set manual form visibility
- * @param {Function} getManualFormVisible - Function to get manual form visibility
  * @param {Function} onDataShown - Callback to call after showing PDF data
  */
-export function initPDFUpload(clearTabResult, setManualFormVisible, getManualFormVisible, onDataShown) {
+export function initPDFUpload(onDataShown) {
   const dropArea = document.getElementById('precise-mode');
   const pdfInput = document.getElementById('pdf-input');
   const inputSlot = document.getElementById('input-slot');
   
   if (!dropArea || !pdfInput) return;
-  showManualForm = setManualFormVisible;
   
   // Clicar na drop area abre file picker (exceto no link manual)
   dropArea.addEventListener('click', (e) => {
@@ -661,14 +637,14 @@ export function initPDFUpload(clearTabResult, setManualFormVisible, getManualFor
     e.preventDefault();
     if (inputSlot) inputSlot.classList.remove('dragging');
     if (!pdfData && e.dataTransfer.files.length) {
-      handlePDFFile(e.dataTransfer.files[0], clearTabResult, onDataShown);
+      handlePDFFile(e.dataTransfer.files[0], onDataShown);
     }
   });
   
   // File input change
   pdfInput.addEventListener('change', (e) => {
     if (e.target.files.length) {
-      handlePDFFile(e.target.files[0], clearTabResult, onDataShown);
+      handlePDFFile(e.target.files[0], onDataShown);
     }
   });
 }

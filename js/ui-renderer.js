@@ -143,10 +143,8 @@ function resultVerdict(best, monthlyBill, savings, isEstimate) {
  * @param {number|null} monthlyBill - Monthly bill amount (for estimate mode)
  * @param {Object|null} savings - Savings object with monthly/yearly properties
  * @param {boolean} isEstimate - Whether this is estimate mode
- * @param {string} currentMode - Current mode ('estimate' or 'precise')
- * @param {Function} setTabResult - Function to set tab result for a mode
  */
-export function renderResult(enrichedBest, consumption, power, monthlyBill = null, savings = null, isEstimate = false, currentMode, setTabResult) {
+export function renderResult(enrichedBest, consumption, power, monthlyBill = null, savings = null, isEstimate = false) {
   const resultDiv = document.getElementById('result');
   const resultsView = document.getElementById('results-view');
   const pageWrapper = document.getElementById('page-wrapper');
@@ -240,11 +238,6 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   // Update result div content
   resultDiv.replaceChildren(card);
   resultDiv.style.display = 'block';
-
-  // Cache result for tab switching (serialised from the DOM above, so already escaped)
-  if (currentMode && setTabResult) {
-    setTabResult(currentMode, resultDiv.innerHTML + info.outerHTML);
-  }
 
   // Insert info section AFTER result-card-slot (matches design.html structure)
   const resultCardSlot = document.querySelector('.result-card-slot');

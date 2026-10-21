@@ -53,7 +53,6 @@ npx serve .
 ```
 guesswatt/
 ├── index.html              # Main HTML file
-├── components.js           # Component definitions
 ├── css/                    # Stylesheets (modular CSS architecture)
 │   ├── tokens.css          # Design tokens (colors, spacing, typography)
 │   ├── reset.css           # CSS reset
