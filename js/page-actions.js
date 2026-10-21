@@ -218,69 +218,20 @@ async function handleDropdownAction(action) {
   
   switch(action) {
     case 'markdown':
-      // Fetch markdown and display in new tab (prevents download, shows as text)
+      // Shown as plain text from a blob: no HTML is written into the new window, so nothing there
+      // needs an inline style the page's Content Security Policy would block
       try {
         const response = await fetch(markdownFile);
         if (!response.ok) {
           throw new Error(`Failed to fetch ${markdownFile}`);
         }
         const markdown = await response.text();
-        
-        // Create a new window with the markdown content
-        const newWindow = window.open('', '_blank');
-        if (newWindow) {
-          newWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="pt">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>${isAboutPage ? 'Sobre' : 'GuessWatts'} - Markdown</title>
-              <style>
-                body {
-                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                  max-width: 800px;
-                  margin: 0 auto;
-                  padding: 2rem;
-                  line-height: 1.6;
-                  color: #333;
-                  background: #fff;
-                }
-                pre {
-                  background: #f5f5f5;
-                  padding: 1rem;
-                  border-radius: 4px;
-                  overflow-x: auto;
-                }
-                code {
-                  background: #f5f5f5;
-                  padding: 0.2em 0.4em;
-                  border-radius: 3px;
-                  font-size: 0.9em;
-                }
-                pre code {
-                  background: transparent;
-                  padding: 0;
-                }
-              </style>
-            </head>
-            <body>
-              <pre><code>${markdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
-            </body>
-            </html>
-          `);
-          newWindow.document.close();
-        }
+        const url = URL.createObjectURL(new Blob([markdown], { type: 'text/plain;charset=utf-8' }));
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
       } catch (err) {
         console.error('Failed to open markdown:', err);
-        // Fallback: try opening the markdown URL directly
-        const currentPath = window.location.pathname;
-        const markdownUrl = currentPath.endsWith('.html') 
-          ? currentPath.replace('.html', '.md')
-          : currentPath === '/' || currentPath === '/index.html'
-            ? '/index.md'
-            : `${currentPath}.md`;
-        window.open(markdownUrl, '_blank');
+        window.open(markdownFile, '_blank');
       }
       break;
       

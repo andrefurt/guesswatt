@@ -2,6 +2,9 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
+  <!-- Content Security Policy (SEC-4, ADR-024): only this site's own files run, load or are fetched.
+       A meta CSP cannot set frame-ancestors or reporting; GitHub Pages sends no CSP header. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <!-- Browser bar colour per theme: light is the page background; dark waits for dark mode (audit 4.16a) -->
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#E8E8E8">
@@ -77,57 +80,6 @@
     "license": "https://github.com/andrefurt/guesswatt/blob/main/LICENSE"
   }
   </script>
-  <style>
-    /* Minimal functional styles only - visual styles are in modular CSS */
-    
-    /* View visibility is controlled by .preciso-mode class on .input-slot via modular CSS */
-    /* Tab .active class kept for JS logic only */
-    
-    /* Tooltip visibility */
-    .tooltip {
-      display: none;
-    }
-    
-    .tooltip.is-visible {
-      display: block;
-    }
-    
-    /* PDF loaded state (hidden until file uploaded) */
-    #pdf-loaded {
-      display: none;
-    }
-    
-    /* Functional cursor styles */
-    button,
-    .tooltip-trigger,
-    #pdf-upload-box {
-      cursor: pointer;
-    }
-    
-    /* Hidden file input - visually hidden but accessible for programmatic clicks */
-    #pdf-input {
-      position: absolute;
-      width: 0.1px;
-      height: 0.1px;
-      opacity: 0;
-      overflow: hidden;
-      z-index: -1;
-    }
-    
-    /* Accessibility: visually hidden but available to screen readers */
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border-width: 0;
-    }
-
-  </style>
 </head>
 <body>
   <!-- icon sprite: Phosphor 2.1.1 (MIT) and the ChatGPT and Claude marks; see docs/TECH_STACK.mdc, Icons -->
@@ -315,7 +267,7 @@
               <div class="input-group" id="input-group">
                 <form id="estimate-form">
                   <div class="input-field">
-                    <label for="monthly-bill" class="visually-hidden">Valor mensal da fatura</label>
+                    <label for="monthly-bill" class="sr-only">Valor mensal da fatura</label>
                     <div class="input-value">
                       <span class="currency" aria-hidden="true">€</span>
                       <input type="text" inputmode="numeric" pattern="[0-9]*" class="value-input" id="monthly-bill" name="monthly-bill" placeholder="80" min="20" max="500" required aria-label="Valor mensal da fatura em euros">

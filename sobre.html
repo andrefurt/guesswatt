@@ -2,6 +2,9 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
+  <!-- Content Security Policy (SEC-4, ADR-024): only this site's own files run, load or are fetched.
+       A meta CSP cannot set frame-ancestors or reporting; GitHub Pages sends no CSP header. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <!-- Browser bar colour per theme: light is the page background; dark waits for dark mode (audit 4.16a) -->
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#E8E8E8">
@@ -44,24 +47,6 @@
   <link rel="stylesheet" href="css/components-about.css">
   <link rel="stylesheet" href="css/utilities.css">
   <link rel="stylesheet" href="css/main.css">
-  <style>
-    /* Minimal functional styles only - visual styles are in modular CSS */
-    
-    /* Tooltip visibility */
-    .tooltip {
-      display: none;
-    }
-    
-    .tooltip.is-visible {
-      display: block;
-    }
-    
-    /* Functional cursor styles */
-    button {
-      cursor: pointer;
-    }
-
-  </style>
 </head>
 <body>
   <!-- icon sprite: Phosphor 2.1.1 (MIT) and the ChatGPT and Claude marks; see docs/TECH_STACK.mdc, Icons -->
@@ -243,12 +228,6 @@
   </div>
 
   <script type="module" src="js/data-date.js"></script>
-  <script type="module">
-    import { initPageActions } from './js/page-actions.js';
-    
-    // Copy button and its menu
-    initPageActions();
-    
-  </script>
+  <script type="module" src="js/sobre.js"></script>
 </body>
 </html>

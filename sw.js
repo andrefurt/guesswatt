@@ -48,6 +48,7 @@ const PRECACHE = [
   'js/main.js',
   'js/page-actions.js',
   'js/pdf-service.js',
+  'js/sobre.js',
   'js/ui-components.js',
   'js/ui-handlers.js',
   'js/ui-renderer.js',
