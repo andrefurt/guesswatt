@@ -44,6 +44,12 @@
     padding: var(--space-8) var(--space-3);
     width: 100%;
   }
+
+  /* Focused by script after submit (ui-handlers.js) so reading starts here; it is not a control,
+     so it shows no ring */
+  .results-title:focus {
+    outline: none;
+  }
   
   .results-title {
     font-family: var(--font-sans);

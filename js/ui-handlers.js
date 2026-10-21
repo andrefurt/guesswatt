@@ -325,6 +325,8 @@ function initDeleteButton() {
   
   deleteBtn.addEventListener('click', function() {
     hideResults();
+    // The delete button leaves with the results view: focus goes where the next entry starts
+    document.getElementById('monthly-bill')?.focus();
   });
 }
 
@@ -432,6 +434,10 @@ export function showResults() {
   if (pageWrapper) {
     pageWrapper.classList.add('results-view');
   }
+
+  // The form that had focus is now hidden: move focus to the result's heading, so keyboard and
+  // screen reader users start reading the answer (tabindex="-1" in index.html)
+  document.querySelector('.results-title')?.focus();
   
   // Set pill mode based on current state
   if (inputPill) {
