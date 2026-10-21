@@ -156,7 +156,7 @@
           </div>
           
           <!-- Delete button (shared) -->
-          <button class="input-pill-delete" id="delete-btn" type="button" aria-label="Remover entrada e voltar ao formulário">
+          <button class="btn input-pill-delete" data-variant="icon" data-size="sm" id="delete-btn" type="button" aria-label="Remover entrada e voltar ao formulário">
             <span class="btn-icon" aria-hidden="true">
               <svg class="icon" aria-hidden="true"><use href="#ph-x"/></svg>
             </span>
@@ -166,7 +166,7 @@
 
       <div class="top-bar-actions">
         <div class="btn-slot">
-          <a href="sobre.html" class="btn" id="about-btn">
+          <a href="sobre.html" class="btn" data-variant="outline" data-size="md" id="about-btn">
             <span class="btn-icon" aria-hidden="true">
               <svg class="icon" aria-hidden="true"><use href="#ph-info-duotone"/></svg>
             </span>
@@ -175,7 +175,7 @@
         </div>
         <div class="btn-slot">
           <div class="segmented-btn">
-            <button class="btn copy-btn" id="copy-btn" type="button">
+            <button class="btn copy-btn" data-variant="ghost" data-size="md" id="copy-btn" type="button">
               <!-- Default state -->
               <div class="copy-btn-content copy-btn-default">
                 <span class="btn-icon" aria-hidden="true">
@@ -194,25 +194,25 @@
             <span class="sr-only" id="copy-status" role="status"></span>
             <div class="segmented-divider"></div>
             <div class="dropdown-wrapper" id="dropdown-wrapper">
-              <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-controls="dropdown-menu">
+              <button class="btn dropdown-trigger" data-variant="icon" data-size="md" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-controls="dropdown-menu">
                 <span class="btn-icon" aria-hidden="true">
                   <svg class="icon" aria-hidden="true"><use href="#ph-caret-down"/></svg>
                 </span>
               </button>
               <div class="dropdown-menu" id="dropdown-menu">
-                <button class="dropdown-item" data-action="markdown" type="button">
+                <button class="btn dropdown-item" data-variant="ghost" data-size="sm" data-action="markdown" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon" aria-hidden="true"><use href="#ph-code-duotone"/></svg>
                   </span>
                   <span>Ver em markdown</span>
                 </button>
-                <button class="dropdown-item" data-action="chatgpt" type="button">
+                <button class="btn dropdown-item" data-variant="ghost" data-size="sm" data-action="chatgpt" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon icon-brand" aria-hidden="true"><use href="#brand-chatgpt"/></svg>
                   </span>
                   <span>Abrir no ChatGPT</span>
                 </button>
-                <button class="dropdown-item" data-action="claude" type="button">
+                <button class="btn dropdown-item" data-variant="ghost" data-size="sm" data-action="claude" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon icon-brand" aria-hidden="true"><use href="#brand-claude"/></svg>
                   </span>
@@ -247,13 +247,13 @@
                 
                 <!-- Tab buttons -->
                 <div class="tabs-list">
-                  <button class="tab-btn tab active" data-tab="estimado" data-mode="estimate" id="tab-estimado" type="button" aria-pressed="true">
+                  <button class="btn tab active" data-variant="ghost" data-size="sm" data-tab="estimado" data-mode="estimate" id="tab-estimado" type="button" aria-pressed="true">
                     <span class="btn-icon" aria-hidden="true">
                       <svg class="icon" aria-hidden="true"><use href="#ph-lightbulb-duotone"/></svg>
                     </span>
                     <span>Estimado</span>
                   </button>
-                  <button class="tab-btn tab" data-tab="preciso" data-mode="precise" id="tab-preciso" type="button" aria-pressed="false">
+                  <button class="btn tab" data-variant="ghost" data-size="sm" data-tab="preciso" data-mode="precise" id="tab-preciso" type="button" aria-pressed="false">
                     <span class="btn-icon" aria-hidden="true">
                       <svg class="icon" aria-hidden="true"><use href="#ph-target-duotone"/></svg>
                     </span>
@@ -278,7 +278,7 @@
                   </div>
                   <div class="input-divider"></div>
                   <div class="submit-slot">
-                    <button class="submit-btn" id="submit-btn" type="submit">Comparar</button>
+                    <button class="btn" data-variant="primary" data-size="md" id="submit-btn" type="submit">Comparar</button>
                   </div>
                 </form>
               </div>
@@ -387,7 +387,7 @@
                   <!-- Row 3: Link + Submit -->
                   <div class="form-footer">
                     <button class="link-button" data-variant="quiet" id="pdf-link" type="button">Adicionar fatura em PDF</button>
-                    <button class="submit-btn" id="manual-submit-btn" type="submit">Comparar</button>
+                    <button class="btn" data-variant="primary" data-size="md" id="manual-submit-btn" type="submit">Comparar</button>
                   </div>
                 </form>
               </div>
@@ -448,7 +448,7 @@
               <div class="provider-icon" data-slot="provider-icon"></div>
               <div class="result-card-actions">
                 <div class="btn-slot" data-slot="phone">
-                  <a class="btn phone-link">
+                  <a class="btn phone-link" data-variant="outline" data-size="md">
                     <span class="btn-icon">
                       <svg class="icon" aria-hidden="true"><use href="#ph-phone-duotone"/></svg>
                     </span>
@@ -456,7 +456,7 @@
                   </a>
                 </div>
                 <div class="btn-slot" data-slot="website">
-                  <a target="_blank" rel="noopener" class="btn btn-suffix">
+                  <a target="_blank" rel="noopener" class="btn" data-variant="icon" data-size="md">
                     <span class="btn-icon">
                       <svg class="icon" aria-hidden="true"><use href="#ph-globe-duotone"/></svg>
                     </span>

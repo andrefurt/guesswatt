@@ -12,5 +12,6 @@ The CSS conventions; `css/tokens.css` owns the values.
 2. Colours in OKLCH.
 3. rem for sizes; px only for borders and shadows.
 4. `clamp()` for fluid type and spacing.
-5. Class names in this shape: `.component`, `.component-element`, `.component--modifier`.
+5. Class names in this shape: `.component`, `.component-element`; variants go on `data-variant` and
+   `data-size`, and `.component--modifier` only for a state that is neither.
 6. Every animation has a `prefers-reduced-motion` path.

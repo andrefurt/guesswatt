@@ -351,9 +351,21 @@ const state = {
 
 ### Button States
 
-Buttons, tabs, pills and chips share `.interactive-base` in `css/components-buttons.css` (hover and
-active live there), and a component adds only what differs. The focus ring is global, `:focus-visible`
-in `css/reset.css`.
+Every button is one `.btn` in `css/components-buttons.css`, with its look on `data-variant` and its
+height on `data-size`:
+
+- `primary`: the accent fill (Comparar, both forms); `outline`: the glass edge (Sobre, Voltar, the
+  result card's phone); `ghost`: no edge (tabs, the copy button, menu items); `icon`: square, icon only
+  (the copy chevron, the pill's ×, the result card's website).
+- `sm` is 32 px (`--control-height-sm`), for controls inside a tray, menu or pill; `md` is 36 px
+  (`--control-height-md`), for standalone actions. Every label is the UI text size.
+- States are written once, for every variant: hover inside `(hover: hover) and (pointer: fine)`,
+  press `scale(0.97)` on `--duration-fast` (none with reduced motion), and `:disabled` or
+  `aria-disabled="true"` (a busy submit stays focusable) without hover or press, in the secondary text
+  colour. The focus ring is global, `:focus-visible` in `css/reset.css`.
+
+A component sets only its layout around the button (the tab indicator, the split button's group and
+divider, the menu's position); it never restates the look. Text buttons are `.link-button`.
 
 ### Input States
 
