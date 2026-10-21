@@ -17,6 +17,7 @@ import { PROVIDERS } from './config.js';
 const BILL = { min: 20, max: 500 };         // €/month, as the estimate form
 const CONSUMPTION = { min: 1, max: 5000 };  // kWh/month, as the manual form
 const POWER = { min: 1.15, max: 41.4 };     // kVA, the normal low-voltage range
+const ERSE_CODE = /^[A-Z0-9][A-Z0-9 ]{1,29}$/; // supplier codes as ERSE writes them ("EDPC", "ZUG POWER")
 
 const number = (value, { min, max }) => {
   if (value === null || !/^\d{1,4}([.,]\d{1,2})?$/.test(value)) return null;
@@ -46,7 +47,9 @@ export function readState(search) {
     const tariffType = ['1', '2', '3'].includes(params.get('t')) ? Number(params.get('t')) : null;
     if (consumption === null || power === null || tariffType === null) return null;
     const supplier = params.get('s');
-    const provider = supplier && (Object.hasOwn(PROVIDERS, supplier) || supplier === 'outro') ? supplier : null;
+    // A named supplier, "outro", or an ERSE code the data may list before PROVIDERS names it
+    // (ui-components.js matchProvidersToData); the shape check keeps anything else out
+    const provider = supplier && (Object.hasOwn(PROVIDERS, supplier) || supplier === 'outro' || ERSE_CODE.test(supplier)) ? supplier : null;
     return { input: { mode: 'precise', consumption, power, tariffType, provider }, largeHousehold, dataMonth };
   }
 
