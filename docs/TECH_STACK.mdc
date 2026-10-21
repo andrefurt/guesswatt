@@ -50,7 +50,7 @@ css/
 ├── components-layout.css          → Layout components (cards, containers)
 ├── components-results.css         → Result card and display styles
 ├── components-tabs.css            → Tab navigation styles
-├── components-about.css           → About panel styles
+├── components-about.css           → sobre.html content styles
 ├── utilities.css                  → Utility classes (.sr-only, .stack, .cluster)
 ├── animations.css                 → Animation keyframes and transitions
 └── main.css                      → App-specific styles (linked last)
@@ -663,7 +663,7 @@ part is the service worker, ADR-023).
   the header's Ω drawn from Inter (v20 greek subset, weight 500, SIL OFL 1.1) in `#3E4D37` on
   `#E8E8E8`, as an outline, so it never depends on a font. The PNGs are renders of the same SVG.
 - Both pages link the manifest, the icons and the theme colours, and set `viewport-fit=cover`. With
-  it, an installed page reaches the screen edges, so `body` and the fixed about panel pad by
+  it, an installed page reaches the screen edges, so `body` pads by
   `env(safe-area-inset-*)` (0 on screens without a notch or home indicator).
 
 ---

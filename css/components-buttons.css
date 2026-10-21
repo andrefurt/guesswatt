@@ -288,11 +288,13 @@
     padding: var(--space-1);
     opacity: 0;
     pointer-events: none;
+    visibility: hidden; /* closed items leave the tab order; it flips after the fade out */
     transform: scale(0.95);
     transform-origin: top right;
     transition: 
       opacity var(--duration-slow) var(--ease-out),
-      transform var(--duration-slow) var(--ease-out);
+      transform var(--duration-slow) var(--ease-out),
+      visibility var(--duration-slow);
     z-index: var(--z-dropdown);
   }
   
@@ -309,6 +311,7 @@
   .dropdown-wrapper.open .dropdown-menu {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
     transform: scale(1);
   }
   
