@@ -886,7 +886,9 @@ A primeira visita depois de um deploy juntava o HTML novo com o CSS e o JS antig
 semanal apagava o PDF.js da cache, e as cópias guardavam o URL com os números da pessoa. Agora:
 - Todos os ficheiros nossos (páginas, dados, CSS, JS, ícones) vão à rede primeiro, por isso um
   deploy aparece inteiro logo na primeira visita. Isto substitui a cópia atualizada em segundo plano.
-- Sem resposta em 3 segundos, serve a cópia guardada, marcada como sem ligação.
+- Se a página ou os dados demoram mais de 3 segundos, serve a cópia guardada, marcada como sem
+  ligação. A escolha é por página: uma página servida da cópia tira dela todos os ficheiros, e uma
+  página vinda da rede espera pelo seu CSS e JS (um limite por ficheiro juntava versões numa rede lenta).
 - As cópias são guardadas sem a query string: nenhum número escrito pela pessoa fica numa chave.
 - O PDF.js guarda-se no primeiro uso numa cache com o nome da versão (`guesswatts-pdfjs-3.11.174`),
   que a subida semanal da versão não apaga; não há precache (cerca de 378 KB gzip por visitante,

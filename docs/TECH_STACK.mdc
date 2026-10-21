@@ -455,8 +455,10 @@ part is the service worker, ADR-023).
 
 - `sw.js` (registered from `js/data-date.js` after `load`, so either page installs it): every own
   file (pages, `data/*`, CSS, JS, icons) network first, so a deploy never mixes new HTML with old
-  CSS. Offline, or after 3 s without an answer, it serves the saved copy as a marked response that
-  makes `js/data-date.js` show the offline notice. Copies are saved without the query string.
+  CSS. Offline, or when a page or its data takes over 3 s, it serves the saved copy as a marked
+  response that makes `js/data-date.js` show the offline notice. The choice is per page: a page served
+  from the saved copy takes all its files from it, and a page from the network waits for its CSS and
+  JS. Copies are saved without the query string.
   `vendor/*` is cache first; PDF.js is saved on first use in `guesswatts-pdfjs-<version>`, which the
   weekly bump keeps (selftest checks the name matches `vendor/pdfjs`). Its PRECACHE list must name
   every file in css/ and js/ (selftest checks), and `VERSION` is the price date, rewritten by the

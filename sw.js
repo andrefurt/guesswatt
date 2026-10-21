@@ -3,9 +3,10 @@
  *
  * Makes the site open offline after one visit, without ever hiding that the prices may be old:
  * - Everything of ours (pages, data/*, CSS, JS, icons, manifest): network first, so a deploy never
- *   mixes new HTML with old CSS or JS (audit P-1). Offline, or when the network takes longer than
- *   NETWORK_TIMEOUT_MS, the saved copy is served with the OFFLINE_HEADER, so js/data-date.js can say
- *   the prices are the ones saved on this device.
+ *   mixes new HTML with old CSS or JS (audit P-1). Offline, or when a page or its data takes longer
+ *   than NETWORK_TIMEOUT_MS, the saved copy is served with the OFFLINE_HEADER, so js/data-date.js can
+ *   say the prices are the ones saved on this device. A page served from the saved copy gets all its
+ *   files from it (savedPages); a page from the network waits for its CSS and JS.
  * - vendor/* (PDF.js, Inter): cache first. PDF.js is saved on first use in its own cache, named by
  *   its version, so the weekly VERSION bump keeps it (audit P-2); an upgrade renames PDFJS_CACHE.
  * Other origins (the AI links) are left alone. Nothing the person types or uploads is stored: the
@@ -93,12 +94,36 @@ self.addEventListener('fetch', event => {
     event.respondWith(cacheFirst(request, PDFJS_CACHE));
   } else if (path.startsWith('/vendor/')) {
     event.respondWith(cacheFirst(request, CACHE));
+  } else if (savedPages.has(event.clientId)) {
+    // A page served from the saved copy takes its CSS, JS and data from the same copy
+    event.respondWith(savedCopy(request));
   } else {
-    event.respondWith(networkFirst(event, request));
+    // The page and its data give up on a slow network; its code waits for it, so a page that came
+    // from the network never runs with the saved CSS or JS
+    const timeout = request.mode === 'navigate' || path.startsWith('/data/');
+    event.respondWith(networkFirst(event, request, timeout));
   }
 });
 
-async function networkFirst(event, request) {
+// Pages (client ids) served from the saved copy because the network failed or was slow. Decided per
+// page, not per file: on a slow network a per-file timeout gave new HTML with saved CSS (audit P-1).
+// Held in memory: if the browser stops the worker meanwhile, that page's files go to the network.
+const savedPages = new Set();
+
+async function rememberSavedPage(id) {
+  if (!id) return;
+  const open = new Set((await self.clients.matchAll({ includeUncontrolled: true })).map(client => client.id));
+  for (const old of savedPages) if (!open.has(old)) savedPages.delete(old);
+  savedPages.add(id);
+}
+
+async function savedCopy(request) {
+  const url = new URL(request.url);
+  const cached = await (await caches.open(CACHE)).match(url.origin + url.pathname);
+  return cached ? markOffline(cached) : fetch(request);
+}
+
+async function networkFirst(event, request, timeout) {
   const cache = await caches.open(CACHE);
   const url = new URL(request.url);
   const key = url.origin + url.pathname;
@@ -107,6 +132,7 @@ async function networkFirst(event, request) {
     return response;
   });
   try {
+    if (!timeout) return await network;
     return await Promise.race([network, new Promise((_, reject) => setTimeout(() => reject(new Error('network timeout')), NETWORK_TIMEOUT_MS))]);
   } catch (error) {
     const cached = await cache.match(key)
@@ -115,6 +141,7 @@ async function networkFirst(event, request) {
     if (!cached) return network;
     // A late answer still refreshes the saved copy for the next visit
     event.waitUntil(network.catch(() => {}));
+    if (request.mode === 'navigate') event.waitUntil(rememberSavedPage(event.resultingClientId));
     return markOffline(cached);
   }
 }
