@@ -473,6 +473,7 @@
   /* Tags - Extends interactive-base structure */
   .tags-group {
     display: flex;
+    flex-wrap: wrap; /* chips wrap instead of scrolling the page sideways at 320 px (WCAG 1.4.10) */
     gap: var(--space-1);
     align-items: center;
   }

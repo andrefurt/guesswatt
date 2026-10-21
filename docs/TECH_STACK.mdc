@@ -448,6 +448,8 @@ const state = {
 
 ### Input States
 
+Text fields and selects never render below 16 px (`max(1rem, ...)`): iOS Safari zooms into smaller fields on focus. `base.css` sets the floor for every control, and a component rule that sets its own size keeps it.
+
 ```css
 .input {
   width: 100%;

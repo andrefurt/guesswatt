@@ -517,7 +517,7 @@
     background: transparent;
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
-    font-size: var(--text-base-size);
+    font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03);
     color: var(--color-text-black);
@@ -557,7 +557,7 @@
     background: transparent;
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
-    font-size: var(--text-base-size);
+    font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03);
     color: var(--color-text-black);
