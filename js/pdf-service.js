@@ -24,10 +24,12 @@ export function loadPDFJS() {
       return;
     }
     
+    // PDF.js 3.11.174, self-hosted (pdfjs-dist from npm, checked against the registry's sha512),
+    // so the invoice never meets a third-party script
     const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.src = 'vendor/pdfjs/pdf.min.js';
     script.onload = () => {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdfjs/pdf.worker.min.js';
       resolve();
     };
     script.onerror = reject;
