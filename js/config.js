@@ -22,27 +22,22 @@ export const PROVIDERS = {
   'AUDAX': 'Audax Renovables',
   'COOP': 'Coopérnico',
   'EDPC': 'EDP Comercial',
-  'EDPSU': 'SU Eletricidade',
   'END': 'Endesa',
   'ENIPLENITUDE': 'Plenitude',
   'EZUENERGIA': 'EZU Energia',
-  'G9ENERGY': 'G9 Energy',
   'GALP': 'Galp',
   'GOLD': 'Goldenergy',
   'IBD': 'Iberdrola',
-  'IBELECTRA': 'Ibelectra',
   'JAFPLUS': 'JAF Plus',
-  'LOGICA': 'Lógica Energy',
   'LUZBOA': 'Luzboa',
-  'LUZIGAS': 'Luzigás',
   'MEOENERGIA': 'MEO Energia',
-  'MUON': 'Muon',
   'NABALIAENERGIA': 'Nabalia Energia',
   'NOSSAENERGIA': 'Nossa Energia',
   'OENEO': 'Oeneo',
   'PORTULOGOS': 'Portulogos',
   'REPSOL': 'Repsol',
-  'USENERGY': 'US Energy',
-  'YESENERGY': 'Yes Energy'
+  'TUR': 'SU Eletricidade', // regulated price (was EDPSU until 2026)
+  'YESENERGY': 'Yes Energy',
+  'ZUG POWER': 'ZUG Power'
 };
 
