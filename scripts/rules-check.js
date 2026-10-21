@@ -13,6 +13,11 @@
  *   gerunds, no em dashes and no "€54.28" numbers. Code comments and regex literals are skipped:
  *   the PDF parser has to match what the bills say.
  * - CSS: every var(--*) has a definition.
+ * - Shipped files: every local file the site loads (src and href in the pages, file paths in JS
+ *   strings, url() in CSS, the manifest's icons) is tracked by git. The site ships what git holds, so
+ *   an ignored or uncommitted file works locally and 404s live (PDF.js, hidden by *.min.js).
+ * - Doc links: every relative link in README.md, CLAUDE.md, docs/ and .claude/rules/ opens a tracked
+ *   file. docs/audit/ and docs/archive/ are history and are not checked.
  *
  * Usage:
  *   node scripts/rules-check.js   # prints one line per rule; exits 1 on any breach
@@ -20,6 +25,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -32,6 +38,18 @@ const JS = [...filesIn('js', '.js'), 'sw.js'];
 const CSS = filesIn('css', '.css');
 const PAGES = ['index.html', 'sobre.html'];
 const TEXTS = ['index.md', 'sobre.md', 'manifest.webmanifest'];
+const DOCS = ['README.md', 'CLAUDE.md', ...filesIn('docs', '.md'), ...filesIn('docs', '.mdc'), ...filesIn('.claude/rules', '.md')];
+
+// A string that is a whole file path ('vendor/pdfjs/pdf.min.js', './utils.js'), not a URL or a word
+const FILE_PATH = /^(?:\.{1,2}\/)*(?:[\w.-]+\/)*[\w.-]+\.(?:html|md|js|mjs|css|json|webmanifest|woff2?|svg|png|jpe?g|webp|ico|txt)$/;
+const isLocal = url => !/^(?:[a-z][a-z\d+.-]*:|\/\/|#|\?)/i.test(url);
+// The repo path a reference resolves to: './x' and '../x' from the referring file, anything else
+// from the site root (the pages and sw.js sit at the root, and fetch() resolves against the page)
+const resolveRef = (from, url, relativeToFile) => {
+  const clean = decodeURI(url.split(/[?#]/)[0]);
+  const base = relativeToFile || /^\.{1,2}\//.test(clean) ? path.dirname(from) : '.';
+  return path.posix.normalize(path.posix.join(base, clean)).replace(/\/$/, '');
+};
 
 // HTML sinks that are reviewed and safe: { file: 'js/x.js', why: '...' }
 const HTML_SINKS_ALLOWED = [];
@@ -131,9 +149,10 @@ const htmlText = src => src.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/
 const lineOf = (src, offset) => src.slice(0, offset).split('\n').length;
 
 function check() {
-  const breaches = { 1: [], 3: [], 7: [], 4: [], css: [] };
-  const sources = Object.fromEntries([...JS, ...CSS, ...PAGES, ...TEXTS].map(file => [file, read(file)]));
+  const breaches = { 1: [], 3: [], 7: [], 4: [], css: [], files: [], links: [] };
+  const sources = Object.fromEntries([...JS, ...CSS, ...PAGES, ...TEXTS, ...DOCS].map(file => [file, read(file)]));
   const prose = []; // { file, src, text, at }
+  const refs = [];  // { file, at, url, relativeToFile }: what the site loads
 
   for (const file of JS) {
     const src = sources[file];
@@ -155,7 +174,19 @@ function check() {
         breaches[7].push(`${file}:${lineOf(src, m.index)}: ${m[1] ?? m[3]}; build nodes with createElement and textContent`);
       }
     }
-    for (const s of strings) prose.push({ file, src, text: s.text, at: s.at });
+    for (const s of strings) {
+      prose.push({ file, src, text: s.text, at: s.at });
+      if (FILE_PATH.test(s.text)) refs.push({ file, at: s.at, url: s.text });
+    }
+  }
+  for (const file of PAGES) {
+    for (const m of sources[file].matchAll(/\b(?:src|href)="([^"]+)"/g)) refs.push({ file, at: m.index, url: m[1] });
+  }
+  for (const file of CSS) {
+    for (const m of sources[file].matchAll(/url\(\s*['"]?([^'")]+)/g)) refs.push({ file, at: m.index, url: m[1], relativeToFile: true });
+  }
+  for (const m of sources['manifest.webmanifest'].matchAll(/"src"\s*:\s*"([^"]+)"/g)) {
+    refs.push({ file: 'manifest.webmanifest', at: m.index, url: m[1] });
   }
   for (const file of PAGES) prose.push({ file, src: sources[file], text: htmlText(sources[file]), at: 0 });
   for (const file of TEXTS) prose.push({ file, src: sources[file], text: sources[file], at: 0 });
@@ -177,12 +208,33 @@ function check() {
     }
   }
 
+  // The index, staged files included, so a file added in this commit counts
+  const tracked = new Set(execFileSync('git', ['ls-files', '-z'], { cwd: ROOT, encoding: 'utf8' }).split('\0'));
+  const isTracked = file => tracked.has(file) || [...tracked].some(t => t.startsWith(`${file}/`));
+  for (const { file, at, url, relativeToFile } of refs) {
+    if (!isLocal(url)) continue;
+    const target = resolveRef(file, url, relativeToFile);
+    if (target === '.' || isTracked(target)) continue;
+    breaches.files.push(`${file}:${lineOf(sources[file], at)}: loads ${target}, which git does not track; run \`git check-ignore -v ${target}\` and commit it, or fix the path`);
+  }
+  for (const file of DOCS) {
+    const text = sources[file].replace(/```[\s\S]*?```/g, m => m.replace(/[^\n]/g, ' '));
+    for (const m of text.matchAll(/\]\(([^)\s]+)\)/g)) {
+      if (!isLocal(m[1])) continue;
+      const target = resolveRef(file, m[1], true);
+      if (target === '.' || isTracked(target)) continue;
+      breaches.links.push(`${file}:${lineOf(sources[file], m.index)}: links to ${target}, which is not in the repo; point it at the current file or remove the link`);
+    }
+  }
+
   const labels = {
     1: 'Rule 1: relative imports only',
     3: 'Rule 3: no browser storage',
     7: 'Rule 7: no HTML sinks',
     4: 'Rule 4 and copy.md: PT-PT text',
     css: 'CSS: every var(--*) is defined',
+    files: 'Shipped files: everything the site loads is in git',
+    links: 'Doc links: every relative link opens',
   };
   let total = 0;
   for (const [key, label] of Object.entries(labels)) {
