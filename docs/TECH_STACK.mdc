@@ -434,11 +434,9 @@ const state = {
   transform: translateY(0) scale(0.98);
 }
 
-/* Focus: visible ring */
-.button:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
+/* Focus: no per-component rule. reset.css gives every :focus-visible the ring from
+   --color-focus-ring (3:1 or more against what surrounds it). A component that hides its
+   own outline moves the ring to a wrapper, as .input-field and .form-input-content do. */
 
 /* Disabled */
 .button:disabled {

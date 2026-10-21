@@ -126,10 +126,6 @@ a:hover {
   color: var(--color-accent-hover);
 }
 
-a:focus-visible {
-  outline-color: var(--foreground-accent);
-}
-
 /* Strong / Bold */
 strong, b {
   font-weight: var(--font-semibold);

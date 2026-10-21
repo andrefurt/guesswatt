@@ -118,6 +118,12 @@
   --color-border-default: rgba(0, 0, 0, 0.10); /* Default border, 12% opacity */
   --color-border-subtle: rgba(0, 0, 0, 0.06); /* Subtle border, 6% opacity */
   --color-border-dashed: rgba(0, 0, 0, 0.16); /* Dashed border, 16% opacity */
+  /* Focus ring: every :focus-visible uses it (reset.css). 12.9:1 on the page background; on dark
+     buttons the 2px offset leaves the page colour between button and ring */
+  --color-focus-ring: var(--color-accent);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  
   --color-border-accent: rgba(53, 68, 61, 0.4); /* Accent border, foreground at 30% opacity */
   --border: rgba(0, 0, 0, 0.12); /* Default border alias */
   --border-hard: rgba(0, 0, 0, 0.16); /* Hard border, 16% opacity */
@@ -294,7 +300,8 @@
   --z-base: 0; /* Base layer */
   --z-tabs-indicator: 0; /* Tab indicator, behind buttons */
   --z-tabs-buttons: 1; /* Tab buttons, above indicator */
-  --z-dropdown: 1000; /* Dropdown menus, top layer */
+  --z-dropdown: 1000; /* Dropdown menus */
+  --z-skip-link: 1100; /* Skip link, above everything when focused */
 }
 
 /* Respect reduced motion preference */
