@@ -170,11 +170,11 @@ export function initTabs() {
     tabsIndicator.style.width = `${width}px`;
   }
   
-  // Initialize indicator position on load
-  if (tabEstimado && tabsIndicator) {
-    requestAnimationFrame(() => {
-      moveIndicator(tabEstimado);
-    });
+  // Place the indicator, and place it again whenever the tabs change size: Inter arriving after the
+  // first measure, a resize, zoom. A fixed rAF measure caught the fallback font's width.
+  if (tabsWrapper && tabsIndicator) {
+    const placeIndicator = new ResizeObserver(() => moveIndicator(tabsWrapper.querySelector('.tab.active') || tabEstimado));
+    [tabsWrapper, ...tabs].forEach(element => placeIndicator.observe(element));
   }
   
   // Get input-slot element for preciso-mode class toggle

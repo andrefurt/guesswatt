@@ -66,20 +66,20 @@
   .input-slot {
     border: 0.5px solid var(--color-border);
     border-radius: var(--radius-xl);
-    transition: border var(--duration-fast) var(--ease-out);
+    transition: border var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
   .input-content {
-    border: 1px solid white;
+    border: 1px solid var(--color-highlight);
     /* Child radius = parent radius (16px) - parent border (0.5px) ≈ 15.5px */
     border-radius: calc(var(--radius-xl) - 0.5px);
     box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
     transition: 
-      background var(--duration-slow) var(--ease-bounce),
-      border-color var(--duration-slow) var(--ease-bounce),
-      box-shadow var(--duration-slow) var(--ease-bounce);
+      background var(--duration-medium) var(--ease-emphasized-decelerate),
+      border-color var(--duration-medium) var(--ease-emphasized-decelerate),
+      box-shadow var(--duration-medium) var(--ease-emphasized-decelerate);
   }
   
   .input-content::after {
@@ -90,18 +90,18 @@
     box-shadow: var(--shadow-inset-light);
     /* Inherits parent's border-radius */
     border-radius: calc(var(--radius-xl) - 0.5px);
-    transition: opacity var(--duration-slow) var(--ease-bounce);
+    transition: opacity var(--duration-medium) var(--ease-emphasized-decelerate);
   }
   
   /* Preciso mode - dashed border */
   .input-slot.preciso-mode {
     border: 1px dashed var(--color-border-dashed);
-    transition: border var(--duration-fast) var(--ease-out);
+    transition: border var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
   .input-slot.preciso-mode .input-content {
     background: var(--color-bg-drop-area);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-highlight-soft);
     box-shadow: none;
   }
   
@@ -111,7 +111,7 @@
   
   /* Dragging state */
   .input-slot.preciso-mode.dragging {
-    border-color: rgba(0, 0, 0, 0.32); /* 32% opacity - specific interaction state */
+    border-color: var(--color-border-drag);
   }
   
   .input-slot.preciso-mode.dragging .input-content {
@@ -132,10 +132,10 @@
   .input-group,
   .drop-area {
     transition: 
-      opacity var(--duration-slow) var(--ease-bounce),
-      transform var(--duration-slow) var(--ease-bounce),
-      filter var(--duration-slow) var(--ease-bounce),
-      visibility var(--duration-slow);
+      opacity var(--duration-medium) var(--ease-emphasized-decelerate),
+      transform var(--duration-medium) var(--ease-emphasized-decelerate),
+      filter var(--duration-medium) var(--ease-emphasized-decelerate),
+      visibility var(--duration-medium);
   }
   
   /* The view being shown is visible at once (0s), so a script can focus a field in it in the same
@@ -144,7 +144,18 @@
   .input-slot:not(.preciso-mode) .input-group,
   .preciso-mode:not(.manual-mode) .drop-area,
   .preciso-mode.manual-mode .manual-form {
-    transition-duration: var(--duration-slow), var(--duration-slow), var(--duration-slow), 0s;
+    transition-duration: var(--duration-medium), var(--duration-medium), var(--duration-medium), 0s;
+    transition-timing-function: var(--ease-emphasized-decelerate);
+  }
+  
+  /* The view being hidden leaves on the exit pair (about 80% of the enter, accelerate curve) */
+  .preciso-mode .input-group,
+  .input-slot:not(.preciso-mode) .drop-area,
+  .preciso-mode.manual-mode .drop-area,
+  .input-slot:not(.preciso-mode) .manual-form,
+  .input-slot:not(.manual-mode) .manual-form {
+    transition-duration: var(--duration-exit-medium);
+    transition-timing-function: var(--ease-emphasized-accelerate);
   }
   
   /* Estimado view - default visible, RELATIVE position */
@@ -290,11 +301,11 @@
   }
   
   .period {
-    font-family: 'Roboto Mono', var(--font-mono); /* Roboto Mono first */
+    font-family: var(--font-sans); /* the unit in Inter, as the text around it (Roboto Mono was never loaded) */
     font-weight: var(--font-normal);
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--leading-normal);
-    letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
+    letter-spacing: var(--text-default-tracking);
     color: var(--color-text-secondary);
   }
   
@@ -318,7 +329,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm);
     background: var(--color-bg-drop-area);
     box-shadow: var(--shadow-icon);
@@ -327,8 +338,8 @@
     opacity: 0;
     transform: translateY(var(--space-1));
     transition: 
-      opacity var(--duration-slow) var(--ease-bounce),
-      transform var(--duration-slow) var(--ease-bounce);
+      opacity var(--duration-medium) var(--ease-emphasized-decelerate),
+      transform var(--duration-medium) var(--ease-emphasized-decelerate);
   }
   
   .preciso-mode .drop-area-icon {
@@ -356,8 +367,8 @@
     opacity: 0;
     transform: translateY(var(--space-1));
     transition: 
-      opacity var(--duration-slow) var(--ease-bounce) calc(var(--stagger-delay) * 2.5),
-      transform var(--duration-slow) var(--ease-bounce) calc(var(--stagger-delay) * 2.5);
+      opacity var(--duration-medium) var(--ease-emphasized-decelerate) calc(var(--stagger-delay) * 2.5),
+      transform var(--duration-medium) var(--ease-emphasized-decelerate) calc(var(--stagger-delay) * 2.5);
   }
   
   .preciso-mode .drop-area-text {
@@ -433,10 +444,10 @@
     transform: translateY(var(--space-2));
     filter: blur(2px); /* Fixed blur value - not responsive */
     transition: 
-      opacity var(--duration-slow) var(--ease-bounce),
-      transform var(--duration-slow) var(--ease-bounce),
-      filter var(--duration-slow) var(--ease-bounce),
-      visibility var(--duration-slow);
+      opacity var(--duration-medium) var(--ease-emphasized-decelerate),
+      transform var(--duration-medium) var(--ease-emphasized-decelerate),
+      filter var(--duration-medium) var(--ease-emphasized-decelerate),
+      visibility var(--duration-medium);
   }
   
   /* Show manual form when manual-mode is active */
@@ -534,14 +545,14 @@
     height: 2.5rem; /* 40px - fixed height for form inputs */
     /* Translucent box, opaque text: the 75% applies to the fill and the edge only, so typed
        values keep full contrast */
-    border: 1px solid rgb(255 255 255 / 0.75);
+    border: 1px solid var(--color-highlight-strong);
     /* Child radius = parent radius (6px) - parent border (0.5px) ≈ 5.5px */
     border-radius: calc(var(--radius-sm) - 0.5px);
     box-shadow: none; /* Shadow removed */
     position: relative;
     background: color-mix(in oklch, var(--color-bg-form-input) 75%, transparent);
     transition: 
-      border-color var(--duration-normal) var(--ease-out);
+      border-color var(--duration-fast) var(--ease-emphasized-decelerate);
   }
   
   .form-input-content::after {
@@ -581,11 +592,11 @@
   }
   
   .form-input-suffix {
-    font-family: var(--font-mono);
+    font-family: var(--font-sans); /* the unit in Inter, as the text around it (Roboto Mono was never loaded) */
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
     line-height: var(--leading-normal);
-    letter-spacing: calc(var(--text-base-size) * -0.03);
+    letter-spacing: var(--text-default-tracking);
     color: var(--color-text-secondary);
     padding-right: var(--space-3);
     flex-shrink: 0;
@@ -635,7 +646,7 @@
     transform: translateY(-50%);
     pointer-events: none;
     opacity: 0.44;
-    transition: transform var(--duration-slow) var(--ease-bounce);
+    transition: transform var(--duration-medium) var(--ease-emphasized-decelerate);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -672,7 +683,7 @@
     text-decoration: underline;
     text-underline-offset: var(--space-1);
     cursor: pointer;
-    transition: opacity var(--duration-normal) var(--ease-out);
+    transition: opacity var(--duration-fast) var(--ease-emphasized-decelerate);
     background: none;
     border: none;
     padding: 0;

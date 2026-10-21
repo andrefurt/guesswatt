@@ -27,9 +27,9 @@
   
   padding: var(--space-3) var(--space-4);
   background-color: var(--color-accent);
-  color: white;
+  color: var(--color-text-on-accent);
   
-  transition: top var(--duration-fast) var(--ease-out);
+  transition: top var(--duration-micro) var(--ease-emphasized-decelerate);
 }
 
 .skip-link:focus {

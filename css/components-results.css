@@ -26,7 +26,7 @@
   }
   
   .results-view .savings-bar {
-    animation: savingsAppear var(--duration-slow) var(--ease-spring) forwards;
+    animation: savingsAppear var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: 0ms;
   }
   /* ═══════════════════════════════════════════════════════════
@@ -76,7 +76,7 @@
   
   .result-card-container {
     width: 100%;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 64.03%, rgba(0, 0, 0, 0.016) 100%);
+    background: var(--color-surface-sunken);
     border-radius: var(--radius-xl);
     padding-bottom: var(--space-3);
   }
@@ -88,7 +88,7 @@
   
   .result-card {
     background: var(--color-surface-card);
-    border: 1px solid white;
+    border: 1px solid var(--color-highlight);
     /* Child radius = parent radius (16px) - parent border (0.5px) ≈ 15.5px */
     border-radius: calc(var(--radius-xl) - 0.5px);
     box-shadow: var(--shadow-md);
@@ -129,11 +129,11 @@
     align-items: center;
     justify-content: center;
     /* Calculate padding to make square container matching button height (~32px) */
-    /* Button height = var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) = ~32px */
+    /* Button height = var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm) = ~32px */
     /* Icon size is var(--text-base-size) (14px), from .icon in base.css */
     /* For square: padding = (height - icon size) / 2 */
-    padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-base-size)) / 2);
-    border: 0.5px solid white; /* Same border as secondary button */
+    padding: calc((var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm) - var(--text-base-size)) / 2);
+    border: 0.5px solid var(--color-highlight); /* Same border as secondary button */
     border-radius: var(--radius-sm); /* 6px - same as buttons */
     background: var(--color-surface-raised); /* More prominent background - oklch(95% 0 0) #F0F0EF */
     box-shadow: var(--shadow-icon); /* Same shadow as icon containers */
@@ -199,7 +199,7 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--space-3) 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    border-bottom: 1px solid var(--color-divider-strong);
   }
   
   .data-row-label {
@@ -225,7 +225,9 @@
     color: var(--color-text-secondary);
   }
   
+  /* Prices and quantities line up digit for digit */
   .data-row-value {
+    font-variant-numeric: tabular-nums;
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
@@ -248,7 +250,7 @@
   .badge-inner {
     /* Shares same visual structure as buttons/pills */
     padding: var(--space-1) var(--space-2);
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
     box-shadow: var(--shadow-xs);
     font-family: var(--font-sans);
@@ -301,6 +303,7 @@
   }
   
   .savings-bar-inner {
+    font-variant-numeric: tabular-nums;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -308,7 +311,7 @@
     position: absolute;
     inset: 0; /* Fill parent completely */
     padding: var(--space-1) var(--space-2); /* 4px vertical, 8px horizontal */
-    border: 0.5px solid white; /* White inner border */
+    border: 0.5px solid var(--color-highlight); /* White inner border */
     border-radius: var(--radius-sm); /* 6px - same as parent */
     background: var(--color-savings-bar-bg);
     box-shadow: var(--shadow-savings-bar); /* 0px 4px 8px 0px rgba(113,152,131,0.08) */
@@ -350,7 +353,7 @@
     justify-content: space-between;
     gap: var(--space-3); /* keeps the label clear of wrapping chips */
     padding: var(--space-4) 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid var(--color-divider);
   }
   
   .info-row-label {
@@ -388,10 +391,10 @@
     align-items: center;
     gap: var(--space-1);
     padding: 2px var(--space-1);
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
     box-shadow: var(--shadow-xs);
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--color-control-subtle);
   }
     
   

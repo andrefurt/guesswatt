@@ -60,6 +60,20 @@
   --color-savings-bar-bg: rgba(113, 152, 131, 0.08);
   --color-warning-soft: rgba(255, 193, 7, 0.1);
   
+  /* Glass: the white edges and translucent fills the light theme draws with (dark mode retunes them) */
+  --color-highlight: white; /* the 0.5 to 1px inner edge on cards and buttons */
+  --color-highlight-soft: rgba(255, 255, 255, 0.5);
+  --color-highlight-strong: rgba(255, 255, 255, 0.75); /* form field edge */
+  --color-divider: rgba(255, 255, 255, 0.3); /* rows in the result info */
+  --color-divider-strong: rgba(255, 255, 255, 0.4); /* rows in the result card */
+  --color-control: rgba(255, 255, 255, 0.2); /* button and menu fill */
+  --color-control-hover: rgba(255, 255, 255, 0.4);
+  --color-control-subtle: rgba(255, 255, 255, 0.1);
+  --color-surface-sunken: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 64.03%, rgba(0, 0, 0, 0.016) 100%);
+  --color-hover-tint: oklch(from var(--color-text) l c h / 0.04);
+  --color-press-tint: oklch(from var(--color-text) l c h / 0.08);
+  --color-backdrop: oklch(0% 0 0 / 0.5);
+  
   /* Accent */
   --color-accent: oklch(25% 0.02 145);
   --color-accent-hover: oklch(20% 0.02 145);
@@ -75,6 +89,7 @@
   --color-border: rgba(0, 0, 0, 0.10);
   --color-border-strong: rgba(0, 0, 0, 0.12);
   --color-border-dashed: rgba(0, 0, 0, 0.16);
+  --color-border-drag: rgba(0, 0, 0, 0.32); /* drop area while a file is dragged over */
   --color-border-accent: rgba(53, 68, 61, 0.4); /* accent at 40% */
   
   /* ═══════════════════════════════════════════════════════════
@@ -83,7 +98,7 @@
   
   /* Font families */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'Roboto Mono', 'SF Mono', Consolas, monospace;
+  --font-mono: ui-monospace, 'SF Mono', Consolas, monospace; /* code and kbd only (base.css) */
   
   /* Font weights */
   --font-normal: 400; /* Regular weight */
@@ -94,7 +109,7 @@
   /* Typography Scale - XS (11px → 12px) */
   --text-xs-size: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem);
   --text-xs-weight: 500;
-  --text-xs-leading: 1.25rem; /* Fixed line-height for small text */
+  --text-xs-leading: 1.6; /* unitless, so it scales with the text (about 19 px at 12 px) */
   --text-xs-tracking: 0;
   
   /* Typography Scale - SM (12px → 13px) */
@@ -104,7 +119,7 @@
   /* Typography Scale - Base/Default (14px → 15px) */
   --text-base-size: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem); /* Same as --text-base for consistency */
   --text-base-weight: 500;
-  --text-base-leading: 1.25rem;
+  --text-base-leading: 1.4; /* unitless, so it scales with the text: 19.6 px at 14 px, 21 px at 15 px */
   --text-base-tracking: -0.005em;
   
   /* Legacy aliases for backward compatibility */
@@ -186,24 +201,24 @@
      ANIMATION - Timing and easing
      ═══════════════════════════════════════════════════════════ */
   
-  --duration-instant: 0ms; /* No animation */
-  --duration-fast: 50ms; /* Micro-interactions, hover states */
-  --duration-normal: 150ms; /* Standard transitions */
-  --duration-slow: 200ms; /* Smooth transitions, reveals */
-  --duration-slower: 250ms; /* Slower transitions, modals */
-  --duration-slowest: 300ms; /* Slowest transitions, complex animations */
+  /* Significa's tween scale (craft:motion): enter on the decelerate curve, exit at about 80% of the
+     enter duration on the accelerate curve */
+  --duration-micro: 100ms; /* hover and colour changes */
+  --duration-fast: 150ms; /* dropdown, chevron, small UI */
+  --duration-medium: 200ms; /* view swaps, result appear */
+  --duration-slow: 300ms; /* the result card, the largest element */
+  --duration-exit-fast: 120ms; /* pairs with fast */
+  --duration-exit-medium: 160ms; /* pairs with medium */
   
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* Decelerate, default easing */
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Spring effect, bouncy */
-  --ease-bounce: cubic-bezier(0.22, 1, 0.36, 1); /* Bounce effect, playful */
-  --ease-tabs: cubic-bezier(0.25, 1, 0.5, 1); /* Tab indicator animation */
+  --ease-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1); /* everything entering */
+  --ease-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15); /* exits only */
   
-  --stagger-delay: 20ms; /* Delay between staggered animations */
+  --stagger-delay: 30ms; /* Delay between staggered items (30 to 50 ms in UI) */
   
   /* Transitions */
-  --transition-colors: color 150ms ease-out,
-                       background-color 150ms ease-out,
-                       border-color 150ms ease-out; /* Standard color transitions */
+  --transition-colors: color var(--duration-micro) var(--ease-emphasized-decelerate),
+                       background-color var(--duration-micro) var(--ease-emphasized-decelerate),
+                       border-color var(--duration-micro) var(--ease-emphasized-decelerate);
   
   /* ═══════════════════════════════════════════════════════════
      Z-INDEX - Layering system
@@ -213,16 +228,4 @@
   --z-tabs-buttons: 1; /* Tab buttons, above indicator */
   --z-dropdown: 1000; /* Dropdown menus */
   --z-skip-link: 1100; /* Skip link, above everything when focused */
-}
-
-/* Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --duration-instant: 0ms;
-    --duration-fast: 0ms;
-    --duration-normal: 0ms;
-    --duration-slow: 0ms;
-    --duration-slower: 0ms;
-    --duration-slowest: 0ms;
-  }
 }
