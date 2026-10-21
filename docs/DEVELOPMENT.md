@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-- **Node.js** 16+ (for running scripts)
+- **Node.js** 22+ for the scripts and the smoke test (Playwright needs 22 or later; CI runs 24)
 - **Modern browser** (Chrome, Firefox, Safari, Edge)
 - **Git** (for version control)
 - **Text editor** (VS Code recommended)
@@ -126,6 +126,9 @@ node scripts/selftest.js
 
 ### Updating ERSE Data
 
+The weekly Action (`.github/workflows/update-erse.yml`, Mondays) runs these steps with plain
+`fetch` and pushes when the prices changed, so a manual run is only for testing a script change.
+
 1. **Download latest data**:
    ```bash
    node scripts/download-erse.js
@@ -226,7 +229,7 @@ and runs in the gate.
 
 ### Requirements
 
-- **WCAG 2.1 AA** compliance
+- Aims for **WCAG 2.2 AA**
 - **Keyboard navigation** throughout
 - **Screen reader** support
 - **Focus visible** at all times
