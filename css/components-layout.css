@@ -28,8 +28,9 @@
     width: 100%;
   }
   
-  /* Focused only by the skip link: a target, not a control */
-  .content-main:focus {
+  /* Focused only by the skip link: a target, not a control (index.html, and the card on sobre.html) */
+  .content-main:focus,
+  main.card:focus {
     outline: none;
   }
   
