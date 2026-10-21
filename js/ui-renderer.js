@@ -106,6 +106,35 @@ function initProviderLogoFallbacks() {
   });
 }
 
+// A saving at or below this (€/month) is not worth a switch: the result says the tariff is fine
+const GOOD_TARIFF_MARGIN = 1;
+
+/**
+ * The line a result shows when it has no saving to report
+ * @param {Object} best - Best offer; currentProvider is the code the person gave (Preciso)
+ * @param {number|null} monthlyBill - Bill in estimate mode
+ * @param {Object|null} savings - Saving against the current supplier, when it could be computed
+ * @param {boolean} isEstimate
+ * @returns {{text: string, chooseProvider?: boolean}|null} null when the saving speaks for itself
+ */
+function resultVerdict(best, monthlyBill, savings, isEstimate) {
+  if (isEstimate) {
+    return monthlyBill && monthlyBill <= best.monthlyCost + GOOD_TARIFF_MARGIN
+      ? { text: 'Já tens uma boa tarifa. A tua fatura já está ao nível da oferta mais barata.' }
+      : null;
+  }
+  if (savings) {
+    return savings.monthly > GOOD_TARIFF_MARGIN
+      ? null
+      : { text: `Já tens uma boa tarifa. Nenhuma oferta te poupa mais de €${GOOD_TARIFF_MARGIN}/mês.` };
+  }
+  if (!best.currentProvider) {
+    return { text: 'Escolhe o teu operador para saberes quanto poupas.', chooseProvider: true };
+  }
+  const name = toTitleCase(PROVIDERS[best.currentProvider] || best.currentProvider);
+  return { text: `Não encontrámos tarifas de ${name} com esta potência e este tipo de tarifa, por isso não sabemos quanto poupas.` };
+}
+
 /**
  * Render calculation result with design system structure
  * @param {Object} enrichedBest - Enriched best offer object
@@ -169,11 +198,32 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
     slot('indexed').remove();
   }
 
-  if (savings && savings.yearly > 0) {
+  if (savings && savings.monthly > GOOD_TARIFF_MARGIN) {
     slot('savings-monthly').textContent = `€${savings.monthly.toFixed(2)}/mês,`;
     slot('savings-yearly').textContent = `€${savings.yearly.toFixed(2)}/ano`;
   } else {
     slot('savings').remove();
+  }
+
+  // When there is no saving to show, say why instead of leaving the card silent
+  const verdict = resultVerdict(enrichedBest, monthlyBill, savings, isEstimate);
+  if (verdict && isEstimate) {
+    // Estimate mode already has a market box: the verdict leads it instead of a second box
+    const line = document.createElement('p');
+    line.textContent = verdict.text;
+    slot('market-text').before(line);
+    slot('verdict').remove();
+  } else if (verdict) {
+    slot('verdict-text').textContent = verdict.text;
+    const choose = slot('choose-provider');
+    if (verdict.chooseProvider) {
+      // The way back to the form keeps what was entered (main.js)
+      Object.assign(choose.dataset, { consumption: consumption, power: power, tariff: enrichedBest.Contagem || 1 });
+    } else {
+      choose.remove();
+    }
+  } else {
+    slot('verdict').remove();
   }
 
   // Estimate mode knows the bill, not the tariff behind it, so it places the best offer in the
