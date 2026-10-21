@@ -484,7 +484,7 @@ Also: DS-11, DS-16, DS-17, MOT-7, PWA-10 (doc part).
 
 ## 4. Questions for the owner
 
-Most important first, each with a recommendation. The owner answered questions 1 to 4 on 2026-10-21, all as recommended; the rest are open.
+Most important first, each with a recommendation. The owner answered questions 1 to 4 on 2026-10-21, all as recommended, and questions 7 and 10 at the start of Phase 1; question 11 followed the recommendation in Phase 1 without being asked. The rest are open.
 
 1. **Result heading (R-1).** Should the heading carry the verdict (the saving, "já tens uma boa tarifa", or the market figure) instead of a fixed "Melhor proposta"? *Recommendation: yes. The offer becomes the support under it.* **Decision (2026-10-21): yes.**
 2. **Dark ramp (D-1).** Keep #1C241C as a brand colour, or go near-neutral? *Recommendation: near-neutral surfaces (chroma 0.004 or less on hue 145) with the page bg about L 19%, green only in text-strong, links and accent, and theme-color following the bg.* **Decision (2026-10-21): near-neutral, as recommended.**
@@ -492,11 +492,11 @@ Most important first, each with a recommendation. The owner answered questions 1
 4. **Touch targets (C-4).** A 44 px minimum on touch screens only (`pointer: coarse`), keeping the desktop density? *Recommendation: yes.* **Decision (2026-10-21): yes, touch only.**
 5. **Menu surface (L-4).** A new opaque surface token for the menu in both themes? *Recommendation: yes.*
 6. **Result entrance (M-1).** The full entrance on every submit, or on the first result only? *Recommendation: the first result only, then a 150 ms fade.* Related: should the tab indicator move as one piece (its width snaps today, by design)? *Recommendation: yes, with `clip-path` or an inner `scaleX`, both compositor-only, and the TECH_STACK motion rule amended to allow clip-path.*
-7. **PDF offline (P-2).** A separate vendor cache plus an honest message, or precache PDF.js (about 378 KB gzip per visitor)? *Recommendation: the separate cache, no precache.*
+7. **PDF offline (P-2).** A separate vendor cache plus an honest message, or precache PDF.js (about 378 KB gzip per visitor)? *Recommendation: the separate cache, no precache.* **Decision (2026-10-21): "Cache própria, sem precache".**
 8. **The bluish checkbox (C-11).** Which browser and OS was the screenshot? *Recommendation: if it is Safari 26, draw the checkbox from tokens (about 15 lines).*
 9. **Delete main.css (X-1).** Its only live rules are about 10 lines of print CSS, which move to base.css. *Recommendation: yes.*
-10. **Decimals in consumption (F-1).** Bills show whole kWh. *Recommendation: accept them and round, so "250,5" is never an error or 2505.*
-11. **Dark splash (P-7 area).** The manifest takes one `background_color`. *Recommendation: keep the light splash, and only correct the TECH_STACK line.*
+10. **Decimals in consumption (F-1).** Bills show whole kWh. *Recommendation: accept them and round, so "250,5" is never an error or 2505.* **Decision (2026-10-21): "Aceitar e arredondar".**
+11. **Dark splash (P-7 area).** The manifest takes one `background_color`. *Recommendation: keep the light splash, and only correct the TECH_STACK line.* **Done in task 1.7 as recommended (not asked; the owner can reverse it).**
 12. **React and Foundations.** See section 5. *Recommendation: no migration now.*
 
 ---
