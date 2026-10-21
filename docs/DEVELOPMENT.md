@@ -60,7 +60,7 @@ The file map lives in [`docs/TECH_STACK.mdc`](./TECH_STACK.mdc#file-map) (File M
 
 ### Code Standards
 
-Follow the guidelines in [`docs/CURSOR_RULES.mdc`](./CURSOR_RULES.mdc):
+Follow the rules in [`CLAUDE.md`](../CLAUDE.md) and `.claude/rules/`:
 
 - **JavaScript**: ES6+ modules, JSDoc comments, descriptive names
 - **CSS**: BEM-ish naming, custom properties, no magic numbers
@@ -194,9 +194,9 @@ See [`docs/DATA_MODEL.mdc`](./DATA_MODEL.mdc) for detailed information about:
 
 ### Step-by-Step Process
 
-1. **Plan**: Review [`docs/IMPLEMENTATION.mdc`](./IMPLEMENTATION.mdc) for phase structure
+1. **Plan**: Follow the working agreement in [`CLAUDE.md`](../CLAUDE.md)
 2. **Document**: Create ADR in [`docs/DECISIONS.mdc`](./DECISIONS.mdc) if architectural decision needed
-3. **Implement**: Write code following standards in [`docs/CURSOR_RULES.mdc`](./CURSOR_RULES.mdc)
+3. **Implement**: Write code following the rules in [`CLAUDE.md`](../CLAUDE.md) and `.claude/rules/`
 4. **Test**: Manual testing + validation scripts
 5. **Document**: Update relevant docs (TECH_STACK, DATA_MODEL, COPY, etc.)
 6. **Review**: Self-review before PR

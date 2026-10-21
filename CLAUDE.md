@@ -52,9 +52,6 @@ Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 | The weekly data update | `.github/workflows/update-erse.yml` |
 | Something looks odd | `docs/DECISIONS.mdc` (the decision log): it is probably deliberate |
 
-`docs/CURSOR_RULES.mdc` predates this file and is partly stale; where it disagrees with this file or
-`.claude/rules/`, they win.
-
 ## Skills
 
 Owners in this repo:
