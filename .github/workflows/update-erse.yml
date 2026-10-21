@@ -1,7 +1,8 @@
 # Weekly ERSE data refresh
 #
 # Downloads ERSE's CSVs with plain fetch (scripts/download-erse.js), builds offers.json, checks the
-# data bounds against the last commit (scripts/validate-data.js), runs the gate, and pushes to main only when the CSVs or offers.json changed. meta.json alone never counts:
+# data bounds against the last commit (scripts/validate-data.js), runs the gate and the smoke test
+# (tests/smoke.mjs, Playwright installed outside the repo for the run), and pushes to main only when the CSVs or offers.json changed. meta.json alone never counts:
 # its build time changes on every run.
 #
 # On any failure nothing is pushed, the data files are kept as an artifact, and one issue
@@ -57,6 +58,20 @@ jobs:
 
       - name: Run self-tests
         run: node scripts/selftest.js 2>&1 | tee -a refresh.log
+
+      # Pushes made with GITHUB_TOKEN start no CI run, so the new data meets the page flows here
+      - name: Install Playwright and Chromium
+        env:
+          PLAYWRIGHT_VERSION: 1.62.1
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save --no-package-lock --no-audit --no-fund "playwright@${PLAYWRIGHT_VERSION}"
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps --only-shell chromium
+
+      - name: Run the smoke test on the new data
+        run: |
+          python3 -m http.server 8000 >/dev/null 2>&1 &
+          sleep 1
+          PLAYWRIGHT="$RUNNER_TEMP/pw/node_modules/playwright/index.mjs" node tests/smoke.mjs http://localhost:8000 2>&1 | tee -a refresh.log
 
       # A stale TAR year gets its own issue and does not block the prices (ADR-009)
       - name: Check the TAR year
@@ -153,6 +168,7 @@ jobs:
             echo "- A new supplier code: name it in \`js/config.js\` PROVIDERS (ERSE publishes codes, never names)."
             echo "- \`sw.js\` lost its \`const VERSION = '...';\` line, which the commit step sets to the price date."
             echo "- ERSE changed Settings.json, the ZIP or a CSV column: see \`scripts/download-erse.js\` and \`scripts/build-offers.js\`."
+            echo "- The smoke test failed on the new data: the log names the flow and the width (\`tests/smoke.mjs\`)."
             echo "- A bound in \`scripts/validate-data.js\` was breached: the log says which. If the change is real (a supplier left, prices moved), run the refresh locally, check the numbers and commit it by hand."
             echo
             echo "Last 60 lines of the log:"

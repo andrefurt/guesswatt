@@ -4,7 +4,11 @@
 # On a schedule it checks instead that the prices are recent (scripts/validate-data.js --freshness),
 # which catches a refresh that stopped without failing. A stale date opens one issue "ERSE prices are
 # out of date" and never blocks anything. Manual trigger: Actions tab, "CI", "Run workflow"; a lower
-# limit (1 day) forces the issue, to test it.
+# limit (1 day) forces the issue, to test it. A manual run also runs the gate and the smoke.
+#
+# After the gate, a smoke test drives the page in headless Chromium (tests/smoke.mjs). Playwright is
+# installed in the runner's temp folder for the run and never enters the repo. A smoke failure on main,
+# or a manual run with force-smoke-failure, opens or comments on the issue "Smoke test failed on main".
 
 name: CI
 
@@ -18,6 +22,10 @@ on:
       max-age-days:
         description: Oldest price date allowed, in days (empty for the limit in validate-data.js)
         required: false
+      force-smoke-failure:
+        description: Add one failing smoke check, to test the issue
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -28,7 +36,7 @@ concurrency:
 
 jobs:
   gate:
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -45,6 +53,67 @@ jobs:
       - name: Run the gate
         shell: bash
         run: sh -c "$(node -p 'require("./alfred.json").commands.check')"
+
+  smoke:
+    needs: gate
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write # open the smoke issue
+    defaults:
+      run:
+        shell: bash # -o pipefail, so the smoke's exit code survives the tee
+    env:
+      PLAYWRIGHT_VERSION: 1.62.1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      # Outside the checkout: no package.json, lockfile or node_modules in the repo
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save --no-package-lock --no-audit --no-fund "playwright@${PLAYWRIGHT_VERSION}"
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps --only-shell chromium
+
+      - name: Run the smoke test
+        env:
+          SMOKE_FORCE_FAIL: ${{ inputs.force-smoke-failure && '1' || '' }}
+        run: |
+          python3 -m http.server 8000 >/dev/null 2>&1 &
+          sleep 1
+          PLAYWRIGHT="$RUNNER_TEMP/pw/node_modules/playwright/index.mjs" node tests/smoke.mjs http://localhost:8000 2>&1 | tee smoke.log
+
+      - name: Open or update the smoke issue
+        if: failure() && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Smoke test failed on main"
+          {
+            echo "The smoke test failed on ${GITHUB_REF_NAME} at ${GITHUB_SHA::7}: ${RUN_URL}"
+            echo
+            echo "Reproduce: serve the site (\`python3 -m http.server 8000\`) and run \`PLAYWRIGHT=<path to playwright> node tests/smoke.mjs\`. Each line names the flow, the width and what broke."
+            echo
+            echo '```'
+            tail -n 40 smoke.log 2>/dev/null || echo "(no log: the job failed before the smoke ran)"
+            echo '```'
+          } > issue.md
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --repo "$GITHUB_REPOSITORY" --body-file issue.md
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file issue.md
+          fi
 
   freshness:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
