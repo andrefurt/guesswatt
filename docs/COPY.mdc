@@ -323,8 +323,11 @@ dos dois formulários é "Comparar".
 **Sem poupança para mostrar** (`resultVerdict` em `js/ui-renderer.js`; o cartão nunca fica calado):
 
 ```
-Poupança de 1 €/mês ou menos (Preciso):
-  Já tens uma boa tarifa. Nenhuma oferta te poupa mais de 1 €/mês.
+Poupança acima de 0 e até 1 €/mês (Preciso; mostra a poupança real):
+  Poupas 0,80 €/mês. É pouco para compensar a mudança: já tens uma boa tarifa.
+
+Nenhuma poupança (Preciso; o fornecedor já tem a oferta mais barata):
+  Já tens uma boa tarifa: nenhuma oferta é mais barata do que a do teu fornecedor.
 
 Fatura ao nível da oferta mais barata (Estimado, no topo da caixa do mercado):
   Já tens uma boa tarifa. A tua fatura já está ao nível da oferta mais barata.
@@ -341,7 +344,9 @@ Fornecedor sem tarifas para esta potência e tipo de tarifa:
   por isso não sabemos quanto poupas.
 ```
 
-O limite de 1 €/mês (`GOOD_TARIFF_MARGIN`): abaixo disso, mudar não compensa o trabalho.
+O limite de 1 €/mês (`GOOD_TARIFF_MARGIN`): até aí, mudar não compensa o trabalho, e o veredicto
+diz o número em que assenta (`.claude/rules/copy.md`, regra 9). A comparação usa a poupança
+arredondada aos cêntimos, os mesmos que o cartão mostra.
 
 ---
 
