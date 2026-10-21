@@ -93,8 +93,12 @@ async function runComparison(input) {
   // comparison the person types (a retry of this run gets it back)
   const fromLinkMonth = linkDataMonth;
   linkDataMonth = null;
+  // While it runs, the submit buttons say so but keep focus (a disabled button drops it to <body>
+  // in Chromium), and a repeat press is ignored
+  if (comparing) return;
+  comparing = true;
   const submits = document.querySelectorAll('.submit-btn');
-  submits.forEach(button => { button.disabled = true; });
+  submits.forEach(button => button.setAttribute('aria-disabled', 'true'));
   const loading = setTimeout(() => setStatus('info', STATUS.loading), LOADING_DELAY_MS);
 
   let data;
@@ -103,10 +107,12 @@ async function runComparison(input) {
   } catch (error) {
     console.error(error);
     setStatus('error', STATUS.loadFailed, { label: 'Tentar novamente', run: () => { linkDataMonth = fromLinkMonth; runComparison(input); } });
+    document.getElementById('form-status-action')?.focus();
     return;
   } finally {
     clearTimeout(loading);
-    submits.forEach(button => { button.disabled = false; });
+    comparing = false;
+    submits.forEach(button => button.removeAttribute('aria-disabled'));
   }
 
   const { offers, tar, dataDate } = data;
@@ -116,6 +122,9 @@ async function runComparison(input) {
   } catch (error) {
     console.error(error);
     setStatus('error', STATUS.noOffers);
+    // The fix is another power or tariff: focus the first, when the manual form shows it
+    const power = document.getElementById('power');
+    if (power?.checkVisibility?.()) power.focus();
     return;
   }
 
@@ -135,6 +144,9 @@ async function runComparison(input) {
     document.getElementById('results-subtitle')?.append(` Este link foi criado com os preços de ${formatDataMonth(new Date(`${fromLinkMonth}-15T12:00:00Z`))}; o resultado usa os mais recentes.`);
   }
 }
+
+// A comparison is loading its data (runComparison)
+let comparing = false;
 
 // Price month of the link the page was opened with, until its result is shown
 let linkDataMonth = null;
