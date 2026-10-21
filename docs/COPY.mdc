@@ -329,8 +329,8 @@ Poupança acima de 0 e até 1 €/mês (Preciso; mostra a poupança real):
 Nenhuma poupança (Preciso; o fornecedor já tem a oferta mais barata):
   Já tens uma boa tarifa: nenhuma oferta é mais barata do que a do teu fornecedor.
 
-Fatura ao nível da oferta mais barata (Estimado, no topo da caixa do mercado):
-  Já tens uma boa tarifa. A tua fatura já está ao nível da oferta mais barata.
+Fatura até 1 €/mês acima da oferta mais barata (Estimado, no topo da caixa do mercado; os dois valores):
+  A tua fatura (20,00 €/mês) já está ao nível da oferta mais barata (21,46 €/mês): já tens uma boa tarifa.
 
 Sem fornecedor (Preciso, manual ou PDF sem fornecedor reconhecido):
   Escolhe o teu fornecedor para saberes quanto poupas.
