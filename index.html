@@ -293,8 +293,8 @@
                   <!-- Before a PDF; pdf-service.js swaps it for the summary below, and back -->
                   <div class="drop-area-empty">
                     <p id="pdf-hint">Arrasta a tua fatura em PDF para aqui, ou</p>
-                    <button type="button" class="drop-area-pick" id="pdf-pick" aria-describedby="pdf-hint">Escolher fatura</button>
-                    <button type="button" class="drop-area-link" id="manual-link">Adicionar dados manualmente</button>
+                    <button type="button" class="link-button" id="pdf-pick" aria-describedby="pdf-hint">Escolher fatura</button>
+                    <button type="button" class="link-button" data-variant="quiet" id="manual-link">Adicionar dados manualmente</button>
                   </div>
                   <div class="drop-area-loaded" hidden>
                     <p class="drop-area-status"></p>
@@ -386,7 +386,7 @@
 
                   <!-- Row 3: Link + Submit -->
                   <div class="form-footer">
-                    <button class="form-link" id="pdf-link" type="button">Adicionar fatura em PDF</button>
+                    <button class="link-button" data-variant="quiet" id="pdf-link" type="button">Adicionar fatura em PDF</button>
                     <button class="submit-btn" id="manual-submit-btn" type="submit">Comparar</button>
                   </div>
                 </form>
@@ -399,7 +399,7 @@
              their next step. Always rendered, so screen readers announce what is written into it. -->
         <div class="form-status" id="form-status" role="status">
           <p class="form-status-text" id="form-status-text"></p>
-          <button type="button" class="form-status-action" id="form-status-action" hidden></button>
+          <button type="button" class="link-button" id="form-status-action" hidden></button>
         </div>
 
         <!-- Household size: picks the 200 or 300 kWh reduced-VAT threshold -->
@@ -515,7 +515,7 @@
 
             <div class="market-summary" data-slot="verdict">
               <p data-slot="verdict-text"></p>
-              <button type="button" class="market-summary-link" id="choose-provider" data-slot="choose-provider">Escolher o fornecedor</button>
+              <button type="button" class="link-button" id="choose-provider" data-slot="choose-provider">Escolher o fornecedor</button>
             </div>
             <div class="savings-bar" data-slot="savings">
               <div class="savings-bar-inner">
@@ -527,7 +527,7 @@
             </div>
             <div class="market-summary" data-slot="market">
               <p data-slot="market-text"></p>
-              <button type="button" class="market-summary-link" id="go-precise">Para saberes quanto poupas, usa o modo Preciso.</button>
+              <button type="button" class="link-button" id="go-precise">Para saberes quanto poupas, usa o modo Preciso.</button>
             </div>
           </div>
         </template>

@@ -369,6 +369,8 @@
     gap: var(--space-1);
     width: clamp(20rem, 90vw, 33.25rem); /* 320px → 532px, responsive */
     text-align: center;
+    line-height: var(--leading-tight); /* the text buttons inherit it */
+    letter-spacing: var(--text-default-tracking);
     opacity: 0;
     transform: translateY(var(--space-1));
     transition: 
@@ -396,34 +398,9 @@
     display: contents;
   }
   
-  .drop-area-pick,
-  .drop-area-link {
-    font-family: var(--font-sans);
-    font-weight: var(--font-normal);
-    font-size: var(--text-base-size);
-    line-height: var(--leading-tight);
-    letter-spacing: var(--text-default-tracking);
-    text-decoration: underline;
-    text-underline-offset: var(--space-1);
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-  }
-  
-  .drop-area-pick {
-    font-weight: var(--font-medium);
-    color: var(--color-text);
-  }
-  
-  .drop-area-link {
+  /* The second text button sits a little below the first */
+  .drop-area-empty .link-button + .link-button {
     margin-top: var(--space-2);
-    color: var(--color-text-secondary);
-  }
-  
-  .drop-area-pick:hover,
-  .drop-area-link:hover {
-    text-decoration-thickness: 2px;
   }
   
   .file-input {
@@ -500,17 +477,6 @@
     color: var(--color-error);
   }
   
-  .form-status-action {
-    font: inherit;
-    font-size: var(--text-base-size);
-    color: var(--color-text);
-    text-decoration: underline;
-    text-underline-offset: var(--space-1);
-    background: none;
-    border: none;
-    padding: 0;
-  }
-
   .form-row {
     display: flex;
     flex-wrap: wrap;
@@ -670,28 +636,46 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--space-3);
-  }
-  
-  .form-link {
-    font-family: var(--font-sans);
-    font-weight: var(--font-normal);
-    font-size: var(--text-base-size);
-    line-height: var(--leading-tight);
+    line-height: var(--leading-tight); /* the text button inherits it */
     letter-spacing: var(--text-default-tracking);
-    color: var(--color-text-secondary);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     LINK BUTTON
+     ═══════════════════════════════════════════════════════════ */
+
+  /* The one text button, on a <button> or an <a>: "do this other thing" next to the main action.
+     Used in the drop area, the form, the status line, the results and sobre.html. Font comes from
+     the context; focus is the reset ring. data-variant="quiet" is the secondary one. */
+  .link-button {
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    letter-spacing: inherit; /* buttons reset it in the browser's own styles */
+    color: var(--color-text);
+    text-align: start;
     text-decoration: underline;
+    text-decoration-thickness: 1px;
     text-underline-offset: var(--space-1);
     cursor: pointer;
-    transition: opacity var(--duration-fast) var(--ease-emphasized-decelerate);
-    background: none;
-    border: none;
-    padding: 0;
-    user-select: none;
-    -webkit-user-select: none;
+    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
   }
-  
-  .form-link:hover {
-    opacity: 0.7;
+
+  .link-button[data-variant="quiet"] {
+    font-weight: var(--font-normal);
+    color: var(--color-text-secondary);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .link-button:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  /* The press of every other control (components-buttons.css); an inline <a> in a sentence ignores
+     transforms, so it stays put */
+  .link-button:active {
+    transform: scale(0.97);
   }
 }
-
