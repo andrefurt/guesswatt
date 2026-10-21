@@ -9,6 +9,10 @@
  * Spacing: Fluid clamp() values for responsive spacing
  */
 
+/* Layer order for every stylesheet. Declared here because tokens.css is the first file the
+   pages link; a layer's rank is fixed the first time its name appears. */
+@layer base, components, utilities;
+
 /* Inter, self-hosted (Google Fonts v20 subsets, variable 400 to 700, SIL OFL 1.1 in
    vendor/fonts/OFL.txt). Portuguese needs only the latin subset; latin-ext loads on demand. */
 @font-face {

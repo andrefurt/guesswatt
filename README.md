@@ -60,7 +60,7 @@ guesswatt/
 │   ├── base.css            # Base typography and defaults
 │   ├── components-*.css    # Component-specific styles
 │   ├── utilities.css       # Utility classes
-│   └── main.css            # Main import file
+│   └── main.css            # App styles (each file has its own <link>)
 ├── js/                     # JavaScript modules
 │   ├── main.js             # Application entry point
 │   ├── calculator.js       # Cost calculation logic
