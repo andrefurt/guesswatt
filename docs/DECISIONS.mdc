@@ -663,43 +663,39 @@ Client-side com Mozilla pdf.js via CDN.
 
 ## ADR-018: URL State para Bookmarks
 
-**Data:** Novembro 2025 (v2)
+**Data:** Novembro 2025 (v2); revisto em outubro de 2026 (auditoria, decisão 9)
 
-**Status:** ✅ Aceite
+**Status:** ✅ Implementado (`js/url-state.js`)
 
 **Contexto:**
 Queremos que utilizadores possam guardar/partilhar resultados.
 
 **Decisão:**
-Encodar estado no URL como base64.
+Parâmetros simples no URL (não base64), com as entradas e nunca o resultado: abrir o link corre a
+comparação outra vez com os preços atuais.
 
 **Formato:**
 ```
-guesswatts.com/?s=eyJwIjo0LjYsImMiOjM1MCwiYiI6NzF9
+guesswatts.com/?f=80&d=2026-10                         Estimado: fatura em €
+guesswatts.com/?c=250&p=4.6&t=2&s=IBD&h=1&d=2026-10    Preciso: kWh/mês, kVA, tipo de tarifa,
+                                                       fornecedor (opcional)
+h=1  casa com 5 ou mais pessoas      d  mês dos preços com que o link foi feito
 ```
 
-**Decoded:**
-```json
-{
-  "p": 4.6,      // potência
-  "c": 350,      // consumo
-  "t": 1,        // tarifa
-  "b": 71,       // melhor preço
-  "d": "2025-11"  // data
-}
-```
-
-**Razões:**
-- URL bookmarkable
-- Partilhável
-- Permite "voltar e comparar"
-- Data permite detectar staleness
+**Regras:**
+- Cada valor é convertido e verificado à entrada (intervalos dos formulários, fornecedor que exista
+  em `PROVIDERS`, mês `AAAA-MM`); qualquer valor fora de forma dá a página inicial, sem estado.
+- O URL é escrito com `replaceState` quando o resultado aparece e limpo quando é apagado.
+- O menu de cópia e os links para ChatGPT e Claude levam o endereço da página sem a query: os
+  números da pessoa não saem para outro serviço (SEC-6).
+- Se `d` não for o mês dos preços atuais, o subtítulo diz que o resultado usa os mais recentes.
+- Um resultado de PDF partilha-se como Preciso, sem a divisão vazio/fora de vazio da fatura: quem
+  abre o link vê a divisão por omissão.
 
 **Consequências:**
-- ✅ Bookmarks funcionam
-- ✅ Partilha fácil
-- ⚠️ URL fica mais longo
-- ⚠️ Estado pode ficar desactualizado
+- ✅ Bookmarks e partilha funcionam
+- ✅ Um link antigo dá sempre preços atuais, e diz-o
+- ⚠️ Um resultado de PDF bi-horário partilhado pode diferir do original (divisão por omissão)
 
 ---
 

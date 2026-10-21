@@ -51,6 +51,7 @@ const PRECACHE = [
   'js/ui-components.js',
   'js/ui-handlers.js',
   'js/ui-renderer.js',
+  'js/url-state.js',
   'js/utils.js',
   'vendor/fonts/inter-latin.woff2',
   'icons/favicon.svg',

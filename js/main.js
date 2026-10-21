@@ -11,6 +11,8 @@ import { initTooltips, initTabs, populateProvidersDropdown } from './ui-componen
 import { renderResult } from './ui-renderer.js';
 import { initUIHandlers, hideResults, setEstimadoData, setInvoiceData } from './ui-handlers.js';
 import { initPageActions } from './page-actions.js';
+import { readState, writeState, monthOf } from './url-state.js';
+import { formatDataMonth } from './data-date.js';
 
 // =============================================================================
 // COMPARISON
@@ -89,6 +91,8 @@ async function runComparison(input) {
   }
 
   setStatus('info');
+  // The inputs go into the URL, so the result can be bookmarked or shared (url-state.js)
+  history.replaceState(null, '', writeState(input, isLargeHousehold(), dataDate));
   const best = {
     ...result.best,
     dataDate,
@@ -96,6 +100,42 @@ async function runComparison(input) {
     currentProvider: input.provider || null
   };
   renderResult(best, result.consumption, result.power, input.bill ?? null, result.savings, input.mode === 'estimate');
+
+  // A shared link made with older prices: say the result uses today's
+  if (linkDataMonth && dataDate && monthOf(dataDate) !== linkDataMonth) {
+    document.getElementById('results-subtitle')?.append(` Este link foi criado com os preços de ${formatDataMonth(new Date(`${linkDataMonth}-15T12:00:00Z`))}; o resultado usa os mais recentes.`);
+  }
+  linkDataMonth = null;
+}
+
+// Price month of the link the page was opened with, until its result is shown
+let linkDataMonth = null;
+
+/**
+ * Open the result a URL describes: fill the form it came from and send it, so it takes the same
+ * path (and the same checks) as a person typing it
+ */
+function restoreFromURL() {
+  const state = readState(location.search);
+  if (!state) {
+    if (location.search) history.replaceState(null, '', location.pathname);
+    return;
+  }
+  linkDataMonth = state.dataMonth;
+  document.getElementById('large-household').checked = state.largeHousehold;
+  const { input } = state;
+  if (input.mode === 'estimate') {
+    document.getElementById('monthly-bill').value = String(input.bill);
+    document.getElementById('estimate-form').requestSubmit();
+    return;
+  }
+  document.getElementById('tab-preciso')?.click();
+  document.getElementById('input-slot')?.classList.add('preciso-mode', 'manual-mode');
+  document.getElementById('consumption').value = String(input.consumption);
+  document.getElementById('power').value = String(input.power);
+  document.getElementById('tariff-type').value = String(input.tariffType);
+  document.getElementById('current-provider').value = input.provider || '';
+  document.getElementById('precise-form').requestSubmit();
 }
 
 // =============================================================================
@@ -292,6 +332,9 @@ function init() {
   if (preciseForm) {
     preciseForm.addEventListener('submit', handlePreciseSubmit);
   }
+
+  // A result link (?f=… or ?c=…) opens straight on its result
+  restoreFromURL();
 }
 
 window.addEventListener('load', registerServiceWorker);

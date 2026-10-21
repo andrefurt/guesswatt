@@ -24,6 +24,7 @@ const META_PATH = path.join(DATA_DIR, 'meta.json');
 const CALCULATOR_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'calculator.js')).href;
 const CONFIG_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'config.js')).href;
 const PDF_SERVICE_PATH = path.join(__dirname, '..', 'js', 'pdf-service.js');
+const URL_STATE_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'url-state.js')).href;
 const PDF_SERVICE_URL = pathToFileURL(PDF_SERVICE_PATH).href;
 let calculateMonthlyCost;
 
@@ -37,6 +38,7 @@ async function runSelftest() {
   calculateMonthlyCost = calculator.calculateMonthlyCost;
   const { PROVIDERS } = await import(CONFIG_URL);
   const { parseInvoiceText } = await import(PDF_SERVICE_URL);
+  const { readState, writeState } = await import(URL_STATE_URL);
   
   let passed = 0;
   let failed = 0;
@@ -648,6 +650,26 @@ async function runSelftest() {
   });
 
   // Test 8: Tariff types are valid
+  test('url state: plain params round-trip for both modes', () => {
+    const estimate = { mode: 'estimate', bill: 80 };
+    const precise = { mode: 'precise', consumption: 250, power: 4.6, tariffType: 2, provider: 'IBD' };
+    for (const input of [estimate, precise]) {
+      const back = readState(writeState(input, true, new Date('2026-10-19T00:00:00Z')));
+      const expected = input.mode === 'precise' ? input : estimate;
+      if (JSON.stringify(back.input) !== JSON.stringify(expected) || !back.largeHousehold || back.dataMonth !== '2026-10') {
+        throw new Error(`round trip changed ${JSON.stringify(input)} into ${JSON.stringify(back)}`);
+      }
+    }
+  });
+
+  test('url state: anything out of shape gives no state (markup, ranges, unknown supplier)', () => {
+    for (const bad of ['?c=<img src=x>&p=4.6&t=1', '?f=5', '?f=2000', '?f=80e3', '?c=250&p=4.6&t=4', '?c=250&p=99&t=1', '?c=-5&p=4.6&t=1']) {
+      if (readState(bad) !== null) throw new Error(`accepted ${bad}`);
+    }
+    const unknown = readState('?c=250&p=4.6&t=1&s=%3Cscript%3E&d=2026-13');
+    if (unknown.input.provider !== null || unknown.dataMonth !== null) throw new Error('kept an unknown supplier or a bad month');
+  });
+
   test('tariff types are valid (1, 2, or 3)', () => {
     const invalid = offers.filter(o => ![1, 2, 3].includes(o.Contagem));
     if (invalid.length > 0) {
