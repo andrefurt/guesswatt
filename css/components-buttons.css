@@ -124,26 +124,7 @@
     align-items: center;
     justify-content: center;
   }
-  
-  /* Phosphor Duotone icons styling */
-  .btn-icon i,
-  .btn-icon .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
-  }
-  
-  /* Legacy SVG support (if any remain) */
-  .btn-icon svg {
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-  }
+    
   
   /* ═══════════════════════════════════════════════════════════
      SEGMENTED BUTTON
@@ -256,10 +237,6 @@
     color: var(--color-accent-green);
   }
   
-  .copy-btn-copied .btn-icon svg path,
-  .copy-btn-copied .btn-icon svg polyline {
-    stroke: var(--color-accent-green);
-  }
   
   /* Copied state */
   .copy-btn.copied .copy-btn-default {
@@ -393,36 +370,12 @@
     justify-content: center;
     flex-shrink: 0;
   }
-  
-  /* Phosphor Duotone icons styling */
-  .dropdown-item .item-icon i,
-  .dropdown-item .item-icon .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
+    
+  /* ChatGPT and Claude marks: black, never the UI tint (brand marks keep their own colour) */
+  .dropdown-item .item-icon .icon-brand {
+    color: oklch(0% 0 0);
   }
   
-  /* Dropdown logo images (ChatGPT, Claude) - greyscale matching foreground color */
-  .dropdown-item .item-icon .dropdown-logo {
-    width: var(--text-base-size); /* 14px - same as icon size */
-    height: var(--text-base-size);
-    object-fit: contain;
-    display: block;
-    filter: grayscale(100%) brightness(0); /* Convert to greyscale black to match foreground */
-    opacity: 0.9; /* Match icon opacity */
-  }
-  
-  /* Legacy SVG support */
-  .dropdown-item .item-icon svg {
-    width: var(--space-4);
-    height: var(--space-4);
-  }
   
   /* ═══════════════════════════════════════════════════════════
      SUBMIT BUTTON

@@ -164,26 +164,7 @@
     align-items: center;
     gap: var(--space-1); /* 4px gap between icon and "Estimado" text - matches Figma */
   }
-  
-  /* Phosphor Duotone icons styling */
-  .input-pill-mode i,
-  .input-pill-mode .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
-  }
-  
-  /* Legacy SVG support */
-  .input-pill-mode svg {
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-  }
+    
   
   .input-pill-mode span {
     font-family: var(--font-sans);
@@ -239,29 +220,17 @@
   .input-pill-delete:active {
     transform: scale(0.97);
   }
-  
-  /* Remove input-pill-delete-inner wrapper - not needed with segmented button pattern */
-  
-  /* Phosphor Duotone icons styling - matches btn-icon pattern */
-  .input-pill-delete .btn-icon,
-  .input-pill-delete i,
-  .input-pill-delete .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
+
+  .input-pill-delete .btn-icon {
     width: var(--text-base-size);
     height: var(--text-base-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: inherit;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
-  /* Legacy SVG support */
-  .input-pill-delete svg {
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-  }
+  /* Remove input-pill-delete-inner wrapper - not needed with segmented button pattern */
+    
   
   /* ═══════════════════════════════════════════════════════════
      INPUT PILL - TWO MODES
@@ -399,26 +368,7 @@
     box-shadow: var(--shadow-icon-inset);
     pointer-events: none;
   }
-  
-  /* Phosphor Duotone icons styling */
-  .input-pill-icon i,
-  .input-pill-icon .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size - matches other icons */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
-  }
-  
-  /* Legacy SVG support */
-  .input-pill-icon svg {
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-  }
+    
   
   /* Preciso pill data - matches Figma: py-[6px], gap-[8px] */
   .input-pill-data {
@@ -449,19 +399,9 @@
     gap: var(--space-1); /* 4px gap between icon and value */
   }
   
-  /* Icon styling within pill items */
-  .pill-item i,
-  .pill-item .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size - matches result card icons */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  .pill-item .icon {
     color: var(--color-foreground-primary);
     opacity: 0.6; /* Match label opacity */
-    font-style: normal;
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity */
   }
   
   .pill-value {

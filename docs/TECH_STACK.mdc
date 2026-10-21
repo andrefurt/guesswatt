@@ -237,11 +237,34 @@ js/
 
 vendor/
 ├── pdfjs/              → PDF.js 3.11.174 and its worker (npm pdfjs-dist, Apache-2.0), loaded only for a PDF
-└── fonts/              → Inter woff2, latin and latin-ext subsets (SIL OFL 1.1), declared in css/tokens.css
+├── fonts/              → Inter woff2, latin and latin-ext subsets (SIL OFL 1.1), declared in css/tokens.css
+└── phosphor/LICENSE    → MIT notice for the Phosphor icons inlined in each page's sprite (see Icons)
 ```
 
 Third-party code is copied in, never loaded from a CDN, so nothing outside the site sees the page or
 the invoice. A new vendored file names its version and licence here.
+
+### Icons
+
+Icons are an inline SVG sprite at the top of each page's `<body>`, so they paint with the HTML and
+need no request (audit PERF-1: the old Phosphor web font painted icons about 3.5 s after the text on
+Slow 4G). A page uses one as `<svg class="icon" aria-hidden="true"><use href="#ph-NAME-duotone"/></svg>`;
+`js/ui-renderer.js` builds the same with `createIcon()`. Each page's sprite holds only the symbols that
+page uses.
+
+- Phosphor icons: `@phosphor-icons/core` 2.1.1 (MIT, notice in `vendor/phosphor/LICENSE`), from
+  `assets/duotone/NAME-duotone.svg` or `assets/regular/NAME.svg`. Symbol ids are `ph-NAME-duotone` and
+  `ph-NAME`. To add one: copy the file's `<path>`s into a `<symbol id="…" viewBox="0 0 256 256">` in the
+  sprite of each page that uses it, without `fill` attributes (the duotone back path keeps its
+  `opacity="0.2"`).
+- `.icon` (css/base.css) sets the 14 px size and `fill: currentColor`; a component rule only adds what
+  differs (colour, opacity).
+- ChatGPT and Claude marks (`brand-chatgpt`, `brand-claude`, copy menu), in black, the same pair as
+  the delonghi-ds page actions: Phosphor's `open-ai-logo` (regular, same package and licence) and the
+  Claude Spark from Anthropic's press kit (https://www.anthropic.com/press-kit). The Spark's viewBox
+  is padded so it draws at 87.5 % of the slot, matching Phosphor's inset. Both are trademarks, used
+  only to label the links to those services. Phosphor's mark is its own redrawing, not the file
+  OpenAI supplies at https://openai.com/brand/ (which needs its usage terms accepted).
 
 **Note**: The current implementation consolidates some functionality. Components like modals and toasts are implemented inline where needed, following the principle of simplicity over abstraction.
 
@@ -702,7 +725,7 @@ about 1.8 s or less, with every icon on that first frame.
    - **Provider Logo Loading**: Hybrid approach with cascading fallbacks
      - Primary: Clearbit Logo API (`logo.clearbit.com/{domain}`)
      - Fallback 1: Google Favicon Service (`google.com/s2/favicons`)
-     - Fallback 2: Generic lightning icon (Phosphor Duotone)
+     - Fallback 2: Generic lightning icon (`ph-lightning-duotone` from the sprite)
    - Insert into DOM
    - Initialize logo fallback handlers
    - Cache result for tab switching
@@ -741,7 +764,7 @@ so a link from ERSE never becomes markup.
 **Fallback Chain**:
 1. **Clearbit Logo API**: High-quality logos for major brands (works for ~70% of providers)
 2. **Google Favicon Service**: Reliable fallback for all domains (works for ~95% of providers)
-3. **Generic Icon**: Always available Phosphor Duotone lightning icon
+3. **Generic Icon**: The lightning icon from the page's inline sprite, always available
 
 **Error Handling**: Event listeners cascade through fallbacks automatically:
 - Clearbit fails → try favicon

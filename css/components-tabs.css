@@ -94,25 +94,6 @@
     align-items: center;
     justify-content: center;
   }
-  
-  /* Phosphor Duotone icons styling */
-  .tab-btn .btn-icon i,
-  .tab-btn .btn-icon .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
-  }
-  
-  /* Legacy SVG support */
-  .tab-btn .btn-icon svg {
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-  }
+    
 }
 
