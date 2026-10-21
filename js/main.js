@@ -1,24 +1,47 @@
 /**
  * Main Entry Point
- * State management, form handlers, and initialization
+ * Form handlers, the comparison every flow runs, and initialization
  */
 
-import { DEFAULT_POWER, PROVIDERS } from './config.js';
-import { loadOffers, toTitleCase, isLargeHousehold } from './utils.js';
-import { 
-  estimateConsumption, 
-  calculateMonthlyCost, 
-  findBestOffer, 
-  findBestOfferForTariff,
-  marketMedianCost
-} from './calculator.js';
-import { 
-  initPDFUpload, 
-  calculateFromPDF
-} from './pdf-service.js';
+import { PROVIDERS } from './config.js';
+import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
+import { compare } from './calculator.js';
+import { initPDFUpload } from './pdf-service.js';
 import { initTooltips, initTabs, populateProvidersDropdown } from './ui-components.js';
 import { renderResult } from './ui-renderer.js';
 import { initUIHandlers, hideResults, setEstimadoData, setInvoiceData } from './ui-handlers.js';
+import { initPageActions } from './page-actions.js';
+
+// =============================================================================
+// COMPARISON
+// =============================================================================
+
+const TARIFF_NAMES = { 1: 'Simples', 2: 'Bi-horária', 3: 'Tri-horária' };
+
+/**
+ * Load the data, run the one comparison (calculator.js compare) and render it. Every flow ends here.
+ * @param {Object} input - See compare(); precise input may carry provider (ERSE code)
+ */
+async function runComparison(input) {
+  const resultDiv = document.getElementById('result');
+  if (!resultDiv) return;
+  resultDiv.innerHTML = '<p>A calcular...</p>';
+
+  try {
+    const { offers, tar, dataDate } = await loadOffers();
+    const result = compare(offers, input, { tar, largeHousehold: isLargeHousehold() });
+    const best = {
+      ...result.best,
+      dataDate,
+      marketMedianCost: result.marketMedianCost,
+      currentProvider: input.provider || null
+    };
+    renderResult(best, result.consumption, result.power, input.bill ?? null, result.savings, input.mode === 'estimate');
+  } catch (error) {
+    resultDiv.innerHTML = `<p class="error">Erro: ${error.message}</p>`;
+    console.error(error);
+  }
+}
 
 // =============================================================================
 // FORM HANDLERS
@@ -32,14 +55,11 @@ const MAX_BILL = 500;
  * Handler for estimate form submission
  * @param {Event} e - Form submit event
  */
-async function handleEstimateSubmit(e) {
+function handleEstimateSubmit(e) {
   e.preventDefault();
-  
+
   const monthlyBill = parseFloat(String(document.getElementById('monthly-bill').value).replace(',', '.'));
-  const resultDiv = document.getElementById('result');
-  
-  if (!resultDiv) return;
-  
+
   // The estimate only holds for typical household bills
   const billNote = document.getElementById('estimate-note');
   if (!(monthlyBill >= MIN_BILL && monthlyBill <= MAX_BILL)) {
@@ -48,160 +68,62 @@ async function handleEstimateSubmit(e) {
     return;
   }
   if (billNote) billNote.hidden = true;
-  
-  resultDiv.innerHTML = '<p>A calcular...</p>';
-  
-  // Set estimado mode data for input pill
+
   setEstimadoData(monthlyBill);
-  
-  try {
-    // 1. Carregar dados
-    const { offers, tar, dataDate } = await loadOffers();
-    const context = { tar, largeHousehold: isLargeHousehold() };
-    
-    // 2. Estimar consumo (data-driven if offers available)
-    const consumption = estimateConsumption(monthlyBill, offers, context);
-    
-    
-    // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
-    const best = findBestOffer(offers, consumption, DEFAULT_POWER, context);
-    
-    // 5. Juntar a data dos preços e a mediana do mercado (o modo estimado não mostra poupança)
-    const enrichedBest = {
-      ...best,
-      dataDate,
-      marketMedianCost: marketMedianCost(offers, consumption, DEFAULT_POWER, 1, null, context)
-    };
-    
-    // 6. Renderizar resultado
-    renderResult(enrichedBest, consumption, DEFAULT_POWER, monthlyBill, null, true);
-    
-  } catch (error) {
-    resultDiv.innerHTML = `<p class="error">Erro: ${error.message}</p>`;
-    console.error(error);
-  }
+  runComparison({ mode: 'estimate', bill: monthlyBill });
 }
 
 /**
  * Handler for precise form submission
  * @param {Event} e - Form submit event
  */
-async function handlePreciseSubmit(e) {
+function handlePreciseSubmit(e) {
   e.preventDefault();
-  
+
   // The "missing field" note from a partial PDF has done its job once the form is sent
   const formNote = document.getElementById('manual-form-note');
   if (formNote) formNote.hidden = true;
-  
+
   const consumption = parseFloat(document.getElementById('consumption').value);
   const power = parseFloat(document.getElementById('power').value);
   const tariffType = parseInt(document.getElementById('tariff-type').value);
-  const currentProvider = document.getElementById('current-provider').value;
-  
-  const resultDiv = document.getElementById('result');
-  
-  if (!resultDiv) return;
-  
-  resultDiv.innerHTML = '<p>A calcular...</p>';
-  
-  // Get tariff name for pill
-  const tariffNames = { 1: 'Simples', 2: 'Bi-horária', 3: 'Tri-horária' };
-  const tariffName = toTitleCase(tariffNames[tariffType] || 'Simples');
-  
-  // Get provider name for pill
-  const providerNameRaw = currentProvider ? (PROVIDERS[currentProvider] || currentProvider) : 'Manual';
-  const providerName = toTitleCase(providerNameRaw);
-  
-  // Set invoice data for input pill (manual entry)
+  const provider = document.getElementById('current-provider').value || null;
+
   setInvoiceData({
-    provider: providerName,
-    tariff: tariffName,
-    consumption: consumption,
-    power: power
-  }, false); // fromPDF = false (manual entry)
-  
-  try {
-    // 1. Validar inputs
-    if (!consumption || consumption <= 0) {
-      throw new Error('Introduz um consumo válido');
-    }
-    
-    // 2. Carregar dados
-    const { offers, tar, dataDate } = await loadOffers();
-    const context = { tar, largeHousehold: isLargeHousehold() };
-    
-    
-    // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
-    const best = findBestOfferForTariff(offers, consumption, power, tariffType, null, context);
-    
-    // 5. Juntar a data dos preços (mostrada nas ofertas indexadas)
-    const enrichedBest = { ...best, dataDate, currentProvider: currentProvider || null };
-    
-    // 6. Calcular poupança se houver operador actual
-    let savings = null;
-    if (currentProvider) {
-      // Normalize power for comparison (use same tolerance as findBestOfferForTariff)
-      const normalizedPower = typeof power === 'number' ? power : parseFloat(String(power).replace(',', '.'));
-      const normalizedTariffType = typeof tariffType === 'number' ? tariffType : parseInt(tariffType);
-      
-      // Encontrar ofertas do operador actual com mesma potência e tarifa
-      const currentProviderOffers = offers.filter(o => {
-        const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
-        const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
-        const contagem = typeof o.Contagem === 'number' ? o.Contagem : parseInt(o.Contagem);
-        
-        // Use tolerance for floating point comparison (0.01 kVA tolerance - same as findBestOfferForTariff)
-        const powerMatch = Math.abs(potCont - normalizedPower) < 0.01;
-        
-        return o.COM === currentProvider && 
-               o.TF > 0 &&
-               tvField > 0 &&
-               powerMatch &&
-               contagem === normalizedTariffType;
-      });
-      
-      if (currentProviderOffers.length > 0) {
-        // Calcular custo com a melhor oferta do operador actual
-        const currentProviderCosts = currentProviderOffers.map(offer => ({
-          ...offer,
-          monthlyCost: calculateMonthlyCost(offer, consumption, power, null, context)
-        }));
-        
-        // Ordenar por custo e pegar a mais barata
-        currentProviderCosts.sort((a, b) => a.monthlyCost - b.monthlyCost);
-        const bestCurrentOffer = currentProviderCosts[0];
-        
-        const currentProviderCost = bestCurrentOffer.monthlyCost;
-        const monthlySavings = currentProviderCost - enrichedBest.monthlyCost;
-        
-        // Kept at zero or below too: the result then says the tariff is already fine
-        savings = {
-          monthly: monthlySavings,
-          yearly: monthlySavings * 12,
-          vsProvider: toTitleCase(PROVIDERS[currentProvider] || currentProvider)
-        };
-      }
-    }
-    
-    // 6. Renderizar resultado (isEstimate: false para modo Preciso)
-    renderResult(enrichedBest, consumption, power, null, savings, false);
-    
-  } catch (error) {
-    resultDiv.innerHTML = `<p class="error">Erro: ${error.message}</p>`;
-    console.error(error);
+    provider: provider ? toTitleCase(PROVIDERS[provider] || provider) : 'Manual',
+    tariff: TARIFF_NAMES[tariffType] || 'Simples',
+    consumption,
+    power
+  }, false);
+
+  if (!consumption || consumption <= 0) {
+    document.getElementById('result').innerHTML = '<p class="error">Erro: Introduz um consumo válido</p>';
+    return;
   }
+
+  runComparison({ mode: 'precise', consumption, power, tariffType, provider });
 }
 
-// =============================================================================
-// PDF CALCULATION WRAPPER
-// =============================================================================
-
 /**
- * Compare the offers for the invoice read from the PDF
- * @returns {Promise<void>}
+ * A PDF was read with consumption and power: fill the pill and compare
+ * @param {Object} invoice - parseInvoiceText output
  */
-async function calculateFromPDFWrapper() {
-  return calculateFromPDF(renderResult);
+function handleInvoice(invoice) {
+  setInvoiceData({
+    provider: invoice.provider ? toTitleCase(PROVIDERS[invoice.provider] || invoice.provider) : 'Não detetado',
+    tariff: formatTariffName(TARIFF_NAMES[invoice.tariffType], invoice.tariffType, invoice.cycleType),
+    consumption: invoice.consumption,
+    power: invoice.power
+  }, true);
+
+  runComparison({
+    mode: 'precise',
+    consumption: invoice.consumption,
+    power: invoice.power,
+    tariffType: invoice.tariffType,
+    distribution: invoice.distribution,
+    provider: invoice.provider || null
+  });
 }
 
 // =============================================================================
@@ -227,7 +149,8 @@ function registerServiceWorker() {
  * Initialize application
  */
 function init() {
-  // Inicializar UI handlers (copy, dropdown, delete button)
+  // Copy menu, then the logo, delete and About controls
+  initPageActions();
   initUIHandlers();
   
   // Popular dropdown de operadores
@@ -260,8 +183,8 @@ function init() {
   // Inicializar tabs
   initTabs();
   
-  // Inicializar PDF upload (pass calculateFromPDFWrapper as callback for auto-calculation)
-  initPDFUpload(calculateFromPDFWrapper);
+  // A PDF with consumption and power goes straight to the comparison
+  initPDFUpload(handleInvoice);
   
   // Event delegation for manual-link (can be recreated dynamically)
   const inputSlot = document.getElementById('input-slot');

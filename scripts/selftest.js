@@ -517,6 +517,41 @@ async function runSelftest() {
     expectCost(best.annualCostEffective, calculateMonthlyCost(cheaper, 200, 4.6) * 12, 'annual');
   });
 
+  // compare(): the one path every flow runs (main.js). Two suppliers at 4.6 kVA, simple tariff.
+  const CHEAP = { ...SIMPLE, COM: 'CHEAP', COD_Proposta: 'C1', 'TV|TVFV|TVP': 0.12 };
+  const DEAR = { ...SIMPLE, COM: 'DEAR', COD_Proposta: 'D1', 'TV|TVFV|TVP': 0.15 };
+  const DEAR_LOCKED = { ...DEAR, COD_Proposta: 'D2', 'TV|TVFV|TVP': 0.14, hasLockIn: true };
+  const POOL = [CHEAP, DEAR, DEAR_LOCKED];
+
+  test('golden: compare, precise with a supplier, saves against its cheapest offer (lock-in too)', () => {
+    const r = calculator.compare(POOL, { mode: 'precise', consumption: 200, power: 4.6, tariffType: 1, provider: 'DEAR' });
+    if (r.best.COD_Proposta !== 'C1') throw new Error(`best: expected C1, got ${r.best.COD_Proposta}`);
+    // 200 kWh * (0.14 - 0.12) * 1.06: the person may be on DEAR's locked offer, the cheapest of DEAR's
+    expectCost(r.savings.monthly, 4.24, 'monthly saving');
+    expectCost(r.savings.yearly, 4.24 * 12, 'yearly saving');
+  });
+
+  test('golden: compare, already on the best supplier saves zero', () => {
+    const r = calculator.compare(POOL, { mode: 'precise', consumption: 200, power: 4.6, tariffType: 1, provider: 'CHEAP' });
+    expectCost(r.savings.monthly, 0, 'saving');
+  });
+
+  test('golden: compare, no supplier or one with no offer for the profile gives no saving', () => {
+    const none = calculator.compare(POOL, { mode: 'precise', consumption: 200, power: 4.6, tariffType: 1 });
+    const absent = calculator.compare(POOL, { mode: 'precise', consumption: 200, power: 4.6, tariffType: 1, provider: 'GONE' });
+    if (none.savings !== null || absent.savings !== null) throw new Error('expected null savings');
+  });
+
+  test('golden: compare, estimate gives the market median and never a saving', () => {
+    const r = calculator.compare(POOL, { mode: 'estimate', bill: 60 });
+    if (r.savings !== null) throw new Error('estimate mode must not claim a saving');
+    if (r.best.COD_Proposta !== 'C1' || r.power !== 4.6) throw new Error(`unexpected best ${r.best.COD_Proposta} at ${r.power}`);
+    // The locked offer cannot win, so the median is over CHEAP and DEAR; median() takes the upper
+    // middle value on an even count, so it is DEAR's cost
+    const expected = calculateMonthlyCost(DEAR, r.consumption, 4.6);
+    expectCost(r.marketMedianCost, expected, 'median');
+  });
+
   test('eligibility: an expired offer never ranks, even when cheapest', () => {
     const asOf = new Date(Date.UTC(2026, 0, 15));
     const expired = { ...SIMPLE, COD_Proposta: 'OLD', 'TV|TVFV|TVP': 0.05, validFrom: '01/01/2025', validTo: '31/12/2025' };

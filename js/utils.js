@@ -3,6 +3,8 @@
  * Data loading, phone and name formatting, and small helpers
  */
 
+import { loadDataStatus } from './data-date.js';
+
 let offersRequest = null;
 
 /**
@@ -56,34 +58,6 @@ async function loadAccessTariffs() {
  */
 export async function loadDataDate() {
   return (await loadDataStatus()).date;
-}
-
-/**
- * The price date, and whether the service worker answered from this device's copy because the
- * network failed (sw.js marks those responses)
- * @returns {Promise<{date: Date|null, offline: boolean}>}
- */
-export async function loadDataStatus() {
-  try {
-    const response = await fetch('data/meta.json');
-    if (!response.ok) return { date: null, offline: false };
-    const offline = response.headers.has('X-GuessWatts-Offline');
-    const { build } = await response.json();
-    const value = build?.sourceUpdatedAt;
-    return { date: value ? new Date(value) : null, offline };
-  } catch (error) {
-    console.warn('⚠️  Could not load meta.json:', error.message);
-    return { date: null, offline: false };
-  }
-}
-
-/**
- * Format a data date as "dezembro de 2025"
- * @param {Date} date
- * @returns {string}
- */
-export function formatDataMonth(date) {
-  return new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric', timeZone: 'Europe/Lisbon' }).format(date);
 }
 
 /**
