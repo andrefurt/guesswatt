@@ -65,7 +65,7 @@
   --color-surface-overlay: var(--color-surface); /* opaque, so nothing shows through the copy menu */
   --color-bg-tabs: oklch(from var(--color-ink) l c h / 0.03); /* tabs track */
   --color-bg-drop-area: oklch(92% 0 0);
-  --color-bg-drop-area-dragging: oklch(89% 0 0);
+  --color-bg-drop-area-dragging: oklch(96% 0 0); /* lifts while a file is dragged over, as on dark; secondary text 5.3:1 */
   --color-bg-form-input: oklch(97% 0 0);
   --color-savings-bar-bg: oklch(from var(--color-positive) l c h / 0.08);
   --color-warning-soft: oklch(84.4% 0.172 85 / 0.1); /* amber, the data-age notice */
