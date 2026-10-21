@@ -287,6 +287,21 @@ async function calculateFromPDFWrapper() {
 // =============================================================================
 
 /**
+ * Register the service worker (sw.js, ADR-023) once the page has loaded, so it never competes with
+ * the first paint. On localhost it runs only with ?sw in the URL, so it does not serve stale files
+ * while you edit; without it, an earlier registration is removed.
+ */
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  if (local && !new URLSearchParams(location.search).has('sw')) {
+    navigator.serviceWorker.getRegistrations().then(registrations => registrations.forEach(r => r.unregister()));
+    return;
+  }
+  navigator.serviceWorker.register('sw.js').catch(error => console.warn('⚠️  Service worker not registered:', error.message));
+}
+
+/**
  * Initialize application
  */
 function init() {
@@ -386,6 +401,8 @@ function init() {
     preciseForm.addEventListener('submit', handlePreciseSubmit);
   }
 }
+
+window.addEventListener('load', registerServiceWorker);
 
 // Setup quando DOM estiver pronto
 if (document.readyState === 'loading') {

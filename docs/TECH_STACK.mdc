@@ -625,6 +625,12 @@ Targeting modern browsers only:
 The site installs to the home screen and opens standalone (audit decision: full PWA; the offline
 part is the service worker, ADR-023).
 
+- `sw.js` (registered from `js/main.js` after `load`): pages and `data/*` network first, with the
+  saved copy offline and a marked response that makes `js/data-date.js` show the offline notice;
+  `vendor/*` cache first; other own files served from the cache and refreshed in the background.
+  Its PRECACHE list must name every file in css/ and js/ (selftest checks), and `VERSION` is the
+  price date, rewritten by the weekly refresh. Off on localhost unless the URL has `?sw`.
+
 - `manifest.webmanifest`: name, `start_url` and `scope` `/`, `display: standalone`, background and
   theme `#E8E8E8` (the rendered page background), and the icons below. A manifest takes one theme
   colour only, so the per-theme colours live in the pages' `theme-color` metas: light `#E8E8E8`,

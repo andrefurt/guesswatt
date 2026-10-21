@@ -92,7 +92,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv
+          # New prices get a new service-worker cache (sw.js VERSION = the price date, ADR-023)
+          version=$(node -p "require('./data/meta.json').build.sourceUpdatedAt.slice(0, 10)")
+          sed -i "s/^const VERSION = '.*';/const VERSION = '${version}';/" sw.js
+          git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv sw.js
           git commit -m "update erse data $(date -u +%Y-%m-%d)"
           git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
 

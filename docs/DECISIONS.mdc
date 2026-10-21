@@ -69,7 +69,7 @@ Pure client-side. Todo o processamento acontece no browser do utilizador.
 - PDFs ficam no browser (privacidade)
 - ~13K linhas processam em <16ms
 - Manutenção mais simples
-- Funciona offline após primeiro load
+- Funciona offline após o primeiro load (só com o service worker, ADR-023; até lá não funcionava)
 
 **Consequências:**
 - ✅ Privacidade total (dados nunca saem do browser)
@@ -655,7 +655,7 @@ Client-side com Mozilla pdf.js via CDN.
 
 **Consequências:**
 - ✅ Privacidade total
-- ✅ Funciona offline
+- ✅ O PDF é lido sem rede; a página só abre offline com o service worker (ADR-023)
 - ⚠️ Patterns quebram se fornecedores mudarem formato
 - ⚠️ PDFs de imagem não funcionam
 
@@ -848,6 +848,42 @@ para calcular a poupança de quem já as tem. As indexadas mostram a linha "Pre�
 - ✅ Clientes da Coopérnico e da MEO Energia continuam a poder escolher o operador atual
 - ⚠️ O vencedor muda em cerca de 80% dos perfis
 - ⚠️ O custo de uma indexada é uma estimativa com os preços dessa data
+
+---
+
+## ADR-023: App Instalável e Offline (PWA)
+
+**Data:** Outubro 2026
+
+**Status:** ✅ Aceite
+
+**Contexto:**
+A ADR-001 e a ADR-017 diziam "Funciona offline", mas recarregar a página sem rede falhava (auditoria
+de outubro de 2026, PERF-6). O dono decidiu em 2026-10-20 fazer do site uma PWA completa: instalável,
+em modo standalone e offline. O risco é mostrar preços antigos sem o dizer.
+
+**Opções consideradas:**
+1. Corrigir os docs e não ter offline
+2. Service worker com cache-first para tudo
+3. Service worker com network-first para as páginas e os dados, e a data dos preços sempre visível
+
+**Decisão:**
+Opção 3. `manifest.webmanifest` e `icons/` tornam o site instalável (TECH_STACK, Installable App).
+`sw.js` guarda na instalação as páginas, o CSS, o JS, a Inter e os dados:
+- Páginas e `data/*`: rede primeiro; sem rede, a cópia guardada, marcada para que `js/data-date.js`
+  mostre "Estás sem ligação. Os preços são de <mês>, guardados neste dispositivo."
+- `vendor/*`: cache primeiro (só muda numa atualização deliberada, que sobe a versão à mão).
+- O resto do nosso código: a cópia guardada, atualizada em segundo plano; um deploy aparece na visita
+  seguinte, sem subir a versão.
+- A versão da cache é a data dos preços. A atualização semanal reescreve-a em `sw.js`
+  (`update-erse.yml`), e a cache antiga é apagada.
+- Em localhost só corre com `?sw`, para não servir ficheiros antigos durante o desenvolvimento.
+
+**Consequências:**
+- ✅ Depois de uma visita, o site abre e calcula sem rede, e diz de quando são os preços
+- ✅ A cache guarda só ficheiros do site: nada do que a pessoa escreve ou carrega (regra 2)
+- ⚠️ Um ficheiro novo em css/ ou js/ tem de entrar no PRECACHE de `sw.js` (o selftest falha se não entrar)
+- ⚠️ Uma alteração de CSS ou JS só chega na segunda visita depois do deploy
 
 ---
 
