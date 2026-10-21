@@ -143,8 +143,10 @@ keeps its one light `theme_color`. A new colour is a role in both blocks, measur
 ### Typography Scale
 
 `css/tokens.css` owns the values. Each step has `--text-STEP-size`, `-leading` and `-tracking`
-(xs, sm, base, md, lg, xl), sizes fluid with `clamp()`; body text uses the `--text-default-*`
-aliases. Leading is unitless, so it scales with the text (base: 1.4). Headings step down from h1
+(xs, sm, base, md, lg, xl). Fluid only where it shows (audit L-3, question 3): the two heading
+steps, lg (h2, 20 to 24 px) and xl (h1 and the typed amount, 24 to 30 px), grow with `clamp()` from
+320 to 1280 px wide; UI text is static rem (12, 13, 15 and 17 px). Body text uses the
+`--text-default-*` aliases. Leading is unitless, so it scales with the text (base: 1.4). Headings step down from h1
 (xl) to h2 (lg), h3 (md) and h4 (body). Prices and quantities use `font-variant-numeric:
 tabular-nums`; units ("/mês", "kWh/mês") are set in Inter like the text around them. `--font-mono`
 is for code only. A `calc()` that needs the line box height multiplies: `var(--text-default-leading)
@@ -152,8 +154,9 @@ is for code only. A `calc()` that needs the line box height multiplies: `var(--t
 
 ### Spacing Scale
 
-`--space-1` to `--space-8`, rem-based and fluid with `clamp()`, so they respect the user's font
-size. `css/tokens.css` owns the values.
+`--space-1` to `--space-8` (with `--space-1-5`, 6 px), static rem, so they respect the user's
+font size and stay whole pixels. The vertical rhythm above the card, `--space-top-card`, is the
+fluid one: 64 px at 320 to 128 px at 1280. `css/tokens.css` owns the values.
 
 ### Motion Tokens
 
