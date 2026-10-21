@@ -1,0 +1,63 @@
+# Hands an issue to Claude Code (anthropics/claude-code-action, ADR-026)
+#
+# A comment with "@claude" on an issue, from a person with write access, starts Claude on a new
+# fix/ branch. Claude may edit files, run the gate scripts and push that branch, then replies in one
+# comment with a link to open the pull request. It never opens, approves or merges a pull request:
+# the owner reads the branch and opens the PR, which runs CI.
+#
+# Bounds: the job's GITHUB_TOKEN (no GitHub App), so the permissions below are the ceiling and
+# workflow files cannot change; bot comments never start it, and only the owner's and the workflows'
+# comments reach Claude (the repo is public: anyone else's comment could carry instructions).
+# Auth: the CLAUDE_CODE_OAUTH_TOKEN secret, made with `claude setup-token` (the owner's plan).
+
+name: Claude
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+concurrency:
+  group: claude-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  claude:
+    # Issues only, a human mention only, from someone who can write to the repo
+    if: >-
+      !github.event.issue.pull_request &&
+      contains(github.event.comment.body, '@claude') &&
+      github.event.comment.user.type == 'User' &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write # push the fix/ branch
+      issues: write # update Claude's comment
+      pull-requests: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@a5a423f75c251dcbff8a74e99f83b2cb03c72bfa # v1.0.256
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch_prefix: fix/
+          include_comments_by_actor: ${{ github.repository_owner }},github-actions[bot]
+          # Commits as the Actions bot: this repo never attributes commits to a tool
+          bot_id: '41898282'
+          bot_name: github-actions[bot]
+          claude_args: |
+            --max-turns 30
+            --allowedTools "Bash(node scripts/selftest.js),Bash(node scripts/size-check.js),Bash(node scripts/rules-check.js),Bash(node scripts/validate-data.js:*),Bash(node --check:*)"
+            --append-system-prompt "Follow CLAUDE.md and .claude/rules/. Find the root cause before changing code. Before each commit run node scripts/selftest.js, node scripts/size-check.js and node scripts/rules-check.js; all must pass. Commit subjects are lowercase, imperative, at most 72 characters, with no attribution lines. Never touch .github/."

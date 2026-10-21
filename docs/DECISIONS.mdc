@@ -956,6 +956,35 @@ sem resultado passavam. O ADR-005 recusou o Playwright como dependência (50 MB)
 
 ---
 
+## ADR-026: O Claude corrige issues num ramo, só quando o dono o chama
+
+**Data:** Outubro 2026 (auditoria LOOP, tarefa 5.4, decisão do dono)
+
+**Status:** ✅ Implementado (`.github/workflows/claude.yml`)
+
+**Contexto:**
+Os checks abrem issues (atualização falhada, preços antigos, smoke test, fornecedores sem nome). O
+passo seguinte é uma correção num ramo que o dono revê, sem ele ter de abrir uma sessão.
+
+**Decisão:**
+- Um comentário com "@claude" numa issue, de quem tem escrita no repositório, lança o
+  `anthropics/claude-code-action` (fixado por commit). Comentários de bots nunca o lançam.
+- Usa o `GITHUB_TOKEN` do job, sem a GitHub App: as permissões do job são o teto (`contents: write`,
+  `issues: write`) e o token não consegue alterar workflows.
+- O Claude cria um ramo `fix/`, corre só os scripts do gate e responde com o link para abrir o pull
+  request. Não abre, não aprova e não faz merge de pull requests.
+- Só os comentários do dono e dos workflows chegam ao Claude: o repositório é público.
+- Autenticação: o segredo `CLAUDE_CODE_OAUTH_TOKEN` (`claude setup-token`, o plano do dono).
+
+**Consequências:**
+- ✅ Uma issue de falha passa a ter um caminho até uma correção revista
+- ⚠️ "Nunca faz push para a main" é o desenho da ação, não uma barreira: o token tem
+  `contents: write` e a regra da main não pode exigir pull requests, porque o bot dos dados faz push
+  direto
+- ⚠️ O pull request que o dono abre corre o CI; os pushes do token do job não o lançam
+
+---
+
 ## Template para Novos ADRs
 
 ```markdown
