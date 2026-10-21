@@ -230,6 +230,7 @@ js/
 ├── config.js          → Configuration constants (VAT rates, fees, default power, providers)
 ├── data-date.js       → Footer: date of the prices and the stale notice (every page; imports nothing)
 ├── page-actions.js    → Copy button and its menu (every page; imports nothing)
+├── sobre.js           → sobre.html's entry point (the copy menu); a file because the CSP runs no inline script
 ├── pdf-service.js     → Loads PDF.js (self-hosted in vendor/pdfjs/) and reads the invoice; computes nothing
 ├── ui-components.js    → UI component initialization (tabs, tooltips, dropdowns)
 ├── ui-handlers.js     → Logo, delete, About, show/hide results, the input pill
@@ -245,6 +246,12 @@ vendor/
 
 Third-party code is copied in, never loaded from a CDN, so nothing outside the site sees the page or
 the invoice. A new vendored file names its version and licence here.
+
+### Content Security Policy
+
+Both pages carry a meta CSP that allows only `'self'` (ADR-024). No inline `<script>` or `<style>`,
+no `style="…"` in the markup (setting `element.style` from a module is fine), and nothing from
+another origin. A new script, stylesheet, font or image is a file in the repo, linked like the rest.
 
 ### Icons
 

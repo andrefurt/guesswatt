@@ -118,7 +118,14 @@ let linkDataMonth = null;
 function restoreFromURL() {
   const state = readState(location.search);
   if (!state) {
-    if (location.search) history.replaceState(null, '', location.pathname);
+    // Drop a broken result link's keys only: other params (?sw, which registers the service worker
+    // on localhost after load) stay
+    const params = new URLSearchParams(location.search);
+    const stateKeys = ['f', 'c', 'p', 't', 's', 'h', 'd'].filter(key => params.has(key));
+    if (stateKeys.length) {
+      stateKeys.forEach(key => params.delete(key));
+      history.replaceState(null, '', location.pathname + (params.size ? `?${params}` : ''));
+    }
     return;
   }
   linkDataMonth = state.dataMonth;

@@ -894,6 +894,37 @@ Opção 3. `manifest.webmanifest` e `icons/` tornam o site instalável (TECH_STA
 
 ---
 
+## ADR-024: Content Security Policy só com a própria origem
+
+**Data:** Outubro 2026 (auditoria SEC-4, tarefa 4.17a)
+
+**Status:** ✅ Implementado (`<meta http-equiv="Content-Security-Policy">` em `index.html` e `sobre.html`)
+
+**Contexto:**
+A promessa de privacidade ("os teus dados nunca saem do dispositivo") só vale se nada de fora
+correr na página. Depois de alojar o PDF.js, a Inter e os ícones (decisão 6) e de tirar os logos
+(ADR-021), a página já não pede nada a outra origem.
+
+**Decisão:**
+```
+default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self';
+connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self';
+form-action 'self'
+```
+- Sem `<script>` nem `<style>` inline: o módulo de `sobre.html` é `js/sobre.js`, e os estilos que
+  estavam inline passaram para os ficheiros CSS. O JSON-LD não é executado, por isso não conta.
+- O "Ver em markdown" abre o ficheiro como texto num blob, sem escrever HTML na nova janela (que
+  herdaria a política).
+
+**Consequências:**
+- ✅ Um script, estilo, imagem ou pedido de outra origem é recusado pelo browser
+- ✅ 0 violações nos fluxos Estimado, manual e PDF, em Chromium e WebKit
+- ⚠️ Uma meta CSP não pode definir `frame-ancestors` nem relatórios; o GitHub Pages não envia
+  cabeçalhos próprios
+- ⚠️ Um ficheiro novo de outra origem tem de entrar aqui de propósito
+
+---
+
 ## Template para Novos ADRs
 
 ```markdown
