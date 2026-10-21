@@ -26,7 +26,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     transition: transform var(--duration-normal) var(--ease-bounce);
     -webkit-tap-highlight-color: transparent;
     text-decoration: none;
@@ -57,7 +57,7 @@
      ═══════════════════════════════════════════════════════════ */
   
   .btn-slot {
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-sm);
   }
   
@@ -85,7 +85,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     transition: 
       transform var(--duration-normal) var(--ease-bounce),
       background var(--duration-fast) var(--ease-out);
@@ -172,7 +172,7 @@
   .segmented-divider {
     width: 0.5px;
     height: var(--text-default-leading);
-    background: var(--color-border-default);
+    background: var(--color-border);
   }
   
   /* Icon button (suffix) - square, matches secondary button visual style */
@@ -234,7 +234,7 @@
     transform: translate(-50%, -50%);
     opacity: 0;
     filter: blur(4px); /* Fixed blur value - not responsive */
-    color: var(--color-accent-green);
+    color: var(--color-accent);
   }
   
   
@@ -282,7 +282,7 @@
     right: 0;
     width: fit-content; /* Fit content width */
     background: rgba(255, 255, 255, 0.2); /* Match secondary button background */
-    border: 0.5px solid var(--color-border-default); /* Outer grey border */
+    border: 0.5px solid var(--color-border); /* Outer grey border */
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-xs); /* Match secondary button shadow */
     padding: var(--space-1);
@@ -329,7 +329,7 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-sm-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     cursor: pointer;
     text-align: left;
     white-space: nowrap; /* Prevent text from breaking into multiple lines */
@@ -344,7 +344,7 @@
   }
   
   .dropdown-item:hover {
-    background: oklch(from var(--color-foreground-primary) l c h / 0.04); /* Lighter hover background using foreground at 4% opacity */
+    background: oklch(from var(--color-text) l c h / 0.04); /* Lighter hover background using foreground at 4% opacity */
   }
   
   /* Fallback for browsers that don't support oklch() */
@@ -355,7 +355,7 @@
   }
   
   .dropdown-item:active {
-    background: oklch(from var(--color-foreground-primary) l c h / 0.08); /* Slightly darker on active */
+    background: oklch(from var(--color-text) l c h / 0.08); /* Slightly darker on active */
     transition: background var(--duration-instant);
   }
   
@@ -391,7 +391,7 @@
     justify-content: center;
     gap: var(--space-1);
     padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
-    background-color: var(--color-foreground-primary);
+    background-color: var(--color-text);
     border: none;
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-button);
@@ -400,7 +400,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--text-default-leading);
-    color: var(--color-text-white);
+    color: var(--color-text-on-accent);
     position: relative;
     overflow: hidden;
     transition: transform var(--duration-normal) var(--ease-bounce);

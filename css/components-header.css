@@ -16,7 +16,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: var(--color-background-primary);
+    background-color: var(--color-bg);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -44,7 +44,7 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-md-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     letter-spacing: calc(var(--text-md-size) * -0.03); /* -0.48px relative to font size */
     line-height: var(--leading-tight);
     text-decoration: none;
@@ -68,7 +68,7 @@
   }
   
   .logo:hover {
-    background: oklch(from var(--color-foreground-primary) l c h / 0.04);
+    background: oklch(from var(--color-text) l c h / 0.04);
   }
   
   /* Fallback for browsers that don't support oklch() */
@@ -94,7 +94,7 @@
     transform: translateX(-50%);
     top: var(--space-5);
     width: fit-content; /* Fit content instead of fixed width */
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-sm); /* Match btn-slot border-radius */
     display: none;
   }
@@ -185,7 +185,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .input-pill-value {
@@ -199,7 +199,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .input-pill-value .period {
@@ -208,7 +208,7 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-normal);
     letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   /* Delete button (suffix) - smaller padding for estimate card */
@@ -401,7 +401,7 @@
   }
   
   .pill-provider {
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     opacity: 0.9;
   }
   
@@ -413,12 +413,12 @@
   }
   
   .pill-item .icon {
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     opacity: 0.6; /* Match label opacity */
   }
   
   .pill-value {
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     opacity: 0.9;
   }
   

@@ -35,92 +35,35 @@
 
 :root {
   /* ═══════════════════════════════════════════════════════════
-     COLORS - Primary Palette (OKLCH with hex fallback)
+     COLORS - one name per role (audit 4.16). OKLCH only: every browser the site targets reads it.
      ═══════════════════════════════════════════════════════════ */
   
-  /* Foreground (text) - Primary naming */
-  --color-foreground-primary: #35443D; /* Fallback for older browsers */
-  --color-foreground-primary: oklch(40% 0.04 135); /* #35443D - Primary text color */
-  
+  /* Text */
+  --color-text: oklch(40% 0.04 135); /* body and UI text */
+  --color-text-strong: oklch(25% 0.02 145); /* headings and links (base.css), same hue as the accent */
   /* Secondary text: 4.9:1 on the page, 4.6:1 on the darkest surface that carries text (#E1E1E1) */
-  --color-foreground-secondary: #686163; /* Fallback */
-  --color-foreground-secondary: oklch(50% 0.01 0); /* #686163 - Secondary text */
-  
-  --color-text-muted: #686163; /* Fallback */
-  --color-text-muted: oklch(50% 0.01 0); /* #686163 - Same as secondary: lighter text fails 4.5:1 */
-  
-  --color-text-white: #F3F3F2; /* Fallback */
-  --color-text-white: oklch(96% 0 0); /* #F3F3F2 - White text on dark backgrounds */
-  
-  --color-text-black: #000000; /* Fallback */
-  --color-text-black: oklch(0% 0 0); /* #000000 - Pure black */
-  
-  /* Semantic foreground aliases (used by base.css) */
-  --foreground: #35443D; /* Fallback */
-  --foreground: oklch(25% 0.02 145); /* #35443D - Primary foreground */
-  
-  --foreground-secondary: #686163; /* Fallback */
-  --foreground-secondary: oklch(50% 0.01 0); /* #686163 - Secondary foreground */
-  
-  --foreground-tertiary: #686163; /* Fallback */
-  --foreground-tertiary: oklch(50% 0.01 0); /* #686163 - Same as secondary: lighter text fails 4.5:1 */
-  
-  --foreground-accent: #35443D; /* Fallback */
-  --foreground-accent: oklch(25% 0.02 145); /* #35443D - Accent foreground, matches foreground */
-  
-  /* Backgrounds - Primary naming */
-  --color-background-primary: #EAEAEA; /* Fallback */
-  --color-background-primary: oklch(93% 0 0); /* #EAEAEA - Primary background, light gray */
-  
-  --color-background-card: linear-gradient(90deg, #F0F0F0 1.07%, #EDEDED 99.89%); /* Fallback */
-  --color-background-card: linear-gradient(90deg, oklch(95% 0 0) 1.07%, oklch(94% 0 0) 99.89%); /* Card background gradient */
-  
-  --color-bg-dropdown: #F3F3F2; /* Fallback */
-  --color-bg-dropdown: oklch(96% 0 0); /* #F3F3F2 - Dropdown background */
-  
-  --color-bg-tabs: rgba(0, 0, 0, 0.03); /* Tabs inactive background */
-  --color-bg-tabs-active: #f0f0f0; /* Fallback */
-  --color-bg-tabs-active: oklch(95% 0 0); /* #f0f0f0 - Active tab background */
-  
-  --color-bg-drop-area: #e8e8e8; /* Fallback */
-  --color-bg-drop-area: oklch(92% 0 0); /* #e8e8e8 - PDF drop area background */
-  
-  --color-bg-drop-area-dragging: #e0e0e0; /* Fallback */
-  --color-bg-drop-area-dragging: oklch(89% 0 0); /* #e0e0e0 - Drop area dragging state */
-  
-  --color-bg-form-input: #f5f5f5; /* Fallback */
-  --color-bg-form-input: oklch(97% 0 0); /* #f5f5f5 - Form input background */
-  
-  /* Semantic background aliases (used by base.css) */
-  --bg: #EAEAEA; /* Fallback */
-  --bg: oklch(93% 0 0); /* #EAEAEA - Primary background */
-  
-  --bg-high: #F0F0EF; /* Fallback */
-  --bg-high: oklch(95% 0 0); /* #F0F0EF - Elevated background */
-  
-  --color-surface: #FFFFFF; /* Fallback */
-  --color-surface: oklch(100% 0 0); /* #FFFFFF - Surface color, pure white */
-  
-  /* Accent Colors */
-  --color-accent-green: #35443D; /* Fallback */
-  --color-accent-green: oklch(25% 0.02 145); /* #35443D - Primary accent, matches foreground */
-  
-  --color-accent-green-light: rgba(53, 68, 61, 0.08); /* Light foreground tint */
-  --color-accent: #35443D; /* Fallback */
-  --color-accent: oklch(25% 0.02 145); /* #35443D - Accent color, matches foreground */
-  
-  --color-accent-hover: #2A3530; /* Fallback - darker version of #35443D */
-  --color-accent-hover: oklch(20% 0.02 145); /* Darker accent hover state */
-  
-  --color-accent-soft: rgba(53, 68, 61, 0.08); /* Soft accent background - foreground at 8% opacity */
-  
-  /* Borders */
-  --color-border-default: rgba(0, 0, 0, 0.10); /* Default border, 12% opacity */
-  --color-border-subtle: rgba(0, 0, 0, 0.06); /* Subtle border, 6% opacity */
-  --color-border-dashed: rgba(0, 0, 0, 0.16); /* Dashed border, 16% opacity */
+  --color-text-secondary: oklch(50% 0.01 0);
+  --color-text-field: oklch(0% 0 0); /* typed and chosen values in form fields */
+  --color-text-on-accent: oklch(96% 0 0); /* text on the dark accent (submit buttons) */
   /* Error text: 5.8:1 on the page, 5.4:1 on the darkest surface that carries text (#E1E1E1) */
-  --color-error: #A52A26; /* Fallback */
-  --color-error: oklch(48% 0.16 27); /* #A52A26 */
+  --color-error: oklch(48% 0.16 27);
+  
+  /* Backgrounds and surfaces */
+  --color-bg: oklch(93% 0 0); /* page */
+  --color-surface: oklch(100% 0 0);
+  --color-surface-raised: oklch(95% 0 0); /* active tab, icon tiles, raised blocks */
+  --color-surface-card: linear-gradient(90deg, oklch(95% 0 0) 1.07%, oklch(94% 0 0) 99.89%);
+  --color-bg-tabs: rgba(0, 0, 0, 0.03); /* tabs track */
+  --color-bg-drop-area: oklch(92% 0 0);
+  --color-bg-drop-area-dragging: oklch(89% 0 0);
+  --color-bg-form-input: oklch(97% 0 0);
+  --color-savings-bar-bg: rgba(113, 152, 131, 0.08);
+  --color-warning-soft: rgba(255, 193, 7, 0.1);
+  
+  /* Accent */
+  --color-accent: oklch(25% 0.02 145);
+  --color-accent-hover: oklch(20% 0.02 145);
+  --color-accent-soft: rgba(53, 68, 61, 0.08); /* accent at 8% */
   
   /* Focus ring: every :focus-visible uses it (reset.css). 12.9:1 on the page background; on dark
      buttons the 2px offset leaves the page colour between button and ring */
@@ -128,23 +71,11 @@
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
   
-  --color-border-accent: rgba(53, 68, 61, 0.4); /* Accent border, foreground at 30% opacity */
-  --border: rgba(0, 0, 0, 0.12); /* Default border alias */
-  --border-hard: rgba(0, 0, 0, 0.16); /* Hard border, 16% opacity */
-  
-  /* Utility colors */
-  --color-gray-1: #F0F0EF; /* Fallback */
-  --color-gray-1: oklch(95% 0 0); /* #F0F0EF - Light gray utility */
-  
-  --color-warning-soft: rgba(255, 193, 7, 0.1); /* Warning background, 10% opacity */
-  
-  /* PDF icon */
-  --color-pdf-red: #E53935; /* Fallback */
-  --color-pdf-red: oklch(55% 0.2 25); /* #E53935 - PDF icon red */
-  
-  /* Savings bar */
-  --color-savings-bar-bg: rgba(113, 152, 131, 0.08); /* Savings bar background, 8% opacity */
-  --color-savings-bar-shadow: rgba(113, 152, 131, 0.08); /* Savings bar shadow, 8% opacity */
+  /* Borders */
+  --color-border: rgba(0, 0, 0, 0.10);
+  --color-border-strong: rgba(0, 0, 0, 0.12);
+  --color-border-dashed: rgba(0, 0, 0, 0.16);
+  --color-border-accent: rgba(53, 68, 61, 0.4); /* accent at 40% */
   
   /* ═══════════════════════════════════════════════════════════
      TYPOGRAPHY - Fluid scaling with clamp()
@@ -161,21 +92,16 @@
   --font-bold: 700; /* Bold for headings */
   
   /* Typography Scale - XS (11px → 12px) */
-  --text-xs: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem); /* 11px → 12px */
   --text-xs-size: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem);
   --text-xs-weight: 500;
   --text-xs-leading: 1.25rem; /* Fixed line-height for small text */
   --text-xs-tracking: 0;
   
   /* Typography Scale - SM (12px → 13px) */
-  --text-sm: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem); /* 12px → 13px */
   --text-sm-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
-  --text-sm-weight: 500;
   --text-sm-leading: 1.2;
-  --text-sm-tracking: 0;
   
   /* Typography Scale - Base/Default (14px → 15px) */
-  --text-base: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem); /* 14px → 15px */
   --text-base-size: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem); /* Same as --text-base for consistency */
   --text-base-weight: 500;
   --text-base-leading: 1.25rem;
@@ -188,42 +114,29 @@
   --text-default-tracking: var(--text-base-tracking);
 
   /* Typography Scale - MD (16px → 17px) */
-  --text-md: clamp(1rem, 0.9rem + 0.5vw, 1.0625rem); /* 16px → 17px */
   --text-md-size: clamp(1rem, 0.9rem + 0.5vw, 1.0625rem);
-  --text-md-weight: 500;
-  --text-md-leading: 1.25rem;
-  --text-md-tracking: -0.005em;
   
   /* Typography Scale - LG (20px → 22px) */
-  --text-lg: clamp(1.25rem, 1.1rem + 0.75vw, 1.375rem); /* 20px → 22px */
   --text-lg-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.375rem);
-  --text-lg-weight: 500;
   --text-lg-leading: 1.15;
   --text-lg-tracking: -0.017em;
   
   /* Typography Scale - XL (24px → 26px) */
-  --text-xl: clamp(1.5rem, 1.2rem + 1.5vw, 1.625rem); /* 24px → 26px */
   --text-xl-size: clamp(1.5rem, 1.2rem + 1.5vw, 1.625rem);
-  --text-xl-weight: 500;
   --text-xl-leading: 1.15;
   --text-xl-tracking: -0.022em;
   
   /* Line heights */
-  --leading-none: 1; /* No line-height */
   --leading-tight: 1.15; /* Tight for headings */
   --leading-normal: 1.2; /* Normal for body text */
   --leading-relaxed: 1.34; /* Relaxed for long-form content */
   
   /* Letter spacing */
-  --tracking-tight: -0.022em; /* Tight tracking for large text */
-  --tracking-normal: -0.011em; /* Normal tracking */
-  --tracking-tighter: -0.03em; /* Tighter tracking for emphasis */
   
   /* ═══════════════════════════════════════════════════════════
      SPACING - Fluid scaling with clamp()
      ═══════════════════════════════════════════════════════════ */
   
-  --space-0: 0;
   --space-1: clamp(0.25rem, 0.2rem + 0.25vw, 0.3125rem); /* 4px → 5px */
   --space-2: clamp(0.5rem, 0.45rem + 0.25vw, 0.5625rem); /* 8px → 9px */
   --space-3: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem); /* 12px → 13px */
@@ -246,7 +159,6 @@
   
   --radius-sm: 0.375rem; /* 6px - Small radius for buttons, badges, pills */
   --radius-md: 0.5rem; /* 8px - Medium radius for cards, inputs */
-  --radius-lg: 0.75rem; /* 12px - Large radius for containers */
   --radius-xl: 1rem; /* 16px - Extra large radius for main cards */
   
   /* ═══════════════════════════════════════════════════════════
@@ -254,10 +166,7 @@
      ═══════════════════════════════════════════════════════════ */
   
   --shadow-xs: 0px 2px 4px 0px rgba(0, 0, 0, 0.02); /* Extra small shadow, subtle elevation */
-  --shadow-sm: 0px 2px 4px 0px rgba(0, 0, 0, 0.04); /* Small shadow, buttons */
   --shadow-md: 0px 4px 8px 0px rgba(0, 0, 0, 0.04); /* Medium shadow, cards */
-  --shadow-lg: 0px 4px 16px -2px rgba(0, 0, 0, 0.12),
-               0px 2px 4px -1px rgba(0, 0, 0, 0.04); /* Large shadow, modals, dropdowns */
   
   --shadow-inset-light: -2px 2px 8px 0px rgba(0, 0, 0, 0.04) inset,
                         2px -2px 8px 0px rgba(255, 255, 255, 0.3) inset; /* Light inset shadow, cards */
@@ -285,7 +194,6 @@
   --duration-slowest: 300ms; /* Slowest transitions, complex animations */
   
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* Decelerate, default easing */
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* Symmetric, smooth */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Spring effect, bouncy */
   --ease-bounce: cubic-bezier(0.22, 1, 0.36, 1); /* Bounce effect, playful */
   --ease-tabs: cubic-bezier(0.25, 1, 0.5, 1); /* Tab indicator animation */
@@ -301,7 +209,6 @@
      Z-INDEX - Layering system
      ═══════════════════════════════════════════════════════════ */
   
-  --z-base: 0; /* Base layer */
   --z-tabs-indicator: 0; /* Tab indicator, behind buttons */
   --z-tabs-buttons: 1; /* Tab buttons, above indicator */
   --z-dropdown: 1000; /* Dropdown menus */

@@ -29,7 +29,7 @@
     font-size: var(--text-xl-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-xl-tracking);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .subtitle {
@@ -38,7 +38,7 @@
     font-size: var(--text-xl-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-xl-tracking);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -53,7 +53,7 @@
     padding: var(--space-3) var(--space-3) 0;
     font-family: var(--font-sans);
     font-size: var(--text-base-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
 
   .household-option input {
@@ -64,7 +64,7 @@
   }
 
   .input-slot {
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-xl);
     transition: border var(--duration-fast) var(--ease-out);
   }
@@ -242,7 +242,7 @@
     font-size: var(--text-xl-size); /* 24px - large input size */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-xl-size) * -0.03); /* -0.72px relative to font size */
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   .value-input {
@@ -251,7 +251,7 @@
     font-size: var(--text-xl-size); /* 24px - large input size */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-xl-size) * -0.03); /* -0.72px relative to font size */
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     border: none;
     outline: none;
     background: transparent;
@@ -282,7 +282,7 @@
   }
   
   .value-input::placeholder {
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
     font-size: var(--text-xl-size); /* Same as value-input */
     font-weight: var(--font-normal);
     letter-spacing: calc(var(--text-xl-size) * -0.03);
@@ -295,13 +295,13 @@
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--leading-normal);
     letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   .input-divider {
     width: 0.5px;
     height: var(--space-6);
-    background: var(--color-border-default);
+    background: var(--color-border);
   }
   
   .submit-slot {
@@ -371,7 +371,7 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-default-tracking);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   /* The two states (index.html) lay out as if their children were direct ones */
@@ -397,12 +397,12 @@
   
   .drop-area-pick {
     font-weight: var(--font-medium);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .drop-area-link {
     margin-top: var(--space-2);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   .drop-area-pick:hover,
@@ -462,7 +462,7 @@
     padding: 0 var(--space-3);
     font-family: var(--font-sans);
     font-size: var(--text-base-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
 
   /* Status line under the input card (main.js setStatus); empty and spaceless when idle */
@@ -477,7 +477,7 @@
   .form-status-text {
     font-family: var(--font-sans);
     font-size: var(--text-base-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .form-status[data-kind="error"] .form-status-text {
@@ -487,7 +487,7 @@
   .form-status-action {
     font: inherit;
     font-size: var(--text-base-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     text-decoration: underline;
     text-underline-offset: var(--space-1);
     background: none;
@@ -520,11 +520,11 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   .form-input-slot {
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-sm);
   }
   
@@ -571,12 +571,12 @@
     font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03);
-    color: var(--color-text-black);
+    color: var(--color-text-field);
     outline: none;
   }
   
   .form-input::placeholder {
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
     opacity: 1;
   }
   
@@ -586,7 +586,7 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-normal);
     letter-spacing: calc(var(--text-base-size) * -0.03);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
     padding-right: var(--space-3);
     flex-shrink: 0;
   }
@@ -616,7 +616,7 @@
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03);
     /* Secondary until a value is chosen: the "Selecionar" prompt reads as a prompt, not a value */
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
     outline: none;
     cursor: pointer;
     appearance: none;
@@ -625,7 +625,7 @@
   
   .form-select:valid:not(:placeholder-shown),
   .form-select.has-value {
-    color: var(--color-text-black);
+    color: var(--color-text-field);
   }
   
   .form-select-icon {
@@ -668,7 +668,7 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-default-tracking);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
     text-decoration: underline;
     text-underline-offset: var(--space-1);
     cursor: pointer;
