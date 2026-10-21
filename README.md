@@ -34,7 +34,7 @@ Simply visit the website. No installation needed—it's a static site that works
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/guesswatt.git
+git clone https://github.com/andrefurt/guesswatt.git
 cd guesswatt
 
 # Once per clone: run the repo's git hooks (commit message format, tests before commit)
@@ -321,7 +321,7 @@ MIT License - see LICENSE file for details
 ## 🔗 Links
 
 - **Website**: [guesswatts.com](https://guesswatts.com) (or your domain)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/guesswatt/issues)
+- **Issues**: [GitHub Issues](https://github.com/andrefurt/guesswatt/issues)
 - **ERSE Simulator**: [ERSE Website](https://www.erse.pt/)
 
 ---
