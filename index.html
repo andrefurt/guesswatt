@@ -323,7 +323,7 @@
                   </div>
                   <div class="input-divider"></div>
                   <div class="submit-slot">
-                    <button class="submit-btn" id="submit-btn" type="submit">Submeter</button>
+                    <button class="submit-btn" id="submit-btn" type="submit">Comparar</button>
                   </div>
                 </form>
               </div>
@@ -432,7 +432,7 @@
                   <!-- Row 3: Link + Submit -->
                   <div class="form-footer">
                     <button class="form-link" id="pdf-link" type="button">Adicionar fatura em PDF</button>
-                    <button class="submit-btn" id="manual-submit-btn" type="submit">Submeter</button>
+                    <button class="submit-btn" id="manual-submit-btn" type="submit">Comparar</button>
                   </div>
                 </form>
               </div>
@@ -468,7 +468,7 @@
         <!-- Results Title -->
         <div class="results-title-section">
           <h1 class="results-title" tabindex="-1">Melhor proposta</h1>
-          <p class="results-subtitle" id="results-subtitle">Estimativa feita tendo por base uma tarifa simples, uma família de 2 adultos e 1 criança, com uma potência contratada de 4.6 kVA,</p>
+          <p class="results-subtitle" id="results-subtitle"></p>
         </div>
 
         <!-- Result Card Container - matches design.html structure -->
@@ -519,7 +519,7 @@
               <div class="data-row-inner">
                 <div class="data-row-label">
                   <svg class="icon" aria-hidden="true"><use href="#ph-chart-line-duotone"/></svg>
-                  <span>Consumo estimado <span class="muted">(mês)</span></span>
+                  <span><span data-slot="consumption-label">Consumo estimado</span> <span class="muted">(mês)</span></span>
                 </div>
                 <span class="data-row-value" data-slot="consumption"></span>
               </div>

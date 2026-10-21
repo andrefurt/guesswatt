@@ -303,6 +303,20 @@ A melhor oferta custa cerca de 66 €/mês. Metade das ofertas custa mais de 87 
 
 ---
 
+**Subtítulo do resultado** (`js/ui-renderer.js`; diz em que assenta o número):
+
+```
+Estimado: Estimativa a partir de uma fatura de 80 €: tarifa simples, 4,6 kVA e o consumo que esse
+          valor paga numa oferta típica.
+Preciso:  Com os teus dados: 250 kWh por mês, 4,6 kVA, tarifa simples. A poupança compara com a
+          oferta mais barata do teu fornecedor (Iberdrola) para este perfil.
+```
+
+A linha do consumo diz "Consumo estimado (mês)" no Estimado e "Consumo (mês)" no Preciso. O botão
+dos dois formulários é "Comparar".
+
+---
+
 **Sem poupança para mostrar** (`resultVerdict` em `js/ui-renderer.js`; o cartão nunca fica calado):
 
 ```
@@ -688,7 +702,7 @@ A calcular poupança...      (não "Por favor aguarde...")
 
 | Contexto | ❌ Genérico | ✅ GuessWatts |
 |----------|------------|-------------|
-| Submeter | "Submeter" | "Ver quanto perco" |
+| Submeter | "Submeter" | "Comparar" (não "Ver quanto perco": o Estimado não mostra perdas, ADR-011) |
 | Cancelar | "Cancelar" | "Voltar" |
 | Ajuda | "Saiba mais" | "Como funciona?" |
 | Obrigatório | "Campo obrigatório" | "Precisamos deste valor" |
