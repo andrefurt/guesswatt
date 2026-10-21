@@ -2,14 +2,15 @@
  * Service worker (ADR-023)
  *
  * Makes the site open offline after one visit, without ever hiding that the prices may be old:
- * - Pages and data/*: network first. Offline, the cached copy is served, and a data response gets
- *   the OFFLINE_HEADER so js/data-date.js can say the prices are the ones saved on this device.
- * - vendor/* (PDF.js, Inter): cache first. These change only in a deliberate upgrade, which bumps
- *   VERSION by hand.
- * - Everything else of ours (CSS, JS, icons, manifest): served from the cache and refreshed in the
- *   background, so a deploy shows on the next visit.
- * Other origins (the AI links) are left alone. Nothing the person types or uploads is
- * stored: the cache holds only the site's own files.
+ * - Everything of ours (pages, data/*, CSS, JS, icons, manifest): network first, so a deploy never
+ *   mixes new HTML with old CSS or JS (audit P-1). Offline, or when the network takes longer than
+ *   NETWORK_TIMEOUT_MS, the saved copy is served with the OFFLINE_HEADER, so js/data-date.js can say
+ *   the prices are the ones saved on this device.
+ * - vendor/* (PDF.js, Inter): cache first. PDF.js is saved on first use in its own cache, named by
+ *   its version, so the weekly VERSION bump keeps it (audit P-2); an upgrade renames PDFJS_CACHE.
+ * Other origins (the AI links) are left alone. Nothing the person types or uploads is stored: the
+ * cache holds only the site's own files, saved without the query string, so a result link's numbers
+ * never become a cache key (audit P-5).
  *
  * VERSION is the date of the prices. The weekly refresh (.github/workflows/update-erse.yml) rewrites
  * it, so a new data set installs a fresh cache and drops the old one.
@@ -17,7 +18,9 @@
 
 const VERSION = '2026-10-19';
 const CACHE = `guesswatts-${VERSION}`;
+const PDFJS_CACHE = 'guesswatts-pdfjs-3.11.174'; // the version in vendor/pdfjs (selftest checks)
 const OFFLINE_HEADER = 'X-GuessWatts-Offline';
+const NETWORK_TIMEOUT_MS = 3000; // a hanging connection gets the saved copy after this (audit P-6)
 
 // The app shell and data for the first offline visit. scripts/selftest.js checks that every file in
 // css/ and js/ is listed, so a new file cannot be forgotten here.
@@ -74,7 +77,8 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names.filter(name => name.startsWith('guesswatts-') && name !== CACHE).map(name => caches.delete(name)));
+    const keep = [CACHE, PDFJS_CACHE];
+    await Promise.all(names.filter(name => name.startsWith('guesswatts-') && !keep.includes(name)).map(name => caches.delete(name)));
     await self.clients.claim();
   })());
 });
@@ -85,50 +89,43 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
   const path = url.pathname;
-  if (request.mode === 'navigate' || path.startsWith('/data/')) {
-    event.respondWith(networkFirst(request));
+  if (path.startsWith('/vendor/pdfjs/')) {
+    event.respondWith(cacheFirst(request, PDFJS_CACHE));
   } else if (path.startsWith('/vendor/')) {
-    event.respondWith(cacheFirst(request));
+    event.respondWith(cacheFirst(request, CACHE));
   } else {
-    event.respondWith(staleWhileRevalidate(event, request));
+    event.respondWith(networkFirst(event, request));
   }
 });
 
-async function networkFirst(request) {
+async function networkFirst(event, request) {
   const cache = await caches.open(CACHE);
-  try {
-    const response = await fetch(request);
-    if (response.ok) await cache.put(request, response.clone());
+  const url = new URL(request.url);
+  const key = url.origin + url.pathname;
+  const network = fetch(request).then(async response => {
+    if (response.ok) await cache.put(key, response.clone());
     return response;
+  });
+  try {
+    return await Promise.race([network, new Promise((_, reject) => setTimeout(() => reject(new Error('network timeout')), NETWORK_TIMEOUT_MS))]);
   } catch (error) {
-    const cached = await cache.match(request, { ignoreSearch: true })
+    const cached = await cache.match(key)
       ?? (request.mode === 'navigate' ? await cache.match('index.html') : undefined);
-    if (!cached) throw error;
+    // Nothing saved: wait for the network after all, or its error
+    if (!cached) return network;
+    // A late answer still refreshes the saved copy for the next visit
+    event.waitUntil(network.catch(() => {}));
     return markOffline(cached);
   }
 }
 
-async function cacheFirst(request) {
-  const cache = await caches.open(CACHE);
+async function cacheFirst(request, name) {
+  const cache = await caches.open(name);
   const cached = await cache.match(request);
   if (cached) return cached;
   const response = await fetch(request);
   if (response.ok) await cache.put(request, response.clone());
   return response;
-}
-
-async function staleWhileRevalidate(event, request) {
-  const cache = await caches.open(CACHE);
-  const cached = await cache.match(request, { ignoreSearch: true });
-  const refresh = fetch(request).then(async response => {
-    if (response.ok) await cache.put(request, response.clone());
-    return response;
-  });
-  if (cached) {
-    event.waitUntil(refresh.catch(() => {}));
-    return cached;
-  }
-  return refresh;
 }
 
 // A cached copy served because the network failed, marked so the page can tell people

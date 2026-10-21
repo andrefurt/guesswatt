@@ -847,6 +847,16 @@ async function runSelftest() {
     if (missing.length) throw new Error(`PRECACHE in sw.js lists files that do not exist: ${missing.join(', ')}`);
   });
 
+  test('sw.js names its PDF.js cache by the vendored version, so an upgrade gets a fresh one', () => {
+    const root = path.join(__dirname, '..');
+    const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+    const named = sw.match(/const PDFJS_CACHE = 'guesswatts-pdfjs-([\d.]+)';/)?.[1];
+    const vendored = fs.readFileSync(path.join(root, 'vendor', 'pdfjs', 'pdf.min.js'), 'utf8').match(/version="([\d.]+)"/)?.[1];
+    if (!named || !vendored || named !== vendored) {
+      throw new Error(`PDFJS_CACHE in sw.js says ${named}, vendor/pdfjs/pdf.min.js is ${vendored}; set the cache name to the vendored version`);
+    }
+  });
+
   test('sw.js keeps the VERSION line the weekly refresh rewrites', () => {
     const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
     const lines = sw.match(/^const VERSION = '\d{4}-\d{2}-\d{2}';$/gm) || [];

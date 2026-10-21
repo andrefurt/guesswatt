@@ -31,7 +31,8 @@ const STATUS = {
   consumptionNotNumber: 'Escreve só o consumo em kWh, por exemplo 250.',
   consumptionRange: 'Indica um consumo entre 1 e 5000 kWh por mês.',
   notPDF: 'Escolhe um ficheiro PDF.',
-  pdfUnreadable: 'Não conseguimos ler esta fatura. Podes introduzir os valores à mão.'
+  pdfUnreadable: 'Não conseguimos ler esta fatura. Podes introduzir os valores à mão.',
+  pdfReaderMissing: 'Não conseguimos abrir o leitor de PDF. Da primeira vez precisa de ligação à internet; podes também introduzir os valores à mão.'
 };
 const LOADING_DELAY_MS = 300; // a quicker answer shows no loading line, so nothing flashes
 
@@ -290,21 +291,6 @@ function handleInvoice(invoice) {
 // =============================================================================
 
 /**
- * Register the service worker (sw.js, ADR-023) once the page has loaded, so it never competes with
- * the first paint. On localhost it runs only with ?sw in the URL, so it does not serve stale files
- * while you edit; without it, an earlier registration is removed.
- */
-function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) return;
-  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  if (local && !new URLSearchParams(location.search).has('sw')) {
-    navigator.serviceWorker.getRegistrations().then(registrations => registrations.forEach(r => r.unregister()));
-    return;
-  }
-  navigator.serviceWorker.register('sw.js').catch(error => console.warn('⚠️  Service worker not registered:', error.message));
-}
-
-/**
  * Initialize application
  */
 function init() {
@@ -328,7 +314,7 @@ function init() {
   // one with no readable text, gets a line under the card
   initPDFUpload(handleInvoice, problem => {
     if (problem === 'not-pdf') setStatus('error', STATUS.notPDF);
-    else setStatus('error', STATUS.pdfUnreadable, { label: 'Introduzir manualmente', run: openManualForm });
+    else setStatus('error', problem === 'no-reader' ? STATUS.pdfReaderMissing : STATUS.pdfUnreadable, { label: 'Introduzir manualmente', run: openManualForm });
   });
   document.getElementById('form-status-action')?.addEventListener('click', () => statusAction?.());
   // A message belongs to the form it came from
@@ -406,8 +392,6 @@ function init() {
     if (e.target.getAttribute?.('aria-invalid') === 'true') clearInvalid(e.target);
   });
 }
-
-window.addEventListener('load', registerServiceWorker);
 
 // Setup quando DOM estiver pronto
 if (document.readyState === 'loading') {
