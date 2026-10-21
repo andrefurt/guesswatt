@@ -18,7 +18,9 @@ not only by the gate passing.
    amount, the precise mode by PDF upload and by manual entry, the result with the best offer, an
    invalid or empty input, a PDF that cannot be read), no errors in the console, the keyboard, and a
    narrow and a wide viewport.
-4. A change to `js/calculator.js` or the data scripts: `node scripts/selftest.js` and compare one
-   result by hand against `docs/DATA_MODEL.mdc`.
+4. A change to `js/calculator.js` or the data scripts: `node scripts/selftest.js 2>&1 | grep golden`
+   lists the golden cases, ERSE's worked examples to the cent among them; every line is ✅. A red one
+   is the bug, or a deliberate formula change whose literal moves in the same commit with the source
+   of the new value (CLAUDE.md rule 8). A behaviour no golden case covers gets one before the commit.
 5. Report what you ran and what you saw. Evidence is a command and its output, or a screenshot path;
    never a sentence that says it works.
