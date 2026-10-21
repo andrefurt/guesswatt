@@ -1,9 +1,3 @@
----
-description: "CSV schema, calculation formulas, data relationships, and ERSE insights structure"
-globs:
-  alwaysApply: false
----
-
 # GuessWatts - Data Model
 
 ## Data Sources

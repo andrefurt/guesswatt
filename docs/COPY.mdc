@@ -1,9 +1,3 @@
----
-description: "Tone of voice, all UI copy, tooltips, error states, and Portuguese glossary"
-globs:
-  alwaysApply: false
----
-
 # GuessWatts - Copy Guidelines
 
 ## Tom de Voz

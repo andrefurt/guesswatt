@@ -50,49 +50,7 @@ npx serve .
 
 ## 📁 Project Structure
 
-```
-guesswatt/
-├── index.html              # Main HTML file
-├── css/                    # Stylesheets (modular CSS architecture)
-│   ├── tokens.css          # Design tokens (colors, spacing, typography)
-│   ├── reset.css           # CSS reset
-│   ├── base.css            # Base typography and defaults
-│   ├── components-*.css    # Component-specific styles
-│   ├── utilities.css       # Utility classes
-│   └── main.css            # App styles (each file has its own <link>)
-├── js/                     # JavaScript modules
-│   ├── main.js             # Application entry point
-│   ├── calculator.js       # Cost calculation logic
-│   ├── config.js           # Configuration constants
-│   ├── data-date.js        # Footer price date and stale notice
-│   ├── page-actions.js     # Copy button and menu (both pages)
-│   ├── pdf-service.js      # PDF reading (client-side)
-│   ├── ui-components.js    # UI component initialization
-│   ├── ui-handlers.js      # Event handlers
-│   ├── ui-renderer.js      # Result rendering
-│   ├── url-state.js        # Result inputs in the URL (ADR-018)
-│   └── utils.js            # Utility functions
-├── data/                   # Data files
-│   ├── Precos_ELEGN.csv    # Price data from ERSE
-│   ├── CondComerciais.csv  # Commercial conditions from ERSE
-│   ├── offers.json         # Built/optimized offers (preferred)
-│   ├── tar.json            # Yearly ERSE access tariff (fixed term) for reduced VAT
-│   └── meta.json           # Metadata (price date, row counts)
-├── scripts/                # Build and maintenance scripts
-│   ├── download-erse.js    # Download latest ERSE CSVs
-│   ├── build-offers.js     # Build offers.json from CSVs
-│   ├── validate-data.js    # Data bounds before a refresh is pushed
-│   └── selftest.js         # Validation tests
-└── docs/                   # Documentation
-    ├── README.md           # This file
-    ├── CONCEPT.mdc         # Product vision and user flows
-    ├── TECH_STACK.mdc      # Technical architecture
-    ├── DATA_MODEL.mdc      # Data structure and formulas
-    ├── DECISIONS.mdc       # Architecture Decision Records (ADRs)
-    ├── IMPLEMENTATION.mdc  # Implementation phases
-    ├── COPY.mdc            # Tone of voice and copy guidelines
-    └── CURSOR_RULES.mdc    # AI assistant rules
-```
+The file map lives in [`docs/TECH_STACK.mdc`](docs/TECH_STACK.mdc#file-map) (File Map).
 
 ## 🏗️ Architecture
 
@@ -216,28 +174,12 @@ When only monthly bill amount is provided:
 
 ## 🎨 Design System
 
-### Colors (OKLCH)
-
-- **Neutral scale**: Gray-0 (background) to Gray-6 (text)
-- **Accent**: Green (`oklch(55% 0.18 145)`)
-- **Semantic**: Danger (red), Warning (yellow)
-
-### Typography
+`css/tokens.css` is the only owner of the token values (colour, type, spacing, motion);
+[`docs/TECH_STACK.mdc`](docs/TECH_STACK.mdc) names the tokens and their roles.
 
 - **Font**: Inter, self-hosted in `vendor/fonts/` (latin and latin-ext subsets, SIL OFL 1.1)
-- **Scale**: Fluid typography with `clamp()`
-- **Base**: 16px at 320px → 18px at 1280px
-
-### Spacing
-
-- **Base unit**: 4px (0.25rem)
-- **Scale**: 0, 0.25rem, 0.5rem, 0.75rem, 1rem, 1.25rem, 1.5rem, 2rem, 2.5rem, 3rem, 4rem
-
-### Animations
-
-- **Durations**: 50ms (instant) to 600ms (slower)
-- **Easing**: `cubic-bezier(0.16, 1, 0.3, 1)` (ease-out)
-- **Reduced motion**: All animations respect `prefers-reduced-motion`
+- **Colour**: OKLCH, with light and dark values that follow the system setting
+- **Reduced motion**: every animation and transition respects `prefers-reduced-motion`
 
 ## ♿ Accessibility
 
