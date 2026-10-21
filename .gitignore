@@ -26,12 +26,6 @@ yarn-error.log*
 # Dependencies
 node_modules/
 
-# Build outputs
-dist/
-build/
-*.min.js
-*.min.css
-
 # Environment variables
 .env
 .env.local
