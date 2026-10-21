@@ -20,7 +20,7 @@ import { formatDataMonth, loadDataStatus } from './data-date.js';
 
 const TARIFF_NAMES = { 1: 'Simples', 2: 'Bi-horária', 3: 'Tri-horária' };
 
-// Status line copy (docs/COPY.mdc, "Estados Vazios e Erros"); technical detail goes to the console
+// Status line copy (voice in docs/COPY.mdc); technical detail goes to the console
 const STATUS = {
   loading: 'A calcular…',
   loadFailed: 'Não conseguimos carregar os dados das tarifas. Tenta novamente ou volta mais tarde.',
