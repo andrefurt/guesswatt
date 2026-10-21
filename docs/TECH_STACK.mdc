@@ -620,6 +620,26 @@ Targeting modern browsers only:
 
 ---
 
+## Installable App (PWA)
+
+The site installs to the home screen and opens standalone (audit decision: full PWA; the offline
+part is the service worker, ADR-023).
+
+- `manifest.webmanifest`: name, `start_url` and `scope` `/`, `display: standalone`, background and
+  theme `#E8E8E8` (the rendered page background), and the icons below. A manifest takes one theme
+  colour only, so the per-theme colours live in the pages' `theme-color` metas: light `#E8E8E8`,
+  dark `#1C241C`. Until dark mode exists (audit 4.16a) a dark phone shows a dark bar above the light page.
+  Colours here are hex, not OKLCH: the manifest and the meta are read outside CSS.
+- `icons/`: `favicon.svg`, `apple-touch-icon.png` (180, full bleed), `icon-192.png` and
+  `icon-512.png` (rounded tile), `icon-maskable-512.png` (glyph inside the 80 % safe zone). The mark is
+  the header's Ω drawn from Inter (v20 greek subset, weight 500, SIL OFL 1.1) in `#3E4D37` on
+  `#E8E8E8`, as an outline, so it never depends on a font. The PNGs are renders of the same SVG.
+- Both pages link the manifest, the icons and the theme colours, and set `viewport-fit=cover`. With
+  it, an installed page reaches the screen edges, so `body` and the fixed about panel pad by
+  `env(safe-area-inset-*)` (0 on screens without a notch or home indicator).
+
+---
+
 ## Performance Budget
 
 The only copy of the budget. Sizes are gzip, as the server sends them (1 KB = 1,000 bytes), and
