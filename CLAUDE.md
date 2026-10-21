@@ -14,7 +14,8 @@ node scripts/rules-check.js           # the greppable rules below and in .claude
 git config core.hooksPath .githooks   # once per clone, so the git hooks run
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same check on every push and pull request.
+CI (`.github/workflows/ci.yml`) runs the same check on every push and pull request, and every
+Wednesday checks that the prices are under 21 days old (an issue, never a red gate).
 
 Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 `node scripts/download-erse.js && node scripts/build-offers.js && node scripts/validate-data.js && node scripts/selftest.js`.
