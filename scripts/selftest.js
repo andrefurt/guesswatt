@@ -127,13 +127,11 @@ async function runSelftest() {
     console.log(`   ${inData.size} suppliers, ${parserCodes.length} detectable from a PDF`);
   });
 
-  // Test 5a3: Conditioned offers (FiltroRestrições = S) are flagged and never ranked (decision 3)
-  test('conditioned (members-only or referral) offers are flagged and never win', () => {
-    const coop = offers.filter(o => o.COM === 'COOP' && o.COD_Proposta === 'COOP_04');
-    if (coop.length === 0 || coop.some(o => o.isRestricted !== true)) {
-      throw new Error('COOP_04 should be present with isRestricted true');
-    }
-    const cheapestRestricted = { ...coop[0], TF: 0.01, 'TV|TVFV|TVP': 0.01, validFrom: '', validTo: '' };
+  // Test 5a3: Conditioned offers (FiltroRestrições = S) are never ranked (decision 3). A synthetic
+  // offer, so the rule is tested whichever offers ERSE publishes this week.
+  test('conditioned (members-only or referral) offers never win', () => {
+    const base = offers.find(o => o.Contagem === 1 && o.Pot_Cont === 6.9);
+    const cheapestRestricted = { ...base, COD_Proposta: 'SELFTEST_RESTRICTED', isRestricted: true, TF: 0.01, 'TV|TVFV|TVP': 0.01, validFrom: '', validTo: '', consMinYear: null, consMaxYear: null };
     const best = calculator.findBestOfferForTariff([...offers, cheapestRestricted], 200, cheapestRestricted.Pot_Cont, cheapestRestricted.Contagem);
     if (best.isRestricted) {
       throw new Error(`a conditioned offer won: ${best.COM} ${best.COD_Proposta}`);
@@ -161,17 +159,18 @@ async function runSelftest() {
   });
   
   // Test 5b2: Lock-in follows ERSE's S/N flag ("sem fidelização" is not lock-in)
-  test('offers that ERSE marks without lock-in are not excluded', () => {
-    const known = offers.filter(o =>
-      (o.COM === 'EDPSU' && o.COD_Proposta === 'TUR') ||
-      (o.COM === 'IBELECTRA' && o.COD_Proposta === 'IBELECTRA_01')
-    );
-    if (known.length === 0) {
-      throw new Error('TUR and IBELECTRA_01 are missing from offers.json');
-    }
-    const wrong = known.filter(o => o.hasLockIn !== false);
+  test('lock-in follows ERSE\'s S/N flag', () => {
+    const { detectLockIn } = require('./build-offers.js');
+    const text = { TxTFidelização: 'Fidelização de 12 meses' };
+    const cases = [
+      [{ ...text, 'FiltroFidelização': 'N' }, false, 'flag N with lock-in text'],
+      [{ 'FiltroFidelização': 'S', DuracaoContrato: '12' }, true, 'flag S'],
+      [{ ...text }, true, 'empty flag with lock-in text'],
+      [{ TxTFidelização: 'Sem fidelização' }, false, 'empty flag with "sem fidelização"']
+    ];
+    const wrong = cases.filter(([condition, expected]) => detectLockIn(condition).hasLockIn !== expected);
     if (wrong.length > 0) {
-      throw new Error(`${wrong.length} TUR/IBELECTRA_01 rows marked as lock-in`);
+      throw new Error(`wrong lock-in for: ${wrong.map(([, , name]) => name).join('; ')}`);
     }
   });
 

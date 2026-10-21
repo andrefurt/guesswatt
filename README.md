@@ -80,6 +80,7 @@ guesswatt/
 ├── scripts/                # Build and maintenance scripts
 │   ├── download-erse.js    # Download latest ERSE CSVs
 │   ├── build-offers.js     # Build offers.json from CSVs
+│   ├── validate-data.js    # Data bounds before a refresh is pushed
 │   └── selftest.js         # Validation tests
 └── docs/                   # Documentation
     ├── README.md           # This file
@@ -151,7 +152,12 @@ All data comes from **ERSE** (Portuguese Energy Services Regulatory Authority):
    - Filters electricity-only offers
    - Outputs optimized `offers.json`
 
-3. **Validate** (`scripts/selftest.js`):
+3. **Check the bounds** (`scripts/validate-data.js`):
+   - Every CSV column the build reads is present
+   - Offer and supplier floors, price and promotion ranges, TAR values
+   - No jump against the last commit (offer count, suppliers, median price, price date)
+
+4. **Validate** (`scripts/selftest.js`):
    - Ensures offers exist and have required fields
    - Validates no gas-only offers
    - Tests calculation samples
@@ -165,11 +171,14 @@ node scripts/download-erse.js
 # Build offers.json from CSVs
 node scripts/build-offers.js
 
+# Check the data bounds
+node scripts/validate-data.js
+
 # Run validation tests
 node scripts/selftest.js
 
-# Or run all three in sequence
-node scripts/download-erse.js && node scripts/build-offers.js && node scripts/selftest.js
+# Or run all four in sequence
+node scripts/download-erse.js && node scripts/build-offers.js && node scripts/validate-data.js && node scripts/selftest.js
 ```
 
 ## 🧮 Calculation Logic
