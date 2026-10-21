@@ -223,7 +223,7 @@ When only monthly bill amount is provided:
 
 ### Typography
 
-- **Font**: Inter (via Google Fonts)
+- **Font**: Inter, self-hosted in `vendor/fonts/` (latin and latin-ext subsets, SIL OFL 1.1)
 - **Scale**: Fluid typography with `clamp()`
 - **Base**: 16px at 320px → 18px at 1280px
 
