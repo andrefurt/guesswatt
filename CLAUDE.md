@@ -49,7 +49,10 @@ Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 ## Skills
 
 Owners in this repo:
-- Motion values (easing, durations): craft:motion.
+- Motion values (easing, durations): craft:motion. Emil's review-animations, improve-animations and
+  find-animation-opportunities judge purpose, frequency and interruption, never the curve.
+- A web app on a phone (the installed PWA, touch, safe areas): mobile-native.
+- Worst-case data: break-ui, run by hand only (`skillOverrides` in `.claude/settings.json`).
 - Typography, layout, accessibility, interface copy: better-typography, better-layout,
   better-accessibility, better-writing, applied in this repo's own CSS and in `docs/COPY.mdc`'s voice.
 - A hard bug: diagnosing-bugs.
