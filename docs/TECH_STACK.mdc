@@ -73,6 +73,13 @@ uses the role, never a raw colour:
 | Accent (buttons, focus), its hover and 8% tint | `--color-accent`, `--color-accent-hover`, `--color-accent-soft` |
 | Focus ring | `--color-focus-ring`, `--focus-ring-width`, `--focus-ring-offset` |
 | Borders | `--color-border`, `--color-border-strong`, `--color-border-dashed`, `--color-border-accent` |
+| Glass (white edges and translucent fills) | `--color-highlight*`, `--color-divider*`, `--color-control*`, `--color-surface-sunken`, `--color-hover-tint`, `--color-press-tint` |
+
+**Dark mode** follows the system (`prefers-color-scheme`, no toggle): the same roles get dark values
+in one block at the end of `css/tokens.css`, and `color-scheme: light dark` turns the native controls
+dark. The dark page background is `#1C241C`, the dark theme-color both pages declare; the manifest
+keeps its one light `theme_color`. A new colour is a role in both blocks, measured in both themes
+(the Phase 4 lab runs axe and the contrast check with `dark`).
 
 **Why OKLCH over HSL:**
 - `oklch(50% ...)` green and `oklch(50% ...)` red look equally bright
