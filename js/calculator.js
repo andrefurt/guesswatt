@@ -376,9 +376,6 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
   const normalizedPower = typeof power === 'number' ? power : parseFloat(String(power).replace(',', '.'));
   const normalizedTariffType = typeof tariffType === 'number' ? tariffType : parseInt(tariffType);
   
-  // Debug logging (can be removed in production)
-  console.log(`[findBestOfferForTariff] Searching with: power=${normalizedPower} kVA, tariffType=${normalizedTariffType}, consumption=${consumption} kWh, total offers=${offers.length}`);
-  
   // Filtrar ofertas válidas (exclude lock-in by default)
   const valid = offers.filter(o => {
     const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
@@ -396,8 +393,6 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
            o.isRestricted !== true && // Exclude conditioned offers
            isOfferEligible(o, consumption, context.asOf);
   });
-  
-  console.log(`[findBestOfferForTariff] Found ${valid.length} valid offers after filtering`);
   
   if (valid.length === 0) {
     throw new Error(`Nenhuma oferta válida encontrada para potência ${normalizedPower} kVA e tarifa ${normalizedTariffType}`);
@@ -446,18 +441,7 @@ export function findBestOfferForTariff(offers, consumption, power, tariffType = 
     return nameA.localeCompare(nameB);
   });
   
-  // Debug logging (with defensive check)
   const best = withValidCosts[0];
-  if (best) {
-    console.log(`[findBestOfferForTariff] Best offer: ${best.COM} - ${best.tariffName || best.COD_Proposta} (annual cost: €${best.annualCostEffective.toFixed(2)})`);
-    if (withValidCosts.length > 1) {
-      console.log(`[findBestOfferForTariff] Top 3 offers:`, withValidCosts.slice(0, 3).map(o => ({
-        provider: o.COM,
-        tariff: o.tariffName || o.COD_Proposta,
-        annualCost: o.annualCostEffective.toFixed(2)
-      })));
-    }
-  }
   
   return best; // melhor oferta
 }

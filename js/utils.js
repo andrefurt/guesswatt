@@ -31,7 +31,6 @@ async function fetchOffers() {
     throw new Error(`offers.json: HTTP ${response.status}`);
   }
   const offers = await response.json();
-  console.log(`✅ Loaded ${offers.length} offers from offers.json`);
 
   return { offers, tar: await tarRequest, dataDate: await dataDateRequest };
 }
