@@ -683,8 +683,10 @@ h=1  casa com 5 ou mais pessoas      d  mês dos preços com que o link foi feit
 ```
 
 **Regras:**
-- Cada valor é convertido e verificado à entrada (intervalos dos formulários, fornecedor que exista
-  em `PROVIDERS`, mês `AAAA-MM`); qualquer valor fora de forma dá a página inicial, sem estado.
+- Cada valor é convertido e verificado à entrada (intervalos dos formulários; fornecedor em
+  `PROVIDERS`, "outro" ou um código com a forma dos da ERSE, porque a lista pode ter um código novo
+  ainda sem nome; mês `AAAA-MM`); qualquer valor fora de forma dá a página inicial, sem estado.
+- O link é aberto depois de a lista de fornecedores seguir os dados da semana, para o código existir.
 - O URL é escrito com `replaceState` quando o resultado aparece e limpo quando é apagado.
 - O menu de cópia e os links para ChatGPT e Claude levam o endereço da página sem a query: os
   números da pessoa não saem para outro serviço (SEC-6).

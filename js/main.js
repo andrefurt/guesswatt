@@ -64,6 +64,10 @@ function openManualForm() {
  * @param {Object} input - See compare(); precise input may carry provider (ERSE code)
  */
 async function runComparison(input) {
+  // The link's price month belongs to this run only: a failed run must not pass it to the next
+  // comparison the person types (a retry of this run gets it back)
+  const fromLinkMonth = linkDataMonth;
+  linkDataMonth = null;
   const submits = document.querySelectorAll('.submit-btn');
   submits.forEach(button => { button.disabled = true; });
   const loading = setTimeout(() => setStatus('info', STATUS.loading), LOADING_DELAY_MS);
@@ -73,7 +77,7 @@ async function runComparison(input) {
     data = await loadOffers();
   } catch (error) {
     console.error(error);
-    setStatus('error', STATUS.loadFailed, { label: 'Tentar novamente', run: () => runComparison(input) });
+    setStatus('error', STATUS.loadFailed, { label: 'Tentar novamente', run: () => { linkDataMonth = fromLinkMonth; runComparison(input); } });
     return;
   } finally {
     clearTimeout(loading);
@@ -102,10 +106,9 @@ async function runComparison(input) {
   renderResult(best, result.consumption, result.power, input.bill ?? null, result.savings, input.mode === 'estimate');
 
   // A shared link made with older prices: say the result uses today's
-  if (linkDataMonth && dataDate && monthOf(dataDate) !== linkDataMonth) {
-    document.getElementById('results-subtitle')?.append(` Este link foi criado com os preços de ${formatDataMonth(new Date(`${linkDataMonth}-15T12:00:00Z`))}; o resultado usa os mais recentes.`);
+  if (fromLinkMonth && dataDate && monthOf(dataDate) !== fromLinkMonth) {
+    document.getElementById('results-subtitle')?.append(` Este link foi criado com os preços de ${formatDataMonth(new Date(`${fromLinkMonth}-15T12:00:00Z`))}; o resultado usa os mais recentes.`);
   }
-  linkDataMonth = null;
 }
 
 // Price month of the link the page was opened with, until its result is shown
@@ -256,7 +259,12 @@ function init() {
   
   // Popular dropdown de fornecedores, then match it to this week's data
   populateProvidersDropdown();
-  loadDataStatus().then(({ providers }) => matchProvidersToData(providers));
+  // Match the list to this week's data first, then open a result link: a link can name a supplier
+  // that only the data lists (a new code not yet in PROVIDERS). loadDataStatus never rejects.
+  loadDataStatus().then(({ providers }) => {
+    matchProvidersToData(providers);
+    restoreFromURL();
+  });
   
   // Inicializar tabs
   initTabs();
@@ -340,9 +348,6 @@ function init() {
   if (preciseForm) {
     preciseForm.addEventListener('submit', handlePreciseSubmit);
   }
-
-  // A result link (?f=… or ?c=…) opens straight on its result
-  restoreFromURL();
 }
 
 window.addEventListener('load', registerServiceWorker);

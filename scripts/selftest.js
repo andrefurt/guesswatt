@@ -662,12 +662,14 @@ async function runSelftest() {
     }
   });
 
-  test('url state: anything out of shape gives no state (markup, ranges, unknown supplier)', () => {
+  test('url state: anything out of shape gives no state (markup, ranges, malformed supplier)', () => {
     for (const bad of ['?c=<img src=x>&p=4.6&t=1', '?f=5', '?f=2000', '?f=80e3', '?c=250&p=4.6&t=4', '?c=250&p=99&t=1', '?c=-5&p=4.6&t=1']) {
       if (readState(bad) !== null) throw new Error(`accepted ${bad}`);
     }
     const unknown = readState('?c=250&p=4.6&t=1&s=%3Cscript%3E&d=2026-13');
     if (unknown.input.provider !== null || unknown.dataMonth !== null) throw new Error('kept an unknown supplier or a bad month');
+    // A new ERSE code the data lists before PROVIDERS names it survives the round trip
+    if (readState('?c=250&p=4.6&t=1&s=NEWCO').input.provider !== 'NEWCO') throw new Error('dropped a well-formed new supplier code');
   });
 
   test('tariff types are valid (1, 2, or 3)', () => {
