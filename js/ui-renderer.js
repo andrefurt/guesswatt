@@ -135,6 +135,19 @@ function resultVerdict(best, monthlyBill, savings, isEstimate) {
   return { text: `Não encontrámos tarifas de ${name} com esta potência e este tipo de tarifa, por isso não sabemos quanto poupas.` };
 }
 
+const TARIFF_LABELS = { 1: 'tarifa simples', 2: 'tarifa bi-horária', 3: 'tarifa tri-horária' };
+
+/**
+ * Preciso subtitle: the data used, and the baseline of the saving when there is one
+ * @returns {string}
+ */
+function preciseSubtitle(best, consumption, power, savings) {
+  const data = `Com os teus dados: ${formatNumber(consumption)} kWh por mês, ${formatNumber(power)} kVA, ${TARIFF_LABELS[best.Contagem] || TARIFF_LABELS[1]}.`;
+  if (!savings || !best.currentProvider) return data;
+  const name = toTitleCase(PROVIDERS[best.currentProvider] || best.currentProvider);
+  return `${data} A poupança compara com a oferta mais barata do teu fornecedor (${name}) para este perfil.`;
+}
+
 /**
  * Render calculation result with design system structure
  * @param {Object} enrichedBest - Enriched best offer object
@@ -165,6 +178,8 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   slot('provider-icon').append(...createProviderIcon(enrichedBest.COM, enrichedBest.website));
   slot('provider-name').textContent = providerName;
   slot('provider-plan').textContent = toTitleCase(formatTariffName(enrichedBest.tariffName || 'Tarifa Simples', enrichedBest.Contagem || 1, enrichedBest.cycleType || null));
+  // Preciso uses the person's own consumption, so it is not an estimate there
+  slot('consumption-label').textContent = isEstimate ? 'Consumo estimado' : 'Consumo';
   slot('consumption').textContent = `${formatNumber(consumption)} kWh`;
   slot('power').textContent = `${formatNumber(power)} kVA`;
   slot('monthly-cost').textContent = formatEuro(enrichedBest.monthlyCost);
@@ -251,14 +266,13 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
     resultCardSlot.after(info);
   }
   
-  // Update results subtitle based on mode
+  // The subtitle says what the result rests on: the assumptions in estimate mode, and in Preciso the
+  // data and what the saving is measured against
   const resultsSubtitle = document.getElementById('results-subtitle');
   if (resultsSubtitle) {
-    if (isEstimate) {
-      resultsSubtitle.textContent = `Estimativa feita tendo por base uma tarifa simples, uma família de 2 adultos e 1 criança, com uma potência contratada de ${formatNumber(power)} kVA.`;
-    } else {
-      resultsSubtitle.textContent = `Cálculo preciso com base nos teus dados: ${formatNumber(consumption)} kWh de consumo mensal e ${formatNumber(power)} kVA de potência contratada.`;
-    }
+    resultsSubtitle.textContent = isEstimate
+      ? `Estimativa a partir de uma fatura de ${formatEuro(monthlyBill, Number.isInteger(monthlyBill) ? 0 : 2)}: tarifa simples, ${formatNumber(power)} kVA e o consumo que esse valor paga numa oferta típica.`
+      : preciseSubtitle(enrichedBest, consumption, power, savings);
   }
   
   // Update input pill amount (only for estimado mode, preciso uses setInvoiceData)
