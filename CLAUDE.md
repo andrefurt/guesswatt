@@ -10,6 +10,7 @@ CSS, no framework, no build step, no backend. A weekly GitHub Action refreshes t
 python3 -m http.server 8000           # serves the site at http://localhost:8000
 node scripts/selftest.js              # data and calculation tests; part of the gate (alfred.json check)
 node scripts/size-check.js            # gzip budget from docs/TECH_STACK.mdc; part of the gate
+node scripts/rules-check.js           # the greppable rules below and in .claude/rules/; part of the gate
 git config core.hooksPath .githooks   # once per clone, so the git hooks run
 ```
 
@@ -19,7 +20,9 @@ Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 `node scripts/download-erse.js && node scripts/build-offers.js && node scripts/validate-data.js && node scripts/selftest.js`.
 `validate-data.js` holds the data bounds (headers, ranges, the jump against HEAD); `selftest.js` tests the code.
 
-## Rules the tools cannot check
+## Rules
+
+`scripts/rules-check.js` tests the part of rules 1, 3, 4 and 7 a grep can see; the rest is judgement.
 
 1. No framework and no build step: the browser loads the files as they are in the repo.
 2. All processing stays in the browser; the user's data never leaves the device.

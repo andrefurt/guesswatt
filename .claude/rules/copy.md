@@ -10,6 +10,8 @@ paths:
 
 `docs/COPY.mdc` owns the voice, the UI strings and the glossary; read it before writing or changing
 any text a user sees.
+`scripts/rules-check.js` (in the gate) catches rules 1, 4, 6 and 7 where a grep can; its message
+says the fix.
 
 1. PT-PT, with "tu" throughout; never "você".
 2. Technical terms get a Portuguese explanation beside the original: "potência contratada (kVA)".
