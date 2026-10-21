@@ -225,13 +225,7 @@ refactor(state): simplify URL encoding
 
 ## Performance Budget
 
-| Asset | Target |
-|-------|--------|
-| HTML | <10KB |
-| CSS | <15KB |
-| JS | <30KB |
-| CSV data | ~300KB (cached) |
-| **Total** | <400KB |
+See `docs/TECH_STACK.mdc`, Performance Budget (checked by `scripts/size-check.js` in the gate).
 
 ## Quick Reference
 

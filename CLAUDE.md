@@ -9,6 +9,7 @@ CSS, no framework, no build step, no backend. A weekly GitHub Action refreshes t
 ```sh
 python3 -m http.server 8000           # serves the site at http://localhost:8000
 node scripts/selftest.js              # data and calculation tests; part of the gate (alfred.json check)
+node scripts/size-check.js            # gzip budget from docs/TECH_STACK.mdc; part of the gate
 git config core.hooksPath .githooks   # once per clone, so the git hooks run
 ```
 
