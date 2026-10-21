@@ -259,6 +259,8 @@ page uses.
   `ph-NAME`. To add one: copy the file's `<path>`s into a `<symbol id="…" viewBox="0 0 256 256">` in the
   sprite of each page that uses it, without `fill` attributes (the duotone back path keeps its
   `opacity="0.2"`).
+- The header's Ω (`gw-omega`, both pages) is the app icon's glyph, Inter v20 greek at wght 500, as a
+  path: the Inter subsets the pages serve have no Ω. `.logo-mark` sizes it to Inter's cap height.
 - `.icon` (css/base.css) sets the 14 px size and `fill: currentColor`; a component rule only adds what
   differs (colour, opacity).
 - ChatGPT and Claude marks (`brand-chatgpt`, `brand-claude`, copy menu), in black, the same pair as
