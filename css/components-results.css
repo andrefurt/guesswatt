@@ -357,6 +357,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--space-3); /* keeps the label clear of wrapping chips */
     padding: var(--space-4) 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   }
