@@ -280,7 +280,7 @@
     margin: 0;
   }
   
-  /* The ring goes on the whole row (.input-field below), so the € and /Mês sit inside it */
+  /* The ring goes on the whole row (.input-field below), so the € and /mês sit inside it */
   .value-input:focus {
     outline: none;
   }
