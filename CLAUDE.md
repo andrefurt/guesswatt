@@ -17,6 +17,8 @@ git config core.hooksPath .githooks   # once per clone, so the git hooks run
 
 CI (`.github/workflows/ci.yml`) runs the same check on every push and pull request, and every
 Wednesday checks that the prices are under 21 days old (an issue, never a red gate).
+An issue comment with "@claude" from the owner starts `.github/workflows/claude.yml`: a fix on a
+`fix/` branch and a link to open the PR, never a merge (ADR-026).
 
 Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 `node scripts/download-erse.js && node scripts/build-offers.js && node scripts/validate-data.js && node scripts/selftest.js`.
