@@ -95,6 +95,8 @@ jobs:
           # New prices get a new service-worker cache (sw.js VERSION = the price date, ADR-023)
           version=$(node -p "require('./data/meta.json').build.sourceUpdatedAt.slice(0, 10)")
           sed -i "s/^const VERSION = '.*';/const VERSION = '${version}';/" sw.js
+          # sed changes nothing when the line has another shape: stop before pushing a stale cache
+          grep -q "^const VERSION = '${version}';$" sw.js || { echo "sw.js: no \"const VERSION = '...';\" line to set to ${version}"; exit 1; }
           git add data/offers.json data/meta.json data/Precos_ELEGN.csv data/CondComerciais.csv sw.js
           git commit -m "update erse data $(date -u +%Y-%m-%d)"
           git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
@@ -131,6 +133,7 @@ jobs:
             echo
             echo "Common causes:"
             echo "- A new supplier code: name it in \`js/config.js\` PROVIDERS (ERSE publishes codes, never names)."
+            echo "- \`sw.js\` lost its \`const VERSION = '...';\` line, which the commit step sets to the price date."
             echo "- ERSE changed Settings.json, the ZIP or a CSV column: see \`scripts/download-erse.js\` and \`scripts/build-offers.js\`."
             echo "- A bound in \`scripts/validate-data.js\` was breached: the log says which. If the change is real (a supplier left, prices moved), run the refresh locally, check the numbers and commit it by hand."
             echo
