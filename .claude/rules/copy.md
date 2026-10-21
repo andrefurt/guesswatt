@@ -8,8 +8,9 @@ paths:
 
 # Copy
 
-`docs/COPY.mdc` owns the voice, the UI strings and the glossary; read it before writing or changing
-any text a user sees.
+The code owns the UI strings (`index.html`, `sobre.html`, `index.md`, `sobre.md`, `js/*.js`);
+`docs/COPY.mdc` owns the voice and the glossary. Read it before writing or changing any text a user
+sees.
 `scripts/rules-check.js` (in the gate) catches rules 1, 4, 6 and 7 where a grep can; its message
 says the fix.
 
