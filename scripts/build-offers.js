@@ -799,5 +799,5 @@ if (require.main === module) {
   }
 }
 
-module.exports = { buildOffers, safeText, safeUrl };
+module.exports = { buildOffers, safeText, safeUrl, detectLockIn };
 

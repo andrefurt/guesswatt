@@ -13,7 +13,8 @@ git config core.hooksPath .githooks   # once per clone, so the git hooks run
 ```
 
 Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
-`node scripts/download-erse.js && node scripts/build-offers.js && node scripts/selftest.js`.
+`node scripts/download-erse.js && node scripts/build-offers.js && node scripts/validate-data.js && node scripts/selftest.js`.
+`validate-data.js` holds the data bounds (headers, ranges, the jump against HEAD); `selftest.js` tests the code.
 
 ## Rules the tools cannot check
 
