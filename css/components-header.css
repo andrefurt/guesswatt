@@ -292,8 +292,7 @@
       order: 3; /* Place after logo and actions */
       width: 100%;
       margin-top: var(--space-3); /* Add spacing below navbar */
-      display: flex;
-      justify-content: center;
+      justify-content: center; /* display stays none until .results-view, below */
       padding: 0; /* No padding */
     }
     
