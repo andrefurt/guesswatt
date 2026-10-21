@@ -163,46 +163,10 @@ Rules: animate `transform` and `opacity` only (the tab indicator moves by transf
 snaps); no overshoot; a state that can flip mid-way uses a transition, not keyframes. Reduced
 motion has one rule, in `css/reset.css`: every animation and transition becomes instant (`0s`).
 
-### Layout Utilities
+### Layout
 
-Flexbox-based, composable patterns.
-
-```css
-/* Stack: vertical rhythm */
-.stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--stack-gap, var(--space-4));
-}
-
-.stack-sm { --stack-gap: var(--space-2); }
-.stack-lg { --stack-gap: var(--space-8); }
-
-/* Cluster: horizontal with wrapping */
-.cluster {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--cluster-gap, var(--space-4));
-  align-items: center;
-}
-
-/* Center: max-width container */
-.center {
-  max-width: var(--center-width, 40rem);
-  margin-inline: auto;
-  padding-inline: var(--space-4);
-}
-
-/* Grid: responsive columns */
-.grid {
-  display: grid;
-  gap: var(--grid-gap, var(--space-4));
-  grid-template-columns: repeat(
-    auto-fit, 
-    minmax(min(100%, var(--grid-min, 16rem)), 1fr)
-  );
-}
-```
+There are no layout utility classes: each component lays itself out in its own `css/components-*.css`,
+with spacing from `css/tokens.css`. `css/utilities.css` holds only `.sr-only` and `.skip-link`.
 
 ---
 
@@ -265,7 +229,7 @@ Each module exports clean public API with JSDoc comments:
  * const cost = calculateMonthlyCost(offer, 250, 4.6);
  * // Returns: 71.23 (€/month)
  */
-export function calculateMonthlyCost(offer, consumption, power, distribution = null) {
+export function calculateMonthlyCost(offer, consumption, power, distribution = null, context = {}) {
   // Implementation...
 }
 ```
@@ -380,111 +344,15 @@ const state = {
 
 ### Button States
 
-```css
-.button {
-  /* Base */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  
-  font-size: var(--text-sm);
-  font-weight: 500;
-  line-height: var(--leading-tight);
-  
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  
-  cursor: pointer;
-  transition: var(--transition-colors), var(--transition-transform);
-}
-
-/* Hover: subtle lift */
-.button:hover {
-  transform: translateY(-1px);
-}
-
-/* Active: press down */
-.button:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* Focus: no per-component rule. reset.css gives every :focus-visible the ring from
-   --color-focus-ring (3:1 or more against what surrounds it). A component that hides its
-   own outline moves the ring to a wrapper, as .input-field and .form-input-content do. */
-
-/* Disabled */
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Variants */
-.button-primary {
-  background: var(--color-accent);
-  color: white;
-}
-
-.button-primary:hover {
-  background: var(--color-accent-hover);
-}
-
-.button-secondary {
-  background: transparent;
-  border-color: var(--color-border);
-  color: var(--color-text);
-}
-
-.button-secondary:hover {
-  background: var(--color-surface-raised);
-  border-color: var(--color-border-strong);
-}
-```
+Buttons, tabs, pills and chips share `.interactive-base` in `css/components-buttons.css` (hover and
+active live there), and a component adds only what differs. The focus ring is global, `:focus-visible`
+in `css/reset.css`.
 
 ### Input States
 
 Text fields and selects never render below 16 px (`max(1rem, ...)`): iOS Safari zooms into smaller fields on focus. `base.css` sets the floor for every control, and a component rule that sets its own size keeps it.
 
-```css
-.input {
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
-  
-  font-size: var(--text-base);
-  line-height: var(--leading-normal);
-  
-  background: var(--color-gray-0);
-  border: 1px solid var(--color-gray-2);
-  border-radius: var(--radius-md);
-  
-  transition: var(--transition-colors), var(--transition-shadow);
-}
-
-.input:hover {
-  border-color: var(--color-gray-3);
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-soft);
-}
-
-.input::placeholder {
-  color: var(--color-gray-4);
-}
-
-/* Error state */
-.input[aria-invalid="true"] {
-  border-color: var(--color-danger);
-}
-
-.input[aria-invalid="true"]:focus {
-  box-shadow: 0 0 0 3px var(--color-danger-soft);
-}
-```
+The field styles live in `css/components-input-views.css`.
 
 ### Result Animation
 
@@ -552,7 +420,7 @@ const parsed = value.replace(',', '.');
 
 // ✅ Good: Links to source/decision
 // Formula based on ERSE documentation
-// See: docs/DATA_SOURCES.md#calculation-formula
+// See: docs/DATA_MODEL.mdc
 ```
 
 ---

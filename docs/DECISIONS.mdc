@@ -139,7 +139,8 @@ Sem build step. Ficheiros servidos diretamente.
 **Razões:**
 - Editar e refrescar (DX simples)
 - Sem configuração de tooling
-- Funciona abrindo o HTML diretamente
+- Basta um servidor estático (`python3 -m http.server`); abrir o HTML diretamente (`file://`) não
+  funciona, porque os módulos ES e o `fetch` dos dados precisam de HTTP
 - Deploy = copiar ficheiros
 
 **Consequências:**
