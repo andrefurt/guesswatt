@@ -8,7 +8,7 @@ Ferramenta de comparação de tarifas de eletricidade em Portugal.
 
 Introduz o valor mensal da tua fatura (€/mês). O sistema assume:
 
-- Potência: 4.6 kVA (mais comum em Portugal)
+- Potência: 4,6 kVA (mais comum em Portugal)
 - Tarifa: Simples (preço único)
 - Consumo: estimado a partir do valor
 
@@ -16,7 +16,7 @@ Introduz o valor mensal da tua fatura (€/mês). O sistema assume:
 
 Podes:
 
-- Carregar a fatura em PDF (extracção automática)
+- Carregar a fatura em PDF (extração automática)
 - Introduzir manualmente: potência, consumo, tipo de tarifa
 
 ## Glossário
