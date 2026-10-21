@@ -881,6 +881,24 @@ Opção 3. `manifest.webmanifest` e `icons/` tornam o site instalável (TECH_STA
 - ⚠️ Um ficheiro novo em css/ ou js/ tem de entrar no PRECACHE de `sw.js` (o selftest falha se não entrar)
 - ⚠️ Uma alteração de CSS ou JS só chega na segunda visita depois do deploy
 
+**Revisão (2026-10-21, auditoria de front-end P-1, P-2, P-5, P-6, P-7; tarefa 1.7):**
+A primeira visita depois de um deploy juntava o HTML novo com o CSS e o JS antigos, a atualização
+semanal apagava o PDF.js da cache, e as cópias guardavam o URL com os números da pessoa. Agora:
+- Todos os ficheiros nossos (páginas, dados, CSS, JS, ícones) vão à rede primeiro, por isso um
+  deploy aparece inteiro logo na primeira visita. Isto substitui a cópia atualizada em segundo plano.
+- Se a página ou os dados demoram mais de 3 segundos, serve a cópia guardada, marcada como sem
+  ligação. A escolha é por página: uma página servida da cópia tira dela todos os ficheiros, e uma
+  página vinda da rede espera pelo seu CSS e JS (um limite por ficheiro juntava versões numa rede lenta).
+- As cópias são guardadas sem a query string: nenhum número escrito pela pessoa fica numa chave.
+- O PDF.js guarda-se no primeiro uso numa cache com o nome da versão (`guesswatts-pdfjs-3.11.174`),
+  que a subida semanal da versão não apaga; não há precache (cerca de 378 KB gzip por visitante,
+  decisão do dono, questão 7). Sem ligação antes do primeiro uso, a mensagem diz que o leitor de PDF
+  precisa de ligação, em vez de culpar a fatura.
+- O registo passou para `js/data-date.js`, carregado nas duas páginas, por isso abrir primeiro o
+  `sobre.html` também instala o service worker.
+- ✅ A consequência "só chega na segunda visita" deixou de existir
+- ⚠️ Cada visita pede à rede todos os ficheiros nossos (com a cache HTTP do GitHub Pages pelo meio)
+
 ---
 
 ## ADR-024: Content Security Policy só com a própria origem

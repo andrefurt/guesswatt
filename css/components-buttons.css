@@ -399,6 +399,11 @@
     -webkit-user-select: none;
   }
   
+  /* A comparison is running (main.js runComparison); full disabled styling comes with the button system */
+  .submit-btn[aria-disabled="true"] {
+    cursor: progress;
+  }
+  
   .submit-btn:active {
     transform: scale(0.97);
   }
@@ -410,5 +415,21 @@
     box-shadow: var(--shadow-button-inset);
     pointer-events: none;
   }
+  
+  /* Forced colours (a Windows contrast theme) drop fills and shadows: the filled submit gets a
+     border so it still reads as a button, and the divider, drawn as a fill, uses the text colour
+     (audit C-6) */
+  @media (forced-colors: active) {
+    .submit-btn {
+      border: 1px solid ButtonText;
+    }
+  
+    /* One line of text tall: the base rule's height is a unitless leading, so it computes to 0 */
+    .segmented-divider {
+      width: 1px; /* half a pixel paints as nothing at 1x once the colour is solid */
+      height: calc(var(--text-default-leading) * var(--text-base-size));
+      forced-color-adjust: none;
+      background: ButtonText;
+    }
+  }
 }
-

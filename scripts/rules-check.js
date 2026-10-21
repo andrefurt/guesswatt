@@ -12,6 +12,9 @@
  *   sobre.md, the manifest) has no formal address, no Brazilian forms, no pre-AO90 spelling, no
  *   gerunds, no em dashes and no "€54.28" numbers. Code comments and regex literals are skipped:
  *   the PDF parser has to match what the bills say.
+ * - Header parity: the header's actions (Sobre, the copy button and its menu) are the same markup on
+ *   both pages, both pages have the skip link to #main, and the pages carry none of the English UI
+ *   strings that drifted in before ("Copy as markdown" on sobre.html, audit C-5).
  * - CSS: every var(--*) has a definition.
  * - Shipped files: every local file the site loads (src and href in the pages, file paths in JS
  *   strings, url() in CSS, the manifest's icons) is tracked by git. The site ships what git holds, so
@@ -69,6 +72,16 @@ const EM_DASH = String.fromCharCode(0x2014);
 
 // A whole word: \b treats accented letters as non-word characters, so "você" would never match
 const word = source => new RegExp(`(?<!\\p{L})(?:${source})(?!\\p{L})`, 'giu');
+
+// English UI strings a page must not carry (copied from a template or another product)
+const ENGLISH_UI = word('copy as|open in|skip to|copied|loading|submit');
+
+// The header's actions as one string, with the one deliberate difference (the Sobre link is the
+// current page on sobre.html) taken out, so the two pages can be compared
+const headerActions = src => {
+  const m = src.match(/<div class="top-bar-actions">[\s\S]*?<\/header>/);
+  return m && m[0].replace(/<a href="sobre\.html" class="btn"[^>]*>/, '<a href="sobre.html" class="btn">').replace(/\s+/g, ' ');
+};
 
 // Each prose rule: a pattern over the text a user reads and the fix the message gives
 const PROSE = [
@@ -152,8 +165,16 @@ const htmlText = src => src.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/
 
 const lineOf = (src, offset) => src.slice(0, offset).split('\n').length;
 
+// Only what is read or announced: text between tags and the aria-label, alt and title values, so a
+// class name such as "submit-btn" is not text (offsets kept)
+const readableText = src => htmlText(src).replace(/<[^>]*>/g, tag => {
+  const blank = tag.replace(/[^\n]/g, ' ');
+  return [...tag.matchAll(/\b(?:aria-label|alt|title)="([^"]*)"/g)]
+    .reduce((out, m) => out.slice(0, m.index) + m[0] + out.slice(m.index + m[0].length), blank);
+});
+
 function check() {
-  const breaches = { 1: [], 3: [], 7: [], 4: [], css: [], files: [], links: [] };
+  const breaches = { 1: [], 3: [], 7: [], 4: [], header: [], css: [], files: [], links: [] };
   const sources = Object.fromEntries([...JS, ...CSS, ...PAGES, ...TEXTS, ...DOCS].map(file => [file, read(file)]));
   const prose = []; // { file, src, text, at }
   const refs = [];  // { file, at, url, relativeToFile }: what the site loads
@@ -194,6 +215,22 @@ function check() {
   }
   for (const file of PAGES) prose.push({ file, src: sources[file], text: htmlText(sources[file]), at: 0 });
   for (const file of TEXTS) prose.push({ file, src: sources[file], text: sources[file], at: 0 });
+
+  const [first, ...others] = PAGES;
+  for (const file of others) {
+    if (headerActions(sources[file]) !== headerActions(sources[first])) {
+      breaches.header.push(`${file}: the header actions differ from ${first}; copy the block from <div class="top-bar-actions"> to </header> across (only the Sobre link's attributes may differ)`);
+    }
+  }
+  for (const file of PAGES) {
+    const src = sources[file];
+    if (!/<a href="#main" class="skip-link">/.test(src) || !/<main\b[^>]*\bid="main"/.test(src)) {
+      breaches.header.push(`${file}: no skip link to <main id="main">; add <a href="#main" class="skip-link"> after the icon sprite, as in index.html`);
+    }
+    for (const m of readableText(src).matchAll(ENGLISH_UI)) {
+      breaches.header.push(`${file}:${lineOf(src, m.index)}: "${m[0]}" is English; write the PT-PT string the other page uses`);
+    }
+  }
 
   for (const { file, src, text, at } of prose) {
     for (const rule of PROSE) {
@@ -236,6 +273,7 @@ function check() {
     3: 'Rule 3: no browser storage',
     7: 'Rule 7: no HTML sinks',
     4: 'Rule 4 and copy.md: PT-PT text',
+    header: 'Header parity: same actions, skip link, no English UI strings',
     css: 'CSS: every var(--*) is defined',
     files: 'Shipped files: everything the site loads is in git',
     links: 'Doc links: every relative link opens',

@@ -69,6 +69,11 @@
     transition: border var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
+  /* A bill the status line refused (main.js fieldError): the card's edge takes the error colour */
+  .input-slot:has(.value-input[aria-invalid="true"]) {
+    border-color: var(--color-error);
+  }
+  
   .input-content {
     border: 1px solid var(--color-highlight);
     /* Child radius = parent radius (16px) - parent border (0.5px) ≈ 15.5px */
@@ -565,8 +570,14 @@
     pointer-events: none;
   }
   
-  /* Text fields match :focus-visible on every focus, so the ring shows for mouse and keyboard */
-  .form-input-content:has(.form-input:focus-visible) {
+  /* A value the status line refused (main.js fieldError) */
+  .form-input-content:has(.form-input[aria-invalid="true"]) {
+    border-color: var(--color-error);
+  }
+  
+  /* The ring goes on the box, for text fields and selects alike (the select itself has none).
+     Text fields match :focus-visible on every focus, so the ring shows for mouse and keyboard */
+  .form-input-content:has(.form-input:focus-visible, .form-select:focus-visible) {
     outline: var(--focus-ring-width) solid var(--color-focus-ring);
     outline-offset: var(--focus-ring-offset);
   }
@@ -651,19 +662,7 @@
     align-items: center;
     justify-content: center;
   }
-    
-  .form-select:focus-visible + .form-select-icon {
-    opacity: 0.7;
-  }
-  
-  /* Remove focus styles on mouse click */
-  .form-select:focus:not(:focus-visible) {
-    outline: none;
-  }
-  
-  .form-select:focus:not(:focus-visible) + .form-select-icon {
-    opacity: 0.44;
-  }
+
   
   /* Form footer */
   .form-footer {

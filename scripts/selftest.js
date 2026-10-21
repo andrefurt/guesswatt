@@ -25,6 +25,7 @@ const CALCULATOR_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'calculato
 const CONFIG_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'config.js')).href;
 const PDF_SERVICE_PATH = path.join(__dirname, '..', 'js', 'pdf-service.js');
 const URL_STATE_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'url-state.js')).href;
+const UTILS_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'utils.js')).href;
 const PDF_SERVICE_URL = pathToFileURL(PDF_SERVICE_PATH).href;
 let calculateMonthlyCost;
 
@@ -39,6 +40,7 @@ async function runSelftest() {
   const { PROVIDERS } = await import(CONFIG_URL);
   const { parseInvoiceText } = await import(PDF_SERVICE_URL);
   const { readState, writeState } = await import(URL_STATE_URL);
+  const { parseNumber } = await import(UTILS_URL);
   
   let passed = 0;
   let failed = 0;
@@ -649,6 +651,18 @@ async function runSelftest() {
     }
   });
 
+  test('numeric fields: one parser reads PT-PT amounts and refuses the rest (audit F-1)', () => {
+    const cases = {
+      '87,50': 87.5, '87.50': 87.5, '87': 87, '€ 80': 80, '80 €': 80, ' 250 ': 250, '250,5': 250.5,
+      '1.250': 1250, '1.250,5': 1250.5, '1 250': 1250,
+      'abc': null, '12a': null, '1e2': null, '': null, '-5': null, '87,': null, ',5': null, '1.2.3': null
+    };
+    for (const [text, expected] of Object.entries(cases)) {
+      const got = parseNumber(text);
+      if (got !== expected) throw new Error(`parseNumber(${JSON.stringify(text)}) gave ${got}, expected ${expected}`);
+    }
+  });
+
   // Test 8: Tariff types are valid
   test('url state: plain params round-trip for both modes', () => {
     const estimate = { mode: 'estimate', bill: 80 };
@@ -831,6 +845,16 @@ async function runSelftest() {
     if (unlisted.length) throw new Error(`add to PRECACHE in sw.js (or offline breaks): ${unlisted.join(', ')}`);
     const missing = precached.filter(file => file !== './' && !fs.existsSync(path.join(root, file)));
     if (missing.length) throw new Error(`PRECACHE in sw.js lists files that do not exist: ${missing.join(', ')}`);
+  });
+
+  test('sw.js names its PDF.js cache by the vendored version, so an upgrade gets a fresh one', () => {
+    const root = path.join(__dirname, '..');
+    const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+    const named = sw.match(/const PDFJS_CACHE = 'guesswatts-pdfjs-([\d.]+)';/)?.[1];
+    const vendored = fs.readFileSync(path.join(root, 'vendor', 'pdfjs', 'pdf.min.js'), 'utf8').match(/version="([\d.]+)"/)?.[1];
+    if (!named || !vendored || named !== vendored) {
+      throw new Error(`PDFJS_CACHE in sw.js says ${named}, vendor/pdfjs/pdf.min.js is ${vendored}; set the cache name to the vendored version`);
+    }
   });
 
   test('sw.js keeps the VERSION line the weekly refresh rewrites', () => {

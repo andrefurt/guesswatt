@@ -4,7 +4,7 @@
  */
 
 import { PROVIDERS } from './config.js';
-import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
+import { loadOffers, parseNumber, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
 import { compare } from './calculator.js';
 import { initPDFUpload } from './pdf-service.js';
 import { initTabs, populateProvidersDropdown, matchProvidersToData, OTHER_PROVIDER } from './ui-components.js';
@@ -26,9 +26,13 @@ const STATUS = {
   loadFailed: 'Não conseguimos carregar os dados das tarifas. Tenta novamente ou volta mais tarde.',
   noOffers: 'Não encontrámos ofertas para esta potência e este tipo de tarifa. Experimenta outra potência ou tarifa.',
   billRange: 'Indica um valor entre 20 € e 500 €.',
+  billNotNumber: 'Escreve só o valor em euros, por exemplo 87,50.',
   noConsumption: 'Indica o consumo mensal em kWh.',
+  consumptionNotNumber: 'Escreve só o consumo em kWh, por exemplo 250.',
+  consumptionRange: 'Indica um consumo entre 1 e 5000 kWh por mês.',
   notPDF: 'Escolhe um ficheiro PDF.',
-  pdfUnreadable: 'Não conseguimos ler esta fatura. Podes introduzir os valores à mão.'
+  pdfUnreadable: 'Não conseguimos ler esta fatura. Podes introduzir os valores à mão.',
+  pdfReaderMissing: 'Não conseguimos abrir o leitor de PDF. Da primeira vez precisa de ligação à internet; podes também introduzir os valores à mão.'
 };
 const LOADING_DELAY_MS = 300; // a quicker answer shows no loading line, so nothing flashes
 
@@ -44,11 +48,33 @@ function setStatus(kind, text = '', action = null) {
   const box = document.getElementById('form-status');
   const button = document.getElementById('form-status-action');
   if (!box || !button) return;
+  // A new line replaces the old one, so a field it marked is no longer the one at fault
+  document.querySelectorAll('[aria-invalid="true"]').forEach(clearInvalid);
   box.dataset.kind = kind;
   document.getElementById('form-status-text').textContent = text;
   statusAction = action?.run || null;
   button.textContent = action?.label || '';
   button.hidden = !action;
+}
+
+/**
+ * An input error: the status line says what to type, and the field is marked, described by it and
+ * focused, so a screen reader hears the error where the person has to fix it
+ * @param {string} id - The field
+ * @param {string} text - From STATUS
+ */
+function fieldError(id, text) {
+  setStatus('error', text);
+  const field = document.getElementById(id);
+  if (!field) return;
+  field.setAttribute('aria-invalid', 'true');
+  field.setAttribute('aria-describedby', 'form-status-text');
+  field.focus();
+}
+
+function clearInvalid(field) {
+  field.removeAttribute('aria-invalid');
+  field.removeAttribute('aria-describedby');
 }
 
 /** Show the manual form with focus on its first field (the way out of an unreadable PDF) */
@@ -68,8 +94,12 @@ async function runComparison(input) {
   // comparison the person types (a retry of this run gets it back)
   const fromLinkMonth = linkDataMonth;
   linkDataMonth = null;
+  // While it runs, the submit buttons say so but keep focus (a disabled button drops it to <body>
+  // in Chromium), and a repeat press is ignored
+  if (comparing) return;
+  comparing = true;
   const submits = document.querySelectorAll('.submit-btn');
-  submits.forEach(button => { button.disabled = true; });
+  submits.forEach(button => button.setAttribute('aria-disabled', 'true'));
   const loading = setTimeout(() => setStatus('info', STATUS.loading), LOADING_DELAY_MS);
 
   let data;
@@ -78,10 +108,12 @@ async function runComparison(input) {
   } catch (error) {
     console.error(error);
     setStatus('error', STATUS.loadFailed, { label: 'Tentar novamente', run: () => { linkDataMonth = fromLinkMonth; runComparison(input); } });
+    document.getElementById('form-status-action')?.focus();
     return;
   } finally {
     clearTimeout(loading);
-    submits.forEach(button => { button.disabled = false; });
+    comparing = false;
+    submits.forEach(button => button.removeAttribute('aria-disabled'));
   }
 
   const { offers, tar, dataDate } = data;
@@ -91,6 +123,9 @@ async function runComparison(input) {
   } catch (error) {
     console.error(error);
     setStatus('error', STATUS.noOffers);
+    // The fix is another power or tariff: focus the first, when the manual form shows it
+    const power = document.getElementById('power');
+    if (power?.checkVisibility?.()) power.focus();
     return;
   }
 
@@ -110,6 +145,9 @@ async function runComparison(input) {
     document.getElementById('results-subtitle')?.append(` Este link foi criado com os preços de ${formatDataMonth(new Date(`${fromLinkMonth}-15T12:00:00Z`))}; o resultado usa os mais recentes.`);
   }
 }
+
+// A comparison is loading its data (runComparison)
+let comparing = false;
 
 // Price month of the link the page was opened with, until its result is shown
 let linkDataMonth = null;
@@ -155,6 +193,9 @@ function restoreFromURL() {
 // Estimate mode accepts bills in this range (€/month)
 const MIN_BILL = 20;
 const MAX_BILL = 500;
+// The manual form accepts this consumption (kWh/month), the range a result link can carry (url-state.js)
+const MIN_CONSUMPTION = 1;
+const MAX_CONSUMPTION = 5000;
 
 /**
  * Handler for estimate form submission
@@ -163,12 +204,17 @@ const MAX_BILL = 500;
 function handleEstimateSubmit(e) {
   e.preventDefault();
 
-  const monthlyBill = parseFloat(String(document.getElementById('monthly-bill').value).replace(',', '.'));
+  const typed = parseNumber(document.getElementById('monthly-bill').value);
+  // Cents are kept, as a bill shows them; more digits than that are rounded away
+  const monthlyBill = typed === null ? null : Math.round(typed * 100) / 100;
 
   // The estimate only holds for typical household bills
+  if (monthlyBill === null && document.getElementById('monthly-bill').value.trim()) {
+    fieldError('monthly-bill', STATUS.billNotNumber);
+    return;
+  }
   if (!(monthlyBill >= MIN_BILL && monthlyBill <= MAX_BILL)) {
-    setStatus('error', STATUS.billRange);
-    document.getElementById('monthly-bill')?.focus();
+    fieldError('monthly-bill', STATUS.billRange);
     return;
   }
 
@@ -187,7 +233,10 @@ function handlePreciseSubmit(e) {
   const formNote = document.getElementById('manual-form-note');
   if (formNote) formNote.hidden = true;
 
-  const consumption = parseFloat(document.getElementById('consumption').value);
+  const consumptionText = document.getElementById('consumption').value;
+  const typedConsumption = parseNumber(consumptionText);
+  // Bills show whole kWh: a decimal is rounded, so "250,5" is 251 and never an error (audit question 10)
+  const consumption = typedConsumption === null ? null : Math.round(typedConsumption);
   const power = parseFloat(document.getElementById('power').value);
   const tariffType = parseInt(document.getElementById('tariff-type').value);
   const provider = document.getElementById('current-provider').value || null;
@@ -199,9 +248,16 @@ function handlePreciseSubmit(e) {
     power
   }, false);
 
-  if (!consumption || consumption <= 0) {
-    setStatus('error', STATUS.noConsumption);
-    document.getElementById('consumption')?.focus();
+  if (!consumptionText.trim()) {
+    fieldError('consumption', STATUS.noConsumption);
+    return;
+  }
+  if (consumption === null) {
+    fieldError('consumption', STATUS.consumptionNotNumber);
+    return;
+  }
+  if (!(consumption >= MIN_CONSUMPTION && consumption <= MAX_CONSUMPTION)) {
+    fieldError('consumption', STATUS.consumptionRange);
     return;
   }
 
@@ -235,21 +291,6 @@ function handleInvoice(invoice) {
 // =============================================================================
 
 /**
- * Register the service worker (sw.js, ADR-023) once the page has loaded, so it never competes with
- * the first paint. On localhost it runs only with ?sw in the URL, so it does not serve stale files
- * while you edit; without it, an earlier registration is removed.
- */
-function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) return;
-  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  if (local && !new URLSearchParams(location.search).has('sw')) {
-    navigator.serviceWorker.getRegistrations().then(registrations => registrations.forEach(r => r.unregister()));
-    return;
-  }
-  navigator.serviceWorker.register('sw.js').catch(error => console.warn('⚠️  Service worker not registered:', error.message));
-}
-
-/**
  * Initialize application
  */
 function init() {
@@ -273,7 +314,7 @@ function init() {
   // one with no readable text, gets a line under the card
   initPDFUpload(handleInvoice, problem => {
     if (problem === 'not-pdf') setStatus('error', STATUS.notPDF);
-    else setStatus('error', STATUS.pdfUnreadable, { label: 'Introduzir manualmente', run: openManualForm });
+    else setStatus('error', problem === 'no-reader' ? STATUS.pdfReaderMissing : STATUS.pdfUnreadable, { label: 'Introduzir manualmente', run: openManualForm });
   });
   document.getElementById('form-status-action')?.addEventListener('click', () => statusAction?.());
   // A message belongs to the form it came from
@@ -345,9 +386,12 @@ function init() {
   if (preciseForm) {
     preciseForm.addEventListener('submit', handlePreciseSubmit);
   }
-}
 
-window.addEventListener('load', registerServiceWorker);
+  // Typing in a field marked by an error clears the mark; the line stays until the next submit
+  document.addEventListener('input', e => {
+    if (e.target.getAttribute?.('aria-invalid') === 'true') clearInvalid(e.target);
+  });
+}
 
 // Setup quando DOM estiver pronto
 if (document.readyState === 'loading') {

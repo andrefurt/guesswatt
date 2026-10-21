@@ -3,7 +3,8 @@
  * Shows the date of the prices (data/meta.json) in the footer, a notice when they are more than
  * 45 days old, and one when there is no connection and the prices come from this device (sw.js).
  * Loaded on every page. It imports nothing, so sobre.html stays this small; utils.js reads the
- * price date through loadDataStatus below.
+ * price date through loadDataStatus below. Being on every page, it also registers the service
+ * worker, so a first visit to sobre.html installs it too.
  */
 
 /**
@@ -75,5 +76,23 @@ async function renderDataDate() {
   }
 }
 
+/**
+ * Register the service worker (sw.js, ADR-023) once the page has loaded, so it never competes with
+ * the first paint. On localhost it runs only with ?sw in the URL, so it does not serve stale files
+ * while you edit; without it, an earlier registration is removed.
+ */
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  if (local && !new URLSearchParams(location.search).has('sw')) {
+    navigator.serviceWorker.getRegistrations().then(registrations => registrations.forEach(r => r.unregister()));
+    return;
+  }
+  navigator.serviceWorker.register('sw.js').catch(error => console.warn('⚠️  Service worker not registered:', error.message));
+}
+
 // Only in a page: the selftest imports this module in Node through utils.js
-if (typeof document !== 'undefined') renderDataDate();
+if (typeof document !== 'undefined') {
+  renderDataDate();
+  window.addEventListener('load', registerServiceWorker);
+}

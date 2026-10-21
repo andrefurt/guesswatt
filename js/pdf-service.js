@@ -384,7 +384,7 @@ export function clearPDF() {
  * Handle PDF file upload
  * @param {File} file - PDF file
  * @param {Function} onInvoice - Receives the invoice when consumption and power were both found
- * @param {Function} onProblem - Receives 'not-pdf' or 'unreadable'; main.js shows the message
+ * @param {Function} onProblem - Receives 'not-pdf', 'unreadable' or 'no-reader' (PDF.js did not load); main.js shows the message
  */
 export async function handlePDFFile(file, onInvoice, onProblem) {
   if (file.type !== 'application/pdf') {
@@ -412,7 +412,8 @@ export async function handlePDFFile(file, onInvoice, onProblem) {
   } catch (error) {
     console.error('Erro ao processar PDF:', error);
     clearPDF();
-    onProblem('unreadable');
+    // PDF.js itself did not load (offline before its first use, sw.js): the bill is not the problem
+    onProblem(window.pdfjsLib ? 'unreadable' : 'no-reader');
   }
 }
 
@@ -455,7 +456,7 @@ function openManualFormWithPDFData(found) {
 /**
  * Initialize PDF upload functionality
  * @param {Function} onInvoice - Receives a complete invoice (main.js runs the comparison)
- * @param {Function} onProblem - Receives 'not-pdf' or 'unreadable'
+ * @param {Function} onProblem - Receives 'not-pdf', 'unreadable' or 'no-reader'
  */
 export function initPDFUpload(onInvoice, onProblem) {
   const dropArea = document.getElementById('precise-mode');
