@@ -171,7 +171,7 @@
   /* Divider */
   .segmented-divider {
     width: 0.5px;
-    height: var(--text-default-leading);
+    height: 1lh; /* one line of text tall; a bare leading token is a number and computes to 0 */
     background: var(--color-border);
   }
   
@@ -424,10 +424,8 @@
       border: 1px solid ButtonText;
     }
   
-    /* One line of text tall: the base rule's height is a unitless leading, so it computes to 0 */
     .segmented-divider {
       width: 1px; /* half a pixel paints as nothing at 1x once the colour is solid */
-      height: calc(var(--text-default-leading) * var(--text-base-size));
       forced-color-adjust: none;
       background: ButtonText;
     }
