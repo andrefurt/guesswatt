@@ -18,6 +18,10 @@
  *   an ignored or uncommitted file works locally and 404s live (PDF.js, hidden by *.min.js).
  * - Doc links: every relative link in README.md, CLAUDE.md, docs/ and .claude/rules/ opens a tracked
  *   file. docs/audit/ and docs/archive/ are history and are not checked.
+ *   Not seen by these two, since the site uses none of them today: single-quoted or unquoted
+ *   attributes, srcset, url() inside style="", folder entries in PRECACHE, a path built at run time,
+ *   links with a title or in reference style, links inside inline code (they would be flagged), and
+ *   links in index.md and sobre.md. A new form gets a pattern here before the site uses it.
  *
  * Usage:
  *   node scripts/rules-check.js   # prints one line per rule; exits 1 on any breach

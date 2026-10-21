@@ -139,7 +139,7 @@ keeps its one light `theme_color`. A new colour is a role in both blocks, measur
 (xs, sm, base, md, lg, xl), sizes fluid with `clamp()`; body text uses the `--text-default-*`
 aliases. Leading is unitless, so it scales with the text (base: 1.4). Headings step down from h1
 (xl) to h2 (lg), h3 (md) and h4 (body). Prices and quantities use `font-variant-numeric:
-tabular-nums`; units ("/Mês", "kWh/Mês") are set in Inter like the text around them. `--font-mono`
+tabular-nums`; units ("/mês", "kWh/mês") are set in Inter like the text around them. `--font-mono`
 is for code only. A `calc()` that needs the line box height multiplies: `var(--text-default-leading)
 * var(--text-base-size)`.
 

@@ -489,9 +489,9 @@ Cartão com info essencial visível + `<details>` para expandir.
 
 **Status:** ⬜ Aceite, não construído
 
-**Nota (2026-10-21):** nenhum elemento da página tinha `.tooltip-trigger`, por isso o código dos
-tooltips (`initTooltips` em `js/ui-components.js`) nunca corria e foi removido. Construir este ADR
-começa do zero.
+**Nota (2026-10-21):** nenhum elemento da página tinha `.tooltip-trigger`, por isso nunca apareceu
+um tooltip, embora `initTooltips` (`js/ui-components.js`) corresse em cada carregamento. O código foi
+removido; construir este ADR começa do zero.
 
 **Contexto:**
 Termos como "termo fixo", "kWh", "kVA" não são familiares a todos.
