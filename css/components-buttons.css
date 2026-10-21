@@ -36,7 +36,6 @@
     transition:
       transform var(--duration-fast) var(--ease-emphasized-decelerate),
       background-color var(--duration-micro) var(--ease-emphasized-decelerate);
-    -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
   }

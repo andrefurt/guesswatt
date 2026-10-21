@@ -67,8 +67,10 @@
     align-self: baseline;
   }
   
-  .logo:hover {
-    background: var(--color-hover-tint);
+  @media (hover: hover) and (pointer: fine) {
+    .logo:hover {
+      background: var(--color-hover-tint);
+    }
   }
   
   
@@ -120,8 +122,10 @@
     transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
-  .input-pill:hover .input-pill-inner {
-    background: var(--color-control);
+  @media (hover: hover) and (pointer: fine) {
+    .input-pill:hover .input-pill-inner {
+      background: var(--color-control);
+    }
   }
   
   /* Estimate mode: the delete button sets the 32px height and closes the pill on the right */
