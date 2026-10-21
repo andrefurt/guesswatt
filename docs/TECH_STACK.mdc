@@ -1,9 +1,3 @@
----
-description: "Technical stack, CSS architecture, JS patterns, and accessibility requirements"
-globs:
-  alwaysApply: true
----
-
 # GuessWatts - Tech Stack & Architecture
 
 ## Philosophy
@@ -31,30 +25,83 @@ globs:
 
 ---
 
+## File Map
+
+The only file map; README.md and docs/DEVELOPMENT.md point here. A new file gets a line here in the
+same commit.
+
+```
+guesswatt/
+├── index.html, sobre.html → The two pages (each with its icon sprite and meta CSP)
+├── index.md, sobre.md     → Markdown copies of the pages, used by the copy menu
+├── llms.txt               → Site summary for AI readers
+├── sw.js                  → Service worker (ADR-023); see Installable App
+├── manifest.webmanifest   → PWA manifest; see Installable App
+├── CNAME                  → GitHub Pages domain (guesswatts.com)
+├── LICENSE                → MIT
+├── CLAUDE.md, alfred.json → Agent instructions and the gate command
+├── skills-lock.json       → Pinned sources of the skills in .claude/skills/
+├── css/
+│   ├── tokens.css                → Design tokens, the only owner of their values, and the @layer order (linked first)
+│   ├── reset.css                 → Modern CSS reset, and the one reduced-motion rule
+│   ├── base.css                  → Typography, body, links, .icon
+│   ├── animations.css            → Animation keyframes and transitions
+│   ├── components-about.css      → sobre.html content
+│   ├── components-buttons.css    → Buttons
+│   ├── components-header.css     → Header and top bar
+│   ├── components-highlights.css → Highlight rows
+│   ├── components-input-views.css → Input forms and views
+│   ├── components-layout.css     → Layout components (cards, containers)
+│   ├── components-results.css    → Result card
+│   ├── components-tabs.css       → Tab navigation
+│   ├── utilities.css             → Utility classes (.sr-only, .stack, .cluster)
+│   └── main.css                  → App-specific styles (linked last)
+├── js/
+│   ├── main.js         → Entry point: form handlers and runComparison(), the one path every flow ends in
+│   ├── calculator.js   → Pure business logic: costs, ranking, and compare() (best offer, saving, market median)
+│   ├── config.js       → Configuration constants (VAT rates, fees, default power, providers)
+│   ├── data-date.js    → Footer: date of the prices and the stale notice (every page; imports nothing)
+│   ├── page-actions.js → Copy button and its menu (every page; imports nothing)
+│   ├── sobre.js        → sobre.html's entry point (the copy menu); a file because the CSP runs no inline script
+│   ├── pdf-service.js  → Loads PDF.js (self-hosted in vendor/pdfjs/) and reads the invoice; computes nothing
+│   ├── ui-components.js → UI component initialization (tabs, tooltips, dropdowns)
+│   ├── ui-handlers.js  → Logo, delete, About, show/hide results, the input pill
+│   ├── ui-renderer.js  → Result rendering and DOM manipulation
+│   ├── url-state.js    → The result's inputs in the URL (ADR-018): read, coerced, written
+│   └── utils.js        → Data loading (offers.json, tar.json, meta.json date) and formatting helpers
+├── vendor/
+│   ├── pdfjs/          → PDF.js 3.11.174 and its worker (npm pdfjs-dist, Apache-2.0), loaded only for a PDF
+│   ├── fonts/          → Inter woff2, latin and latin-ext subsets (SIL OFL 1.1), declared in css/tokens.css
+│   └── phosphor/LICENSE → MIT notice for the Phosphor icons inlined in each page's sprite (see Icons)
+├── icons/              → Favicon and app icons; see Installable App
+├── data/               → ERSE CSVs, offers.json, tar.json and meta.json, refreshed by the weekly Action (DATA_MODEL.mdc)
+├── scripts/
+│   ├── download-erse.js → Downloads the current ERSE ZIP with plain fetch
+│   ├── build-offers.js  → Builds data/offers.json from the CSVs
+│   ├── validate-data.js → Data bounds before a refresh is pushed
+│   ├── selftest.js      → Data and calculation tests (gate)
+│   ├── size-check.js    → Gzip budget below (gate)
+│   └── rules-check.js   → The greppable CLAUDE.md and .claude/rules/ rules (gate)
+├── tests/smoke.mjs     → Page flows in a headless browser, CI only (ADR-025)
+├── docs/               → Product, copy, data, architecture and decision docs; audit/ and archive/ (history, not maintained)
+├── .github/            → CI, the weekly data refresh, the @claude workflow, the PR template
+├── .githooks/          → commit-msg and pre-commit (the gate)
+└── .claude/            → Agent rules, settings and repo skills
+```
+
+Third-party code is copied in, never loaded from a CDN, so nothing outside the site sees the page or
+the invoice. A new vendored file names its version and licence here.
+
+---
+
 ## CSS Architecture
 
 ### Design Tokens
 
-All values derived from a systematic scale. No magic numbers.
+All values derived from a systematic scale. No magic numbers. `css/tokens.css` is the only owner
+of the values; this file names tokens and roles, never their values.
 
-**Actual file structure**:
-```
-css/
-├── tokens.css                    → Design tokens, and the @layer order (linked first)
-├── reset.css                     → Modern CSS reset
-├── base.css                      → Typography, body, links
-├── components-buttons.css        → Button component styles
-├── components-header.css          → Header/top bar styles
-├── components-highlights.css      → Highlight rows styles
-├── components-input-views.css     → Input form and views styles
-├── components-layout.css          → Layout components (cards, containers)
-├── components-results.css         → Result card and display styles
-├── components-tabs.css            → Tab navigation styles
-├── components-about.css           → sobre.html content styles
-├── utilities.css                  → Utility classes (.sr-only, .stack, .cluster)
-├── animations.css                 → Animation keyframes and transitions
-└── main.css                      → App-specific styles (linked last)
-```
+The files are listed in the File Map above.
 
 **Modular approach**: Each component type has its own CSS file for maintainability. Both pages link every file with its own `<link>`, in cascade order (tokens, reset, base, animations, components, utilities, main). No `@import`: it chains a request after main.css and delays first paint (audit PERF-2). A new CSS file gets a `<link>` in index.html and sobre.html, and an entry in `PRECACHE` in `sw.js` (the selftest fails without it).
 
@@ -98,79 +145,28 @@ is for code only. A `calc()` that needs the line box height multiplies: `var(--t
 
 ### Spacing Scale
 
-Consistent 4px base unit, rem-based for accessibility (respects user font size).
-
-```css
-:root {
-  --space-0: 0;
-  --space-1: 0.25rem;   /* 4px */
-  --space-2: 0.5rem;    /* 8px */
-  --space-3: 0.75rem;   /* 12px */
-  --space-4: 1rem;      /* 16px */
-  --space-5: 1.25rem;   /* 20px */
-  --space-6: 1.5rem;    /* 24px */
-  --space-8: 2rem;      /* 32px */
-  --space-10: 2.5rem;   /* 40px */
-  --space-12: 3rem;     /* 48px */
-  --space-16: 4rem;     /* 64px */
-}
-```
+`--space-1` to `--space-8`, rem-based and fluid with `clamp()`, so they respect the user's font
+size. `css/tokens.css` owns the values.
 
 ### Motion Tokens
 
-Significa's values (craft:motion owns them; `css/tokens.css` has the tokens):
+craft:motion owns the values; `css/tokens.css` is the only place they are written:
 
-| Token | Value | For |
-|---|---|---|
-| `--duration-micro` / `-fast` / `-medium` / `-slow` | 100 / 150 / 200 / 300 ms | hover; dropdown and chevron; view swaps; the result card |
-| `--duration-exit-fast` / `-exit-medium` | 120 / 160 ms | the closing side, about 80% of its enter |
-| `--ease-emphasized-decelerate` | `cubic-bezier(0.05, 0.7, 0.1, 1)` | everything entering |
-| `--ease-emphasized-accelerate` | `cubic-bezier(0.3, 0, 0.8, 0.15)` | exits only |
+| Token | For |
+|---|---|
+| `--duration-micro` / `-fast` / `-medium` / `-slow` | hover; dropdown and chevron; view swaps; the result card |
+| `--duration-exit-fast` / `-exit-medium` | the closing side, about 80% of its enter |
+| `--ease-emphasized-decelerate` | everything entering |
+| `--ease-emphasized-accelerate` | exits only |
 
 Rules: animate `transform` and `opacity` only (the tab indicator moves by transform; its width
 snaps); no overshoot; a state that can flip mid-way uses a transition, not keyframes. Reduced
 motion has one rule, in `css/reset.css`: every animation and transition becomes instant (`0s`).
 
-### Layout Utilities
+### Layout
 
-Flexbox-based, composable patterns.
-
-```css
-/* Stack: vertical rhythm */
-.stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--stack-gap, var(--space-4));
-}
-
-.stack-sm { --stack-gap: var(--space-2); }
-.stack-lg { --stack-gap: var(--space-8); }
-
-/* Cluster: horizontal with wrapping */
-.cluster {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--cluster-gap, var(--space-4));
-  align-items: center;
-}
-
-/* Center: max-width container */
-.center {
-  max-width: var(--center-width, 40rem);
-  margin-inline: auto;
-  padding-inline: var(--space-4);
-}
-
-/* Grid: responsive columns */
-.grid {
-  display: grid;
-  gap: var(--grid-gap, var(--space-4));
-  grid-template-columns: repeat(
-    auto-fit, 
-    minmax(min(100%, var(--grid-min, 16rem)), 1fr)
-  );
-}
-```
+There are no layout utility classes: each component lays itself out in its own `css/components-*.css`,
+with spacing from `css/tokens.css`. `css/utilities.css` holds only `.sr-only` and `.skip-link`.
 
 ---
 
@@ -178,29 +174,7 @@ Flexbox-based, composable patterns.
 
 ### Module Structure
 
-```
-js/
-├── main.js             → Entry point: form handlers and runComparison(), the one path every flow ends in
-├── calculator.js       → Pure business logic: costs, ranking, and compare() (best offer, saving, market median)
-├── config.js          → Configuration constants (VAT rates, fees, default power, providers)
-├── data-date.js       → Footer: date of the prices and the stale notice (every page; imports nothing)
-├── page-actions.js    → Copy button and its menu (every page; imports nothing)
-├── sobre.js           → sobre.html's entry point (the copy menu); a file because the CSP runs no inline script
-├── pdf-service.js     → Loads PDF.js (self-hosted in vendor/pdfjs/) and reads the invoice; computes nothing
-├── ui-components.js    → UI component initialization (tabs, tooltips, dropdowns)
-├── ui-handlers.js     → Logo, delete, About, show/hide results, the input pill
-├── ui-renderer.js     → Result rendering and DOM manipulation
-├── url-state.js       → The result's inputs in the URL (ADR-018): read, coerced, written
-└── utils.js           → Data loading (offers.json, tar.json, meta.json date) and formatting helpers
-
-vendor/
-├── pdfjs/              → PDF.js 3.11.174 and its worker (npm pdfjs-dist, Apache-2.0), loaded only for a PDF
-├── fonts/              → Inter woff2, latin and latin-ext subsets (SIL OFL 1.1), declared in css/tokens.css
-└── phosphor/LICENSE    → MIT notice for the Phosphor icons inlined in each page's sprite (see Icons)
-```
-
-Third-party code is copied in, never loaded from a CDN, so nothing outside the site sees the page or
-the invoice. A new vendored file names its version and licence here.
+Each module is listed in the File Map above, with what it owns.
 
 ### Content Security Policy
 
@@ -255,7 +229,7 @@ Each module exports clean public API with JSDoc comments:
  * const cost = calculateMonthlyCost(offer, 250, 4.6);
  * // Returns: 71.23 (€/month)
  */
-export function calculateMonthlyCost(offer, consumption, power, distribution = null) {
+export function calculateMonthlyCost(offer, consumption, power, distribution = null, context = {}) {
   // Implementation...
 }
 ```
@@ -370,152 +344,20 @@ const state = {
 
 ### Button States
 
-```css
-.button {
-  /* Base */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  
-  font-size: var(--text-sm);
-  font-weight: 500;
-  line-height: var(--leading-tight);
-  
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  
-  cursor: pointer;
-  transition: var(--transition-colors), var(--transition-transform);
-}
-
-/* Hover: subtle lift */
-.button:hover {
-  transform: translateY(-1px);
-}
-
-/* Active: press down */
-.button:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* Focus: no per-component rule. reset.css gives every :focus-visible the ring from
-   --color-focus-ring (3:1 or more against what surrounds it). A component that hides its
-   own outline moves the ring to a wrapper, as .input-field and .form-input-content do. */
-
-/* Disabled */
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Variants */
-.button-primary {
-  background: var(--color-accent);
-  color: white;
-}
-
-.button-primary:hover {
-  background: var(--color-accent-hover);
-}
-
-.button-secondary {
-  background: transparent;
-  border-color: var(--color-border);
-  color: var(--color-text);
-}
-
-.button-secondary:hover {
-  background: var(--color-surface-raised);
-  border-color: var(--color-border-strong);
-}
-```
+Buttons, tabs, pills and chips share `.interactive-base` in `css/components-buttons.css` (hover and
+active live there), and a component adds only what differs. The focus ring is global, `:focus-visible`
+in `css/reset.css`.
 
 ### Input States
 
 Text fields and selects never render below 16 px (`max(1rem, ...)`): iOS Safari zooms into smaller fields on focus. `base.css` sets the floor for every control, and a component rule that sets its own size keeps it.
 
-```css
-.input {
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
-  
-  font-size: var(--text-base);
-  line-height: var(--leading-normal);
-  
-  background: var(--color-gray-0);
-  border: 1px solid var(--color-gray-2);
-  border-radius: var(--radius-md);
-  
-  transition: var(--transition-colors), var(--transition-shadow);
-}
-
-.input:hover {
-  border-color: var(--color-gray-3);
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-soft);
-}
-
-.input::placeholder {
-  color: var(--color-gray-4);
-}
-
-/* Error state */
-.input[aria-invalid="true"] {
-  border-color: var(--color-danger);
-}
-
-.input[aria-invalid="true"]:focus {
-  box-shadow: 0 0 0 3px var(--color-danger-soft);
-}
-```
+The field styles live in `css/components-input-views.css`.
 
 ### Result Animation
 
-```css
-/* Reveal animation - staggers children */
-.result {
-  animation: reveal var(--duration-slow) var(--ease-out) both;
-}
-
-.result > * {
-  animation: reveal var(--duration-slow) var(--ease-out) both;
-}
-
-.result > *:nth-child(1) { animation-delay: 0ms; }
-.result > *:nth-child(2) { animation-delay: 50ms; }
-.result > *:nth-child(3) { animation-delay: 100ms; }
-.result > *:nth-child(4) { animation-delay: 150ms; }
-
-@keyframes reveal {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Loss number - emphasis animation */
-.loss-amount {
-  animation: 
-    reveal var(--duration-slow) var(--ease-out) both,
-    pulse var(--duration-slower) var(--ease-out) 300ms both;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-}
-```
+The keyframes live in `css/animations.css` and use the motion tokens above; neither file copies
+the other's values.
 
 ---
 
@@ -578,7 +420,7 @@ const parsed = value.replace(',', '.');
 
 // ✅ Good: Links to source/decision
 // Formula based on ERSE documentation
-// See: docs/DATA_SOURCES.md#calculation-formula
+// See: docs/DATA_MODEL.mdc
 ```
 
 ---
@@ -595,15 +437,7 @@ Targeting modern browsers only:
 | ES6 Modules | 95%+ |
 | Fetch API | 97%+ |
 
-**OKLCH Fallback:**
-
-```css
-:root {
-  /* Fallback for browsers without OKLCH */
-  --color-accent: #16a34a;
-  --color-accent: oklch(55% 0.18 145);
-}
-```
+Colour values, and any fallback, live in `css/tokens.css`.
 
 ---
 

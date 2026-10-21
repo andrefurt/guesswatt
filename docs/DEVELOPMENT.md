@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-- **Node.js** 16+ (for running scripts)
+- **Node.js** 22+ for the scripts and the smoke test (Playwright needs 22 or later; CI runs 24)
 - **Modern browser** (Chrome, Firefox, Safari, Edge)
 - **Git** (for version control)
 - **Text editor** (VS Code recommended)
@@ -16,7 +16,11 @@
 ```bash
 git clone https://github.com/andrefurt/guesswatt.git
 cd guesswatt
+git config core.hooksPath .githooks   # once per clone
 ```
+
+The hooks refuse an off-format commit message (`commit-msg`) and run the gate before each commit
+(`pre-commit`).
 
 ### 2. Serve Locally
 
@@ -47,41 +51,7 @@ open `http://localhost:8000/?sw`; loading the page again without `?sw` removes i
 
 ## Project Structure
 
-```
-guesswatt/
-├── index.html              # Main HTML file
-├── css/                    # Stylesheets
-│   ├── tokens.css          # Design tokens
-│   ├── reset.css           # CSS reset
-│   ├── base.css            # Base styles
-│   ├── components-*.css    # Component styles
-│   ├── utilities.css       # Utility classes
-│   ├── animations.css       # Animations
-│   └── main.css            # App styles, linked last
-├── js/                     # JavaScript modules
-│   ├── main.js             # Entry point
-│   ├── calculator.js        # Business logic
-│   ├── config.js            # Constants
-│   ├── data-date.js         # Footer price date and stale notice
-│   ├── page-actions.js      # Copy button and menu (both pages)
-│   ├── pdf-service.js       # PDF reading (includes cycle detection)
-│   ├── ui-components.js     # UI initialization
-│   ├── ui-handlers.js       # Event handlers
-│   ├── ui-renderer.js       # Result rendering
-│   ├── url-state.js         # Result inputs in the URL (ADR-018)
-│   └── utils.js             # Utilities (includes formatTariffName)
-├── data/                   # Data files
-│   ├── Precos_ELEGN.csv    # Price data
-│   ├── CondComerciais.csv  # Conditions data
-│   ├── offers.json         # Built offers
-│   ├── tar.json            # Yearly ERSE access tariff (fixed term) for reduced VAT
-│   └── meta.json           # Metadata, including the price date
-├── scripts/                # Build scripts
-│   ├── download-erse.js    # Download ERSE data
-│   ├── build-offers.js     # Build offers.json
-│   └── selftest.js         # Validation tests
-└── docs/                   # Documentation
-```
+The file map lives in [`docs/TECH_STACK.mdc`](./TECH_STACK.mdc#file-map) (File Map).
 
 ## Development Workflow
 
@@ -94,12 +64,8 @@ guesswatt/
 
 ### Code Standards
 
-Follow the guidelines in [`docs/CURSOR_RULES.mdc`](./CURSOR_RULES.mdc):
-
-- **JavaScript**: ES6+ modules, JSDoc comments, descriptive names
-- **CSS**: BEM-ish naming, custom properties, no magic numbers
-- **HTML**: Semantic elements, proper ARIA attributes
-- **Comments**: Explain WHY, not WHAT
+The rules live in [`CLAUDE.md`](../CLAUDE.md) and `.claude/rules/` (CSS, copy); this guide does not
+repeat them.
 
 ### File Naming
 
@@ -117,21 +83,15 @@ git checkout -b feature/your-feature-name
 # Make changes
 # ...
 
-# Commit with conventional format
-git commit -m "feat(scope): description"
+# Commit (lowercase, imperative, at most 72 characters)
+git commit -m "add the tri-hourly split to the estimate"
 
 # Push and create PR
 git push origin feature/your-feature-name
 ```
 
-**Commit types**:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation
-- `style`: Formatting
-- `refactor`: Code restructuring
-- `test`: Tests
-- `chore`: Maintenance
+Lowercase, imperative subject of at most 72 characters, no full stop, one logical change per commit,
+no tool attribution; `.githooks/commit-msg` checks it. Example: `add the tri-hourly split to the estimate`.
 
 ## Testing
 
@@ -149,16 +109,23 @@ Before committing, test:
 
 ### Automated Testing
 
-Run validation scripts:
+The gate (`commands.check` in `alfred.json`, run by the pre-commit hook and by CI):
 
 ```bash
-# Validate data integrity
-node scripts/selftest.js
+node scripts/selftest.js      # data and calculation tests
+node scripts/size-check.js    # the gzip budget in docs/TECH_STACK.mdc
+node scripts/rules-check.js   # the rules a grep can see
 ```
+
+`tests/smoke.mjs` runs the page flows in a browser, in CI only (ADR-025); its header says how to run
+it by hand.
 
 ## Data Updates
 
 ### Updating ERSE Data
+
+The weekly Action (`.github/workflows/update-erse.yml`, Mondays) runs these steps with plain
+`fetch` and pushes when the prices changed, so a manual run is only for testing a script change.
 
 1. **Download latest data**:
    ```bash
@@ -183,7 +150,7 @@ node scripts/selftest.js
 5. **Commit changes**:
    ```bash
    git add data/
-   git commit -m "chore(data): update ERSE data"
+   git commit -m "update erse data"
    ```
 
 ### Data Pipeline
@@ -225,9 +192,9 @@ See [`docs/DATA_MODEL.mdc`](./DATA_MODEL.mdc) for detailed information about:
 
 ### Step-by-Step Process
 
-1. **Plan**: Review [`docs/IMPLEMENTATION.mdc`](./IMPLEMENTATION.mdc) for phase structure
+1. **Plan**: Follow the working agreement in [`CLAUDE.md`](../CLAUDE.md)
 2. **Document**: Create ADR in [`docs/DECISIONS.mdc`](./DECISIONS.mdc) if architectural decision needed
-3. **Implement**: Write code following standards in [`docs/CURSOR_RULES.mdc`](./CURSOR_RULES.mdc)
+3. **Implement**: Write code following the rules in [`CLAUDE.md`](../CLAUDE.md) and `.claude/rules/`
 4. **Test**: Manual testing + validation scripts
 5. **Document**: Update relevant docs (TECH_STACK, DATA_MODEL, COPY, etc.)
 6. **Review**: Self-review before PR
@@ -258,13 +225,8 @@ and runs in the gate.
 
 ## Accessibility
 
-### Requirements
-
-- **WCAG 2.1 AA** compliance
-- **Keyboard navigation** throughout
-- **Screen reader** support
-- **Focus visible** at all times
-- **Color contrast** ≥4.5:1
+The site aims for WCAG 2.2 AA. The requirements are the Accessibility Checklist in
+[`docs/TECH_STACK.mdc`](./TECH_STACK.mdc); CLAUDE.md rule 6 is the short form.
 
 ### Testing Accessibility
 
@@ -273,24 +235,10 @@ and runs in the gate.
 3. **Color contrast**: Use browser extension or online tool
 4. **Focus indicators**: Ensure all interactive elements have visible focus
 
-See [`docs/TECH_STACK.mdc`](./TECH_STACK.mdc) for detailed accessibility checklist.
-
 ## Browser Support
 
-### Supported Browsers
-
-- Chrome (latest)
-- Safari (latest)
-- Firefox (latest)
-- Edge (latest)
-
-### Feature Support
-
-- CSS Custom Properties: 95%+
-- CSS clamp(): 93%+
-- OKLCH: 90%+ (with fallback)
-- ES6 Modules: 95%+
-- Fetch API: 97%+
+The latest Chrome, Safari, Firefox and Edge. Feature support is in
+[`docs/TECH_STACK.mdc`](./TECH_STACK.mdc) (Browser Support).
 
 ## Troubleshooting
 
@@ -314,7 +262,7 @@ python3 -m http.server 8001
 
 ### Data Loading Issues
 
-**Problem**: CSV/JSON not loading
+**Problem**: `data/offers.json` not loading
 - **Check**: Files exist in `data/` directory
 - **Check**: Network tab for 404 errors
 - **Check**: File encoding (should be UTF-8)

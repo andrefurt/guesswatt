@@ -46,14 +46,11 @@ Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 | Task | Read first |
 |---|---|
 | Calculations, CSV fields, formulas | `js/calculator.js`, then `docs/DATA_MODEL.mdc` |
-| Any UI copy, tooltips, errors | `docs/COPY.mdc` |
+| Any UI copy, tooltips, errors | The code owns the strings; `docs/COPY.mdc` owns the voice and glossary |
 | Product intent and user flows | `docs/CONCEPT.mdc` |
 | Architecture and CSS or JS patterns | `docs/TECH_STACK.mdc` |
 | The weekly data update | `.github/workflows/update-erse.yml` |
 | Something looks odd | `docs/DECISIONS.mdc` (the decision log): it is probably deliberate |
-
-`docs/CURSOR_RULES.mdc` predates this file and is partly stale; where it disagrees with this file or
-`.claude/rules/`, they win.
 
 ## Skills
 

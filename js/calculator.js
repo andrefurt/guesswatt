@@ -16,7 +16,7 @@ import {
   DEFAULT_POWER
 } from './config.js';
 
-// Constants from DATA_MODEL.mdc
+// Constants; docs/DATA_MODEL.mdc explains them
 const IEC_KWH = 0.001; // Special consumption tax (€/kWh)
 
 // Consumption distribution assumptions (when unknown)
@@ -34,7 +34,7 @@ const TRI_HORARIA = {
   ponta: 0.20       // peak hours
 };
 
-// Fallback typical offer when no data is loaded (DATA_MODEL.mdc defaults)
+// Fallback typical offer when no data is loaded
 const FALLBACK_TF = 0.25;   // €/day
 const FALLBACK_TV = 0.18;   // €/kWh
 

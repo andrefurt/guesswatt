@@ -1,10 +1,9 @@
----
-description: "Product vision, user flow, LOVE framework analysis, and design principles"
-globs:
-  alwaysApply: false
----
-
 # GuessWatts - Concept Validation
+
+> **Note (2026-10-21):** this is the original concept. Two things were built differently: the result
+> compares with the market in Estimado and shows "Poupas" in Preciso, never "Perdes €X/ano" (ADR-028,
+> superseding ADR-011), and the data refresh is weekly, with the ERSE date on the page (ADR-027).
+> `docs/DECISIONS.mdc` says what is built.
 
 ## Mission
 
@@ -68,7 +67,7 @@ Break consumer inertia in the Portuguese energy market. Help people realize they
 │  │   ERSE   │ ──────────────► │    LIBERALIZED MARKET        │  │
 │  │(regulator)│                │    ~45 providers              │  │
 │  └──────────┘                 │    ~400 offers                │  │
-│       │                       │    Updated monthly            │  │
+│       │                       │    Updated weekly             │  │
 │       │ publishes             └──────────────────────────────┘  │
 │       ▼                                      │                   │
 │  ┌──────────┐                               │ compete for       │
@@ -138,7 +137,7 @@ Yet 80%+ of consumers stay with the same provider for years.
 │ SUPPORT PROCESSES                                                │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  Monthly CSV      URL state          Copy/share        Zero     │
+│  Weekly CSV       URL state          Copy/share        Zero     │
 │  update           encoding           generation        backend   │
 │  (AUTO)           (stateless)        (client-side)              │
 │                                                                  │
