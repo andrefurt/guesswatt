@@ -600,6 +600,13 @@
       <!-- Footer -->
       <footer class="footer">
         <p class="footer-text">Guesswatts compara tarifas de eletricidade em Portugal. Não somos uma empresa de energia. Não vendemos nada. Dados: <a href="https://www.erse.pt/">ERSE</a><span id="data-date" hidden>, preços de <time></time></span>.</p>
+        <!-- Shown by js/data-date.js when there is no connection and the prices come from this device (sw.js) -->
+        <div id="data-offline" role="status">
+          <p class="footer-updated" hidden>
+            <svg class="icon" aria-hidden="true"><use href="#ph-clock-duotone"/></svg>
+            <span>Estás sem ligação. Os preços são de <time></time>, guardados neste dispositivo.</span>
+          </p>
+        </div>
         <!-- Shown by js/data-date.js when the prices are more than 45 days old -->
         <p class="footer-updated" id="data-stale" hidden>
           <i class="ph-duotone ph-clock" aria-hidden="true"></i>

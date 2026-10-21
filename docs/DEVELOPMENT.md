@@ -42,6 +42,9 @@ npx serve .
 
 Navigate to `http://localhost:8000` (or the port shown by your server)
 
+The service worker (`sw.js`, ADR-023) stays off on localhost, so edits show on reload. To test it,
+open `http://localhost:8000/?sw`; loading the page again without `?sw` removes it.
+
 ## Project Structure
 
 ```

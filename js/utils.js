@@ -55,15 +55,25 @@ async function loadAccessTariffs() {
  * @returns {Promise<Date|null>} null when the source date is unknown
  */
 export async function loadDataDate() {
+  return (await loadDataStatus()).date;
+}
+
+/**
+ * The price date, and whether the service worker answered from this device's copy because the
+ * network failed (sw.js marks those responses)
+ * @returns {Promise<{date: Date|null, offline: boolean}>}
+ */
+export async function loadDataStatus() {
   try {
     const response = await fetch('data/meta.json');
-    if (!response.ok) return null;
+    if (!response.ok) return { date: null, offline: false };
+    const offline = response.headers.has('X-GuessWatts-Offline');
     const { build } = await response.json();
     const value = build?.sourceUpdatedAt;
-    return value ? new Date(value) : null;
+    return { date: value ? new Date(value) : null, offline };
   } catch (error) {
     console.warn('⚠️  Could not load meta.json:', error.message);
-    return null;
+    return { date: null, offline: false };
   }
 }
 
