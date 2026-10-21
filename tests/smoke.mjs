@@ -37,6 +37,7 @@ const look = page => page.evaluate(() => {
     focus: document.activeElement?.id || '',
     overflow: document.documentElement.scrollWidth - window.innerWidth,
     search: location.search,
+    saving: document.querySelector('#result [data-slot="savings-monthly"]')?.textContent.trim() || '',
   };
 });
 
@@ -59,6 +60,25 @@ async function resultHolds(page, label) {
   check(reloaded.result.split('\n')[0] === shown.result.split('\n')[0], `${label}: reloading the URL shows another result`);
   return shown;
 }
+
+// Suppliers come from the page's own dropdown, which follows the week's data: a supplier leaving the
+// market never breaks the smoke (supplier churn only opens an issue, validate-data.js)
+const suppliers = page => page.$$eval('#current-provider option', options =>
+  options.map(option => option.value).filter(value => value && value !== 'outro'));
+
+// The supplier whose customers save the most at 250 kWh, worked out by the page's own calculator
+const supplierWithSaving = async page => page.evaluate(async codes => {
+  const { compare } = await import(new URL('js/calculator.js', location.href).href);
+  const offers = await (await fetch(new URL('data/offers.json', location.href))).json();
+  let best = null;
+  for (const provider of codes) {
+    try {
+      const { savings } = compare(offers, { mode: 'precise', consumption: 250, power: 4.6, tariffType: 1, provider });
+      if (savings && (!best || savings.monthly > best.monthly)) best = { provider, monthly: savings.monthly };
+    } catch { /* no offer for this profile */ }
+  }
+  return best;
+}, await suppliers(page));
 
 async function manual(page, { provider, tariff, consumption }) {
   await page.click('#tab-preciso');
@@ -101,13 +121,16 @@ const FLOWS = {
     check(shown.focus === 'monthly-bill', `focus is on "${shown.focus}", not the bill field`);
   },
   ...Object.fromEntries([1, 2, 3].map(tariff => [`manual, tariff type ${tariff}`, async page => {
-    await manual(page, { provider: 'EDPC', tariff, consumption: 250 });
+    await manual(page, { provider: (await suppliers(page))[0], tariff, consumption: 250 });
     await resultHolds(page, `manual tariff ${tariff}`);
   }])),
+  // The card's savings line, not the word "Poupas": a small saving also says it, in the verdict
   'a supplier with a saving': async page => {
-    await manual(page, { provider: 'IBD', tariff: 1, consumption: 250 });
-    const shown = await resultHolds(page, 'Iberdrola 250 kWh');
-    check(/Poupas/.test(shown.result), 'Iberdrola at 250 kWh and 4,6 kVA shows no "Poupas" line');
+    const best = await supplierWithSaving(page);
+    check(best && best.monthly > 1, `no supplier saves more than 1 €/month at 250 kWh (best: ${JSON.stringify(best)})`);
+    await manual(page, { provider: best.provider, tariff: 1, consumption: 250 });
+    const shown = await resultHolds(page, `${best.provider} 250 kWh`);
+    check(shown.saving.length > 0, `${best.provider} saves ${best.monthly.toFixed(2)} €/month but the card shows no savings line`);
   },
 };
 

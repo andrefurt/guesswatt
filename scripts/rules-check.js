@@ -59,13 +59,12 @@ const PROSE = [
 ];
 
 /**
- * Splits JavaScript into the code with comments blanked, the code with comments, strings and regex
- * literals blanked, and the strings (template chunks included). Blanking keeps every offset, so a
- * match still gives its line.
+ * Splits JavaScript into the code with comments blanked and the strings (template chunks included).
+ * Regex literals are skipped whole, so their quotes never start a string. Blanking keeps every
+ * offset, so a match still gives its line.
  */
 function lexJs(src) {
   const bare = src.split('');
-  const skeleton = src.split('');
   const strings = [];
   const blank = (chars, from, to) => { for (let k = from; k < to; k++) if (chars[k] !== '\n') chars[k] = ' '; };
   const stack = []; // '{' for a block, '`' for a template substitution
@@ -76,7 +75,6 @@ function lexJs(src) {
     let j = start;
     while (j < src.length && src[j] !== '`' && !(src[j] === '$' && src[j + 1] === '{')) j += src[j] === '\\' ? 2 : 1;
     strings.push({ text: src.slice(start, j), at: start });
-    blank(skeleton, start, j);
     if (src[j] === '`') { last = 'a'; return j + 1; }
     stack.push('`');
     last = '{';
@@ -88,17 +86,17 @@ function lexJs(src) {
     const next = src[i + 1];
     if (c === '/' && next === '/') {
       const end = src.indexOf('\n', i) < 0 ? src.length : src.indexOf('\n', i);
-      blank(bare, i, end); blank(skeleton, i, end); i = end; continue;
+      blank(bare, i, end); i = end; continue;
     }
     if (c === '/' && next === '*') {
       const end = src.indexOf('*/', i + 2) < 0 ? src.length : src.indexOf('*/', i + 2) + 2;
-      blank(bare, i, end); blank(skeleton, i, end); i = end; continue;
+      blank(bare, i, end); i = end; continue;
     }
     if (c === '"' || c === "'") {
       let j = i + 1;
       while (j < src.length && src[j] !== c && src[j] !== '\n') j += src[j] === '\\' ? 2 : 1;
       strings.push({ text: src.slice(i + 1, j), at: i + 1 });
-      blank(skeleton, i + 1, j); i = j + 1; last = 'a'; continue;
+      i = j + 1; last = 'a'; continue;
     }
     if (c === '`') { i = readTemplate(i + 1); continue; }
     if (c === '}' && stack[stack.length - 1] === '`') { stack.pop(); i = readTemplate(i + 1); continue; }
@@ -111,7 +109,7 @@ function lexJs(src) {
         else if (src[j] === ']') inClass = false;
         j++;
       }
-      blank(skeleton, i + 1, j); i = j + 1; last = 'a'; continue;
+      i = j + 1; last = 'a'; continue;
     }
     if (c === '{') stack.push('{');
     if (c === '}') stack.pop();
@@ -124,7 +122,7 @@ function lexJs(src) {
     last = c;
     i++;
   }
-  return { bare: bare.join(''), skeleton: skeleton.join(''), strings };
+  return { bare: bare.join(''), strings };
 }
 
 // The page with scripts, styles and comments blanked: what a user reads, attributes included
@@ -139,12 +137,13 @@ function check() {
 
   for (const file of JS) {
     const src = sources[file];
-    const { bare, skeleton, strings } = lexJs(src);
+    const { bare, strings } = lexJs(src);
 
-    for (const m of skeleton.matchAll(/\b(localStorage|sessionStorage|indexedDB|document\.cookie)\b/g)) {
+    // On the code with its strings: window['localStorage'] counts too
+    for (const m of bare.matchAll(/\b(localStorage|sessionStorage|indexedDB|document\.cookie)\b/g)) {
       breaches[3].push(`${file}:${lineOf(src, m.index)}: ${m[1]}; app state lives in the URL (js/url-state.js)`);
     }
-    for (const m of bare.matchAll(/\bimport\s*(?:[\w$*{}\s,]+?\s*from\s*)?\(?\s*['"]([^'"]+)['"]|\bimportScripts\s*\(\s*['"]([^'"]+)['"]/g)) {
+    for (const m of bare.matchAll(/\b(?:import|export)\s*(?:[\w$*{}\s,]+?\s*from\s*)?\(?\s*['"]([^'"]+)['"]|\bimportScripts\s*\(\s*['"]([^'"]+)['"]/g)) {
       const specifier = m[1] ?? m[2];
       if (!/^\.{0,2}\//.test(specifier)) {
         breaches[1].push(`${file}:${lineOf(src, m.index)}: import of "${specifier}"; import a relative path ('./x.js') or vendor the file`);
