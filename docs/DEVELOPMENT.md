@@ -16,7 +16,11 @@
 ```bash
 git clone https://github.com/andrefurt/guesswatt.git
 cd guesswatt
+git config core.hooksPath .githooks   # once per clone
 ```
+
+The hooks refuse an off-format commit message (`commit-msg`) and run the gate before each commit
+(`pre-commit`).
 
 ### 2. Serve Locally
 
@@ -60,12 +64,8 @@ The file map lives in [`docs/TECH_STACK.mdc`](./TECH_STACK.mdc#file-map) (File M
 
 ### Code Standards
 
-Follow the rules in [`CLAUDE.md`](../CLAUDE.md) and `.claude/rules/`:
-
-- **JavaScript**: ES6+ modules, JSDoc comments, descriptive names
-- **CSS**: BEM-ish naming, custom properties, no magic numbers
-- **HTML**: Semantic elements, proper ARIA attributes
-- **Comments**: Explain WHY, not WHAT
+The rules live in [`CLAUDE.md`](../CLAUDE.md) and `.claude/rules/` (CSS, copy); this guide does not
+repeat them.
 
 ### File Naming
 
@@ -109,12 +109,16 @@ Before committing, test:
 
 ### Automated Testing
 
-Run validation scripts:
+The gate (`commands.check` in `alfred.json`, run by the pre-commit hook and by CI):
 
 ```bash
-# Validate data integrity
-node scripts/selftest.js
+node scripts/selftest.js      # data and calculation tests
+node scripts/size-check.js    # the gzip budget in docs/TECH_STACK.mdc
+node scripts/rules-check.js   # the rules a grep can see
 ```
+
+`tests/smoke.mjs` runs the page flows in a browser, in CI only (ADR-025); its header says how to run
+it by hand.
 
 ## Data Updates
 
@@ -221,13 +225,8 @@ and runs in the gate.
 
 ## Accessibility
 
-### Requirements
-
-- Aims for **WCAG 2.2 AA**
-- **Keyboard navigation** throughout
-- **Screen reader** support
-- **Focus visible** at all times
-- **Color contrast** ≥4.5:1
+The site aims for WCAG 2.2 AA. The requirements are the Accessibility Checklist in
+[`docs/TECH_STACK.mdc`](./TECH_STACK.mdc); CLAUDE.md rule 6 is the short form.
 
 ### Testing Accessibility
 
@@ -236,24 +235,10 @@ and runs in the gate.
 3. **Color contrast**: Use browser extension or online tool
 4. **Focus indicators**: Ensure all interactive elements have visible focus
 
-See [`docs/TECH_STACK.mdc`](./TECH_STACK.mdc) for detailed accessibility checklist.
-
 ## Browser Support
 
-### Supported Browsers
-
-- Chrome (latest)
-- Safari (latest)
-- Firefox (latest)
-- Edge (latest)
-
-### Feature Support
-
-- CSS Custom Properties: 95%+
-- CSS clamp(): 93%+
-- OKLCH: 90%+ (with fallback)
-- ES6 Modules: 95%+
-- Fetch API: 97%+
+The latest Chrome, Safari, Firefox and Edge. Feature support is in
+[`docs/TECH_STACK.mdc`](./TECH_STACK.mdc) (Browser Support).
 
 ## Troubleshooting
 
@@ -277,7 +262,7 @@ python3 -m http.server 8001
 
 ### Data Loading Issues
 
-**Problem**: CSV/JSON not loading
+**Problem**: `data/offers.json` not loading
 - **Check**: Files exist in `data/` directory
 - **Check**: Network tab for 404 errors
 - **Check**: File encoding (should be UTF-8)
