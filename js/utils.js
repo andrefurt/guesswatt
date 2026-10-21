@@ -1,6 +1,6 @@
 /**
  * Utility Functions
- * Data loading, phone and name formatting, and small helpers
+ * Data loading, number parsing, phone and name formatting, and small helpers
  */
 
 import { loadDataStatus } from './data-date.js';
@@ -94,6 +94,20 @@ export function formatEuro(value, decimals = 2) {
  */
 export function formatNumber(value) {
   return NUMBER.format(Number(value));
+}
+
+/**
+ * Read a number the way people type it on a PT-PT bill: "87,50", "87.50", "€ 80", "1.250".
+ * The one parser for the numeric fields (audit F-1); anything else, "12a" or "1e2", is not a number.
+ * @param {string} text
+ * @returns {number|null} null when the text is empty or not a plain number
+ */
+export function parseNumber(text) {
+  const plain = String(text).replace(/[€\s]/g, '');
+  // Thousands dots ("1.250", "1.250,5") only before a comma decimal, so "87.50" stays a decimal
+  if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(plain)) return Number(plain.replace(/\./g, '').replace(',', '.'));
+  if (/^\d+([.,]\d+)?$/.test(plain)) return Number(plain.replace(',', '.'));
+  return null;
 }
 
 /**

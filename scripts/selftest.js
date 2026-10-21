@@ -25,6 +25,7 @@ const CALCULATOR_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'calculato
 const CONFIG_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'config.js')).href;
 const PDF_SERVICE_PATH = path.join(__dirname, '..', 'js', 'pdf-service.js');
 const URL_STATE_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'url-state.js')).href;
+const UTILS_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'utils.js')).href;
 const PDF_SERVICE_URL = pathToFileURL(PDF_SERVICE_PATH).href;
 let calculateMonthlyCost;
 
@@ -39,6 +40,7 @@ async function runSelftest() {
   const { PROVIDERS } = await import(CONFIG_URL);
   const { parseInvoiceText } = await import(PDF_SERVICE_URL);
   const { readState, writeState } = await import(URL_STATE_URL);
+  const { parseNumber } = await import(UTILS_URL);
   
   let passed = 0;
   let failed = 0;
@@ -646,6 +648,18 @@ async function runSelftest() {
     const parsed = parseInvoiceText('Goldenergy Potência contratada 6,9 kVA Tarifa simples Total a pagar 61,11 €');
     if (!parsed || parsed.consumption !== null || parsed.power !== 6.9) {
       throw new Error(`got ${JSON.stringify(parsed)}`);
+    }
+  });
+
+  test('numeric fields: one parser reads PT-PT amounts and refuses the rest (audit F-1)', () => {
+    const cases = {
+      '87,50': 87.5, '87.50': 87.5, '87': 87, '€ 80': 80, '80 €': 80, ' 250 ': 250, '250,5': 250.5,
+      '1.250': 1250, '1.250,5': 1250.5, '1 250': 1250,
+      'abc': null, '12a': null, '1e2': null, '': null, '-5': null, '87,': null, ',5': null, '1.2.3': null
+    };
+    for (const [text, expected] of Object.entries(cases)) {
+      const got = parseNumber(text);
+      if (got !== expected) throw new Error(`parseNumber(${JSON.stringify(text)}) gave ${got}, expected ${expected}`);
     }
   });
 

@@ -352,6 +352,13 @@ in `css/reset.css`.
 
 Text fields and selects never render below 16 px (`max(1rem, ...)`): iOS Safari zooms into smaller fields on focus. `base.css` sets the floor for every control, and a component rule that sets its own size keeps it.
 
+Numeric fields are `type="text" inputmode="decimal" enterkeyhint="go"`, with no `pattern`, `min` or
+`max`, in a `novalidate` form: the browser's validation answers in its own language, and
+`type="number"` reads "250,5" by the browser locale. `parseNumber` (`js/utils.js`) reads the value
+("87,50", "87.50", "€ 80", "1.250"); `fieldError` (`js/main.js`) writes the PT-PT line and marks the
+field with `aria-invalid` and `aria-describedby`. Keystrokes are never filtered, which would break paste
+and autofill.
+
 The field styles live in `css/components-input-views.css`.
 
 ### Result Animation
