@@ -48,6 +48,7 @@ jobs:
           node-version: '24'
 
       - name: Run Claude Code
+        id: claude
         uses: anthropics/claude-code-action@a5a423f75c251dcbff8a74e99f83b2cb03c72bfa # v1.0.256
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -61,3 +62,12 @@ jobs:
             --max-turns 30
             --allowedTools "Bash(node scripts/selftest.js),Bash(node scripts/size-check.js),Bash(node scripts/rules-check.js),Bash(node scripts/validate-data.js:*),Bash(node --check:*)"
             --append-system-prompt "Follow CLAUDE.md and .claude/rules/. Find the root cause before changing code. Before each commit run node scripts/selftest.js, node scripts/size-check.js and node scripts/rules-check.js; all must pass. Commit subjects are lowercase, imperative, at most 72 characters, with no attribution lines. Never touch .github/."
+
+      # The action hides Claude's output, which can hold secrets; the result's error line cannot
+      - name: Show why Claude stopped
+        if: failure()
+        env:
+          EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
+        run: |
+          jq -r '[if type == "array" then .[] else . end | select(.type? == "result")] | last | .result // "no result text"' "${EXECUTION_FILE:-$RUNNER_TEMP/claude-execution-output.json}" 2>/dev/null \
+            || echo "No execution output: the action failed before Claude ran"
