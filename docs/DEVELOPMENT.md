@@ -42,6 +42,9 @@ npx serve .
 
 Navigate to `http://localhost:8000` (or the port shown by your server)
 
+The service worker (`sw.js`, ADR-023) stays off on localhost, so edits show on reload. To test it,
+open `http://localhost:8000/?sw`; loading the page again without `?sw` removes it.
+
 ## Project Structure
 
 ```
@@ -55,7 +58,7 @@ guesswatt/
 │   ├── components-*.css    # Component styles
 │   ├── utilities.css       # Utility classes
 │   ├── animations.css       # Animations
-│   └── main.css            # Main import
+│   └── main.css            # App styles, linked last
 ├── js/                     # JavaScript modules
 │   ├── main.js             # Entry point
 │   ├── calculator.js        # Business logic
@@ -210,7 +213,7 @@ See [`docs/DATA_MODEL.mdc`](./DATA_MODEL.mdc) for detailed information about:
 - **Solution**: Verify input values, check formula in `DATA_MODEL.mdc`
 
 **Issue**: Styles not applying
-- **Check**: CSS file imports in `main.css`
+- **Check**: the `<link>` list in the page `<head>` (index.html and sobre.html)
 - **Solution**: Verify file paths, check browser cache
 
 **Issue**: PDF parsing fails
@@ -241,11 +244,8 @@ See [`docs/DATA_MODEL.mdc`](./DATA_MODEL.mdc) for detailed information about:
 
 ### Current Targets
 
-- **HTML**: <10KB
-- **CSS**: <15KB
-- **JS**: <30KB
-- **Data**: ~300KB (cached after first load)
-- **Total**: <400KB
+The budget lives in `docs/TECH_STACK.mdc` (Performance Budget). `node scripts/size-check.js` checks it
+and runs in the gate.
 
 ### Optimization Tips
 

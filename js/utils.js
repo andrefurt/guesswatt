@@ -3,12 +3,24 @@
  * Data loading, phone and name formatting, and small helpers
  */
 
+let offersRequest = null;
+
 /**
- * Load data/offers.json, with data/tar.json and the data date in parallel
+ * Load data/offers.json, with data/tar.json and the data date in parallel.
+ * Fetched once per page load: later calls share the same promise, and a failed load is
+ * forgotten so the next call retries. Callers must not mutate the returned offers.
  * @returns {Promise<{offers: Array<Object>, tar: Object|null, dataDate: Date|null}>}
  * @throws {Error} When offers.json cannot be loaded
  */
-export async function loadOffers() {
+export function loadOffers() {
+  offersRequest ??= fetchOffers().catch(error => {
+    offersRequest = null;
+    throw error;
+  });
+  return offersRequest;
+}
+
+async function fetchOffers() {
   const tarRequest = loadAccessTariffs();
   const dataDateRequest = loadDataDate();
 
@@ -43,15 +55,25 @@ async function loadAccessTariffs() {
  * @returns {Promise<Date|null>} null when the source date is unknown
  */
 export async function loadDataDate() {
+  return (await loadDataStatus()).date;
+}
+
+/**
+ * The price date, and whether the service worker answered from this device's copy because the
+ * network failed (sw.js marks those responses)
+ * @returns {Promise<{date: Date|null, offline: boolean}>}
+ */
+export async function loadDataStatus() {
   try {
     const response = await fetch('data/meta.json');
-    if (!response.ok) return null;
+    if (!response.ok) return { date: null, offline: false };
+    const offline = response.headers.has('X-GuessWatts-Offline');
     const { build } = await response.json();
     const value = build?.sourceUpdatedAt;
-    return value ? new Date(value) : null;
+    return { date: value ? new Date(value) : null, offline };
   } catch (error) {
     console.warn('⚠️  Could not load meta.json:', error.message);
-    return null;
+    return { date: null, offline: false };
   }
 }
 

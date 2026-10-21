@@ -268,8 +268,6 @@ class AppCopySplitButton extends HTMLElement {
     
     shadowRoot.innerHTML = `
       <style>
-        @import url('https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css');
-        
         :host {
           display: inline-block;
           box-sizing: border-box;

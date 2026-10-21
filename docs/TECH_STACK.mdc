@@ -40,7 +40,7 @@ All values derived from a systematic scale. No magic numbers.
 **Actual file structure**:
 ```
 css/
-├── tokens.css                    → Design tokens (colors, spacing, typography, animations)
+├── tokens.css                    → Design tokens, and the @layer order (linked first)
 ├── reset.css                     → Modern CSS reset
 ├── base.css                      → Typography, body, links
 ├── components-buttons.css        → Button component styles
@@ -50,12 +50,13 @@ css/
 ├── components-layout.css          → Layout components (cards, containers)
 ├── components-results.css         → Result card and display styles
 ├── components-tabs.css            → Tab navigation styles
+├── components-about.css           → About panel styles
 ├── utilities.css                  → Utility classes (.sr-only, .stack, .cluster)
 ├── animations.css                 → Animation keyframes and transitions
-└── main.css                      → Single import point (imports all above)
+└── main.css                      → App-specific styles (linked last)
 ```
 
-**Modular approach**: Each component type has its own CSS file for maintainability. All imported via `main.css`.
+**Modular approach**: Each component type has its own CSS file for maintainability. Both pages link every file with its own `<link>`, in cascade order (tokens, reset, base, animations, components, utilities, main). No `@import`: it chains a request after main.css and delays first paint (audit PERF-2). A new CSS file gets a `<link>` in index.html and sobre.html, and an entry in `PRECACHE` in `sw.js` (the selftest fails without it).
 
 ### Color System (OKLCH)
 
@@ -236,11 +237,34 @@ js/
 
 vendor/
 ├── pdfjs/              → PDF.js 3.11.174 and its worker (npm pdfjs-dist, Apache-2.0), loaded only for a PDF
-└── fonts/              → Inter woff2, latin and latin-ext subsets (SIL OFL 1.1), declared in css/tokens.css
+├── fonts/              → Inter woff2, latin and latin-ext subsets (SIL OFL 1.1), declared in css/tokens.css
+└── phosphor/LICENSE    → MIT notice for the Phosphor icons inlined in each page's sprite (see Icons)
 ```
 
 Third-party code is copied in, never loaded from a CDN, so nothing outside the site sees the page or
 the invoice. A new vendored file names its version and licence here.
+
+### Icons
+
+Icons are an inline SVG sprite at the top of each page's `<body>`, so they paint with the HTML and
+need no request (audit PERF-1: the old Phosphor web font painted icons about 3.5 s after the text on
+Slow 4G). A page uses one as `<svg class="icon" aria-hidden="true"><use href="#ph-NAME-duotone"/></svg>`;
+`js/ui-renderer.js` builds the same with `createIcon()`. Each page's sprite holds only the symbols that
+page uses.
+
+- Phosphor icons: `@phosphor-icons/core` 2.1.1 (MIT, notice in `vendor/phosphor/LICENSE`), from
+  `assets/duotone/NAME-duotone.svg` or `assets/regular/NAME.svg`. Symbol ids are `ph-NAME-duotone` and
+  `ph-NAME`. To add one: copy the file's `<path>`s into a `<symbol id="…" viewBox="0 0 256 256">` in the
+  sprite of each page that uses it, without `fill` attributes (the duotone back path keeps its
+  `opacity="0.2"`).
+- `.icon` (css/base.css) sets the 14 px size and `fill: currentColor`; a component rule only adds what
+  differs (colour, opacity).
+- ChatGPT and Claude marks (`brand-chatgpt`, `brand-claude`, copy menu), in black, the same pair as
+  the delonghi-ds page actions: Phosphor's `open-ai-logo` (regular, same package and licence) and the
+  Claude Spark from Anthropic's press kit (https://www.anthropic.com/press-kit). The Spark's viewBox
+  is padded so it draws at 87.5 % of the slot, matching Phosphor's inset. Both are trademarks, used
+  only to label the links to those services. Phosphor's mark is its own redrawing, not the file
+  OpenAI supplies at https://openai.com/brand/ (which needs its usage terms accepted).
 
 **Note**: The current implementation consolidates some functionality. Components like modals and toasts are implemented inline where needed, following the principle of simplicity over abstraction.
 
@@ -447,6 +471,8 @@ const state = {
 
 ### Input States
 
+Text fields and selects never render below 16 px (`max(1rem, ...)`): iOS Safari zooms into smaller fields on focus. `base.css` sets the floor for every control, and a component rule that sets its own size keeps it.
+
 ```css
 .input {
   width: 100%;
@@ -617,15 +643,54 @@ Targeting modern browsers only:
 
 ---
 
+## Installable App (PWA)
+
+The site installs to the home screen and opens standalone (audit decision: full PWA; the offline
+part is the service worker, ADR-023).
+
+- `sw.js` (registered from `js/main.js` after `load`): pages and `data/*` network first, with the
+  saved copy offline and a marked response that makes `js/data-date.js` show the offline notice;
+  `vendor/*` cache first; other own files served from the cache and refreshed in the background.
+  Its PRECACHE list must name every file in css/ and js/ (selftest checks), and `VERSION` is the
+  price date, rewritten by the weekly refresh. Off on localhost unless the URL has `?sw`.
+
+- `manifest.webmanifest`: name, `start_url` and `scope` `/`, `display: standalone`, background and
+  theme `#E8E8E8` (the rendered page background), and the icons below. A manifest takes one theme
+  colour only, so the per-theme colours live in the pages' `theme-color` metas: light `#E8E8E8`,
+  dark `#1C241C`. Until dark mode exists (audit 4.16a) a dark phone shows a dark bar above the light page.
+  Colours here are hex, not OKLCH: the manifest and the meta are read outside CSS.
+- `icons/`: `favicon.svg`, `apple-touch-icon.png` (180, full bleed), `icon-192.png` and
+  `icon-512.png` (rounded tile), `icon-maskable-512.png` (glyph inside the 80 % safe zone). The mark is
+  the header's Ω drawn from Inter (v20 greek subset, weight 500, SIL OFL 1.1) in `#3E4D37` on
+  `#E8E8E8`, as an outline, so it never depends on a font. The PNGs are renders of the same SVG.
+- Both pages link the manifest, the icons and the theme colours, and set `viewport-fit=cover`. With
+  it, an installed page reaches the screen edges, so `body` and the fixed about panel pad by
+  `env(safe-area-inset-*)` (0 on screens without a notch or home indicator).
+
+---
+
 ## Performance Budget
 
-| Metric | Target | Rationale |
-|--------|--------|-----------|
-| HTML | <10KB | Single page |
-| CSS | <15KB | No framework bloat |
-| JS | <30KB | Vanilla, no deps |
-| offers.json | loaded on submit | Cached after first load |
-| Total | <400KB | Fast on 3G |
+The only copy of the budget. Sizes are gzip, as the server sends them (1 KB = 1,000 bytes), and
+`scripts/size-check.js` checks this table in the gate. It reads the limits from here and owns which
+files each row counts. To raise a limit, change it here and give the reason in the commit.
+
+<!-- size-check -->
+| Row | What it counts | Limit |
+|-----|----------------|-------|
+| `index.html` | the page, with its icon sprite | 16 KB |
+| `sobre.html` | the page, with its icon sprite | 16 KB |
+| `CSS` | every file in css/, summed | 32 KB |
+| `JavaScript` | every file in js/, plus components.js, summed | 40 KB |
+| `Landing page` | index.html, all CSS and JS, and Inter latin | 150 KB |
+<!-- /size-check -->
+
+Not counted: PDF.js (`vendor/pdfjs/`, about 378 KB gzip) loads only when someone picks a PDF;
+`data/offers.json` loads on submit and its bounds live in `scripts/validate-data.js`; Inter latin-ext
+loads only for characters outside Portuguese.
+
+Time targets, measured with the audit's lab method (Slow 4G, 4x CPU, HTTP/2): first contentful paint
+about 1.8 s or less, with every icon on that first frame.
 
 ---
 
@@ -660,7 +725,7 @@ Targeting modern browsers only:
    - **Provider Logo Loading**: Hybrid approach with cascading fallbacks
      - Primary: Clearbit Logo API (`logo.clearbit.com/{domain}`)
      - Fallback 1: Google Favicon Service (`google.com/s2/favicons`)
-     - Fallback 2: Generic lightning icon (Phosphor Duotone)
+     - Fallback 2: Generic lightning icon (`ph-lightning-duotone` from the sprite)
    - Insert into DOM
    - Initialize logo fallback handlers
    - Cache result for tab switching
@@ -699,7 +764,7 @@ so a link from ERSE never becomes markup.
 **Fallback Chain**:
 1. **Clearbit Logo API**: High-quality logos for major brands (works for ~70% of providers)
 2. **Google Favicon Service**: Reliable fallback for all domains (works for ~95% of providers)
-3. **Generic Icon**: Always available Phosphor Duotone lightning icon
+3. **Generic Icon**: The lightning icon from the page's inline sprite, always available
 
 **Error Handling**: Event listeners cascade through fallbacks automatically:
 - Clearbit fails → try favicon
@@ -715,6 +780,7 @@ so a link from ERSE never becomes markup.
 ### Performance Considerations
 
 - **Lazy loading**: Data only loaded when form is submitted
+- **One data load per page**: `loadOffers()` keeps its promise, so a second submit reuses the parsed offers (a failed load is retried on the next call)
 - **Caching**: Results cached per tab to avoid recalculation
 - **Debouncing**: Not currently needed (no real-time input)
 - **Code splitting**: Not applicable (no build step, but modules loaded on demand)

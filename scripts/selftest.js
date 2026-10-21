@@ -751,6 +751,28 @@ async function runSelftest() {
   });
 
   // Test 11: Promotion discovery validation
+  test('the service worker precaches every css and js file and nothing missing', () => {
+    const root = path.join(__dirname, '..');
+    const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+    const list = sw.match(/const PRECACHE = \[([\s\S]*?)\];/);
+    if (!list) throw new Error('sw.js: no PRECACHE list');
+    const precached = [...list[1].matchAll(/'([^']+)'/g)].map(m => m[1]);
+    const required = ['css', 'js'].flatMap(dir => fs.readdirSync(path.join(root, dir))
+      .filter(name => name.endsWith(`.${dir}`)).map(name => `${dir}/${name}`));
+    const unlisted = required.filter(file => !precached.includes(file));
+    if (unlisted.length) throw new Error(`add to PRECACHE in sw.js (or offline breaks): ${unlisted.join(', ')}`);
+    const missing = precached.filter(file => file !== './' && !fs.existsSync(path.join(root, file)));
+    if (missing.length) throw new Error(`PRECACHE in sw.js lists files that do not exist: ${missing.join(', ')}`);
+  });
+
+  test('sw.js keeps the VERSION line the weekly refresh rewrites', () => {
+    const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
+    const lines = sw.match(/^const VERSION = '\d{4}-\d{2}-\d{2}';$/gm) || [];
+    if (lines.length !== 1) {
+      throw new Error("sw.js needs exactly one line \"const VERSION = 'YYYY-MM-DD';\": update-erse.yml sets it to the price date");
+    }
+  });
+
   test('promotion discovery validation', () => {
     if (!fs.existsSync(META_PATH)) {
       return; // Skip if meta.json doesn't exist

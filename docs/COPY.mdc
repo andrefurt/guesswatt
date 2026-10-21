@@ -696,6 +696,13 @@ promete uma frequência de atualização. Quando os preços têm mais de 45 dias
 Estes preços têm mais de 45 dias. Confirma no site do operador antes de mudar.
 ```
 
+Sem ligação, quando a página e os preços vêm da cópia guardada pelo service worker (`sw.js`), aparece
+também por baixo, com a data dos preços guardados:
+
+```
+Estás sem ligação. Os preços são de outubro de 2026, guardados neste dispositivo.
+```
+
 ---
 
 ## Insights ERSE (Social Proof)

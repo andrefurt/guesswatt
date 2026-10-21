@@ -9,6 +9,7 @@ CSS, no framework, no build step, no backend. A weekly GitHub Action refreshes t
 ```sh
 python3 -m http.server 8000           # serves the site at http://localhost:8000
 node scripts/selftest.js              # data and calculation tests; part of the gate (alfred.json check)
+node scripts/size-check.js            # gzip budget from docs/TECH_STACK.mdc; part of the gate
 git config core.hooksPath .githooks   # once per clone, so the git hooks run
 ```
 
@@ -48,7 +49,10 @@ Data refresh (plain fetch, no dependencies; normally left to the weekly Action):
 ## Skills
 
 Owners in this repo:
-- Motion values (easing, durations): craft:motion.
+- Motion values (easing, durations): craft:motion. Emil's review-animations, improve-animations and
+  find-animation-opportunities judge purpose, frequency and interruption, never the curve.
+- A web app on a phone (the installed PWA, touch, safe areas): mobile-native.
+- Worst-case data: break-ui, run by hand only (`skillOverrides` in `.claude/settings.json`).
 - Typography, layout, accessibility, interface copy: better-typography, better-layout,
   better-accessibility, better-writing, applied in this repo's own CSS and in `docs/COPY.mdc`'s voice.
 - A hard bug: diagnosing-bugs.

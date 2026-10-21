@@ -9,6 +9,10 @@
  * Spacing: Fluid clamp() values for responsive spacing
  */
 
+/* Layer order for every stylesheet. Declared here because tokens.css is the first file the
+   pages link; a layer's rank is fixed the first time its name appears. */
+@layer base, components, utilities;
+
 /* Inter, self-hosted (Google Fonts v20 subsets, variable 400 to 700, SIL OFL 1.1 in
    vendor/fonts/OFL.txt). Portuguese needs only the latin subset; latin-ext loads on demand. */
 @font-face {
@@ -130,10 +134,6 @@
   /* Savings bar */
   --color-savings-bar-bg: rgba(113, 152, 131, 0.08); /* Savings bar background, 8% opacity */
   --color-savings-bar-shadow: rgba(113, 152, 131, 0.08); /* Savings bar shadow, 8% opacity */
-  
-  /* Phosphor icon colors - Duotone inner fill */
-  --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground primary at 6% opacity (#35443D at 6%) */
-  --ph-icon-fill-duotone: oklch(from var(--color-foreground-primary) l c h / 0.06); /* Modern browsers: foreground at 6% opacity */
   
   /* ═══════════════════════════════════════════════════════════
      TYPOGRAPHY - Fluid scaling with clamp()

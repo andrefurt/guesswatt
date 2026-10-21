@@ -1,16 +1,17 @@
 /**
  * Data date
- * Shows the date of the prices (data/meta.json) in the footer, and a notice when they are
- * more than 45 days old. Loaded on every page.
+ * Shows the date of the prices (data/meta.json) in the footer, a notice when they are more than
+ * 45 days old, and one when there is no connection and the prices come from this device (sw.js).
+ * Loaded on every page.
  */
 
-import { loadDataDate, formatDataMonth } from './utils.js';
+import { loadDataStatus, formatDataMonth } from './utils.js';
 
 const STALE_AFTER_DAYS = 45;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 async function renderDataDate() {
-  const date = await loadDataDate();
+  const { date, offline } = await loadDataStatus();
   if (!date) return; // Unknown date: the footer just says "Dados: ERSE."
 
   const holder = document.getElementById('data-date');
@@ -19,6 +20,13 @@ async function renderDataDate() {
     time.dateTime = date.toISOString().slice(0, 10);
     time.textContent = formatDataMonth(date);
     holder.hidden = false;
+  }
+
+  const offlineNotice = document.getElementById('data-offline')?.querySelector('p');
+  if (offline && offlineNotice) {
+    offlineNotice.querySelector('time').dateTime = date.toISOString().slice(0, 10);
+    offlineNotice.querySelector('time').textContent = formatDataMonth(date);
+    offlineNotice.hidden = false;
   }
 
   const stale = document.getElementById('data-stale');

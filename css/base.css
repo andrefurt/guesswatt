@@ -29,11 +29,39 @@ body {
   color: var(--foreground);
   background-color: var(--bg);
   min-height: 100vh;
+  /* Installed (standalone) on a phone with a notch or home indicator, viewport-fit=cover lets the
+     page reach the screen edges; these insets keep content clear of them. 0 everywhere else. */
+  padding:
+    env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* Form elements - ensure Inter font */
 button, input, select, textarea {
   font-family: var(--font-sans);
+}
+
+/* Icons: <svg class="icon"><use href="#ph-…"/></svg>, drawn from the inline sprite at the top
+   of each page. The duotone back layer is part of each symbol (opacity 0.2). */
+.icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.icon {
+  width: var(--text-base-size);
+  height: var(--text-base-size);
+  flex-shrink: 0;
+  fill: currentColor;
+  vertical-align: middle;
+}
+
+/* Text fields never below 16 px: iOS Safari zooms into smaller ones on focus.
+   Component rules that set a size keep the same floor with max(1rem, ...). */
+input, select, textarea {
+  font-size: max(1rem, 1em);
 }
 
 /* Headings */

@@ -32,7 +32,11 @@
     right: 0;
     width: 100%;
     max-width: 36.25rem; /* 580px - matches content-width */
-    height: 100vh;
+    height: 100vh; /* fallback */
+    height: 100dvh; /* follows the mobile browser toolbars */
+    padding:
+      env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left); /* fixed: body's insets do not reach it */
     background: var(--color-background-primary);
     box-shadow: var(--shadow-sm);
     transform: translateX(100%);
