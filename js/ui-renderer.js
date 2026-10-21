@@ -29,6 +29,9 @@ function createIcon(id) {
 // A saving at or below this (€/month) is not worth a switch: the result says the tariff is fine
 const GOOD_TARIFF_MARGIN = 1;
 
+// The saving in the cents the card shows, so the number and the verdict never disagree
+const shownSaving = savings => Math.round(savings.monthly * 100) / 100;
+
 /**
  * The line a result shows when it has no saving to report
  * @param {Object} best - Best offer; currentProvider is the code the person gave (Preciso)
@@ -40,13 +43,15 @@ const GOOD_TARIFF_MARGIN = 1;
 function resultVerdict(best, monthlyBill, savings, isEstimate) {
   if (isEstimate) {
     return monthlyBill && monthlyBill <= best.monthlyCost + GOOD_TARIFF_MARGIN
-      ? { text: 'Já tens uma boa tarifa. A tua fatura já está ao nível da oferta mais barata.' }
+      ? { text: `A tua fatura (${formatEuro(monthlyBill)}/mês) já está ao nível da oferta mais barata (${formatEuro(best.monthlyCost)}/mês): já tens uma boa tarifa.` }
       : null;
   }
   if (savings) {
-    return savings.monthly > GOOD_TARIFF_MARGIN
-      ? null
-      : { text: `Já tens uma boa tarifa. Nenhuma oferta te poupa mais de ${formatEuro(GOOD_TARIFF_MARGIN, 0)}/mês.` };
+    const monthly = shownSaving(savings);
+    if (monthly > GOOD_TARIFF_MARGIN) return null;
+    return monthly > 0
+      ? { text: `Poupas ${formatEuro(monthly)}/mês. É pouco para compensar a mudança: já tens uma boa tarifa.` }
+      : { text: 'Já tens uma boa tarifa: nenhuma oferta é mais barata do que a do teu fornecedor.' };
   }
   if (!best.currentProvider) {
     return { text: 'Escolhe o teu fornecedor para saberes quanto poupas.', chooseProvider: true };
@@ -138,7 +143,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
     slot('indexed').remove();
   }
 
-  if (savings && savings.monthly > GOOD_TARIFF_MARGIN) {
+  if (savings && shownSaving(savings) > GOOD_TARIFF_MARGIN) {
     slot('savings-monthly').textContent = `${formatEuro(savings.monthly)}/mês,`;
     slot('savings-yearly').textContent = `${formatEuro(savings.yearly)}/ano`;
   } else {

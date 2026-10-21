@@ -13,11 +13,15 @@
  *   node scripts/validate-data.js             # bounds; exits 1 on any breach
  *   node scripts/validate-data.js --tar-year  # exits 1 when data/tar.json is not for this year
  *   node scripts/validate-data.js --supplier-names  # exits 1 when a supplier code has no name
+ *   node scripts/validate-data.js --freshness [days]  # exits 1 when the prices are older than that
  *
  * The TAR year check is separate because ERSE's new TAR comes once a year in a PDF that is updated
  * by hand: a stale year opens its own issue in the workflow and does not block the price refresh.
  * Supplier names work the same way: ERSE publishes codes only, so a new code needs a name in
  * js/config.js PROVIDERS. Until then the page lists it under its code, so it never blocks prices.
+ * Freshness runs on its own schedule in CI (.github/workflows/ci.yml), never in the gate: a date check
+ * in pre-commit would fail commits as time passes. It catches the refresh that stopped without
+ * failing (a disabled workflow, an ERSE export that stopped moving).
  */
 
 const fs = require('fs');
@@ -48,7 +52,8 @@ const BOUNDS = {
   maxProvidersLost: 3,
   maxMedianEnergyChange: 0.3, // ±30% against HEAD
   tarEuroDay: [0.01, 1],
-  tarPowers: ['1.15', '2.3', '3.45']
+  tarPowers: ['1.15', '2.3', '3.45'],
+  maxDataAgeDays: 21 // three missed weekly refreshes
 };
 
 function readHeader(file) {
@@ -196,16 +201,34 @@ function checkSupplierNames() {
     .map(code => `"${code}" has offers but no name: add it to PROVIDERS in js/config.js (the page shows the code until then)`);
 }
 
+/**
+ * The price date the page shows (meta.json build.sourceUpdatedAt), against a maximum age
+ * @param {number} maxDays - Days; BOUNDS.maxDataAgeDays unless given
+ * @param {Date} now - Injected so a test can pin it
+ * @returns {string[]} One line when the prices are too old
+ */
+function checkFreshness(maxDays = BOUNDS.maxDataAgeDays, now = new Date()) {
+  const date = readJson('meta.json').build?.sourceUpdatedAt;
+  const age = Math.floor((now - new Date(date)) / 86400000); // whole days, as the message says them
+  if (!date || Number.isNaN(age)) return ['meta.json has no build.sourceUpdatedAt: run scripts/build-offers.js'];
+  if (age > maxDays) {
+    return [`The prices are from ${date.slice(0, 10)}, ${age} days ago (limit ${maxDays}). Check the last "Update ERSE Data" runs in the Actions tab: a disabled workflow, a failing run, or ERSE publishing nothing newer (then close this issue).`];
+  }
+  return [];
+}
+
 if (require.main === module) {
-  const mode = process.argv.includes('--tar-year') ? 'tar' : process.argv.includes('--supplier-names') ? 'names' : 'bounds';
-  const breaches = { tar: checkTarYear, names: checkSupplierNames, bounds: checkBounds }[mode]();
-  const label = { tar: 'TAR year', names: 'Supplier names', bounds: 'Data bounds' }[mode];
+  const flag = ['--tar-year', '--supplier-names', '--freshness'].find(f => process.argv.includes(f));
+  const mode = { '--tar-year': 'tar', '--supplier-names': 'names', '--freshness': 'fresh' }[flag] ?? 'bounds';
+  const days = Number(process.argv[process.argv.indexOf('--freshness') + 1]) || undefined;
+  const breaches = { tar: checkTarYear, names: checkSupplierNames, fresh: () => checkFreshness(days), bounds: checkBounds }[mode]();
+  const label = { tar: 'TAR year', names: 'Supplier names', fresh: 'Freshness', bounds: 'Data bounds' }[mode];
   if (breaches.length > 0) {
     console.error(`❌ ${label} breached:`);
     breaches.forEach(breach => console.error(`   - ${breach}`));
     process.exit(1);
   }
-  console.log({ tar: '✅ data/tar.json is for this year', names: '✅ Every supplier code has a name', bounds: '✅ Data within bounds' }[mode]);
+  console.log({ tar: '✅ data/tar.json is for this year', names: '✅ Every supplier code has a name', fresh: '✅ The prices are recent', bounds: '✅ Data within bounds' }[mode]);
 }
 
-module.exports = { checkBounds, checkTarYear, checkSupplierNames, BOUNDS };
+module.exports = { checkBounds, checkTarYear, checkSupplierNames, checkFreshness, BOUNDS };

@@ -927,6 +927,65 @@ form-action 'self'
 
 ---
 
+## ADR-025: Playwright só no CI, nunca no repositório
+
+**Data:** Outubro 2026 (auditoria LOOP, tarefa 5.2, decisão do dono)
+
+**Status:** ✅ Implementado (`tests/smoke.mjs`, jobs `smoke` em `ci.yml` e passo em `update-erse.yml`)
+
+**Contexto:**
+O gate testa os cálculos e os dados, mas não os fluxos: um CSS partido ou dados que deixam a página
+sem resultado passavam. O ADR-005 recusou o Playwright como dependência (50 MB).
+
+**Decisão:**
+- O smoke test corre num browser headless (Chromium) nos fluxos Estimado, manual (três tipos de
+  tarifa), fornecedor com poupança e fatura fora do intervalo, a 375 e 1280 px. Os fornecedores vêm
+  do próprio dropdown, por isso um fornecedor que sai do mercado não o parte. Falha com resultado em
+  falta, overflow horizontal, o pill no primeiro ecrã, erros na consola ou pedidos a outra origem.
+- O CI instala o Playwright na pasta temporária do runner em cada execução: sem `package.json`, sem
+  lockfile, sem `node_modules` no repositório. O script recebe o caminho em `PLAYWRIGHT`.
+- Corre depois do gate em cada push e pull request, e na atualização semanal antes do push (os pushes
+  feitos com `GITHUB_TOKEN` não lançam o CI). Uma falha na main abre a issue "Smoke test failed on
+  main"; na atualização semanal, a issue de falha que já existe.
+- Fica fora do pre-commit: precisa de um browser e de um servidor.
+
+**Consequências:**
+- ✅ Um fluxo partido fica vermelho antes de chegar à página publicada
+- ✅ O repositório continua sem dependências nem build
+- ⚠️ Cada execução descarrega o Chromium (cerca de 1 minuto); a versão está fixada nos dois workflows
+- ⚠️ Localmente corre com uma cópia do Playwright fora do repositório (comando no cabeçalho do script)
+
+---
+
+## ADR-026: O Claude corrige issues num ramo, só quando o dono o chama
+
+**Data:** Outubro 2026 (auditoria LOOP, tarefa 5.4, decisão do dono)
+
+**Status:** ✅ Implementado (`.github/workflows/claude.yml`)
+
+**Contexto:**
+Os checks abrem issues (atualização falhada, preços antigos, smoke test, fornecedores sem nome). O
+passo seguinte é uma correção num ramo que o dono revê, sem ele ter de abrir uma sessão.
+
+**Decisão:**
+- Um comentário com "@claude" numa issue, de quem tem escrita no repositório, lança o
+  `anthropics/claude-code-action` (fixado por commit). Comentários de bots nunca o lançam.
+- Usa o `GITHUB_TOKEN` do job, sem a GitHub App: as permissões do job são o teto (`contents: write`,
+  `issues: write`) e o token não consegue alterar workflows.
+- O Claude cria um ramo `fix/`, corre só os scripts do gate e responde com o link para abrir o pull
+  request. Não abre, não aprova e não faz merge de pull requests.
+- Só os comentários do dono e dos workflows chegam ao Claude: o repositório é público.
+- Autenticação: o segredo `CLAUDE_CODE_OAUTH_TOKEN` (`claude setup-token`, o plano do dono).
+
+**Consequências:**
+- ✅ Uma issue de falha passa a ter um caminho até uma correção revista
+- ⚠️ "Nunca faz push para a main" é o desenho da ação, não uma barreira: o token tem
+  `contents: write` e a regra da main não pode exigir pull requests, porque o bot dos dados faz push
+  direto
+- ⚠️ O pull request que o dono abre corre o CI; os pushes do token do job não o lançam
+
+---
+
 ## Template para Novos ADRs
 
 ```markdown

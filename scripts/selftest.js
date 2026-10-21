@@ -787,6 +787,15 @@ async function runSelftest() {
     console.log(`   Prices from ${value.slice(0, 10)}`);
   });
 
+  // The freshness issue in CI rests on this; the gate never checks today's age
+  test('freshness: prices older than the limit give one line, at the limit none', () => {
+    const { checkFreshness } = require('./validate-data.js');
+    const date = new Date(JSON.parse(fs.readFileSync(META_PATH, 'utf8')).build.sourceUpdatedAt);
+    const later = days => new Date(date.getTime() + days * 86400000 + 3600000);
+    if (checkFreshness(21, later(21)).length !== 0) throw new Error('21 days old with a 21-day limit should pass');
+    if (checkFreshness(21, later(22)).length !== 1) throw new Error('22 days old with a 21-day limit should fail');
+  });
+
   // Test 10d: ERSE free text and links reach the page only after build-offers.js cleans them
   test('ERSE text and links are safe to show', () => {
     const { safeText, safeUrl } = require('./build-offers.js');
