@@ -17,7 +17,7 @@
     align-items: center;
     gap: var(--space-1);
     padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm);
     background: transparent;
     box-shadow: var(--shadow-xs);
@@ -26,8 +26,8 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
-    transition: transform var(--duration-normal) var(--ease-bounce);
+    color: var(--color-text);
+    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
     -webkit-tap-highlight-color: transparent;
     text-decoration: none;
     user-select: none;
@@ -57,7 +57,7 @@
      ═══════════════════════════════════════════════════════════ */
   
   .btn-slot {
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-sm);
   }
   
@@ -76,7 +76,7 @@
     align-items: center;
     gap: var(--space-1);
     padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm);
     background: transparent;
     box-shadow: var(--shadow-xs);
@@ -85,10 +85,10 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     transition: 
-      transform var(--duration-normal) var(--ease-bounce),
-      background var(--duration-fast) var(--ease-out);
+      transform var(--duration-fast) var(--ease-emphasized-decelerate),
+      background var(--duration-micro) var(--ease-emphasized-decelerate);
     -webkit-tap-highlight-color: transparent;
     text-decoration: none;
     user-select: none;
@@ -96,7 +96,7 @@
   }
   
   .btn:hover {
-    background: rgba(255, 255, 255, 0.4); /* Slightly lighter background on hover - white at 40% opacity */
+    background: var(--color-control-hover);
   }
   
   .btn:active {
@@ -134,16 +134,16 @@
   .segmented-btn {
     display: flex;
     align-items: center;
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-xs);
     position: relative;
-    background: rgba(255, 255, 255, 0.1);
-    transition: background var(--duration-fast) var(--ease-out);
+    background: var(--color-control-subtle);
+    transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
   .segmented-btn:hover {
-    background: rgba(255, 255, 255, 0.1); /* Slightly lighter background on hover - white at 40% opacity */
+    background: var(--color-control-subtle);
   }
   
   /* Child buttons inside segmented-btn inherit parent's border-radius calculation */
@@ -172,7 +172,7 @@
   .segmented-divider {
     width: 0.5px;
     height: var(--text-default-leading);
-    background: var(--color-border-default);
+    background: var(--color-border);
   }
   
   /* Icon button (suffix) - square, matches secondary button visual style */
@@ -181,10 +181,10 @@
     align-items: center;
     justify-content: center;
     /* Calculate padding to make square button matching button height */
-    /* Button height = var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) = ~32px */
+    /* Button height = var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm) = ~32px */
     /* For square: padding = (height - icon size) / 2 */
-    padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-base-size)) / 2);
-    border: 0.5px solid white; /* Same border as secondary button */
+    padding: calc((var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm) - var(--text-base-size)) / 2);
+    border: 0.5px solid var(--color-highlight); /* Same border as secondary button */
     border-radius: var(--radius-sm);
     background: transparent; /* Same background as secondary button */
     box-shadow: var(--shadow-xs); /* Same shadow as secondary button */
@@ -209,9 +209,9 @@
     align-items: center;
     gap: var(--space-1);
     transition: 
-      opacity var(--duration-normal) var(--ease-bounce),
-      filter var(--duration-normal) var(--ease-bounce),
-      transform var(--duration-normal) var(--ease-bounce);
+      opacity var(--duration-fast) var(--ease-emphasized-decelerate),
+      filter var(--duration-fast) var(--ease-emphasized-decelerate),
+      transform var(--duration-fast) var(--ease-emphasized-decelerate);
   }
   
   .copy-btn-default,
@@ -234,7 +234,7 @@
     transform: translate(-50%, -50%);
     opacity: 0;
     filter: blur(4px); /* Fixed blur value - not responsive */
-    color: var(--color-accent-green);
+    color: var(--color-accent);
   }
   
   
@@ -260,7 +260,7 @@
   }
   
   .dropdown-trigger {
-    transition: transform var(--duration-normal) var(--ease-bounce);
+    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
   }
   
   .dropdown-trigger:active {
@@ -269,7 +269,7 @@
   
   /* Chevron rotation */
   .dropdown-trigger .btn-icon {
-    transition: transform var(--duration-slower) var(--ease-spring);
+    transition: transform var(--duration-medium) var(--ease-emphasized-decelerate);
   }
   
   .dropdown-wrapper.open .dropdown-trigger .btn-icon {
@@ -281,18 +281,21 @@
     top: calc(100% + var(--space-1)); /* 4px gap between dropdown and segmented button */
     right: 0;
     width: fit-content; /* Fit content width */
-    background: rgba(255, 255, 255, 0.2); /* Match secondary button background */
-    border: 0.5px solid var(--color-border-default); /* Outer grey border */
+    background: var(--color-control);
+    border: 0.5px solid var(--color-border); /* Outer grey border */
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-xs); /* Match secondary button shadow */
     padding: var(--space-1);
     opacity: 0;
     pointer-events: none;
+    visibility: hidden; /* closed items leave the tab order; it flips after the fade out */
     transform: scale(0.95);
     transform-origin: top right;
+    /* Closing: the exit pair. Opening (.open below): fast on the decelerate curve, visible at once */
     transition: 
-      opacity var(--duration-slow) var(--ease-out),
-      transform var(--duration-slow) var(--ease-out);
+      opacity var(--duration-exit-fast) var(--ease-emphasized-accelerate),
+      transform var(--duration-exit-fast) var(--ease-emphasized-accelerate),
+      visibility var(--duration-exit-fast);
     z-index: var(--z-dropdown);
   }
   
@@ -301,7 +304,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm);
     pointer-events: none;
   }
@@ -309,6 +312,9 @@
   .dropdown-wrapper.open .dropdown-menu {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
+    transition-duration: var(--duration-fast), var(--duration-fast), 0s;
+    transition-timing-function: var(--ease-emphasized-decelerate);
     transform: scale(1);
   }
   
@@ -325,11 +331,11 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-sm-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     cursor: pointer;
     text-align: left;
     white-space: nowrap; /* Prevent text from breaking into multiple lines */
-    transition: background var(--duration-fast) var(--ease-out);
+    transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
     user-select: none;
     -webkit-user-select: none;
   }
@@ -340,27 +346,15 @@
   }
   
   .dropdown-item:hover {
-    background: oklch(from var(--color-foreground-primary) l c h / 0.04); /* Lighter hover background using foreground at 4% opacity */
+    background: var(--color-hover-tint);
   }
   
-  /* Fallback for browsers that don't support oklch() */
-  @supports not (color: oklch(0% 0 0)) {
-    .dropdown-item:hover {
-      background: rgba(53, 68, 61, 0.04); /* #35443D at 4% opacity */
-    }
-  }
   
   .dropdown-item:active {
-    background: oklch(from var(--color-foreground-primary) l c h / 0.08); /* Slightly darker on active */
-    transition: background var(--duration-instant);
+    background: var(--color-press-tint);
+    transition: none;
   }
   
-  /* Fallback for browsers that don't support oklch() */
-  @supports not (color: oklch(0% 0 0)) {
-    .dropdown-item:active {
-      background: rgba(53, 68, 61, 0.08); /* #35443D at 8% opacity */
-    }
-  }
   
   .dropdown-item .item-icon {
     width: var(--space-4);
@@ -373,7 +367,7 @@
     
   /* ChatGPT and Claude marks: black, never the UI tint (brand marks keep their own colour) */
   .dropdown-item .item-icon .icon-brand {
-    color: oklch(0% 0 0);
+    color: var(--color-text-field);
   }
   
   
@@ -387,7 +381,7 @@
     justify-content: center;
     gap: var(--space-1);
     padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
-    background-color: var(--color-foreground-primary);
+    background-color: var(--color-text);
     border: none;
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-button);
@@ -396,10 +390,10 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--text-default-leading);
-    color: var(--color-text-white);
+    color: var(--color-text-on-accent);
     position: relative;
     overflow: hidden;
-    transition: transform var(--duration-normal) var(--ease-bounce);
+    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
@@ -413,7 +407,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    box-shadow: var(--shadow-button-inset, 0px 1px 0px 0px inset rgba(255, 255, 255, 0.25));
+    box-shadow: var(--shadow-button-inset);
     pointer-events: none;
   }
 }

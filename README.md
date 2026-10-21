@@ -53,7 +53,6 @@ npx serve .
 ```
 guesswatt/
 ├── index.html              # Main HTML file
-├── components.js           # Component definitions
 ├── css/                    # Stylesheets (modular CSS architecture)
 │   ├── tokens.css          # Design tokens (colors, spacing, typography)
 │   ├── reset.css           # CSS reset
@@ -66,10 +65,12 @@ guesswatt/
 │   ├── calculator.js       # Cost calculation logic
 │   ├── config.js           # Configuration constants
 │   ├── data-date.js        # Footer price date and stale notice
-│   ├── pdf-service.js      # PDF parsing (client-side)
+│   ├── page-actions.js     # Copy button and menu (both pages)
+│   ├── pdf-service.js      # PDF reading (client-side)
 │   ├── ui-components.js    # UI component initialization
 │   ├── ui-handlers.js      # Event handlers
 │   ├── ui-renderer.js      # Result rendering
+│   ├── url-state.js        # Result inputs in the URL (ADR-018)
 │   └── utils.js            # Utility functions
 ├── data/                   # Data files
 │   ├── Precos_ELEGN.csv    # Price data from ERSE

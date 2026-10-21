@@ -16,7 +16,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: var(--color-background-primary);
+    background-color: var(--color-bg);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -44,25 +44,33 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-md-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     letter-spacing: calc(var(--text-md-size) * -0.03); /* -0.48px relative to font size */
     line-height: var(--leading-tight);
     text-decoration: none;
     cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-out);
+    transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
   /* Hover state: foreground color at 4% opacity */
-  .logo:hover {
-    background: oklch(from var(--color-foreground-primary) l c h / 0.04);
+  /* The Ω is the app icon's glyph (Inter v20 greek, wght 500), drawn as SVG: the Inter subsets the
+     page serves have no Ω, so as text it fell back to a system font. Sized to Inter's cap height. */
+  .logo-mark {
+    width: calc(0.7275em * 1360 / 1510);
+    height: 0.7275em;
+    fill: currentColor;
+    flex-shrink: 0;
+    align-self: baseline; /* its bottom sits on the text baseline, as the glyph did */
   }
   
-  /* Fallback for browsers that don't support oklch() */
-  @supports not (color: oklch(0% 0 0)) {
-    .logo:hover {
-      background: rgba(53, 68, 61, 0.04); /* #35443D at 4% opacity */
-    }
+  .logo > span {
+    align-self: baseline;
   }
+  
+  .logo:hover {
+    background: var(--color-hover-tint);
+  }
+  
   
   .top-bar-actions {
     display: flex;
@@ -80,14 +88,14 @@
     transform: translateX(-50%);
     top: var(--space-5);
     width: fit-content; /* Fit content instead of fixed width */
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-sm); /* Match btn-slot border-radius */
     display: none;
   }
   
   .results-view .input-pill {
     display: block;
-    animation: pillAppear var(--duration-slower) var(--ease-out) forwards;
+    animation: pillAppear var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
   }
   
   @keyframes pillAppear {
@@ -104,30 +112,30 @@
   .input-pill-inner {
     display: flex;
     align-items: center;
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm); /* Match segmented-btn border-radius */
     box-shadow: var(--shadow-xs);
     position: relative;
     background: transparent;
-    transition: background var(--duration-fast) var(--ease-out);
+    transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
   .input-pill:hover .input-pill-inner {
-    background: rgba(255, 255, 255, 0.2); /* Slightly lighter background on hover - white at 40% opacity */
+    background: var(--color-control);
   }
   
   /* Estimate mode: symmetric padding, 32px height */
   .input-pill-inner:has(.input-pill-estimado) {
     padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right - equal padding */
     gap: var(--radius-sm); /* 6px gap between content and delete button - matches Figma gap-[6px] */
-    min-height: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px - matches button height */
+    min-height: calc(var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm)); /* 32px - matches button height */
   }
   
   /* Preciso mode: reduced padding, 32px height */
   .input-pill-inner:has(.input-pill-preciso) {
     padding: var(--space-1) var(--radius-sm); /* 4px top/bottom, 6px left/right */
     gap: var(--space-2); /* 8px gap between icon and content */
-    min-height: calc(var(--radius-sm) + var(--text-default-leading) + var(--radius-sm)); /* 32px - matches button height */
+    min-height: calc(var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm)); /* 32px - matches button height */
   }
   
   /* Preciso mode without PDF icon (manual): no gap, content starts immediately */
@@ -171,7 +179,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .input-pill-value {
@@ -181,20 +189,21 @@
   }
   
   .input-pill-value .amount {
+    font-variant-numeric: tabular-nums;
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .input-pill-value .period {
-    font-family: var(--font-mono);
+    font-family: var(--font-sans); /* the unit in Inter, as the text around it (Roboto Mono was never loaded) */
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
     line-height: var(--leading-normal);
-    letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
-    color: var(--color-foreground-secondary);
+    letter-spacing: var(--text-default-tracking);
+    color: var(--color-text-secondary);
   }
   
   /* Delete button (suffix) - smaller padding for estimate card */
@@ -210,7 +219,7 @@
     /* Remove gap since icon-only button doesn't need spacing */
     gap: 0;
     cursor: pointer;
-    transition: transform var(--duration-normal) var(--ease-bounce);
+    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
@@ -292,14 +301,13 @@
       order: 3; /* Place after logo and actions */
       width: 100%;
       margin-top: var(--space-3); /* Add spacing below navbar */
-      display: flex;
-      justify-content: center;
+      justify-content: center; /* display stays none until .results-view, below */
       padding: 0; /* No padding */
     }
     
     .results-view .input-pill {
       display: flex; /* Override display: block */
-      animation: pillAppearMobile var(--duration-slower) var(--ease-out) forwards;
+      animation: pillAppearMobile var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     }
     
     @keyframes pillAppearMobile {
@@ -340,9 +348,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm);
-    background: white;
+    background: var(--color-surface);
     box-shadow: var(--shadow-icon);
     position: relative;
     overflow: hidden;
@@ -352,7 +360,7 @@
   /* PDF icon - hidden by default, shown only when data comes from PDF */
   .input-pill-icon-pdf {
     display: none;
-    background: rgba(255, 255, 255, 0.5); /* 50% opacity white background */
+    background: var(--color-highlight-soft);
   }
   
   /* Show PDF icon when input-pill has pdf-source class (set when PDF is loaded) */
@@ -388,7 +396,7 @@
   }
   
   .pill-provider {
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     opacity: 0.9;
   }
   
@@ -400,12 +408,12 @@
   }
   
   .pill-item .icon {
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     opacity: 0.6; /* Match label opacity */
   }
   
   .pill-value {
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     opacity: 0.9;
   }
   

@@ -663,43 +663,41 @@ Client-side com Mozilla pdf.js via CDN.
 
 ## ADR-018: URL State para Bookmarks
 
-**Data:** Novembro 2025 (v2)
+**Data:** Novembro 2025 (v2); revisto em outubro de 2026 (auditoria, decisão 9)
 
-**Status:** ✅ Aceite
+**Status:** ✅ Implementado (`js/url-state.js`)
 
 **Contexto:**
 Queremos que utilizadores possam guardar/partilhar resultados.
 
 **Decisão:**
-Encodar estado no URL como base64.
+Parâmetros simples no URL (não base64), com as entradas e nunca o resultado: abrir o link corre a
+comparação outra vez com os preços atuais.
 
 **Formato:**
 ```
-guesswatts.com/?s=eyJwIjo0LjYsImMiOjM1MCwiYiI6NzF9
+guesswatts.com/?f=80&d=2026-10                         Estimado: fatura em €
+guesswatts.com/?c=250&p=4.6&t=2&s=IBD&h=1&d=2026-10    Preciso: kWh/mês, kVA, tipo de tarifa,
+                                                       fornecedor (opcional)
+h=1  casa com 5 ou mais pessoas      d  mês dos preços com que o link foi feito
 ```
 
-**Decoded:**
-```json
-{
-  "p": 4.6,      // potência
-  "c": 350,      // consumo
-  "t": 1,        // tarifa
-  "b": 71,       // melhor preço
-  "d": "2025-11"  // data
-}
-```
-
-**Razões:**
-- URL bookmarkable
-- Partilhável
-- Permite "voltar e comparar"
-- Data permite detectar staleness
+**Regras:**
+- Cada valor é convertido e verificado à entrada (intervalos dos formulários; fornecedor em
+  `PROVIDERS`, "outro" ou um código com a forma dos da ERSE, porque a lista pode ter um código novo
+  ainda sem nome; mês `AAAA-MM`); qualquer valor fora de forma dá a página inicial, sem estado.
+- O link é aberto depois de a lista de fornecedores seguir os dados da semana, para o código existir.
+- O URL é escrito com `replaceState` quando o resultado aparece e limpo quando é apagado.
+- O menu de cópia e os links para ChatGPT e Claude levam o endereço da página sem a query: os
+  números da pessoa não saem para outro serviço (SEC-6).
+- Se `d` não for o mês dos preços atuais, o subtítulo diz que o resultado usa os mais recentes.
+- Um resultado de PDF partilha-se como Preciso, sem a divisão vazio/fora de vazio da fatura: quem
+  abre o link vê a divisão por omissão.
 
 **Consequências:**
-- ✅ Bookmarks funcionam
-- ✅ Partilha fácil
-- ⚠️ URL fica mais longo
-- ⚠️ Estado pode ficar desactualizado
+- ✅ Bookmarks e partilha funcionam
+- ✅ Um link antigo dá sempre preços atuais, e diz-o
+- ⚠️ Um resultado de PDF bi-horário partilhado pode diferir do original (divisão por omissão)
 
 ---
 
@@ -763,7 +761,18 @@ aparecer uma Ndom.
 
 **Data:** Dezembro 2024
 
-**Status:** ✅ Aceite
+**Status:** ⛔ Substituída (outubro de 2026, auditoria 4.17)
+
+**Substituída por:** uma marca neutra, a mesma para todos os fornecedores (o raio do sprite). Razões:
+- `logo.clearbit.com` deixou de resolver, e o Google (favicons) via cada visita e o fornecedor
+  recomendado (SEC-8, BASE-6); a CSP `'self'` (4.17a) não deixa imagens de fora.
+- Nenhum fornecedor publica licença para a marca; os termos da EDP e da Repsol pedem autorização
+  escrita prévia para a reproduzir (edp.pt/termos-e-condicoes, repsol.pt/nota-legal, lidos em
+  2026-10-21).
+- Só 3 fornecedores ganham em algum perfil (EDPC, TUR, REPSOL) e isso muda a cada atualização: logos
+  locais seriam curadoria semanal para um ícone de 14 px. O nome do fornecedor já está no cartão.
+
+**Decisão original (histórico):**
 
 **Contexto:**
 Precisávamos de mostrar logos dos fornecedores de energia no cartão de resultado. Os CSVs da ERSE contêm URLs dos websites (`LinkCOM`, `LinkOfertaCom`) mas não URLs directas para logos.
@@ -884,6 +893,37 @@ Opção 3. `manifest.webmanifest` e `icons/` tornam o site instalável (TECH_STA
 - ✅ A cache guarda só ficheiros do site: nada do que a pessoa escreve ou carrega (regra 2)
 - ⚠️ Um ficheiro novo em css/ ou js/ tem de entrar no PRECACHE de `sw.js` (o selftest falha se não entrar)
 - ⚠️ Uma alteração de CSS ou JS só chega na segunda visita depois do deploy
+
+---
+
+## ADR-024: Content Security Policy só com a própria origem
+
+**Data:** Outubro 2026 (auditoria SEC-4, tarefa 4.17a)
+
+**Status:** ✅ Implementado (`<meta http-equiv="Content-Security-Policy">` em `index.html` e `sobre.html`)
+
+**Contexto:**
+A promessa de privacidade ("os teus dados nunca saem do dispositivo") só vale se nada de fora
+correr na página. Depois de alojar o PDF.js, a Inter e os ícones (decisão 6) e de tirar os logos
+(ADR-021), a página já não pede nada a outra origem.
+
+**Decisão:**
+```
+default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self';
+connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self';
+form-action 'self'
+```
+- Sem `<script>` nem `<style>` inline: o módulo de `sobre.html` é `js/sobre.js`, e os estilos que
+  estavam inline passaram para os ficheiros CSS. O JSON-LD não é executado, por isso não conta.
+- O "Ver em markdown" abre o ficheiro como texto num blob, sem escrever HTML na nova janela (que
+  herdaria a política).
+
+**Consequências:**
+- ✅ Um script, estilo, imagem ou pedido de outra origem é recusado pelo browser
+- ✅ 0 violações nos fluxos Estimado, manual e PDF, em Chromium e WebKit
+- ⚠️ Uma meta CSP não pode definir `frame-ancestors` nem relatórios; o GitHub Pages não envia
+  cabeçalhos próprios
+- ⚠️ Um ficheiro novo de outra origem tem de entrar aqui de propósito
 
 ---
 

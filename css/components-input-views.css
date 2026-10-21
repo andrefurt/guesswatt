@@ -29,7 +29,7 @@
     font-size: var(--text-xl-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-xl-tracking);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .subtitle {
@@ -38,7 +38,7 @@
     font-size: var(--text-xl-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-xl-tracking);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -53,7 +53,7 @@
     padding: var(--space-3) var(--space-3) 0;
     font-family: var(--font-sans);
     font-size: var(--text-base-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
 
   .household-option input {
@@ -64,22 +64,22 @@
   }
 
   .input-slot {
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-xl);
-    transition: border var(--duration-fast) var(--ease-out);
+    transition: border var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
   .input-content {
-    border: 1px solid white;
+    border: 1px solid var(--color-highlight);
     /* Child radius = parent radius (16px) - parent border (0.5px) ≈ 15.5px */
     border-radius: calc(var(--radius-xl) - 0.5px);
     box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
     transition: 
-      background var(--duration-slow) var(--ease-bounce),
-      border-color var(--duration-slow) var(--ease-bounce),
-      box-shadow var(--duration-slow) var(--ease-bounce);
+      background var(--duration-medium) var(--ease-emphasized-decelerate),
+      border-color var(--duration-medium) var(--ease-emphasized-decelerate),
+      box-shadow var(--duration-medium) var(--ease-emphasized-decelerate);
   }
   
   .input-content::after {
@@ -90,18 +90,18 @@
     box-shadow: var(--shadow-inset-light);
     /* Inherits parent's border-radius */
     border-radius: calc(var(--radius-xl) - 0.5px);
-    transition: opacity var(--duration-slow) var(--ease-bounce);
+    transition: opacity var(--duration-medium) var(--ease-emphasized-decelerate);
   }
   
   /* Preciso mode - dashed border */
   .input-slot.preciso-mode {
     border: 1px dashed var(--color-border-dashed);
-    transition: border var(--duration-fast) var(--ease-out);
+    transition: border var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
   .input-slot.preciso-mode .input-content {
     background: var(--color-bg-drop-area);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-highlight-soft);
     box-shadow: none;
   }
   
@@ -111,7 +111,7 @@
   
   /* Dragging state */
   .input-slot.preciso-mode.dragging {
-    border-color: rgba(0, 0, 0, 0.32); /* 32% opacity - specific interaction state */
+    border-color: var(--color-border-drag);
   }
   
   .input-slot.preciso-mode.dragging .input-content {
@@ -126,12 +126,36 @@
     position: relative;
   }
   
+  /* A hidden view is also visibility: hidden, so its controls leave the tab order and the
+     accessibility tree. visibility flips at the end of the fade out and at the start of the fade in,
+     so the animation still shows. */
   .input-group,
   .drop-area {
     transition: 
-      opacity var(--duration-slow) var(--ease-bounce),
-      transform var(--duration-slow) var(--ease-bounce),
-      filter var(--duration-slow) var(--ease-bounce);
+      opacity var(--duration-medium) var(--ease-emphasized-decelerate),
+      transform var(--duration-medium) var(--ease-emphasized-decelerate),
+      filter var(--duration-medium) var(--ease-emphasized-decelerate),
+      visibility var(--duration-medium);
+  }
+  
+  /* The view being shown is visible at once (0s), so a script can focus a field in it in the same
+     frame; only the view being hidden waits for its fade out. Durations follow the transition list
+     above and in .manual-form: opacity, transform, filter, visibility. */
+  .input-slot:not(.preciso-mode) .input-group,
+  .preciso-mode:not(.manual-mode) .drop-area,
+  .preciso-mode.manual-mode .manual-form {
+    transition-duration: var(--duration-medium), var(--duration-medium), var(--duration-medium), 0s;
+    transition-timing-function: var(--ease-emphasized-decelerate);
+  }
+  
+  /* The view being hidden leaves on the exit pair (about 80% of the enter, accelerate curve) */
+  .preciso-mode .input-group,
+  .input-slot:not(.preciso-mode) .drop-area,
+  .preciso-mode.manual-mode .drop-area,
+  .input-slot:not(.preciso-mode) .manual-form,
+  .input-slot:not(.manual-mode) .manual-form {
+    transition-duration: var(--duration-exit-medium);
+    transition-timing-function: var(--ease-emphasized-accelerate);
   }
   
   /* Estimado view - default visible, RELATIVE position */
@@ -160,6 +184,7 @@
     transform: translateY(var(--space-2));
     filter: blur(2px); /* Fixed blur value - not responsive */
     pointer-events: none;
+    visibility: hidden;
     position: absolute;
     top: 0;
     left: 0;
@@ -174,6 +199,7 @@
     transform: translateY(calc(var(--space-2) * -1));
     filter: blur(2px); /* Fixed blur value - not responsive */
     pointer-events: none;
+    visibility: hidden;
     position: absolute; /* NOW becomes absolute */
     top: 0;
     left: 0;
@@ -185,6 +211,7 @@
     transform: translateY(0);
     filter: blur(0);
     pointer-events: auto;
+    visibility: visible;
     position: relative; /* NOW becomes relative to take space */
   }
   
@@ -226,7 +253,7 @@
     font-size: var(--text-xl-size); /* 24px - large input size */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-xl-size) * -0.03); /* -0.72px relative to font size */
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   .value-input {
@@ -235,7 +262,7 @@
     font-size: var(--text-xl-size); /* 24px - large input size */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-xl-size) * -0.03); /* -0.72px relative to font size */
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     border: none;
     outline: none;
     background: transparent;
@@ -253,13 +280,20 @@
     margin: 0;
   }
   
-  /* No visible focus state - clean UI */
+  /* The ring goes on the whole row (.input-field below), so the € and /Mês sit inside it */
   .value-input:focus {
     outline: none;
   }
   
+  .input-field:has(.value-input:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    /* Drawn inside the row: the input slot clips anything outside it */
+    outline-offset: calc((var(--focus-ring-width) + var(--focus-ring-offset)) * -1);
+    border-radius: var(--radius-md);
+  }
+  
   .value-input::placeholder {
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
     font-size: var(--text-xl-size); /* Same as value-input */
     font-weight: var(--font-normal);
     letter-spacing: calc(var(--text-xl-size) * -0.03);
@@ -267,18 +301,18 @@
   }
   
   .period {
-    font-family: 'Roboto Mono', var(--font-mono); /* Roboto Mono first */
+    font-family: var(--font-sans); /* the unit in Inter, as the text around it (Roboto Mono was never loaded) */
     font-weight: var(--font-normal);
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--leading-normal);
-    letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
-    color: var(--color-foreground-secondary);
+    letter-spacing: var(--text-default-tracking);
+    color: var(--color-text-secondary);
   }
   
   .input-divider {
     width: 0.5px;
     height: var(--space-6);
-    background: var(--color-border-default);
+    background: var(--color-border);
   }
   
   .submit-slot {
@@ -295,7 +329,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm);
     background: var(--color-bg-drop-area);
     box-shadow: var(--shadow-icon);
@@ -304,8 +338,8 @@
     opacity: 0;
     transform: translateY(var(--space-1));
     transition: 
-      opacity var(--duration-slow) var(--ease-bounce),
-      transform var(--duration-slow) var(--ease-bounce);
+      opacity var(--duration-medium) var(--ease-emphasized-decelerate),
+      transform var(--duration-medium) var(--ease-emphasized-decelerate);
   }
   
   .preciso-mode .drop-area-icon {
@@ -333,8 +367,8 @@
     opacity: 0;
     transform: translateY(var(--space-1));
     transition: 
-      opacity var(--duration-slow) var(--ease-bounce) calc(var(--stagger-delay) * 2.5),
-      transform var(--duration-slow) var(--ease-bounce) calc(var(--stagger-delay) * 2.5);
+      opacity var(--duration-medium) var(--ease-emphasized-decelerate) calc(var(--stagger-delay) * 2.5),
+      transform var(--duration-medium) var(--ease-emphasized-decelerate) calc(var(--stagger-delay) * 2.5);
   }
   
   .preciso-mode .drop-area-text {
@@ -348,22 +382,43 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-default-tracking);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
-  .drop-area-text a {
+  /* The two states (index.html) lay out as if their children were direct ones */
+  .drop-area-empty,
+  .drop-area-loaded {
+    display: contents;
+  }
+  
+  .drop-area-pick,
+  .drop-area-link {
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-default-tracking);
-    color: var(--color-foreground-secondary);
     text-decoration: underline;
+    text-underline-offset: var(--space-1);
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
   }
   
-  .drop-area-text a:hover {
-    opacity: 0.6;
+  .drop-area-pick {
+    font-weight: var(--font-medium);
+    color: var(--color-text);
+  }
+  
+  .drop-area-link {
+    margin-top: var(--space-2);
+    color: var(--color-text-secondary);
+  }
+  
+  .drop-area-pick:hover,
+  .drop-area-link:hover {
+    text-decoration-thickness: 2px;
   }
   
   .file-input {
@@ -381,6 +436,7 @@
     padding-top: var(--space-3);
     opacity: 0;
     pointer-events: none;
+    visibility: hidden; /* see .input-group, .drop-area above */
     position: absolute;
     top: 0;
     left: 0;
@@ -388,15 +444,17 @@
     transform: translateY(var(--space-2));
     filter: blur(2px); /* Fixed blur value - not responsive */
     transition: 
-      opacity var(--duration-slow) var(--ease-bounce),
-      transform var(--duration-slow) var(--ease-bounce),
-      filter var(--duration-slow) var(--ease-bounce);
+      opacity var(--duration-medium) var(--ease-emphasized-decelerate),
+      transform var(--duration-medium) var(--ease-emphasized-decelerate),
+      filter var(--duration-medium) var(--ease-emphasized-decelerate),
+      visibility var(--duration-medium);
   }
   
   /* Show manual form when manual-mode is active */
   .preciso-mode.manual-mode .manual-form {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
     position: relative;
     transform: translateY(0);
     filter: blur(0);
@@ -405,6 +463,7 @@
   .preciso-mode.manual-mode .drop-area {
     opacity: 0;
     pointer-events: none;
+    visibility: hidden;
     position: absolute;
     transform: translateY(calc(var(--space-2) * -1));
     filter: blur(2px); /* Fixed blur value - not responsive */
@@ -414,11 +473,37 @@
     padding: 0 var(--space-3);
     font-family: var(--font-sans);
     font-size: var(--text-base-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
 
-  .estimate-note {
-    padding-top: var(--space-3);
+  /* Status line under the input card (main.js setStatus); empty and spaceless when idle */
+  .form-status:has(.form-status-text:not(:empty)) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-3) var(--space-3) 0;
+  }
+  
+  .form-status-text {
+    font-family: var(--font-sans);
+    font-size: var(--text-base-size);
+    color: var(--color-text);
+  }
+  
+  .form-status[data-kind="error"] .form-status-text {
+    color: var(--color-error);
+  }
+  
+  .form-status-action {
+    font: inherit;
+    font-size: var(--text-base-size);
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: var(--space-1);
+    background: none;
+    border: none;
+    padding: 0;
   }
 
   .form-row {
@@ -446,12 +531,11 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
-    color: var(--color-text-black);
-    opacity: 0.44;
+    color: var(--color-text-secondary);
   }
   
   .form-input-slot {
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-sm);
   }
   
@@ -459,15 +543,16 @@
     display: flex;
     align-items: center;
     height: 2.5rem; /* 40px - fixed height for form inputs */
-    border: 1px solid white;
+    /* Translucent box, opaque text: the 75% applies to the fill and the edge only, so typed
+       values keep full contrast */
+    border: 1px solid var(--color-highlight-strong);
     /* Child radius = parent radius (6px) - parent border (0.5px) ≈ 5.5px */
     border-radius: calc(var(--radius-sm) - 0.5px);
     box-shadow: none; /* Shadow removed */
     position: relative;
-    background: var(--color-bg-form-input);
-    opacity: 0.75; /* Further decreased background opacity */
+    background: color-mix(in oklch, var(--color-bg-form-input) 75%, transparent);
     transition: 
-      border-color var(--duration-normal) var(--ease-out);
+      border-color var(--duration-fast) var(--ease-emphasized-decelerate);
   }
   
   .form-input-content::after {
@@ -480,14 +565,10 @@
     pointer-events: none;
   }
   
-  .form-input-content:focus-within {
-    border-color: var(--color-border-accent);
-    box-shadow: none; /* Shadow removed */
-  }
-  
-  /* Remove focus outline on mouse click, keep for keyboard navigation */
-  .form-input-content:focus-within:not(:focus-visible) {
-    border-color: var(--color-border-default);
+  /* Text fields match :focus-visible on every focus, so the ring shows for mouse and keyboard */
+  .form-input-content:has(.form-input:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
   
   .form-input {
@@ -501,36 +582,40 @@
     font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03);
-    color: var(--color-text-black);
+    color: var(--color-text-field);
     outline: none;
   }
   
   .form-input::placeholder {
-    color: var(--color-text-black);
-    opacity: 0.44;
+    color: var(--color-text-secondary);
+    opacity: 1;
   }
   
   .form-input-suffix {
-    font-family: var(--font-mono);
+    font-family: var(--font-sans); /* the unit in Inter, as the text around it (Roboto Mono was never loaded) */
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
     line-height: var(--leading-normal);
-    letter-spacing: calc(var(--text-base-size) * -0.03);
-    color: var(--color-text-black);
-    opacity: 0.44;
+    letter-spacing: var(--text-default-tracking);
+    color: var(--color-text-secondary);
     padding-right: var(--space-3);
     flex-shrink: 0;
   }
   
   /* Select dropdown */
+  /* min-width: 0 on both: a select's min-content width is its longest option, so as a flex item it
+     would not shrink below it and would push its chevron out of the box (Fornecedor at 375 px) */
   .form-select-wrapper {
     position: relative;
     flex: 1;
     display: flex;
+    min-width: 0;
   }
   
   .form-select {
     flex: 1;
+    min-width: 0;
+    text-overflow: ellipsis; /* a long supplier name ends in … at 375 px */
     height: 100%;
     padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
     padding-right: var(--space-8);
@@ -541,18 +626,17 @@
     font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03);
-    color: var(--color-text-black);
-    opacity: 0.44;
+    /* Secondary until a value is chosen: the "Selecionar" prompt reads as a prompt, not a value */
+    color: var(--color-text-secondary);
     outline: none;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
-    transition: opacity var(--duration-normal) var(--ease-out);
   }
   
   .form-select:valid:not(:placeholder-shown),
   .form-select.has-value {
-    opacity: 1;
+    color: var(--color-text-field);
   }
   
   .form-select-icon {
@@ -562,7 +646,7 @@
     transform: translateY(-50%);
     pointer-events: none;
     opacity: 0.44;
-    transition: transform var(--duration-slow) var(--ease-bounce);
+    transition: transform var(--duration-medium) var(--ease-emphasized-decelerate);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -595,12 +679,11 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-default-tracking);
-    color: var(--color-text-black);
-    opacity: 0.44;
+    color: var(--color-text-secondary);
     text-decoration: underline;
     text-underline-offset: var(--space-1);
     cursor: pointer;
-    transition: opacity var(--duration-normal) var(--ease-out);
+    transition: opacity var(--duration-fast) var(--ease-emphasized-decelerate);
     background: none;
     border: none;
     padding: 0;

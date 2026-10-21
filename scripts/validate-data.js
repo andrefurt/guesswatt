@@ -12,9 +12,12 @@
  * Usage:
  *   node scripts/validate-data.js             # bounds; exits 1 on any breach
  *   node scripts/validate-data.js --tar-year  # exits 1 when data/tar.json is not for this year
+ *   node scripts/validate-data.js --supplier-names  # exits 1 when a supplier code has no name
  *
  * The TAR year check is separate because ERSE's new TAR comes once a year in a PDF that is updated
  * by hand: a stale year opens its own issue in the workflow and does not block the price refresh.
+ * Supplier names work the same way: ERSE publishes codes only, so a new code needs a name in
+ * js/config.js PROVIDERS. Until then the page lists it under its code, so it never blocks prices.
  */
 
 const fs = require('fs');
@@ -179,15 +182,30 @@ function checkTarYear() {
   return [];
 }
 
+/**
+ * Supplier codes in offers.json with no display name in js/config.js PROVIDERS
+ * @returns {string[]} One line per unnamed code
+ */
+function checkSupplierNames() {
+  const config = fs.readFileSync(path.join(ROOT, 'js', 'config.js'), 'utf8');
+  const block = config.match(/export const PROVIDERS = \{([\s\S]*?)\};/);
+  if (!block) return ['js/config.js: no PROVIDERS block'];
+  const named = new Set([...block[1].matchAll(/'([^']+)':\s*'/g)].map(m => m[1]));
+  const codes = [...new Set(readJson('offers.json').map(o => o.COM))];
+  return codes.filter(code => !named.has(code))
+    .map(code => `"${code}" has offers but no name: add it to PROVIDERS in js/config.js (the page shows the code until then)`);
+}
+
 if (require.main === module) {
-  const tarYearOnly = process.argv.includes('--tar-year');
-  const breaches = tarYearOnly ? checkTarYear() : checkBounds();
+  const mode = process.argv.includes('--tar-year') ? 'tar' : process.argv.includes('--supplier-names') ? 'names' : 'bounds';
+  const breaches = { tar: checkTarYear, names: checkSupplierNames, bounds: checkBounds }[mode]();
+  const label = { tar: 'TAR year', names: 'Supplier names', bounds: 'Data bounds' }[mode];
   if (breaches.length > 0) {
-    console.error(`❌ ${tarYearOnly ? 'TAR year' : 'Data bounds'} breached:`);
+    console.error(`❌ ${label} breached:`);
     breaches.forEach(breach => console.error(`   - ${breach}`));
     process.exit(1);
   }
-  console.log(tarYearOnly ? '✅ data/tar.json is for this year' : '✅ Data within bounds');
+  console.log({ tar: '✅ data/tar.json is for this year', names: '✅ Every supplier code has a name', bounds: '✅ Data within bounds' }[mode]);
 }
 
-module.exports = { checkBounds, checkTarYear, BOUNDS };
+module.exports = { checkBounds, checkTarYear, checkSupplierNames, BOUNDS };

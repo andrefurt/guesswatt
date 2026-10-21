@@ -295,11 +295,53 @@ Valor:  valores de dez. 2025     (mês e ano dos preços, de meta.json)
 **Modo estimado** (substitui "Poupas" quando só há o valor da fatura; ADR-011):
 
 ```
-A melhor oferta custa cerca de €66/mês. Metade das ofertas custa mais de €87/mês.
+A melhor oferta custa cerca de 66 €/mês. Metade das ofertas custa mais de 87 €/mês.
 [Para saberes quanto poupas, usa o modo Preciso.]
 ```
 
-"Poupas €X/mês" aparece só no modo preciso, contra a tarifa do operador atual.
+"Poupas €X/mês" aparece só no modo preciso, contra a tarifa do fornecedor atual.
+
+---
+
+**Subtítulo do resultado** (`js/ui-renderer.js`; diz em que assenta o número):
+
+```
+Estimado: Estimativa a partir de uma fatura de 80 €: tarifa simples, 4,6 kVA e o consumo que esse
+          valor paga numa oferta típica.
+Preciso:  Com os teus dados: 250 kWh por mês, 4,6 kVA, tarifa simples. A poupança compara com a
+          oferta mais barata do teu fornecedor (Iberdrola) para este perfil.
+```
+
+Um link com preços de outro mês acrescenta: "Este link foi criado com os preços de dezembro de 2025;
+o resultado usa os mais recentes."
+
+A linha do consumo diz "Consumo estimado (mês)" no Estimado e "Consumo (mês)" no Preciso. O botão
+dos dois formulários é "Comparar".
+
+---
+
+**Sem poupança para mostrar** (`resultVerdict` em `js/ui-renderer.js`; o cartão nunca fica calado):
+
+```
+Poupança de 1 €/mês ou menos (Preciso):
+  Já tens uma boa tarifa. Nenhuma oferta te poupa mais de 1 €/mês.
+
+Fatura ao nível da oferta mais barata (Estimado, no topo da caixa do mercado):
+  Já tens uma boa tarifa. A tua fatura já está ao nível da oferta mais barata.
+
+Sem fornecedor (Preciso, manual ou PDF sem fornecedor reconhecido):
+  Escolhe o teu fornecedor para saberes quanto poupas.
+  [Escolher o fornecedor]    (volta ao formulário com os valores e o foco no Fornecedor)
+
+"Outro" (último na lista: fornecedor fora dos dados da ERSE):
+  O teu fornecedor não está nos dados da ERSE que usamos, por isso não sabemos quanto poupas.
+
+Fornecedor sem tarifas para esta potência e tipo de tarifa:
+  Não encontrámos tarifas de <Fornecedor> com esta potência e este tipo de tarifa,
+  por isso não sabemos quanto poupas.
+```
+
+O limite de 1 €/mês (`GOOD_TARIFF_MARGIN`): abaixo disso, mudar não compensa o trabalho.
 
 ---
 
@@ -383,6 +425,21 @@ e não constituem uma proposta vinculativa...
 ---
 
 ### Guia de Mudança
+
+**O que está construído** (`#result-info-template` em `index.html`, preenchido por `js/ui-renderer.js`):
+
+```
+Telefone:       ligação tel: (+351), não copia
+Site:           ícone; nome acessível "Ver a oferta no site do fornecedor[ (PDF)], abre numa nova janela"
+Como mudar:     Liga ou entra no site e pede a oferta "<nome da oferta>"
+Dados:          CPE · NIF · MORADA · TELEFONE · LEITURA DO CONTADOR · IBAN, SE PAGAS POR DÉBITO
+Quanto tempo:   Até 3 semanas
+Aviso:          Mudar é gratuito e o novo fornecedor trata de tudo: não precisas de avisar o atual.
+                Se o teu contrato atual tem fidelização, vê na fatura até quando; sair antes pode
+                ter custos.
+```
+
+O resto desta secção é a versão completa do guia, ainda por construir.
 
 **Intro:**
 
@@ -617,28 +674,24 @@ carregar a tua fatura para um cálculo mais preciso.
 [Tentar novamente]
 ```
 
-**Erro de carregamento:**
+**Linha de estado** (uma só, por baixo do cartão de entrada: `STATUS` e `setStatus` em `js/main.js`;
+erros a vermelho `--color-error`, sem `alert()`, o detalhe técnico vai para a consola):
 
 ```
-Algo correu mal.
+A calcular…                                    (só se a resposta demorar mais de 300 ms)
 
-Não conseguimos carregar os dados das tarifas.
-Podes tentar novamente ou voltar mais tarde.
-
+Não conseguimos carregar os dados das tarifas. Tenta novamente ou volta mais tarde.
 [Tentar novamente]
-```
 
-**Erro de PDF:**
+Não encontrámos ofertas para esta potência e este tipo de tarifa. Experimenta outra potência ou tarifa.
 
-```
-Não conseguimos ler esta fatura.
+Indica um valor entre 20 € e 500 €.            (Estimado, fora do intervalo; foco no campo)
+Indica o consumo mensal em kWh.                (Preciso, sem consumo; foco no campo)
 
-O formato não é reconhecido. Por agora, 
-suportamos faturas da EDP, Endesa, Galp e Goldenergy.
+Escolhe um ficheiro PDF.                       (o ficheiro não é um PDF)
 
-Podes introduzir os valores manualmente.
-
-[Introduzir manualmente]
+Não conseguimos ler esta fatura. Podes introduzir os valores à mão.
+[Introduzir manualmente]                       (abre o formulário manual com foco no Fornecedor)
 ```
 
 ---
@@ -670,7 +723,7 @@ A calcular poupança...      (não "Por favor aguarde...")
 
 | Contexto | ❌ Genérico | ✅ GuessWatts |
 |----------|------------|-------------|
-| Submeter | "Submeter" | "Ver quanto perco" |
+| Submeter | "Submeter" | "Comparar" (não "Ver quanto perco": o Estimado não mostra perdas, ADR-011) |
 | Cancelar | "Cancelar" | "Voltar" |
 | Ajuda | "Saiba mais" | "Como funciona?" |
 | Obrigatório | "Campo obrigatório" | "Precisamos deste valor" |
@@ -693,7 +746,7 @@ A data vem de `data/meta.json` (`build.sourceUpdatedAt`) e é escrita por `js/da
 promete uma frequência de atualização. Quando os preços têm mais de 45 dias, aparece por baixo:
 
 ```
-Estes preços têm mais de 45 dias. Confirma no site do operador antes de mudar.
+Estes preços têm mais de 45 dias. Confirma no site do fornecedor antes de mudar.
 ```
 
 Sem ligação, quando a página e os preços vêm da cópia guardada pelo service worker (`sw.js`), aparece

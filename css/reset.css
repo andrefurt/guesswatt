@@ -82,14 +82,18 @@
     cursor: pointer;
   }
 
-  /* Remove animations for reduced motion */
+  /* The one reduced-motion rule for the site: everything that moves becomes instant. 0s, not the
+     usual 0.01ms: no script waits on transition events, and a view being shown has to be visible in
+     the same frame so focus() reaches it (components-input-views.css). */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
-      animation-duration: 0.01ms !important;
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
       animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
       scroll-behavior: auto !important;
     }
   }
@@ -101,8 +105,8 @@
 
   /* Improve focus visibility */
   :focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 
   /* Remove focus outline for mouse users */
@@ -133,8 +137,7 @@
   }
 
   dialog::backdrop {
-    background: oklch(0% 0 0 / 0.5);
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--color-backdrop);
   }
 
   /* Remove native number input arrows */

@@ -15,9 +15,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 139px;
+    gap: 8.6875rem; /* 139px between the content and the footer */
     flex: 1;
     width: 100%;
+  }
+  
+  /* The main landmark lays out its two views as the wrapper did */
+  .content-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  /* Focused only by the skip link: a target, not a control */
+  .content-main:focus {
+    outline: none;
   }
   
   /* Results view layout */
@@ -67,34 +80,34 @@
   
   /* Animate when results view is active */
   .results-view .results-title-section {
-    animation: appearIn var(--duration-slower, 250ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: 0ms;
   }
   
   .results-view .result-card-container {
-    animation: cardAppear var(--duration-slowest, 300ms) var(--ease-out) forwards;
+    animation: cardAppear var(--duration-slow) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(1 * var(--stagger-delay, 20ms));
   }
   
   /* Note: savings-bar animation is defined in components-results.css */
   
   .results-view .result-info {
-    animation: appearIn var(--duration-slower, 250ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(2.5 * var(--stagger-delay, 20ms)); /* 50ms */
   }
   
   .results-view .info-row:nth-child(1) {
-    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(3.5 * var(--stagger-delay, 20ms)); /* 70ms */
   }
   
   .results-view .info-row:nth-child(2) {
-    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(4.5 * var(--stagger-delay, 20ms)); /* 90ms */
   }
   
   .results-view .info-row:nth-child(3) {
-    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(5.5 * var(--stagger-delay, 20ms)); /* 110ms */
   }
   
@@ -105,7 +118,7 @@
   }
   
   .results-view .disclaimer-row {
-    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(6.5 * var(--stagger-delay, 20ms)); /* 130ms */
   }
   
@@ -133,32 +146,32 @@
   }
   
   .input-view.returning .title-section {
-    animation: appearIn var(--duration-slower, 250ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: 0ms;
   }
   
   .input-view.returning .input-slot {
-    animation: appearIn var(--duration-slowest, 300ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-slow) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(1 * var(--stagger-delay, 20ms));
   }
   
   .input-view.returning .highlights {
-    animation: appearIn var(--duration-slower, 250ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(2.5 * var(--stagger-delay, 20ms));
   }
   
   .input-view.returning .highlight-row:nth-child(1) {
-    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(3.5 * var(--stagger-delay, 20ms));
   }
   
   .input-view.returning .highlight-row:nth-child(2) {
-    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(4.5 * var(--stagger-delay, 20ms));
   }
   
   .input-view.returning .highlight-row:nth-child(3) {
-    animation: appearIn var(--duration-slow, 200ms) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: calc(5.5 * var(--stagger-delay, 20ms));
   }
 }

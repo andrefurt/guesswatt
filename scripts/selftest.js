@@ -24,6 +24,7 @@ const META_PATH = path.join(DATA_DIR, 'meta.json');
 const CALCULATOR_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'calculator.js')).href;
 const CONFIG_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'config.js')).href;
 const PDF_SERVICE_PATH = path.join(__dirname, '..', 'js', 'pdf-service.js');
+const URL_STATE_URL = pathToFileURL(path.join(__dirname, '..', 'js', 'url-state.js')).href;
 const PDF_SERVICE_URL = pathToFileURL(PDF_SERVICE_PATH).href;
 let calculateMonthlyCost;
 
@@ -37,6 +38,7 @@ async function runSelftest() {
   calculateMonthlyCost = calculator.calculateMonthlyCost;
   const { PROVIDERS } = await import(CONFIG_URL);
   const { parseInvoiceText } = await import(PDF_SERVICE_URL);
+  const { readState, writeState } = await import(URL_STATE_URL);
   
   let passed = 0;
   let failed = 0;
@@ -112,18 +114,18 @@ async function runSelftest() {
   });
 
   // Test 5a2: Supplier codes the UI and the PDF parser use exist in the data
-  test('every supplier code has a name and offers', () => {
+  // Supplier churn never fails the gate: the dropdown follows the data (ui-components.js) and the
+  // refresh opens a "Name the new supplier codes" issue (validate-data.js --supplier-names)
+  test('supplier names follow the data (warnings only) and the PDF parser emits codes', () => {
     const inData = new Set(offers.map(o => o.COM));
     const unnamed = [...inData].filter(code => !PROVIDERS[code]);
     const withoutOffers = Object.keys(PROVIDERS).filter(code => !inData.has(code));
     const parserCodes = [...fs.readFileSync(PDF_SERVICE_PATH, 'utf8').matchAll(/provider = '([A-Z0-9]+)'/g)].map(m => m[1]);
     const parserUnknown = parserCodes.filter(code => !inData.has(code));
-    const problems = [];
-    if (unnamed.length) problems.push(`no name in PROVIDERS: ${unnamed.join(', ')}`);
-    if (withoutOffers.length) problems.push(`no offers for: ${withoutOffers.join(', ')}`);
-    if (parserUnknown.length) problems.push(`PDF parser emits codes with no offers: ${parserUnknown.join(', ')}`);
-    if (parserCodes.length === 0) problems.push('found no provider codes in pdf-service.js');
-    if (problems.length) throw new Error(problems.join('; '));
+    if (unnamed.length) console.warn(`   ⚠️  no name in PROVIDERS (shown as the code): ${unnamed.join(', ')}`);
+    if (withoutOffers.length) console.warn(`   ⚠️  named but no offers (left out of the dropdown): ${withoutOffers.join(', ')}`);
+    if (parserUnknown.length) console.warn(`   ⚠️  PDF parser emits codes with no offers: ${parserUnknown.join(', ')}`);
+    if (parserCodes.length === 0) throw new Error('found no provider codes in pdf-service.js');
     console.log(`   ${inData.size} suppliers, ${parserCodes.length} detectable from a PDF`);
   });
 
@@ -517,6 +519,41 @@ async function runSelftest() {
     expectCost(best.annualCostEffective, calculateMonthlyCost(cheaper, 200, 4.6) * 12, 'annual');
   });
 
+  // compare(): the one path every flow runs (main.js). Two suppliers at 4.6 kVA, simple tariff.
+  const CHEAP = { ...SIMPLE, COM: 'CHEAP', COD_Proposta: 'C1', 'TV|TVFV|TVP': 0.12 };
+  const DEAR = { ...SIMPLE, COM: 'DEAR', COD_Proposta: 'D1', 'TV|TVFV|TVP': 0.15 };
+  const DEAR_LOCKED = { ...DEAR, COD_Proposta: 'D2', 'TV|TVFV|TVP': 0.14, hasLockIn: true };
+  const POOL = [CHEAP, DEAR, DEAR_LOCKED];
+
+  test('golden: compare, precise with a supplier, saves against its cheapest offer (lock-in too)', () => {
+    const r = calculator.compare(POOL, { mode: 'precise', consumption: 200, power: 4.6, tariffType: 1, provider: 'DEAR' });
+    if (r.best.COD_Proposta !== 'C1') throw new Error(`best: expected C1, got ${r.best.COD_Proposta}`);
+    // 200 kWh * (0.14 - 0.12) * 1.06: the person may be on DEAR's locked offer, the cheapest of DEAR's
+    expectCost(r.savings.monthly, 4.24, 'monthly saving');
+    expectCost(r.savings.yearly, 4.24 * 12, 'yearly saving');
+  });
+
+  test('golden: compare, already on the best supplier saves zero', () => {
+    const r = calculator.compare(POOL, { mode: 'precise', consumption: 200, power: 4.6, tariffType: 1, provider: 'CHEAP' });
+    expectCost(r.savings.monthly, 0, 'saving');
+  });
+
+  test('golden: compare, no supplier or one with no offer for the profile gives no saving', () => {
+    const none = calculator.compare(POOL, { mode: 'precise', consumption: 200, power: 4.6, tariffType: 1 });
+    const absent = calculator.compare(POOL, { mode: 'precise', consumption: 200, power: 4.6, tariffType: 1, provider: 'GONE' });
+    if (none.savings !== null || absent.savings !== null) throw new Error('expected null savings');
+  });
+
+  test('golden: compare, estimate gives the market median and never a saving', () => {
+    const r = calculator.compare(POOL, { mode: 'estimate', bill: 60 });
+    if (r.savings !== null) throw new Error('estimate mode must not claim a saving');
+    if (r.best.COD_Proposta !== 'C1' || r.power !== 4.6) throw new Error(`unexpected best ${r.best.COD_Proposta} at ${r.power}`);
+    // The locked offer cannot win, so the median is over CHEAP and DEAR; median() takes the upper
+    // middle value on an even count, so it is DEAR's cost
+    const expected = calculateMonthlyCost(DEAR, r.consumption, 4.6);
+    expectCost(r.marketMedianCost, expected, 'median');
+  });
+
   test('eligibility: an expired offer never ranks, even when cheapest', () => {
     const asOf = new Date(Date.UTC(2026, 0, 15));
     const expired = { ...SIMPLE, COD_Proposta: 'OLD', 'TV|TVFV|TVP': 0.05, validFrom: '01/01/2025', validTo: '31/12/2025' };
@@ -613,6 +650,28 @@ async function runSelftest() {
   });
 
   // Test 8: Tariff types are valid
+  test('url state: plain params round-trip for both modes', () => {
+    const estimate = { mode: 'estimate', bill: 80 };
+    const precise = { mode: 'precise', consumption: 250, power: 4.6, tariffType: 2, provider: 'IBD' };
+    for (const input of [estimate, precise]) {
+      const back = readState(writeState(input, true, new Date('2026-10-19T00:00:00Z')));
+      const expected = input.mode === 'precise' ? input : estimate;
+      if (JSON.stringify(back.input) !== JSON.stringify(expected) || !back.largeHousehold || back.dataMonth !== '2026-10') {
+        throw new Error(`round trip changed ${JSON.stringify(input)} into ${JSON.stringify(back)}`);
+      }
+    }
+  });
+
+  test('url state: anything out of shape gives no state (markup, ranges, malformed supplier)', () => {
+    for (const bad of ['?c=<img src=x>&p=4.6&t=1', '?f=5', '?f=2000', '?f=80e3', '?c=250&p=4.6&t=4', '?c=250&p=99&t=1', '?c=-5&p=4.6&t=1']) {
+      if (readState(bad) !== null) throw new Error(`accepted ${bad}`);
+    }
+    const unknown = readState('?c=250&p=4.6&t=1&s=%3Cscript%3E&d=2026-13');
+    if (unknown.input.provider !== null || unknown.dataMonth !== null) throw new Error('kept an unknown supplier or a bad month');
+    // A new ERSE code the data lists before PROVIDERS names it survives the round trip
+    if (readState('?c=250&p=4.6&t=1&s=NEWCO').input.provider !== 'NEWCO') throw new Error('dropped a well-formed new supplier code');
+  });
+
   test('tariff types are valid (1, 2, or 3)', () => {
     const invalid = offers.filter(o => ![1, 2, 3].includes(o.Contagem));
     if (invalid.length > 0) {

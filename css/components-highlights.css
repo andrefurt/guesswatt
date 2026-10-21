@@ -10,21 +10,21 @@
   }
   
   .highlight-row {
-    border-bottom: 0.5px solid var(--color-border-default, rgba(0, 0, 0, 0.12));
+    border-bottom: 0.5px solid var(--color-border);
   }
   
   .highlight-row-inner {
     padding: var(--space-5) 0; /* 20px 0 */
-    border-bottom: 0.5px solid rgba(255, 255, 255, 0.5);
+    border-bottom: 0.5px solid var(--color-highlight-soft);
   }
   
   .highlight-text {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
-    font-size: var(--text-base, 0.875rem); /* 14px */
+    font-size: var(--text-base-size, 0.875rem); /* 14px */
     line-height: 1.2;
     letter-spacing: -0.03em; /* -0.42px */
-    color: var(--color-foreground-secondary, #8E8C89);
+    color: var(--color-text-secondary);
   }
   
   .highlight-text em {

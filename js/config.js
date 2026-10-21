@@ -16,7 +16,8 @@ export const DEFAULT_POWER = 4.6; // kVA mais comum
 export const AUDIOVISUAL_TAX = 2.85; // €/mês, taxed at the reduced rate
 
 // Display names for ERSE supplier codes (COM). ERSE publishes codes only, so the names are
-// kept here; the selftest fails if a code in data/offers.json has no name, or a name has no offers.
+// kept here. A code with no name still shows (as the code) and the refresh opens an issue to name it
+// (validate-data.js --supplier-names); a name with no offers this week is left out of the dropdown.
 export const PROVIDERS = {
   'ALFAENERGIA': 'Alfa Energia',
   'AUDAX': 'Audax Renovables',

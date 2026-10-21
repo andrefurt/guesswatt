@@ -1,100 +1,151 @@
 /**
  * Main Entry Point
- * State management, form handlers, and initialization
+ * Form handlers, the comparison every flow runs, and initialization
  */
 
-import { DEFAULT_POWER, PROVIDERS } from './config.js';
-import { loadOffers, toTitleCase, isLargeHousehold } from './utils.js';
-import { 
-  estimateConsumption, 
-  calculateMonthlyCost, 
-  findBestOffer, 
-  findBestOfferForTariff,
-  marketMedianCost
-} from './calculator.js';
-import { 
-  initPDFUpload, 
-  calculateFromPDF
-} from './pdf-service.js';
-import { initTooltips, initTabs, populateProvidersDropdown } from './ui-components.js';
+import { PROVIDERS } from './config.js';
+import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
+import { compare } from './calculator.js';
+import { initPDFUpload } from './pdf-service.js';
+import { initTooltips, initTabs, populateProvidersDropdown, matchProvidersToData, OTHER_PROVIDER } from './ui-components.js';
 import { renderResult } from './ui-renderer.js';
-import { initUIHandlers, showResults, hideResults, setEstimadoData, setInvoiceData } from './ui-handlers.js';
+import { initUIHandlers, hideResults, setEstimadoData, setInvoiceData } from './ui-handlers.js';
+import { initPageActions } from './page-actions.js';
+import { readState, writeState, monthOf } from './url-state.js';
+import { formatDataMonth, loadDataStatus } from './data-date.js';
 
 // =============================================================================
-// STATE MANAGEMENT
+// COMPARISON
 // =============================================================================
 
-// Application state
-const state = {
-  // Tab results cache
-  tabResults: {
-    estimate: null,
-    precise: null
-  },
-  
-  // Current active mode
-  currentMode: 'estimate',
-  
-  // Manual form visibility
-  manualFormVisible: false
+const TARIFF_NAMES = { 1: 'Simples', 2: 'Bi-horária', 3: 'Tri-horária' };
+
+// Status line copy (docs/COPY.mdc, "Estados Vazios e Erros"); technical detail goes to the console
+const STATUS = {
+  loading: 'A calcular…',
+  loadFailed: 'Não conseguimos carregar os dados das tarifas. Tenta novamente ou volta mais tarde.',
+  noOffers: 'Não encontrámos ofertas para esta potência e este tipo de tarifa. Experimenta outra potência ou tarifa.',
+  billRange: 'Indica um valor entre 20 € e 500 €.',
+  noConsumption: 'Indica o consumo mensal em kWh.',
+  notPDF: 'Escolhe um ficheiro PDF.',
+  pdfUnreadable: 'Não conseguimos ler esta fatura. Podes introduzir os valores à mão.'
 };
+const LOADING_DELAY_MS = 300; // a quicker answer shows no loading line, so nothing flashes
+
+let statusAction = null;
 
 /**
- * Get current mode
- * @returns {string} Current mode ('estimate' or 'precise')
+ * Write the status line under the input card; an empty text clears it
+ * @param {'info'|'error'} kind
+ * @param {string} text
+ * @param {{label: string, run: Function}} [action] - One next step, shown as a button
  */
-function getCurrentMode() {
-  return state.currentMode;
+function setStatus(kind, text = '', action = null) {
+  const box = document.getElementById('form-status');
+  const button = document.getElementById('form-status-action');
+  if (!box || !button) return;
+  box.dataset.kind = kind;
+  document.getElementById('form-status-text').textContent = text;
+  statusAction = action?.run || null;
+  button.textContent = action?.label || '';
+  button.hidden = !action;
+}
+
+/** Show the manual form with focus on its first field (the way out of an unreadable PDF) */
+function openManualForm() {
+  setStatus('info');
+  document.getElementById('tab-preciso')?.click();
+  document.getElementById('input-slot')?.classList.add('preciso-mode', 'manual-mode');
+  document.getElementById('current-provider')?.focus();
 }
 
 /**
- * Set current mode
- * @param {string} mode - Mode to set ('estimate' or 'precise')
+ * Load the data, run the one comparison (calculator.js compare) and render it. Every flow ends here.
+ * @param {Object} input - See compare(); precise input may carry provider (ERSE code)
  */
-function setCurrentMode(mode) {
-  state.currentMode = mode;
+async function runComparison(input) {
+  // The link's price month belongs to this run only: a failed run must not pass it to the next
+  // comparison the person types (a retry of this run gets it back)
+  const fromLinkMonth = linkDataMonth;
+  linkDataMonth = null;
+  const submits = document.querySelectorAll('.submit-btn');
+  submits.forEach(button => { button.disabled = true; });
+  const loading = setTimeout(() => setStatus('info', STATUS.loading), LOADING_DELAY_MS);
+
+  let data;
+  try {
+    data = await loadOffers();
+  } catch (error) {
+    console.error(error);
+    setStatus('error', STATUS.loadFailed, { label: 'Tentar novamente', run: () => { linkDataMonth = fromLinkMonth; runComparison(input); } });
+    return;
+  } finally {
+    clearTimeout(loading);
+    submits.forEach(button => { button.disabled = false; });
+  }
+
+  const { offers, tar, dataDate } = data;
+  let result;
+  try {
+    result = compare(offers, input, { tar, largeHousehold: isLargeHousehold() });
+  } catch (error) {
+    console.error(error);
+    setStatus('error', STATUS.noOffers);
+    return;
+  }
+
+  setStatus('info');
+  // The inputs go into the URL, so the result can be bookmarked or shared (url-state.js)
+  history.replaceState(null, '', writeState(input, isLargeHousehold(), dataDate));
+  const best = {
+    ...result.best,
+    dataDate,
+    marketMedianCost: result.marketMedianCost,
+    currentProvider: input.provider || null
+  };
+  renderResult(best, result.consumption, result.power, input.bill ?? null, result.savings, input.mode === 'estimate');
+
+  // A shared link made with older prices: say the result uses today's
+  if (fromLinkMonth && dataDate && monthOf(dataDate) !== fromLinkMonth) {
+    document.getElementById('results-subtitle')?.append(` Este link foi criado com os preços de ${formatDataMonth(new Date(`${fromLinkMonth}-15T12:00:00Z`))}; o resultado usa os mais recentes.`);
+  }
 }
 
-/**
- * Get tab result for a mode
- * @param {string} mode - Mode to get result for
- * @returns {string|null} Cached HTML result or null
- */
-function getTabResult(mode) {
-  return state.tabResults[mode] || null;
-}
+// Price month of the link the page was opened with, until its result is shown
+let linkDataMonth = null;
 
 /**
- * Set tab result for a mode
- * @param {string} mode - Mode to set result for
- * @param {string} html - HTML result string
+ * Open the result a URL describes: fill the form it came from and send it, so it takes the same
+ * path (and the same checks) as a person typing it
  */
-function setTabResult(mode, html) {
-  state.tabResults[mode] = html;
-}
-
-/**
- * Clear tab result for a mode
- * @param {string} mode - Mode to clear result for
- */
-function clearTabResult(mode) {
-  state.tabResults[mode] = null;
-}
-
-/**
- * Get manual form visibility
- * @returns {boolean} Whether manual form is visible
- */
-function getManualFormVisible() {
-  return state.manualFormVisible;
-}
-
-/**
- * Set manual form visibility
- * @param {boolean} visible - Whether manual form should be visible
- */
-function setManualFormVisible(visible) {
-  state.manualFormVisible = visible;
+function restoreFromURL() {
+  const state = readState(location.search);
+  if (!state) {
+    // Drop a broken result link's keys only: other params (?sw, which registers the service worker
+    // on localhost after load) stay
+    const params = new URLSearchParams(location.search);
+    const stateKeys = ['f', 'c', 'p', 't', 's', 'h', 'd'].filter(key => params.has(key));
+    if (stateKeys.length) {
+      stateKeys.forEach(key => params.delete(key));
+      history.replaceState(null, '', location.pathname + (params.size ? `?${params}` : ''));
+    }
+    return;
+  }
+  linkDataMonth = state.dataMonth;
+  document.getElementById('large-household').checked = state.largeHousehold;
+  const { input } = state;
+  if (input.mode === 'estimate') {
+    document.getElementById('monthly-bill').value = String(input.bill);
+    document.getElementById('estimate-form').requestSubmit();
+    return;
+  }
+  document.getElementById('tab-preciso')?.click();
+  document.getElementById('input-slot')?.classList.add('preciso-mode', 'manual-mode');
+  document.getElementById('consumption').value = String(input.consumption);
+  document.getElementById('power').value = String(input.power);
+  document.getElementById('tariff-type').value = String(input.tariffType);
+  document.getElementById('current-provider').value = input.provider || '';
+  document.getElementById('precise-form').requestSubmit();
 }
 
 // =============================================================================
@@ -109,177 +160,74 @@ const MAX_BILL = 500;
  * Handler for estimate form submission
  * @param {Event} e - Form submit event
  */
-async function handleEstimateSubmit(e) {
+function handleEstimateSubmit(e) {
   e.preventDefault();
-  
+
   const monthlyBill = parseFloat(String(document.getElementById('monthly-bill').value).replace(',', '.'));
-  const resultDiv = document.getElementById('result');
-  
-  if (!resultDiv) return;
-  
+
   // The estimate only holds for typical household bills
-  const billNote = document.getElementById('estimate-note');
   if (!(monthlyBill >= MIN_BILL && monthlyBill <= MAX_BILL)) {
-    if (billNote) billNote.hidden = false;
+    setStatus('error', STATUS.billRange);
     document.getElementById('monthly-bill')?.focus();
     return;
   }
-  if (billNote) billNote.hidden = true;
-  
-  resultDiv.innerHTML = '<p>A calcular...</p>';
-  
-  // Set estimado mode data for input pill
+
   setEstimadoData(monthlyBill);
-  
-  try {
-    // 1. Carregar dados
-    const { offers, tar, dataDate } = await loadOffers();
-    const context = { tar, largeHousehold: isLargeHousehold() };
-    
-    // 2. Estimar consumo (data-driven if offers available)
-    const consumption = estimateConsumption(monthlyBill, offers, context);
-    
-    
-    // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
-    const best = findBestOffer(offers, consumption, DEFAULT_POWER, context);
-    
-    // 5. Juntar a data dos preços e a mediana do mercado (o modo estimado não mostra poupança)
-    const enrichedBest = {
-      ...best,
-      dataDate,
-      marketMedianCost: marketMedianCost(offers, consumption, DEFAULT_POWER, 1, null, context)
-    };
-    
-    // 6. Renderizar resultado
-    renderResult(enrichedBest, consumption, DEFAULT_POWER, monthlyBill, null, true, getCurrentMode(), setTabResult);
-    
-  } catch (error) {
-    resultDiv.innerHTML = `<p class="error">Erro: ${error.message}</p>`;
-    console.error(error);
-  }
+  runComparison({ mode: 'estimate', bill: monthlyBill });
 }
 
 /**
  * Handler for precise form submission
  * @param {Event} e - Form submit event
  */
-async function handlePreciseSubmit(e) {
+function handlePreciseSubmit(e) {
   e.preventDefault();
-  
+
   // The "missing field" note from a partial PDF has done its job once the form is sent
   const formNote = document.getElementById('manual-form-note');
   if (formNote) formNote.hidden = true;
-  
+
   const consumption = parseFloat(document.getElementById('consumption').value);
   const power = parseFloat(document.getElementById('power').value);
   const tariffType = parseInt(document.getElementById('tariff-type').value);
-  const currentProvider = document.getElementById('current-provider').value;
-  
-  const resultDiv = document.getElementById('result');
-  
-  if (!resultDiv) return;
-  
-  resultDiv.innerHTML = '<p>A calcular...</p>';
-  
-  // Get tariff name for pill
-  const tariffNames = { 1: 'Simples', 2: 'Bi-horária', 3: 'Tri-horária' };
-  const tariffName = toTitleCase(tariffNames[tariffType] || 'Simples');
-  
-  // Get provider name for pill
-  const providerNameRaw = currentProvider ? (PROVIDERS[currentProvider] || currentProvider) : 'Manual';
-  const providerName = toTitleCase(providerNameRaw);
-  
-  // Set invoice data for input pill (manual entry)
+  const provider = document.getElementById('current-provider').value || null;
+
   setInvoiceData({
-    provider: providerName,
-    tariff: tariffName,
-    consumption: consumption,
-    power: power
-  }, false); // fromPDF = false (manual entry)
-  
-  try {
-    // 1. Validar inputs
-    if (!consumption || consumption <= 0) {
-      throw new Error('Introduz um consumo válido');
-    }
-    
-    // 2. Carregar dados
-    const { offers, tar, dataDate } = await loadOffers();
-    const context = { tar, largeHousehold: isLargeHousehold() };
-    
-    
-    // 4. Encontrar melhor oferta (filters lock-in, uses annual effective cost)
-    const best = findBestOfferForTariff(offers, consumption, power, tariffType, null, context);
-    
-    // 5. Juntar a data dos preços (mostrada nas ofertas indexadas)
-    const enrichedBest = { ...best, dataDate };
-    
-    // 6. Calcular poupança se houver operador actual
-    let savings = null;
-    if (currentProvider) {
-      // Normalize power for comparison (use same tolerance as findBestOfferForTariff)
-      const normalizedPower = typeof power === 'number' ? power : parseFloat(String(power).replace(',', '.'));
-      const normalizedTariffType = typeof tariffType === 'number' ? tariffType : parseInt(tariffType);
-      
-      // Encontrar ofertas do operador actual com mesma potência e tarifa
-      const currentProviderOffers = offers.filter(o => {
-        const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
-        const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
-        const contagem = typeof o.Contagem === 'number' ? o.Contagem : parseInt(o.Contagem);
-        
-        // Use tolerance for floating point comparison (0.01 kVA tolerance - same as findBestOfferForTariff)
-        const powerMatch = Math.abs(potCont - normalizedPower) < 0.01;
-        
-        return o.COM === currentProvider && 
-               o.TF > 0 &&
-               tvField > 0 &&
-               powerMatch &&
-               contagem === normalizedTariffType;
-      });
-      
-      if (currentProviderOffers.length > 0) {
-        // Calcular custo com a melhor oferta do operador actual
-        const currentProviderCosts = currentProviderOffers.map(offer => ({
-          ...offer,
-          monthlyCost: calculateMonthlyCost(offer, consumption, power, null, context)
-        }));
-        
-        // Ordenar por custo e pegar a mais barata
-        currentProviderCosts.sort((a, b) => a.monthlyCost - b.monthlyCost);
-        const bestCurrentOffer = currentProviderCosts[0];
-        
-        const currentProviderCost = bestCurrentOffer.monthlyCost;
-        const monthlySavings = currentProviderCost - enrichedBest.monthlyCost;
-        
-        if (monthlySavings > 0) {
-          savings = {
-            monthly: monthlySavings,
-            yearly: monthlySavings * 12,
-            vsProvider: toTitleCase(PROVIDERS[currentProvider] || currentProvider)
-          };
-        }
-      }
-    }
-    
-    // 6. Renderizar resultado (isEstimate: false para modo Preciso)
-    renderResult(enrichedBest, consumption, power, null, savings, false, getCurrentMode(), setTabResult);
-    
-  } catch (error) {
-    resultDiv.innerHTML = `<p class="error">Erro: ${error.message}</p>`;
-    console.error(error);
+    provider: provider === OTHER_PROVIDER ? 'Outro' : provider ? toTitleCase(PROVIDERS[provider] || provider) : 'Manual',
+    tariff: TARIFF_NAMES[tariffType] || 'Simples',
+    consumption,
+    power
+  }, false);
+
+  if (!consumption || consumption <= 0) {
+    setStatus('error', STATUS.noConsumption);
+    document.getElementById('consumption')?.focus();
+    return;
   }
+
+  runComparison({ mode: 'precise', consumption, power, tariffType, provider });
 }
 
-// =============================================================================
-// PDF CALCULATION WRAPPER
-// =============================================================================
-
 /**
- * Wrapper for calculateFromPDF that provides current mode
- * @returns {Promise<void>}
+ * A PDF was read with consumption and power: fill the pill and compare
+ * @param {Object} invoice - parseInvoiceText output
  */
-async function calculateFromPDFWrapper() {
-  return calculateFromPDF(renderResult, getCurrentMode(), setTabResult);
+function handleInvoice(invoice) {
+  setInvoiceData({
+    provider: invoice.provider ? toTitleCase(PROVIDERS[invoice.provider] || invoice.provider) : 'Não detetado',
+    tariff: formatTariffName(TARIFF_NAMES[invoice.tariffType], invoice.tariffType, invoice.cycleType),
+    consumption: invoice.consumption,
+    power: invoice.power
+  }, true);
+
+  runComparison({
+    mode: 'precise',
+    consumption: invoice.consumption,
+    power: invoice.power,
+    tariffType: invoice.tariffType,
+    distribution: invoice.distribution,
+    provider: invoice.provider || null
+  });
 }
 
 // =============================================================================
@@ -305,41 +253,31 @@ function registerServiceWorker() {
  * Initialize application
  */
 function init() {
-  // Inicializar UI handlers (copy, dropdown, delete button)
+  // Copy menu, then the logo, delete and About controls
+  initPageActions();
   initUIHandlers();
   
-  // Popular dropdown de operadores
+  // Popular dropdown de fornecedores, then match it to this week's data
   populateProvidersDropdown();
-  
-  // Event delegation for copy phone button (works for both new and cached results)
-  const resultDiv = document.getElementById('result');
-  if (resultDiv) {
-    resultDiv.addEventListener('click', async (e) => {
-      const copyPhoneBtn = e.target.closest('.copy-phone-btn');
-      if (copyPhoneBtn) {
-        e.preventDefault();
-        const phone = copyPhoneBtn.dataset.phone;
-        if (phone) {
-          try {
-            await navigator.clipboard.writeText(phone);
-            const originalText = copyPhoneBtn.textContent;
-            copyPhoneBtn.textContent = '✓ Copiado!';
-            setTimeout(() => {
-              copyPhoneBtn.textContent = originalText;
-            }, 2000);
-          } catch (err) {
-            console.error('Failed to copy phone:', err);
-          }
-        }
-      }
-    });
-  }
+  // Match the list to this week's data first, then open a result link: a link can name a supplier
+  // that only the data lists (a new code not yet in PROVIDERS). loadDataStatus never rejects.
+  loadDataStatus().then(({ providers }) => {
+    matchProvidersToData(providers);
+    restoreFromURL();
+  });
   
   // Inicializar tabs
-  initTabs(setCurrentMode, getTabResult);
+  initTabs();
   
-  // Inicializar PDF upload (pass calculateFromPDFWrapper as callback for auto-calculation)
-  initPDFUpload(clearTabResult, setManualFormVisible, getManualFormVisible, calculateFromPDFWrapper);
+  // A PDF with consumption and power goes straight to the comparison; a file that is not a PDF, or
+  // one with no readable text, gets a line under the card
+  initPDFUpload(handleInvoice, problem => {
+    if (problem === 'not-pdf') setStatus('error', STATUS.notPDF);
+    else setStatus('error', STATUS.pdfUnreadable, { label: 'Introduzir manualmente', run: openManualForm });
+  });
+  document.getElementById('form-status-action')?.addEventListener('click', () => statusAction?.());
+  // A message belongs to the form it came from
+  document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => setStatus('info')));
   
   // Event delegation for manual-link (can be recreated dynamically)
   const inputSlot = document.getElementById('input-slot');
@@ -358,8 +296,6 @@ function init() {
         inputSlot.classList.add('manual-mode');
       }
       // CSS handles visibility via .preciso-mode.manual-mode .manual-form
-      
-      setManualFormVisible(true);
     }
   });
   
@@ -373,10 +309,22 @@ function init() {
         inputSlot.classList.remove('manual-mode');
         // Keep preciso-mode class - CSS shows drop-area when manual-mode is removed
       }
-      
-      setManualFormVisible(false);
     });
   }
+  
+  // "Escolher o fornecedor" in a result with no supplier: back to the manual form, values kept
+  document.addEventListener('click', (e) => {
+    const choose = e.target.closest('#choose-provider');
+    if (!choose) return;
+    const { consumption, power, tariff } = choose.dataset;
+    hideResults();
+    document.getElementById('tab-preciso')?.click();
+    inputSlot?.classList.add('preciso-mode', 'manual-mode');
+    document.getElementById('consumption').value = consumption;
+    document.getElementById('power').value = power;
+    document.getElementById('tariff-type').value = tariff;
+    document.getElementById('current-provider')?.focus();
+  });
   
   // "Usa o modo Preciso" in an estimate result: back to the form, on the Preciso tab
   document.addEventListener('click', (e) => {

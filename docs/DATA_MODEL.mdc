@@ -409,9 +409,11 @@ jobs:
 
 ERSE publishes supplier codes (`COM`) only, never names. `PROVIDERS` in `js/config.js` names every
 code in `offers.json`, and the dropdown and the result card read it. The build records the codes it
-saw in `meta.json` (`build.providers`). The selftest fails when a code in the data has no name, a
-name has no offers, or the PDF parser emits a code with no offers. A new supplier in an ERSE refresh
-therefore turns the gate red until it gets a name.
+saw in `meta.json` (`build.providers`), and the dropdown follows that list (`matchProvidersToData`
+in `js/ui-components.js`): a named supplier with no offers this week drops out, a new code shows
+under its ERSE code, and "Outro" is always last. Supplier churn never turns the refresh red: the
+selftest only warns, and `validate-data.js --supplier-names` opens a "Name the new supplier codes"
+issue until the code gets a name here.
 
 ---
 

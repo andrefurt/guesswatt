@@ -67,19 +67,19 @@
      ═══════════════════════════════════════════════════════════ */
   
   .animate-appear {
-    animation: appearIn var(--duration-slower) var(--ease-out) forwards;
+    animation: appearIn var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
   }
   
   .animate-card-appear {
-    animation: cardAppear var(--duration-slowest) var(--ease-out) forwards;
+    animation: cardAppear var(--duration-slow) var(--ease-emphasized-decelerate) forwards;
   }
   
   .animate-savings-appear {
-    animation: savingsAppear var(--duration-slow) var(--ease-spring) forwards;
+    animation: savingsAppear var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
   }
   
   .animate-pill-appear {
-    animation: pillAppear var(--duration-slower) var(--ease-out) forwards;
+    animation: pillAppear var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
   }
   
   /* Staggered animation delays */
@@ -88,25 +88,5 @@
   .stagger-3 { animation-delay: calc(3 * var(--stagger-delay)); }
   .stagger-4 { animation-delay: calc(4 * var(--stagger-delay)); }
   .stagger-5 { animation-delay: calc(5 * var(--stagger-delay)); }
-  
-  /* ═══════════════════════════════════════════════════════════
-     REDUCED MOTION - Respect user preferences
-     ═══════════════════════════════════════════════════════════ */
-  
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-    
-    /* Disable blur on reduced motion for performance */
-    * {
-      filter: none !important;
-    }
-  }
 }
 

@@ -1,29 +1,29 @@
 # GuessWatts
 
-> Ferramenta de comparação de tarifas de electricidade em Portugal usando dados oficiais da ERSE.
+> Ferramenta de comparação de tarifas de eletricidade em Portugal com dados oficiais da ERSE.
 
 ## Descrição
 
-GuessWatts é uma ferramenta gratuita e open-source que ajuda consumidores portugueses a encontrar melhores tarifas de electricidade. Compara todas as ofertas disponíveis do mercado regulador português (ERSE) e mostra exactamente quanto poderias poupar ao mudar.
+GuessWatts é uma ferramenta gratuita e open-source que ajuda consumidores portugueses a encontrar melhores tarifas de eletricidade. Compara todas as ofertas disponíveis do mercado regulador português (ERSE) e mostra exactamente quanto poderias poupar ao mudar.
 
 ## Funcionalidades
 
-- **Modo Estimativa**: Introduz o valor mensal da factura (€/mês) e obtém resultados instantâneos
-- **Modo Preciso**: Carrega a factura PDF ou introduz dados detalhados de consumo
+- **Modo Estimativa**: Introduz o valor mensal da fatura (€/mês) e obtém resultados instantâneos
+- **Modo Preciso**: Carrega a fatura PDF ou introduz dados detalhados de consumo
 - **Descoberta da melhor oferta**: Encontra a tarifa mais barata para o teu perfil
 - **Orientação acionável**: Instruções passo a passo sobre como mudar de fornecedor
-- **Zero backend**: Tudo funciona no navegador — os teus dados nunca saem do dispositivo
+- **Zero backend**: Tudo funciona no navegador: os teus dados nunca saem do dispositivo
 
 ## Páginas
 
 - [Início](https://guesswatts.com/): Comparador de tarifas com modo estimativa e modo preciso
-- [Sobre](https://guesswatts.com/sobre.html): Informação sobre o projecto, como calculamos, fonte dos dados
+- [Sobre](https://guesswatts.com/sobre.html): Informação sobre o projeto, como calculamos, fonte dos dados
 
 ## Como funciona
 
 ### Modo Estimativa
 
-Introduz o valor mensal da tua factura (€/mês). O sistema assume:
+Introduz o valor mensal da tua fatura (€/mês). O sistema assume:
 - Potência: 4.6 kVA (mais comum em Portugal)
 - Tarifa: Simples (preço único)
 - Consumo: estimado a partir do valor
@@ -31,7 +31,7 @@ Introduz o valor mensal da tua factura (€/mês). O sistema assume:
 ### Modo Preciso
 
 Podes:
-- Carregar a factura em PDF (extracção automática)
+- Carregar a fatura em PDF (extracção automática)
 - Introduzir manualmente: potência, consumo, tipo de tarifa
 
 ## Fórmula de cálculo

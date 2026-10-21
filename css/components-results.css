@@ -26,7 +26,7 @@
   }
   
   .results-view .savings-bar {
-    animation: savingsAppear var(--duration-slow) var(--ease-spring) forwards;
+    animation: savingsAppear var(--duration-medium) var(--ease-emphasized-decelerate) forwards;
     animation-delay: 0ms;
   }
   /* ═══════════════════════════════════════════════════════════
@@ -44,6 +44,12 @@
     padding: var(--space-8) var(--space-3);
     width: 100%;
   }
+
+  /* Focused by script after submit (ui-handlers.js) so reading starts here; it is not a control,
+     so it shows no ring */
+  .results-title:focus {
+    outline: none;
+  }
   
   .results-title {
     font-family: var(--font-sans);
@@ -51,7 +57,7 @@
     font-size: var(--text-xl-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-xl-tracking);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
     margin-bottom: var(--space-2);
   }
   
@@ -61,7 +67,7 @@
     font-size: var(--text-lg-size);
     line-height: var(--leading-relaxed);
     letter-spacing: var(--text-lg-tracking);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -70,67 +76,24 @@
   
   .result-card-container {
     width: 100%;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 64.03%, rgba(0, 0, 0, 0.016) 100%);
+    background: var(--color-surface-sunken);
     border-radius: var(--radius-xl);
     padding-bottom: var(--space-3);
   }
   
   .result-card-slot {
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-xl);
   }
   
   .result-card {
-    background: var(--color-background-card);
-    border: 1px solid white;
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-highlight);
     /* Child radius = parent radius (16px) - parent border (0.5px) ≈ 15.5px */
     border-radius: calc(var(--radius-xl) - 0.5px);
     box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
-  }
-  
-  /* Electrical sparks animation */
-  .result-card {
-    --spark-count: 8;
-  }
-  
-  .spark {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    background: white;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 10;
-    opacity: 0;
-    box-shadow: 0 0 6px 2px rgba(255, 255, 255, 1), 0 0 12px 3px rgba(255, 255, 255, 0.6);
-  }
-  
-  .spark.active {
-    animation: sparkFlash 0.2s ease-out forwards;
-  }
-  
-  @keyframes sparkFlash {
-    0% {
-      opacity: 0;
-      transform: scale(0);
-    }
-    30% {
-      opacity: 1;
-      transform: scale(2);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(0.5);
-    }
-  }
-  
-  /* Respect reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    .spark {
-      display: none;
-    }
   }
   
   .result-card::after {
@@ -166,13 +129,13 @@
     align-items: center;
     justify-content: center;
     /* Calculate padding to make square container matching button height (~32px) */
-    /* Button height = var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) = ~32px */
+    /* Button height = var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm) = ~32px */
     /* Icon size is var(--text-base-size) (14px), from .icon in base.css */
     /* For square: padding = (height - icon size) / 2 */
-    padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-base-size)) / 2);
-    border: 0.5px solid white; /* Same border as secondary button */
+    padding: calc((var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm) - var(--text-base-size)) / 2);
+    border: 0.5px solid var(--color-highlight); /* Same border as secondary button */
     border-radius: var(--radius-sm); /* 6px - same as buttons */
-    background: var(--bg-high); /* More prominent background - oklch(95% 0 0) #F0F0EF */
+    background: var(--color-surface-raised); /* More prominent background - oklch(95% 0 0) #F0F0EF */
     box-shadow: var(--shadow-icon); /* Same shadow as icon containers */
     position: relative;
     overflow: hidden;
@@ -187,16 +150,7 @@
     box-shadow: var(--shadow-icon-inset);
     pointer-events: none;
   }
-  
-  /* Provider logo image styling */
-  .provider-icon .provider-logo {
-    width: var(--text-base-size); /* 14px - same as icon size */
-    height: var(--text-base-size);
-    object-fit: contain;
-    display: block;
-    mix-blend-mode: multiply; /* Blend logo with background using multiply mode */
-  }
-    
+
   
   .result-card-actions {
     display: flex;
@@ -216,7 +170,7 @@
     font-size: var(--text-lg-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-lg-tracking);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .provider-plan {
@@ -225,7 +179,7 @@
     font-size: var(--text-lg-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-lg-tracking);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -237,7 +191,7 @@
   }
   
   .data-row {
-    border-bottom: 0.5px solid var(--color-border-default);
+    border-bottom: 0.5px solid var(--color-border);
   }
   
   .data-row-inner {
@@ -245,7 +199,7 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--space-3) 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    border-bottom: 1px solid var(--color-divider-strong);
   }
   
   .data-row-label {
@@ -264,19 +218,21 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   .data-row-label .muted {
-    color: var(--color-text-muted);
+    color: var(--color-text-secondary);
   }
   
+  /* Prices and quantities line up digit for digit */
   .data-row-value {
+    font-variant-numeric: tabular-nums;
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   .data-row-value-group {
@@ -287,14 +243,14 @@
   
   /* Campaign Badge - Extends interactive-base structure */
   .badge {
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-sm);
   }
   
   .badge-inner {
     /* Shares same visual structure as buttons/pills */
     padding: var(--space-1) var(--space-2);
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
     box-shadow: var(--shadow-xs);
     font-family: var(--font-sans);
@@ -302,7 +258,7 @@
     font-size: var(--text-xs-size);
     line-height: var(--text-xs-leading);
     text-transform: uppercase;
-    color: var(--color-accent-green);
+    color: var(--color-accent);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -323,7 +279,7 @@
     background: var(--color-savings-bar-bg);
     font-family: var(--font-sans);
     font-size: var(--text-base-size);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
 
   .market-summary-link {
@@ -347,6 +303,7 @@
   }
   
   .savings-bar-inner {
+    font-variant-numeric: tabular-nums;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -354,7 +311,7 @@
     position: absolute;
     inset: 0; /* Fill parent completely */
     padding: var(--space-1) var(--space-2); /* 4px vertical, 8px horizontal */
-    border: 0.5px solid white; /* White inner border */
+    border: 0.5px solid var(--color-highlight); /* White inner border */
     border-radius: var(--radius-sm); /* 6px - same as parent */
     background: var(--color-savings-bar-bg);
     box-shadow: var(--shadow-savings-bar); /* 0px 4px 8px 0px rgba(113,152,131,0.08) */
@@ -375,7 +332,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-accent-green);
+    color: var(--color-accent);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -387,15 +344,16 @@
   }
   
   .info-row {
-    border-bottom: 0.5px solid var(--color-border-default);
+    border-bottom: 0.5px solid var(--color-border);
   }
   
   .info-row-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--space-3); /* keeps the label clear of wrapping chips */
     padding: var(--space-4) 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid var(--color-divider);
   }
   
   .info-row-label {
@@ -403,7 +361,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   .info-row-value {
@@ -411,7 +369,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   /* Tags - Extends interactive-base structure */
@@ -423,7 +381,7 @@
   }
   
   .tag {
-    border: 0.5px solid var(--color-border-default);
+    border: 0.5px solid var(--color-border);
     border-radius: var(--radius-sm);
   }
   
@@ -433,10 +391,10 @@
     align-items: center;
     gap: var(--space-1);
     padding: 2px var(--space-1);
-    border: 0.5px solid white;
+    border: 0.5px solid var(--color-highlight);
     border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
     box-shadow: var(--shadow-xs);
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--color-control-subtle);
   }
     
   
@@ -446,7 +404,7 @@
     font-size: var(--text-xs-size);
     line-height: var(--text-xs-leading);
     text-transform: uppercase;
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
   
   /* Disclaimer */
@@ -459,7 +417,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-sm-size);
     line-height: var(--text-sm-leading);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -481,7 +439,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-sm-size);
     line-height: var(--text-sm-leading);
-    color: var(--color-foreground-secondary);
+    color: var(--color-text-secondary);
   }
   
   .footer-text a {
@@ -506,7 +464,7 @@
     font-weight: var(--font-medium);
     font-size: var(--text-sm-size);
     line-height: var(--text-sm-leading);
-    color: var(--color-foreground-primary);
+    color: var(--color-text);
   }
 }
 

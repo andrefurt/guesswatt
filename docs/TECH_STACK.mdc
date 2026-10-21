@@ -50,7 +50,7 @@ css/
 ├── components-layout.css          → Layout components (cards, containers)
 ├── components-results.css         → Result card and display styles
 ├── components-tabs.css            → Tab navigation styles
-├── components-about.css           → About panel styles
+├── components-about.css           → sobre.html content styles
 ├── utilities.css                  → Utility classes (.sr-only, .stack, .cluster)
 ├── animations.css                 → Animation keyframes and transitions
 └── main.css                      → App-specific styles (linked last)
@@ -62,29 +62,24 @@ css/
 
 OKLCH provides perceptually uniform colors - equal lightness values look equally bright to humans.
 
-```css
-:root {
-  /* Neutral scale */
-  --color-gray-0: oklch(99% 0 0);      /* Background */
-  --color-gray-1: oklch(97% 0 0);      /* Surface */
-  --color-gray-2: oklch(92% 0 0);      /* Border */
-  --color-gray-3: oklch(80% 0 0);      /* Border hover */
-  --color-gray-4: oklch(55% 0 0);      /* Text muted */
-  --color-gray-5: oklch(35% 0 0);      /* Text secondary */
-  --color-gray-6: oklch(20% 0 0);      /* Text primary */
-  
-  /* Accent (green) */
-  --color-accent: oklch(55% 0.18 145);
-  --color-accent-soft: oklch(94% 0.05 145);
-  --color-accent-hover: oklch(48% 0.18 145);
-  
-  /* Semantic */
-  --color-danger: oklch(55% 0.2 25);
-  --color-danger-soft: oklch(94% 0.05 25);
-  --color-warning: oklch(70% 0.15 85);
-  --color-warning-soft: oklch(95% 0.05 85);
-}
-```
+`css/tokens.css` owns the values; this lists the roles, one name each (audit 4.16). A component
+uses the role, never a raw colour:
+
+| Role | Token |
+|---|---|
+| Text, strong text (headings, links), secondary text | `--color-text`, `--color-text-strong`, `--color-text-secondary` |
+| Values in form fields, text on the accent, errors | `--color-text-field`, `--color-text-on-accent`, `--color-error` |
+| Page, surface, raised surface, card | `--color-bg`, `--color-surface`, `--color-surface-raised`, `--color-surface-card` |
+| Accent (buttons, focus), its hover and 8% tint | `--color-accent`, `--color-accent-hover`, `--color-accent-soft` |
+| Focus ring | `--color-focus-ring`, `--focus-ring-width`, `--focus-ring-offset` |
+| Borders | `--color-border`, `--color-border-strong`, `--color-border-dashed`, `--color-border-accent` |
+| Glass (white edges and translucent fills) | `--color-highlight*`, `--color-divider*`, `--color-control*`, `--color-surface-sunken`, `--color-hover-tint`, `--color-press-tint` |
+
+**Dark mode** follows the system (`prefers-color-scheme`, no toggle): the same roles get dark values
+in one block at the end of `css/tokens.css`, and `color-scheme: light dark` turns the native controls
+dark. The dark page background is `#1C241C`, the dark theme-color both pages declare; the manifest
+keeps its one light `theme_color`. A new colour is a role in both blocks, measured in both themes
+(the Phase 4 lab runs axe and the contrast check with `dark`).
 
 **Why OKLCH over HSL:**
 - `oklch(50% ...)` green and `oklch(50% ...)` red look equally bright
@@ -93,28 +88,13 @@ OKLCH provides perceptually uniform colors - equal lightness values look equally
 
 ### Typography Scale
 
-Fluid typography that scales smoothly from mobile to desktop.
-
-```css
-:root {
-  /* Base: 16px at 320px → 18px at 1280px */
-  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
-  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-  --text-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
-  --text-lg: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
-  --text-xl: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
-  --text-2xl: clamp(2rem, 1.5rem + 2.5vw, 3rem);
-  
-  /* Line heights */
-  --leading-tight: 1.2;
-  --leading-normal: 1.5;
-  --leading-relaxed: 1.7;
-  
-  /* Font stacks */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-}
-```
+`css/tokens.css` owns the values. Each step has `--text-STEP-size`, `-leading` and `-tracking`
+(xs, sm, base, md, lg, xl), sizes fluid with `clamp()`; body text uses the `--text-default-*`
+aliases. Leading is unitless, so it scales with the text (base: 1.4). Headings step down from h1
+(xl) to h2 (lg), h3 (md) and h4 (body). Prices and quantities use `font-variant-numeric:
+tabular-nums`; units ("/Mês", "kWh/Mês") are set in Inter like the text around them. `--font-mono`
+is for code only. A `calc()` that needs the line box height multiplies: `var(--text-default-leading)
+* var(--text-base-size)`.
 
 ### Spacing Scale
 
@@ -136,45 +116,20 @@ Consistent 4px base unit, rem-based for accessibility (respects user font size).
 }
 ```
 
-### Animation Tokens (Emil Kowalski Philosophy)
+### Motion Tokens
 
-Animations should feel physical, purposeful, and interruptible.
+Significa's values (craft:motion owns them; `css/tokens.css` has the tokens):
 
-```css
-:root {
-  /* Durations */
-  --duration-instant: 50ms;   /* Micro-feedback */
-  --duration-fast: 150ms;     /* Hover, focus */
-  --duration-base: 250ms;     /* Most transitions */
-  --duration-slow: 400ms;     /* Enter/exit, reveals */
-  --duration-slower: 600ms;   /* Page transitions */
-  
-  /* Easing curves */
-  --ease-linear: linear;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);        /* Decelerate */
-  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);         /* Accelerate */
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);    /* Symmetric */
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Overshoot */
-  
-  /* Common transitions */
-  --transition-colors: color var(--duration-fast) var(--ease-out),
-                       background var(--duration-fast) var(--ease-out),
-                       border-color var(--duration-fast) var(--ease-out);
-  --transition-transform: transform var(--duration-fast) var(--ease-out);
-  --transition-shadow: box-shadow var(--duration-fast) var(--ease-out);
-}
+| Token | Value | For |
+|---|---|---|
+| `--duration-micro` / `-fast` / `-medium` / `-slow` | 100 / 150 / 200 / 300 ms | hover; dropdown and chevron; view swaps; the result card |
+| `--duration-exit-fast` / `-exit-medium` | 120 / 160 ms | the closing side, about 80% of its enter |
+| `--ease-emphasized-decelerate` | `cubic-bezier(0.05, 0.7, 0.1, 1)` | everything entering |
+| `--ease-emphasized-accelerate` | `cubic-bezier(0.3, 0, 0.8, 0.15)` | exits only |
 
-/* Respect user preferences */
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --duration-instant: 0ms;
-    --duration-fast: 0ms;
-    --duration-base: 0ms;
-    --duration-slow: 0ms;
-    --duration-slower: 0ms;
-  }
-}
-```
+Rules: animate `transform` and `opacity` only (the tab indicator moves by transform; its width
+snaps); no overshoot; a state that can flip mid-way uses a transition, not keyframes. Reduced
+motion has one rule, in `css/reset.css`: every animation and transition becomes instant (`0s`).
 
 ### Layout Utilities
 
@@ -225,14 +180,17 @@ Flexbox-based, composable patterns.
 
 ```
 js/
-├── main.js             → Application entry point, state management, form handlers
-├── calculator.js       → Pure business logic: cost calculations, offer filtering
+├── main.js             → Entry point: form handlers and runComparison(), the one path every flow ends in
+├── calculator.js       → Pure business logic: costs, ranking, and compare() (best offer, saving, market median)
 ├── config.js          → Configuration constants (VAT rates, fees, default power, providers)
-├── data-date.js       → Footer: date of the prices and the stale notice (every page)
-├── pdf-service.js     → PDF parsing (client-side with PDF.js, self-hosted in vendor/pdfjs/)
+├── data-date.js       → Footer: date of the prices and the stale notice (every page; imports nothing)
+├── page-actions.js    → Copy button and its menu (every page; imports nothing)
+├── sobre.js           → sobre.html's entry point (the copy menu); a file because the CSP runs no inline script
+├── pdf-service.js     → Loads PDF.js (self-hosted in vendor/pdfjs/) and reads the invoice; computes nothing
 ├── ui-components.js    → UI component initialization (tabs, tooltips, dropdowns)
-├── ui-handlers.js     → Event handlers (copy, delete, show/hide results)
+├── ui-handlers.js     → Logo, delete, About, show/hide results, the input pill
 ├── ui-renderer.js     → Result rendering and DOM manipulation
+├── url-state.js       → The result's inputs in the URL (ADR-018): read, coerced, written
 └── utils.js           → Data loading (offers.json, tar.json, meta.json date) and formatting helpers
 
 vendor/
@@ -243,6 +201,12 @@ vendor/
 
 Third-party code is copied in, never loaded from a CDN, so nothing outside the site sees the page or
 the invoice. A new vendored file names its version and licence here.
+
+### Content Security Policy
+
+Both pages carry a meta CSP that allows only `'self'` (ADR-024). No inline `<script>` or `<style>`,
+no `style="…"` in the markup (setting `element.style` from a module is fine), and nothing from
+another origin. A new script, stylesheet, font or image is a file in the repo, linked like the rest.
 
 ### Icons
 
@@ -257,6 +221,8 @@ page uses.
   `ph-NAME`. To add one: copy the file's `<path>`s into a `<symbol id="…" viewBox="0 0 256 256">` in the
   sprite of each page that uses it, without `fill` attributes (the duotone back path keeps its
   `opacity="0.2"`).
+- The header's Ω (`gw-omega`, both pages) is the app icon's glyph, Inter v20 greek at wght 500, as a
+  path: the Inter subsets the pages serve have no Ω. `.logo-mark` sizes it to Inter's cap height.
 - `.icon` (css/base.css) sets the 14 px size and `fill: currentColor`; a component rule only adds what
   differs (colour, opacity).
 - ChatGPT and Claude marks (`brand-chatgpt`, `brand-claude`, copy menu), in black, the same pair as
@@ -434,11 +400,9 @@ const state = {
   transform: translateY(0) scale(0.98);
 }
 
-/* Focus: visible ring */
-.button:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
+/* Focus: no per-component rule. reset.css gives every :focus-visible the ring from
+   --color-focus-ring (3:1 or more against what surrounds it). A component that hides its
+   own outline moves the ring to a wrapper, as .input-field and .form-input-content do. */
 
 /* Disabled */
 .button:disabled {
@@ -459,13 +423,13 @@ const state = {
 
 .button-secondary {
   background: transparent;
-  border-color: var(--color-gray-2);
-  color: var(--color-gray-6);
+  border-color: var(--color-border);
+  color: var(--color-text);
 }
 
 .button-secondary:hover {
-  background: var(--color-gray-1);
-  border-color: var(--color-gray-3);
+  background: var(--color-surface-raised);
+  border-color: var(--color-border-strong);
 }
 ```
 
@@ -664,7 +628,7 @@ part is the service worker, ADR-023).
   the header's Ω drawn from Inter (v20 greek subset, weight 500, SIL OFL 1.1) in `#3E4D37` on
   `#E8E8E8`, as an outline, so it never depends on a font. The PNGs are renders of the same SVG.
 - Both pages link the manifest, the icons and the theme colours, and set `viewport-fit=cover`. With
-  it, an installed page reaches the screen edges, so `body` and the fixed about panel pad by
+  it, an installed page reaches the screen edges, so `body` pads by
   `env(safe-area-inset-*)` (0 on screens without a notch or home indicator).
 
 ---
@@ -681,7 +645,7 @@ files each row counts. To raise a limit, change it here and give the reason in t
 | `index.html` | the page, with its icon sprite | 16 KB |
 | `sobre.html` | the page, with its icon sprite | 16 KB |
 | `CSS` | every file in css/, summed | 32 KB |
-| `JavaScript` | every file in js/, plus components.js, summed | 40 KB |
+| `JavaScript` | every file in js/, summed | 40 KB |
 | `Landing page` | index.html, all CSS and JS, and Inter latin | 150 KB |
 <!-- /size-check -->
 
@@ -700,7 +664,7 @@ about 1.8 s or less, with every icon on that first frame.
 
 1. **Initialization** (`main.js`):
    - DOM ready → `init()` called
-   - Initialize UI handlers (copy, dropdown, delete)
+   - Initialize the copy menu (page-actions.js) and the UI handlers (logo, delete)
    - Populate provider dropdown
    - Initialize tabs system
    - Initialize PDF upload handler
@@ -713,78 +677,50 @@ about 1.8 s or less, with every icon on that first frame.
    - No CSV fallback in the browser (removed in October 2026): if `offers.json` fails, the
      request fails and no result is shown
 
-3. **Form Submission**:
-   - **Estimate mode**: Monthly bill → estimate consumption → find best offer → render
-   - **Precise mode**: Consumption + power + tariff → find best offer → render
+3. **Form Submission**: the estimate form, the manual form and a read PDF each build an input
+   and call `runComparison()` (main.js), which loads the data and calls `compare()` in
+   calculator.js. The saving against the current supplier exists only there
+   (`currentSupplierSaving`). sobre.html loads only data-date.js and page-actions.js.
 
 4. **Result Rendering** (`ui-renderer.js`):
-   - Calculate savings (vs current or vs average)
    - Clone `#result-card-template` and `#result-info-template` (in `index.html`) and fill them with
      `textContent` and DOM properties: ERSE text and links never go through `innerHTML` (rule 7).
      `scripts/build-offers.js` also strips markup characters and non-http links at build time.
-   - **Provider Logo Loading**: Hybrid approach with cascading fallbacks
-     - Primary: Clearbit Logo API (`logo.clearbit.com/{domain}`)
-     - Fallback 1: Google Favicon Service (`google.com/s2/favicons`)
-     - Fallback 2: Generic lightning icon (`ph-lightning-duotone` from the sprite)
+   - The provider slot shows the sprite's lightning mark for every supplier (no logos, ADR-021)
    - Insert into DOM
-   - Initialize logo fallback handlers
-   - Cache result for tab switching
    - Show results view, hide input view
 
-5. **Tab Switching**:
-   - Check cache for mode
-   - If cached: restore HTML immediately
-   - If not cached: show input form for that mode
+5. **Tab Switching**: shows that mode's form; a result is never cached per tab
 
 ### Data Flow
 
 ```
 User Input
     ↓
-Form Handler (main.js)
+Form Handler or PDF (main.js, pdf-service.js)
     ↓
-Load Data (utils.js) → offers.json
+runComparison (main.js) → Load Data (utils.js) → offers.json
     ↓
-Calculate (calculator.js) → Best Offer
+compare (calculator.js) → best offer, saving, market median
     ↓
 Render (ui-renderer.js) → DOM from <template>
     ↓
 Display → User sees result
 ```
 
-### Provider Logo Implementation
+### Provider mark
 
-**Location**: `js/ui-renderer.js` → `createProviderIcon()` and `initProviderLogoFallbacks()`
-
-**Approach**: Hybrid cascading fallback system for maximum logo coverage.
-
-Builds the `<img>` and the fallback icon as DOM nodes (`createProviderIcon()`), with the domain URL-encoded,
-so a link from ERSE never becomes markup.
-
-**Fallback Chain**:
-1. **Clearbit Logo API**: High-quality logos for major brands (works for ~70% of providers)
-2. **Google Favicon Service**: Reliable fallback for all domains (works for ~95% of providers)
-3. **Generic Icon**: The lightning icon from the page's inline sprite, always available
-
-**Error Handling**: Event listeners cascade through fallbacks automatically:
-- Clearbit fails → try favicon
-- Favicon fails → show generic icon
-
-**Domain Extraction**: Handles various URL formats:
-- `https://www.edp.pt/...` → `edp.pt`
-- `https://energianegocios.acciona-energia.com/...` → `energianegocios.acciona-energia.com`
-- Invalid URLs → returns null, falls back to generic icon
-
-**CSS Styling**: Logo images sized to match icon dimensions (14px) with `object-fit: contain` for proper aspect ratio.
+Every result card shows the same lightning mark from the sprite (`createIcon('ph-lightning-duotone')`
+in `js/ui-renderer.js`), not the supplier's logo. ADR-021 has why: the logo services were third
+parties that learned the recommended supplier, the suppliers publish no licence for their marks, and
+the winning supplier changes with each refresh. The supplier's name is the text beside it.
 
 ### Performance Considerations
 
 - **Lazy loading**: Data only loaded when form is submitted
 - **One data load per page**: `loadOffers()` keeps its promise, so a second submit reuses the parsed offers (a failed load is retried on the next call)
-- **Caching**: Results cached per tab to avoid recalculation
 - **Debouncing**: Not currently needed (no real-time input)
 - **Code splitting**: Not applicable (no build step, but modules loaded on demand)
-- **Logo loading**: Logos load asynchronously with graceful degradation (no blocking)
 
 ---
 

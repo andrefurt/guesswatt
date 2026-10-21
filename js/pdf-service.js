@@ -1,17 +1,11 @@
 /**
  * PDF Service Module
- * PDF.js interaction and invoice text parsing logic
+ * Loads PDF.js, reads the invoice text and shows what was found. It computes nothing: a complete
+ * invoice goes to the callback main.js passes to initPDFUpload, which runs the comparison.
  */
 
 import { PROVIDERS } from './config.js';
-import { findBestOfferForTariff, calculateMonthlyCost } from './calculator.js';
-import { loadOffers, toTitleCase, formatTariffName, isLargeHousehold } from './utils.js';
-import { initTooltips } from './ui-components.js';
-import { setInvoiceData } from './ui-handlers.js';
-
-// PDF data state (managed by this module)
-let pdfData = null;
-let showManualForm = null; // setManualFormVisible from main.js, kept by initPDFUpload
+import { toTitleCase, formatTariffName, formatNumber } from './utils.js';
 
 /**
  * Load PDF.js library dynamically
@@ -340,116 +334,61 @@ export function parseInvoiceText(text) {
 }
 
 /**
+ * Switch the drop area between its empty state (hint, "Escolher fatura", manual link) and a line
+ * about the PDF. Both states are in index.html; only their hidden flags and text change, so the
+ * buttons keep their listeners and nothing goes through innerHTML.
+ * @param {string|null} status - null for the empty state
+ * @param {string} [summary] - What was read, as text
+ */
+function setDropArea(status, summary = '') {
+  const dropArea = document.getElementById('precise-mode');
+  if (!dropArea) return;
+  dropArea.querySelector('.drop-area-empty').hidden = status !== null;
+  const loaded = dropArea.querySelector('.drop-area-loaded');
+  loaded.hidden = status === null;
+  loaded.querySelector('.drop-area-status').textContent = status || '';
+  loaded.querySelector('.pdf-data-summary').textContent = summary;
+  dropArea.classList.toggle('has-file', status !== null);
+}
+
+/**
  * Show PDF loading state
  */
 export function showPDFLoading() {
-  const dropArea = document.getElementById('precise-mode');
-  const dropAreaText = dropArea?.querySelector('.drop-area-text p');
-  if (dropAreaText) {
-    dropAreaText.textContent = 'A processar PDF...';
-  }
+  setDropArea('A ler a fatura…');
 }
 
 /**
  * Display extracted PDF data in UI
  * @param {Object} data - Extracted invoice data
- * @param {Function} onDataShown - Callback to call after showing data (for auto-calculation)
  */
-export function showPDFData(data, onDataShown) {
-  const dropArea = document.getElementById('precise-mode');
-  const dropAreaText = dropArea?.querySelector('.drop-area-text');
-  const manualLink = document.getElementById('manual-link');
-  
-  if (!dropArea || !dropAreaText) return;
-  
-  // Mostrar dados extraídos no drop area
-  const providerNameRaw = data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detectado';
-  const providerName = toTitleCase(providerNameRaw);
-  
-  // Build tariff name with cycle info if available
+export function showPDFData(data) {
+  const providerName = toTitleCase(data.provider ? (PROVIDERS[data.provider] || data.provider) : 'Não detetado');
   const tariffNameRaw = data.tariffType === 1 ? 'Simples' : 
                         data.tariffType === 2 ? 'Bi-horária' : 'Tri-horária';
   const tariffName = formatTariffName(tariffNameRaw, data.tariffType, data.cycleType);
-  
-  // Update drop area text to show loaded state
   // Values read from the PDF go in as text, never as markup
-  const loaded = document.createElement('p');
-  loaded.textContent = '✓ Factura carregada';
-  const summary = document.createElement('p');
-  summary.className = 'pdf-data-summary';
-  summary.textContent = `${providerName} · ${tariffName} · ${data.consumption} kWh · ${data.power} kVA`;
-  dropAreaText.replaceChildren(loaded, summary);
-  
-  // Hide manual link
-  if (manualLink) manualLink.style.display = 'none';
-  
-  // Mark drop area as having file
-  dropArea.classList.add('has-file');
-  
-  // Update input pill with invoice data (from PDF)
-  setInvoiceData({
-    provider: providerName,
-    tariff: tariffName,
-    consumption: data.consumption,
-    power: data.power
-  }, true); // fromPDF = true
-  
-  // Calcular automaticamente após mostrar dados
-  if (onDataShown) {
-    onDataShown();
-  }
+  setDropArea('✓ Fatura lida', `${providerName} · ${tariffName} · ${formatNumber(data.consumption)} kWh · ${formatNumber(data.power)} kVA`);
 }
 
 /**
  * Clear PDF data and reset UI
- * @param {Function} clearTabResult - Function to clear tab result
  */
-export function clearPDF(clearTabResult) {
-  const dropArea = document.getElementById('precise-mode');
-  const dropAreaText = dropArea?.querySelector('.drop-area-text');
-  const manualLink = document.getElementById('manual-link');
+export function clearPDF() {
   const pdfInput = document.getElementById('pdf-input');
-  
-  // Reset estado
-  pdfData = null;
   if (pdfInput) pdfInput.value = '';
-  
-  // Restaurar UI
-  if (dropAreaText) {
-    dropAreaText.innerHTML = `
-      <p>Clica ou arrasta a tua fatura PDF</p>
-      <a href="#" id="manual-link" aria-label="Introduzir dados da fatura manualmente">Adicionar dados manualmente</a>
-    `;
-  }
-  
-  // Remove has-file class
-  if (dropArea) dropArea.classList.remove('has-file');
-  
-  // Show manual link
-  if (manualLink) manualLink.style.display = 'inline';
-  
-  // Esconder resultado quando PDF é removido
-  const resultDiv = document.getElementById('result');
-  if (resultDiv) {
-    resultDiv.style.display = 'none';
-    resultDiv.innerHTML = '';
-  }
-  
-  // Limpar resultado da tab
-  if (clearTabResult) {
-    clearTabResult('precise');
-  }
+  setDropArea(null);
 }
 
 /**
  * Handle PDF file upload
  * @param {File} file - PDF file
- * @param {Function} clearTabResult - Function to clear tab result
- * @param {Function} onDataShown - Callback to call after showing data
+ * @param {Function} onInvoice - Receives the invoice when consumption and power were both found
+ * @param {Function} onProblem - Receives 'not-pdf' or 'unreadable'; main.js shows the message
  */
-export async function handlePDFFile(file, clearTabResult, onDataShown) {
+export async function handlePDFFile(file, onInvoice, onProblem) {
   if (file.type !== 'application/pdf') {
-    alert('Por favor selecciona um ficheiro PDF.');
+    onProblem('not-pdf');
     return;
   }
   
@@ -461,19 +400,19 @@ export async function handlePDFFile(file, clearTabResult, onDataShown) {
     const extracted = await extractPDFData(file);
     
     if (extracted && (!extracted.consumption || !extracted.power)) {
-      clearPDF(clearTabResult);
+      clearPDF();
       openManualFormWithPDFData(extracted);
     } else if (extracted) {
-      pdfData = extracted;
-      showPDFData(extracted, onDataShown);
+      showPDFData(extracted);
+      onInvoice(extracted);
     } else {
-      alert('Não foi possível extrair dados desta factura. Tenta introduzir manualmente.');
-      clearPDF(clearTabResult);
+      clearPDF();
+      onProblem('unreadable');
     }
   } catch (error) {
     console.error('Erro ao processar PDF:', error);
-    alert('Erro ao processar o PDF. Tenta introduzir manualmente.');
-    clearPDF(clearTabResult);
+    clearPDF();
+    onProblem('unreadable');
   }
 }
 
@@ -484,7 +423,6 @@ export async function handlePDFFile(file, clearTabResult, onDataShown) {
 function openManualFormWithPDFData(found) {
   const inputSlot = document.getElementById('input-slot');
   inputSlot?.classList.add('preciso-mode', 'manual-mode');
-  if (showManualForm) showManualForm(true);
 
   const setSelect = (id, value) => {
     const select = document.getElementById(id);
@@ -515,133 +453,22 @@ function openManualFormWithPDFData(found) {
 }
 
 /**
- * Calculate best offer from PDF data
- * @param {Function} renderResult - Function to render result
- * @param {string} currentMode - Current mode ('estimate' or 'precise')
- * @param {Function} setTabResult - Function to set tab result
- */
-export async function calculateFromPDF(renderResult, currentMode, setTabResult) {
-  if (!pdfData) return;
-  
-  try {
-    const resultDiv = document.getElementById('result');
-    if (resultDiv) {
-      resultDiv.innerHTML = '<p>A calcular...</p>';
-      resultDiv.style.display = 'block';
-    }
-    
-    // Carregar dados
-    const { offers, tar, dataDate } = await loadOffers();
-    const context = { tar, largeHousehold: isLargeHousehold() };
-    
-    // Encontrar melhor oferta (filters lock-in, uses annual effective cost)
-    const best = findBestOfferForTariff(
-      offers, 
-      pdfData.consumption, 
-      pdfData.power, 
-      pdfData.tariffType,
-      pdfData.distribution,
-      context
-    );
-    
-    if (!best) {
-      alert('Não encontrámos ofertas para este perfil.');
-      return;
-    }
-    
-    // Juntar a data dos preços (mostrada nas ofertas indexadas)
-    const enrichedBest = { ...best, dataDate };
-    
-    // Calcular poupança vs operador actual (se detectado)
-    let savings = null;
-    if (pdfData.provider) {
-      // Normalize power for comparison (use same tolerance as findBestOfferForTariff)
-      const normalizedPower = typeof pdfData.power === 'number' ? pdfData.power : parseFloat(String(pdfData.power).replace(',', '.'));
-      const normalizedTariffType = typeof pdfData.tariffType === 'number' ? pdfData.tariffType : parseInt(pdfData.tariffType);
-      
-      // Encontrar ofertas do operador actual com mesma potência e tarifa
-      const currentProviderOffers = offers.filter(o => {
-        const tvField = o['TV|TVFV|TVP'] || o.TV || 0;
-        const potCont = typeof o.Pot_Cont === 'number' ? o.Pot_Cont : parseFloat(String(o.Pot_Cont || '').replace(',', '.'));
-        const contagem = typeof o.Contagem === 'number' ? o.Contagem : parseInt(o.Contagem);
-        
-        // Use tolerance for floating point comparison (0.01 kVA tolerance - same as findBestOfferForTariff)
-        const powerMatch = Math.abs(potCont - normalizedPower) < 0.01;
-        
-        return o.COM === pdfData.provider && 
-               o.TF > 0 &&
-               tvField > 0 &&
-               powerMatch &&
-               contagem === normalizedTariffType;
-      });
-      
-      if (currentProviderOffers.length > 0) {
-        // Calcular custo com a melhor oferta do operador actual
-        const currentProviderCosts = currentProviderOffers.map(offer => ({
-          ...offer,
-          monthlyCost: calculateMonthlyCost(offer, pdfData.consumption, pdfData.power, pdfData.distribution, context)
-        }));
-        
-        // Ordenar por custo e pegar a mais barata
-        currentProviderCosts.sort((a, b) => a.monthlyCost - b.monthlyCost);
-        const bestCurrentOffer = currentProviderCosts[0];
-        
-        const currentProviderCost = bestCurrentOffer.monthlyCost;
-        const monthlySavings = currentProviderCost - enrichedBest.monthlyCost;
-        
-        if (monthlySavings > 0) {
-          savings = {
-            monthly: monthlySavings,
-            yearly: monthlySavings * 12,
-            vsProvider: toTitleCase(PROVIDERS[pdfData.provider] || pdfData.provider)
-          };
-        }
-      }
-    }
-    
-    // Renderizar resultado
-    renderResult(enrichedBest, pdfData.consumption, pdfData.power, null, savings, false, currentMode, setTabResult);
-    
-  } catch (error) {
-    console.error('Erro ao calcular:', error);
-    alert('Erro ao calcular. Tenta novamente.');
-  }
-}
-
-/**
- * Get current PDF data
- * @returns {Object|null} Current PDF data or null
- */
-export function getPDFData() {
-  return pdfData;
-}
-
-/**
- * Reset PDF data state (called when returning to input view)
- */
-export function resetPDFData() {
-  pdfData = null;
-}
-
-/**
  * Initialize PDF upload functionality
- * @param {Function} clearTabResult - Function to clear tab result
- * @param {Function} setManualFormVisible - Function to set manual form visibility
- * @param {Function} getManualFormVisible - Function to get manual form visibility
- * @param {Function} onDataShown - Callback to call after showing PDF data
+ * @param {Function} onInvoice - Receives a complete invoice (main.js runs the comparison)
+ * @param {Function} onProblem - Receives 'not-pdf' or 'unreadable'
  */
-export function initPDFUpload(clearTabResult, setManualFormVisible, getManualFormVisible, onDataShown) {
+export function initPDFUpload(onInvoice, onProblem) {
   const dropArea = document.getElementById('precise-mode');
   const pdfInput = document.getElementById('pdf-input');
   const inputSlot = document.getElementById('input-slot');
   
   if (!dropArea || !pdfInput) return;
-  showManualForm = setManualFormVisible;
   
-  // Clicar na drop area abre file picker (exceto no link manual)
+  // "Escolher fatura" is the keyboard way in; a click anywhere else on the area does the same for a
+  // pointer (except on the manual link)
   dropArea.addEventListener('click', (e) => {
-    const manualLink = e.target.closest('#manual-link');
-    if (!pdfData && !manualLink) {
+    if (e.target.closest('#manual-link')) return;
+    if (!dropArea.classList.contains('has-file')) {
       pdfInput.click();
     }
   });
@@ -649,7 +476,7 @@ export function initPDFUpload(clearTabResult, setManualFormVisible, getManualFor
   // Drag and drop
   dropArea.addEventListener('dragover', (e) => {
     e.preventDefault();
-    if (!pdfData && inputSlot) {
+    if (!dropArea.classList.contains('has-file') && inputSlot) {
       inputSlot.classList.add('dragging');
     }
   });
@@ -661,15 +488,15 @@ export function initPDFUpload(clearTabResult, setManualFormVisible, getManualFor
   dropArea.addEventListener('drop', (e) => {
     e.preventDefault();
     if (inputSlot) inputSlot.classList.remove('dragging');
-    if (!pdfData && e.dataTransfer.files.length) {
-      handlePDFFile(e.dataTransfer.files[0], clearTabResult, onDataShown);
+    if (!dropArea.classList.contains('has-file') && e.dataTransfer.files.length) {
+      handlePDFFile(e.dataTransfer.files[0], onInvoice, onProblem);
     }
   });
   
   // File input change
   pdfInput.addEventListener('change', (e) => {
     if (e.target.files.length) {
-      handlePDFFile(e.target.files[0], clearTabResult, onDataShown);
+      handlePDFFile(e.target.files[0], onInvoice, onProblem);
     }
   });
 }

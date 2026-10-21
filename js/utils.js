@@ -3,6 +3,8 @@
  * Data loading, phone and name formatting, and small helpers
  */
 
+import { loadDataStatus } from './data-date.js';
+
 let offersRequest = null;
 
 /**
@@ -59,34 +61,6 @@ export async function loadDataDate() {
 }
 
 /**
- * The price date, and whether the service worker answered from this device's copy because the
- * network failed (sw.js marks those responses)
- * @returns {Promise<{date: Date|null, offline: boolean}>}
- */
-export async function loadDataStatus() {
-  try {
-    const response = await fetch('data/meta.json');
-    if (!response.ok) return { date: null, offline: false };
-    const offline = response.headers.has('X-GuessWatts-Offline');
-    const { build } = await response.json();
-    const value = build?.sourceUpdatedAt;
-    return { date: value ? new Date(value) : null, offline };
-  } catch (error) {
-    console.warn('⚠️  Could not load meta.json:', error.message);
-    return { date: null, offline: false };
-  }
-}
-
-/**
- * Format a data date as "dezembro de 2025"
- * @param {Date} date
- * @returns {string}
- */
-export function formatDataMonth(date) {
-  return new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric', timeZone: 'Europe/Lisbon' }).format(date);
-}
-
-/**
  * Format a data date as "dez. 2025"
  * @param {Date} date
  * @returns {string}
@@ -95,6 +69,32 @@ export function formatShortDataMonth(date) {
   const month = new Intl.DateTimeFormat('pt-PT', { month: 'short', timeZone: 'Europe/Lisbon' }).format(date);
   const year = new Intl.DateTimeFormat('pt-PT', { year: 'numeric', timeZone: 'Europe/Lisbon' }).format(date);
   return `${month} ${year}`;
+}
+
+// PT-PT number formats: "54,28 €", "4,6". Intl puts a no-break space before the €.
+const EURO = {
+  0: new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }),
+  2: new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
+};
+const NUMBER = new Intl.NumberFormat('pt-PT', { maximumFractionDigits: 2 });
+
+/**
+ * Format euros the PT-PT way: "54,28 €"
+ * @param {number} value
+ * @param {0|2} [decimals=2] - 0 for rounded figures ("cerca de 65 €")
+ * @returns {string}
+ */
+export function formatEuro(value, decimals = 2) {
+  return EURO[decimals].format(value);
+}
+
+/**
+ * Format a number the PT-PT way, up to 2 decimals: "4,6", "250"
+ * @param {number|string} value
+ * @returns {string}
+ */
+export function formatNumber(value) {
+  return NUMBER.format(Number(value));
 }
 
 /**

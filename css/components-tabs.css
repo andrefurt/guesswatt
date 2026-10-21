@@ -40,13 +40,12 @@
     top: 0;
     left: 0;
     height: 100%;
-    background: var(--color-bg-tabs-active);
-    border: 0.5px solid white;
+    background: var(--color-surface-raised);
+    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-icon);
-    transition: 
-      transform var(--duration-slow) var(--ease-tabs),
-      width var(--duration-slow) var(--ease-tabs);
+    /* Only the position animates; the width snaps (animating width relays out every frame) */
+    transition: transform var(--duration-medium) var(--ease-emphasized-decelerate);
     z-index: var(--z-tabs-indicator);
   }
   
@@ -70,8 +69,8 @@
     font-weight: var(--font-medium);
     font-size: var(--text-base-size); /* 14px */
     line-height: var(--text-default-leading);
-    color: var(--color-foreground-primary);
-    transition: transform var(--duration-normal) var(--ease-bounce);
+    color: var(--color-text);
+    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
     position: relative;
     z-index: 1;
     -webkit-tap-highlight-color: transparent;

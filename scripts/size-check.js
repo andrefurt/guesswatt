@@ -23,7 +23,7 @@ const filesIn = (dir, ext) => fs.readdirSync(path.join(ROOT, dir))
   .map(name => `${dir}/${name}`);
 
 const css = filesIn('css', '.css');
-const js = [...filesIn('js', '.js'), 'components.js'];
+const js = filesIn('js', '.js');
 
 // Each row of the budget table, by its first cell, and the files it sums
 const ROWS = {

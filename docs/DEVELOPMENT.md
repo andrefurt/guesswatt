@@ -50,7 +50,6 @@ open `http://localhost:8000/?sw`; loading the page again without `?sw` removes i
 ```
 guesswatt/
 ├── index.html              # Main HTML file
-├── components.js           # Component definitions
 ├── css/                    # Stylesheets
 │   ├── tokens.css          # Design tokens
 │   ├── reset.css           # CSS reset
@@ -64,10 +63,12 @@ guesswatt/
 │   ├── calculator.js        # Business logic
 │   ├── config.js            # Constants
 │   ├── data-date.js         # Footer price date and stale notice
-│   ├── pdf-service.js       # PDF parsing (includes cycle detection)
+│   ├── page-actions.js      # Copy button and menu (both pages)
+│   ├── pdf-service.js       # PDF reading (includes cycle detection)
 │   ├── ui-components.js     # UI initialization
 │   ├── ui-handlers.js       # Event handlers
 │   ├── ui-renderer.js       # Result rendering
+│   ├── url-state.js         # Result inputs in the URL (ADR-018)
 │   └── utils.js             # Utilities (includes formatTariffName)
 ├── data/                   # Data files
 │   ├── Precos_ELEGN.csv    # Price data

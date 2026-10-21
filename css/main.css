@@ -42,13 +42,13 @@
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
-    border-block-end: 1px solid var(--border);
+    border-block-end: 1px solid var(--color-border-strong);
     transition: var(--transition-colors);
     cursor: pointer;
   }
 
   .offer-row:hover {
-    background-color: var(--bg-high);
+    background-color: var(--color-surface-raised);
   }
 
   .offer-row.is-best {
@@ -59,34 +59,34 @@
     width: 24px;
     font-size: var(--text-sm-size);
     font-weight: var(--font-medium);
-    color: var(--foreground-tertiary);
+    color: var(--color-text-secondary);
     text-align: center;
   }
 
   .offer-row.is-best .offer-rank {
-    color: var(--foreground-accent);
+    color: var(--color-text-strong);
   }
 
   .offer-row-provider {
     flex: 1;
     font-weight: var(--font-medium);
-    color: var(--foreground);
+    color: var(--color-text-strong);
   }
 
   .offer-row-price {
     font-weight: var(--font-semibold);
-    color: var(--foreground);
+    color: var(--color-text-strong);
   }
 
   .offer-row-diff {
     font-size: var(--text-sm-size);
-    color: var(--foreground-tertiary);
+    color: var(--color-text-secondary);
     min-width: 60px;
     text-align: right;
   }
 
   .offer-row.is-best .offer-row-diff {
-    color: var(--foreground-accent);
+    color: var(--color-text-strong);
     font-weight: var(--font-medium);
   }
 
@@ -103,7 +103,7 @@
     
     .card {
       box-shadow: none;
-      border: 1px solid var(--border);
+      border: 1px solid var(--color-border-strong);
     }
   }
 }

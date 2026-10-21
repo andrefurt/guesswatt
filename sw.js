@@ -8,7 +8,7 @@
  *   VERSION by hand.
  * - Everything else of ours (CSS, JS, icons, manifest): served from the cache and refreshed in the
  *   background, so a deploy shows on the next visit.
- * Other origins (supplier logos, AI links) are left alone. Nothing the person types or uploads is
+ * Other origins (the AI links) are left alone. Nothing the person types or uploads is
  * stored: the cache holds only the site's own files.
  *
  * VERSION is the date of the prices. The weekly refresh (.github/workflows/update-erse.yml) rewrites
@@ -28,7 +28,6 @@ const PRECACHE = [
   'index.md',
   'sobre.md',
   'manifest.webmanifest',
-  'components.js',
   'css/tokens.css',
   'css/reset.css',
   'css/base.css',
@@ -47,10 +46,13 @@ const PRECACHE = [
   'js/config.js',
   'js/data-date.js',
   'js/main.js',
+  'js/page-actions.js',
   'js/pdf-service.js',
+  'js/sobre.js',
   'js/ui-components.js',
   'js/ui-handlers.js',
   'js/ui-renderer.js',
+  'js/url-state.js',
   'js/utils.js',
   'vendor/fonts/inter-latin.woff2',
   'icons/favicon.svg',
