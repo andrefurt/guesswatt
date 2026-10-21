@@ -446,8 +446,7 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
-    color: var(--color-text-black);
-    opacity: 0.44;
+    color: var(--color-foreground-secondary);
   }
   
   .form-input-slot {
@@ -459,13 +458,14 @@
     display: flex;
     align-items: center;
     height: 2.5rem; /* 40px - fixed height for form inputs */
-    border: 1px solid white;
+    /* Translucent box, opaque text: the 75% applies to the fill and the edge only, so typed
+       values keep full contrast */
+    border: 1px solid rgb(255 255 255 / 0.75);
     /* Child radius = parent radius (6px) - parent border (0.5px) ≈ 5.5px */
     border-radius: calc(var(--radius-sm) - 0.5px);
     box-shadow: none; /* Shadow removed */
     position: relative;
-    background: var(--color-bg-form-input);
-    opacity: 0.75; /* Further decreased background opacity */
+    background: color-mix(in oklch, var(--color-bg-form-input) 75%, transparent);
     transition: 
       border-color var(--duration-normal) var(--ease-out);
   }
@@ -506,8 +506,8 @@
   }
   
   .form-input::placeholder {
-    color: var(--color-text-black);
-    opacity: 0.44;
+    color: var(--color-foreground-secondary);
+    opacity: 1;
   }
   
   .form-input-suffix {
@@ -516,8 +516,7 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-normal);
     letter-spacing: calc(var(--text-base-size) * -0.03);
-    color: var(--color-text-black);
-    opacity: 0.44;
+    color: var(--color-foreground-secondary);
     padding-right: var(--space-3);
     flex-shrink: 0;
   }
@@ -541,18 +540,17 @@
     font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03);
-    color: var(--color-text-black);
-    opacity: 0.44;
+    /* Secondary until a value is chosen: the "Selecionar" prompt reads as a prompt, not a value */
+    color: var(--color-foreground-secondary);
     outline: none;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
-    transition: opacity var(--duration-normal) var(--ease-out);
   }
   
   .form-select:valid:not(:placeholder-shown),
   .form-select.has-value {
-    opacity: 1;
+    color: var(--color-text-black);
   }
   
   .form-select-icon {
@@ -595,8 +593,7 @@
     font-size: var(--text-base-size);
     line-height: var(--leading-tight);
     letter-spacing: var(--text-default-tracking);
-    color: var(--color-text-black);
-    opacity: 0.44;
+    color: var(--color-foreground-secondary);
     text-decoration: underline;
     text-underline-offset: var(--space-1);
     cursor: pointer;

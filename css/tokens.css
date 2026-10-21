@@ -42,11 +42,12 @@
   --color-foreground-primary: #35443D; /* Fallback for older browsers */
   --color-foreground-primary: oklch(40% 0.04 135); /* #35443D - Primary text color */
   
-  --color-foreground-secondary: #8E8C89; /* Fallback */
-  --color-foreground-secondary: oklch(64% 0.01 0); /* #8E8C89 - Secondary text, medium gray */
+  /* Secondary text: 4.9:1 on the page, 4.6:1 on the darkest surface that carries text (#E1E1E1) */
+  --color-foreground-secondary: #686163; /* Fallback */
+  --color-foreground-secondary: oklch(50% 0.01 0); /* #686163 - Secondary text */
   
-  --color-text-muted: #9E9E9E; /* Fallback */
-  --color-text-muted: oklch(65% 0 0); /* #9E9E9E - Muted text, light gray */
+  --color-text-muted: #686163; /* Fallback */
+  --color-text-muted: oklch(50% 0.01 0); /* #686163 - Same as secondary: lighter text fails 4.5:1 */
   
   --color-text-white: #F3F3F2; /* Fallback */
   --color-text-white: oklch(96% 0 0); /* #F3F3F2 - White text on dark backgrounds */
@@ -58,11 +59,11 @@
   --foreground: #35443D; /* Fallback */
   --foreground: oklch(25% 0.02 145); /* #35443D - Primary foreground */
   
-  --foreground-secondary: #8E8C89; /* Fallback */
-  --foreground-secondary: oklch(58% 0.01 0); /* #8E8C89 - Secondary foreground */
+  --foreground-secondary: #686163; /* Fallback */
+  --foreground-secondary: oklch(50% 0.01 0); /* #686163 - Secondary foreground */
   
-  --foreground-tertiary: #9E9E9E; /* Fallback */
-  --foreground-tertiary: oklch(65% 0 0); /* #9E9E9E - Tertiary foreground */
+  --foreground-tertiary: #686163; /* Fallback */
+  --foreground-tertiary: oklch(50% 0.01 0); /* #686163 - Same as secondary: lighter text fails 4.5:1 */
   
   --foreground-accent: #35443D; /* Fallback */
   --foreground-accent: oklch(25% 0.02 145); /* #35443D - Accent foreground, matches foreground */
