@@ -150,16 +150,7 @@
     box-shadow: var(--shadow-icon-inset);
     pointer-events: none;
   }
-  
-  /* Provider logo image styling */
-  .provider-icon .provider-logo {
-    width: var(--text-base-size); /* 14px - same as icon size */
-    height: var(--text-base-size);
-    object-fit: contain;
-    display: block;
-    mix-blend-mode: multiply; /* Blend logo with background using multiply mode */
-  }
-    
+
   
   .result-card-actions {
     display: flex;

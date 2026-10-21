@@ -8,7 +8,7 @@
  *   VERSION by hand.
  * - Everything else of ours (CSS, JS, icons, manifest): served from the cache and refreshed in the
  *   background, so a deploy shows on the next visit.
- * Other origins (supplier logos, AI links) are left alone. Nothing the person types or uploads is
+ * Other origins (the AI links) are left alone. Nothing the person types or uploads is
  * stored: the cache holds only the site's own files.
  *
  * VERSION is the date of the prices. The weekly refresh (.github/workflows/update-erse.yml) rewrites

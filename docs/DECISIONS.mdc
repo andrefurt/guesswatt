@@ -759,7 +759,18 @@ aparecer uma Ndom.
 
 **Data:** Dezembro 2024
 
-**Status:** ✅ Aceite
+**Status:** ⛔ Substituída (outubro de 2026, auditoria 4.17)
+
+**Substituída por:** uma marca neutra, a mesma para todos os fornecedores (o raio do sprite). Razões:
+- `logo.clearbit.com` deixou de resolver, e o Google (favicons) via cada visita e o fornecedor
+  recomendado (SEC-8, BASE-6); a CSP `'self'` (4.17a) não deixa imagens de fora.
+- Nenhum fornecedor publica licença para a marca; os termos da EDP e da Repsol pedem autorização
+  escrita prévia para a reproduzir (edp.pt/termos-e-condicoes, repsol.pt/nota-legal, lidos em
+  2026-10-21).
+- Só 3 fornecedores ganham em algum perfil (EDPC, TUR, REPSOL) e isso muda a cada atualização: logos
+  locais seriam curadoria semanal para um ícone de 14 px. O nome do fornecedor já está no cartão.
+
+**Decisão original (histórico):**
 
 **Contexto:**
 Precisávamos de mostrar logos dos fornecedores de energia no cartão de resultado. Os CSVs da ERSE contêm URLs dos websites (`LinkCOM`, `LinkOfertaCom`) mas não URLs directas para logos.

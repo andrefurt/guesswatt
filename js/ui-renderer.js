@@ -12,23 +12,6 @@ import { showResults, getPillMode } from './ui-handlers.js';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /**
- * Extract domain from website URL
- * @param {string} websiteUrl - Full website URL
- * @returns {string|null} Domain name or null
- */
-function extractDomain(websiteUrl) {
-  if (!websiteUrl) return null;
-  try {
-    const url = new URL(websiteUrl);
-    return url.hostname.replace(/^www\./, ''); // Remove www. prefix
-  } catch (e) {
-    // If URL parsing fails, try simple regex extraction
-    const match = websiteUrl.match(/https?:\/\/(?:www\.)?([^\/]+)/);
-    return match ? match[1] : null;
-  }
-}
-
-/**
  * An icon from the page's inline sprite
  * @param {string} id - Symbol id, such as 'ph-lightning-duotone'
  * @returns {SVGSVGElement}
@@ -41,69 +24,6 @@ function createIcon(id) {
   use.setAttribute('href', `#${id}`);
   svg.append(use);
   return svg;
-}
-
-/**
- * Provider logo with hybrid fallback approach
- * @param {string} providerCode - Provider code
- * @param {string|null} websiteUrl - Provider website URL
- * @returns {Node[]} Logo image and fallback icon, or the fallback icon alone
- */
-function createProviderIcon(providerCode, websiteUrl = null) {
-  const domain = extractDomain(websiteUrl);
-  const icon = createIcon('ph-lightning-duotone');
-
-  // If no domain, return default icon
-  if (!domain) {
-    return [icon];
-  }
-
-  // Fallback URLs live in data attributes for the error handler
-  const img = document.createElement('img');
-  img.src = `https://logo.clearbit.com/${encodeURIComponent(domain)}`;
-  img.alt = providerCode;
-  img.className = 'provider-logo';
-  img.dataset.favicon = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
-  img.dataset.provider = providerCode;
-
-  icon.classList.add('provider-icon-fallback');
-  icon.style.display = 'none';
-  return [img, icon];
-}
-
-/**
- * Initialize provider logo fallback handlers
- * Sets up error handlers for logo images to cascade through fallback options
- */
-function initProviderLogoFallbacks() {
-  const logoImages = document.querySelectorAll('.provider-logo');
-  
-  logoImages.forEach(img => {
-    // First fallback: Clearbit fails -> try favicon
-    img.addEventListener('error', function handleClearbitError() {
-      const faviconUrl = this.dataset.favicon;
-      if (faviconUrl && this.src !== faviconUrl) {
-        this.src = faviconUrl;
-        // Remove this handler and add favicon error handler
-        this.removeEventListener('error', handleClearbitError);
-        this.addEventListener('error', function handleFaviconError() {
-          // Favicon also failed -> show fallback icon
-          this.style.display = 'none';
-          const fallback = this.nextElementSibling;
-          if (fallback && fallback.classList.contains('provider-icon-fallback')) {
-            fallback.style.display = 'inline-flex';
-          }
-        });
-      } else {
-        // No favicon URL or already tried -> show fallback icon
-        this.style.display = 'none';
-        const fallback = this.nextElementSibling;
-        if (fallback && fallback.classList.contains('provider-icon-fallback')) {
-          fallback.style.display = 'inline-flex';
-        }
-      }
-    });
-  });
 }
 
 // A saving at or below this (€/month) is not worth a switch: the result says the tariff is fine
@@ -178,7 +98,8 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   const card = document.getElementById('result-card-template').content.cloneNode(true);
   const slot = name => card.querySelector(`[data-slot="${name}"]`);
 
-  slot('provider-icon').append(...createProviderIcon(enrichedBest.COM, enrichedBest.website));
+  // The same mark for every supplier: no third-party logo service sees the result (ADR-021 superseded)
+  slot('provider-icon').append(createIcon('ph-lightning-duotone'));
   slot('provider-name').textContent = providerName;
   slot('provider-plan').textContent = toTitleCase(formatTariffName(enrichedBest.tariffName || 'Tarifa Simples', enrichedBest.Contagem || 1, enrichedBest.cycleType || null));
   // Preciso uses the person's own consumption, so it is not an estimate there
@@ -300,7 +221,5 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   
   // Reinitialize tooltips after rendering
   initTooltips();
-  
-  // Initialize provider logo fallback handlers
-  initProviderLogoFallbacks();
+
 }
