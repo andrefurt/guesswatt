@@ -1,5 +1,15 @@
 #!/bin/sh
 # Runs the repo's gate before a commit. The command comes from alfred.json (commands.check).
+# A phase integration branch takes merges only: each task commits on its own branch, merged --no-ff
+branch=$(git symbolic-ref --short -q HEAD)
+case "$branch" in
+	feature/audit-phase-*)
+		git rev-parse -q --verify MERGE_HEAD >/dev/null || {
+			printf 'pre-commit: %s takes merges only; commit on a task branch (git switch -c chore/x) and merge it with --no-ff\n' "$branch" >&2
+			exit 1
+		} ;;
+esac
+
 check=$(node -e 'try{process.stdout.write(require("./alfred.json").commands?.check??"")}catch{}' 2>/dev/null)
 [ -z "$check" ] && exit 0
 sh -c "$check" >/dev/null 2>&1 || {
