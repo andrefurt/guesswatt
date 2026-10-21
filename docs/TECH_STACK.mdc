@@ -40,7 +40,7 @@ All values derived from a systematic scale. No magic numbers.
 **Actual file structure**:
 ```
 css/
-├── tokens.css                    → Design tokens (colors, spacing, typography, animations)
+├── tokens.css                    → Design tokens, and the @layer order (linked first)
 ├── reset.css                     → Modern CSS reset
 ├── base.css                      → Typography, body, links
 ├── components-buttons.css        → Button component styles
@@ -50,12 +50,13 @@ css/
 ├── components-layout.css          → Layout components (cards, containers)
 ├── components-results.css         → Result card and display styles
 ├── components-tabs.css            → Tab navigation styles
+├── components-about.css           → About panel styles
 ├── utilities.css                  → Utility classes (.sr-only, .stack, .cluster)
 ├── animations.css                 → Animation keyframes and transitions
-└── main.css                      → Single import point (imports all above)
+└── main.css                      → App-specific styles (linked last)
 ```
 
-**Modular approach**: Each component type has its own CSS file for maintainability. All imported via `main.css`.
+**Modular approach**: Each component type has its own CSS file for maintainability. Both pages link every file with its own `<link>`, in cascade order (tokens, reset, base, animations, components, utilities, main). No `@import`: it chains a request after main.css and delays first paint (audit PERF-2). A new CSS file gets a `<link>` in index.html and sobre.html.
 
 ### Color System (OKLCH)
 

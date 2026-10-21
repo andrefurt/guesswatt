@@ -55,7 +55,7 @@ guesswatt/
 │   ├── components-*.css    # Component styles
 │   ├── utilities.css       # Utility classes
 │   ├── animations.css       # Animations
-│   └── main.css            # Main import
+│   └── main.css            # App styles, linked last
 ├── js/                     # JavaScript modules
 │   ├── main.js             # Entry point
 │   ├── calculator.js        # Business logic
@@ -210,7 +210,7 @@ See [`docs/DATA_MODEL.mdc`](./DATA_MODEL.mdc) for detailed information about:
 - **Solution**: Verify input values, check formula in `DATA_MODEL.mdc`
 
 **Issue**: Styles not applying
-- **Check**: CSS file imports in `main.css`
+- **Check**: the `<link>` list in the page `<head>` (index.html and sobre.html)
 - **Solution**: Verify file paths, check browser cache
 
 **Issue**: PDF parsing fails
