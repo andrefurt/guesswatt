@@ -228,12 +228,19 @@ js/
 ├── calculator.js       → Pure business logic: cost calculations, offer filtering
 ├── config.js          → Configuration constants (VAT rates, fees, default power, providers)
 ├── data-date.js       → Footer: date of the prices and the stale notice (every page)
-├── pdf-service.js     → PDF parsing (client-side with PDF.js)
+├── pdf-service.js     → PDF parsing (client-side with PDF.js, self-hosted in vendor/pdfjs/)
 ├── ui-components.js    → UI component initialization (tabs, tooltips, dropdowns)
 ├── ui-handlers.js     → Event handlers (copy, delete, show/hide results)
 ├── ui-renderer.js     → Result rendering and DOM manipulation
 └── utils.js           → Data loading (offers.json, tar.json, meta.json date) and formatting helpers
+
+vendor/
+├── pdfjs/              → PDF.js 3.11.174 and its worker (npm pdfjs-dist, Apache-2.0), loaded only for a PDF
+└── fonts/              → Inter woff2, latin and latin-ext subsets (SIL OFL 1.1), declared in css/tokens.css
 ```
+
+Third-party code is copied in, never loaded from a CDN, so nothing outside the site sees the page or
+the invoice. A new vendored file names its version and licence here.
 
 **Note**: The current implementation consolidates some functionality. Components like modals and toasts are implemented inline where needed, following the principle of simplicity over abstraction.
 
@@ -647,7 +654,9 @@ Targeting modern browsers only:
 
 4. **Result Rendering** (`ui-renderer.js`):
    - Calculate savings (vs current or vs average)
-   - Build HTML structure
+   - Clone `#result-card-template` and `#result-info-template` (in `index.html`) and fill them with
+     `textContent` and DOM properties: ERSE text and links never go through `innerHTML` (rule 7).
+     `scripts/build-offers.js` also strips markup characters and non-http links at build time.
    - **Provider Logo Loading**: Hybrid approach with cascading fallbacks
      - Primary: Clearbit Logo API (`logo.clearbit.com/{domain}`)
      - Fallback 1: Google Favicon Service (`google.com/s2/favicons`)
@@ -673,41 +682,19 @@ Load Data (utils.js) → offers.json
     ↓
 Calculate (calculator.js) → Best Offer
     ↓
-Render (ui-renderer.js) → HTML
+Render (ui-renderer.js) → DOM from <template>
     ↓
 Display → User sees result
 ```
 
 ### Provider Logo Implementation
 
-**Location**: `js/ui-renderer.js` → `getProviderIcon()` and `initProviderLogoFallbacks()`
+**Location**: `js/ui-renderer.js` → `createProviderIcon()` and `initProviderLogoFallbacks()`
 
 **Approach**: Hybrid cascading fallback system for maximum logo coverage.
 
-```javascript
-/**
- * Generate provider logo HTML with hybrid fallback approach
- * @param {string} providerCode - Provider code (e.g., 'EDPC', 'GALP')
- * @param {string|null} websiteUrl - Provider website URL from CSV
- * @returns {string} HTML string with logo image and fallback icon
- */
-function getProviderIcon(providerCode, websiteUrl = null) {
-  const domain = extractDomain(websiteUrl);
-  
-  if (!domain) {
-    return `<i class="ph-duotone ph-lightning"></i>`;
-  }
-  
-  const clearbitUrl = `https://logo.clearbit.com/${domain}`;
-  const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-  
-  return `
-    <img src="${clearbitUrl}" alt="${providerCode}" class="provider-logo"
-         data-favicon="${faviconUrl}" data-provider="${providerCode}" />
-    <i class="ph-duotone ph-lightning provider-icon-fallback" style="display:none;"></i>
-  `;
-}
-```
+Builds the `<img>` and the fallback icon as DOM nodes (`createProviderIcon()`), with the domain URL-encoded,
+so a link from ERSE never becomes markup.
 
 **Fallback Chain**:
 1. **Clearbit Logo API**: High-quality logos for major brands (works for ~70% of providers)

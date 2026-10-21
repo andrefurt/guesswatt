@@ -166,12 +166,17 @@ node scripts/selftest.js
    node scripts/build-offers.js
    ```
 
-3. **Validate**:
+3. **Check the data bounds** (headers, ranges, the jump against the last commit):
+   ```bash
+   node scripts/validate-data.js
+   ```
+
+4. **Validate**:
    ```bash
    node scripts/selftest.js
    ```
 
-4. **Commit changes**:
+5. **Commit changes**:
    ```bash
    git add data/
    git commit -m "chore(data): update ERSE data"
