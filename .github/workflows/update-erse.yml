@@ -58,6 +58,23 @@ jobs:
       - name: Run self-tests
         run: node scripts/selftest.js 2>&1 | tee -a refresh.log
 
+      # A stale TAR year gets its own issue and does not block the prices (ADR-009)
+      - name: Check the TAR year
+        id: tar
+        continue-on-error: true
+        run: node scripts/validate-data.js --tar-year 2>&1 | tee tar.log
+
+      - name: Open the TAR issue
+        if: steps.tar.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="Update data/tar.json for $(date -u +%Y)"
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ -z "$number" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file tar.log
+          fi
+
       - name: Check for changes
         id: changes
         run: |

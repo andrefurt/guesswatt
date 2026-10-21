@@ -364,7 +364,12 @@ passou a ser aplicado por componente, como no ERSExplica da ERSE; o TAR do termo
 
 **Consequências:**
 - ✅ Reproduz os exemplos 1, 3 e 4 do ERSExplica ao cêntimo (selftest)
-- ⚠️ Uma fonte anual a mais: `data/tar.json` muda com as tarifas da ERSE de cada ano
+- ⚠️ Uma fonte anual a mais: `data/tar.json` muda com as tarifas da ERSE de cada ano. É actualizado
+  à mão (decisão do dono, 2026-10-21): a ERSE publica o TAR só num PDF com o texto codificado em
+  glifos, num URL que muda todos os anos, e ler isso automaticamente pedia uma dependência e um
+  scraper para três números por ano. A actualização semanal valida os valores
+  (`scripts/validate-data.js`) e, a partir de janeiro, abre um issue se o ficheiro não for do ano
+  corrente, sem bloquear a actualização dos preços.
 - ⚠️ Não modela tarifa social nem as taxas das regiões autónomas
 
 ---
