@@ -9,6 +9,8 @@ import { formatPhone, toTitleCase, formatTariffName, formatShortDataMonth } from
 import { initTooltips } from './ui-components.js';
 import { showResults, getPillMode } from './ui-handlers.js';
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
 /**
  * Extract domain from website URL
  * @param {string} websiteUrl - Full website URL
@@ -27,6 +29,21 @@ function extractDomain(websiteUrl) {
 }
 
 /**
+ * An icon from the page's inline sprite
+ * @param {string} id - Symbol id, such as 'ph-lightning-duotone'
+ * @returns {SVGSVGElement}
+ */
+function createIcon(id) {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', 'icon');
+  svg.setAttribute('aria-hidden', 'true');
+  const use = document.createElementNS(SVG_NS, 'use');
+  use.setAttribute('href', `#${id}`);
+  svg.append(use);
+  return svg;
+}
+
+/**
  * Provider logo with hybrid fallback approach
  * @param {string} providerCode - Provider code
  * @param {string|null} websiteUrl - Provider website URL
@@ -34,8 +51,7 @@ function extractDomain(websiteUrl) {
  */
 function createProviderIcon(providerCode, websiteUrl = null) {
   const domain = extractDomain(websiteUrl);
-  const icon = document.createElement('i');
-  icon.className = 'ph-duotone ph-lightning';
+  const icon = createIcon('ph-lightning-duotone');
 
   // If no domain, return default icon
   if (!domain) {

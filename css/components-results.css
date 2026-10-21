@@ -167,7 +167,7 @@
     justify-content: center;
     /* Calculate padding to make square container matching button height (~32px) */
     /* Button height = var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) = ~32px */
-    /* Icon size is var(--text-base-size) (14px) for Phosphor icons */
+    /* Icon size is var(--text-base-size) (14px), from .icon in base.css */
     /* For square: padding = (height - icon size) / 2 */
     padding: calc((var(--radius-sm) + var(--text-default-leading) + var(--radius-sm) - var(--text-base-size)) / 2);
     border: 0.5px solid white; /* Same border as secondary button */
@@ -196,27 +196,7 @@
     display: block;
     mix-blend-mode: multiply; /* Blend logo with background using multiply mode */
   }
-  
-  /* Phosphor Duotone icons styling - fallback */
-  .provider-icon i,
-  .provider-icon .ph-duotone,
-  .provider-icon .provider-icon-fallback {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
-  }
-  
-  /* Legacy SVG support */
-  .provider-icon svg {
-    width: var(--text-lg-size);
-    height: var(--text-lg-size);
-  }
+    
   
   .result-card-actions {
     display: flex;
@@ -274,27 +254,10 @@
     gap: var(--space-3);
   }
   
-  /* Phosphor Duotone icons styling */
-  .data-row-label i,
-  .data-row-label .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
+  .data-row-label .icon {
     opacity: 0.6;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
-  /* Legacy SVG support */
-  .data-row-label svg {
-    width: var(--space-4);
-    height: var(--space-4);
-    opacity: 0.6;
-  }
   
   .data-row-label span {
     font-family: var(--font-sans);
@@ -405,26 +368,7 @@
     box-shadow: var(--shadow-inset-dark); /* -1px 1px 4px 0px rgba(113,152,131,0.04) inset */
     pointer-events: none;
   }
-  
-  /* Phosphor Duotone icons styling */
-  .savings-bar-inner i,
-  .savings-bar-inner .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
-  }
-  
-  /* Legacy SVG support */
-  .savings-bar-inner svg {
-    width: var(--space-4);
-    height: var(--space-4);
-  }
+    
   
   .savings-bar-inner span {
     font-family: var(--font-sans);
@@ -494,26 +438,7 @@
     box-shadow: var(--shadow-xs);
     background-color: rgba(255, 255, 255, 0.1);
   }
-  
-  /* Phosphor Duotone icons styling */
-  .tag-inner i,
-  .tag-inner .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
-  }
-  
-  /* Legacy SVG support */
-  .tag-inner svg {
-    width: var(--text-sm-size);
-    height: var(--text-sm-size);
-  }
+    
   
   .tag-inner span {
     font-family: var(--font-sans);
@@ -571,27 +496,10 @@
     min-height: var(--text-base-size);
   }
   
-  /* Phosphor Duotone icons styling */
-  .footer-updated i,
-  .footer-updated .ph-duotone {
-    font-size: var(--text-base-size); /* 14px icon size */
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
+  .footer-updated .icon {
     opacity: 0.8;
-    font-style: normal; /* Override base.css italic styling for icon elements */
-    --ph-icon-fill-duotone: rgba(53, 68, 61, 0.06); /* Inner fill, foreground at 6% opacity - matches token */
   }
   
-  /* Legacy SVG support */
-  .footer-updated svg {
-    width: var(--text-sm-size);
-    height: var(--text-sm-size);
-    opacity: 0.8;
-  }
   
   .footer-updated span {
     font-family: var(--font-sans);

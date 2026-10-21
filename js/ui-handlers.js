@@ -199,30 +199,6 @@ function initDropdown() {
       handleDropdownAction(action);
     });
   });
-  
-  // Initialize dropdown logo fallbacks
-  initDropdownLogoFallbacks();
-}
-
-/**
- * Initialize dropdown logo fallback handlers
- * Sets up error handlers for ChatGPT and Claude logos
- * Since we're using favicon service directly (more reliable than Clearbit for these),
- * we only need to handle favicon errors
- */
-function initDropdownLogoFallbacks() {
-  const logoImages = document.querySelectorAll('.dropdown-logo');
-  
-  logoImages.forEach(img => {
-    // Handle favicon load errors - fallback to icon
-    img.addEventListener('error', function handleFaviconError() {
-      this.style.display = 'none';
-      const fallback = this.nextElementSibling;
-      if (fallback && fallback.classList.contains('dropdown-icon-fallback')) {
-        fallback.style.display = 'inline-flex';
-      }
-    });
-  });
 }
 
 /**
