@@ -1,9 +1,3 @@
----
-description: "Tone of voice, all UI copy, tooltips, error states, and Portuguese glossary"
-globs:
-  alwaysApply: false
----
-
 # GuessWatts: copy guide
 
 This guide owns the voice and the glossary. The code owns the strings: `index.html`, `sobre.html`,

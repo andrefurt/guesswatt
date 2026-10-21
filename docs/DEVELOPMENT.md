@@ -47,41 +47,7 @@ open `http://localhost:8000/?sw`; loading the page again without `?sw` removes i
 
 ## Project Structure
 
-```
-guesswatt/
-├── index.html              # Main HTML file
-├── css/                    # Stylesheets
-│   ├── tokens.css          # Design tokens
-│   ├── reset.css           # CSS reset
-│   ├── base.css            # Base styles
-│   ├── components-*.css    # Component styles
-│   ├── utilities.css       # Utility classes
-│   ├── animations.css       # Animations
-│   └── main.css            # App styles, linked last
-├── js/                     # JavaScript modules
-│   ├── main.js             # Entry point
-│   ├── calculator.js        # Business logic
-│   ├── config.js            # Constants
-│   ├── data-date.js         # Footer price date and stale notice
-│   ├── page-actions.js      # Copy button and menu (both pages)
-│   ├── pdf-service.js       # PDF reading (includes cycle detection)
-│   ├── ui-components.js     # UI initialization
-│   ├── ui-handlers.js       # Event handlers
-│   ├── ui-renderer.js       # Result rendering
-│   ├── url-state.js         # Result inputs in the URL (ADR-018)
-│   └── utils.js             # Utilities (includes formatTariffName)
-├── data/                   # Data files
-│   ├── Precos_ELEGN.csv    # Price data
-│   ├── CondComerciais.csv  # Conditions data
-│   ├── offers.json         # Built offers
-│   ├── tar.json            # Yearly ERSE access tariff (fixed term) for reduced VAT
-│   └── meta.json           # Metadata, including the price date
-├── scripts/                # Build scripts
-│   ├── download-erse.js    # Download ERSE data
-│   ├── build-offers.js     # Build offers.json
-│   └── selftest.js         # Validation tests
-└── docs/                   # Documentation
-```
+The file map lives in [`docs/TECH_STACK.mdc`](./TECH_STACK.mdc#file-map) (File Map).
 
 ## Development Workflow
 
