@@ -299,7 +299,7 @@ A melhor oferta custa cerca de 66 €/mês. Metade das ofertas custa mais de 87 
 [Para saberes quanto poupas, usa o modo Preciso.]
 ```
 
-"Poupas €X/mês" aparece só no modo preciso, contra a tarifa do operador atual.
+"Poupas €X/mês" aparece só no modo preciso, contra a tarifa do fornecedor atual.
 
 ---
 
@@ -312,12 +312,12 @@ Poupança de 1 €/mês ou menos (Preciso):
 Fatura ao nível da oferta mais barata (Estimado, no topo da caixa do mercado):
   Já tens uma boa tarifa. A tua fatura já está ao nível da oferta mais barata.
 
-Sem operador (Preciso, manual ou PDF sem operador reconhecido):
-  Escolhe o teu operador para saberes quanto poupas.
-  [Escolher o operador]      (volta ao formulário com os valores e o foco no Operador)
+Sem fornecedor (Preciso, manual ou PDF sem fornecedor reconhecido):
+  Escolhe o teu fornecedor para saberes quanto poupas.
+  [Escolher o fornecedor]    (volta ao formulário com os valores e o foco no Fornecedor)
 
-Operador sem tarifas para esta potência e tipo de tarifa:
-  Não encontrámos tarifas de <Operador> com esta potência e este tipo de tarifa,
+Fornecedor sem tarifas para esta potência e tipo de tarifa:
+  Não encontrámos tarifas de <Fornecedor> com esta potência e este tipo de tarifa,
   por isso não sabemos quanto poupas.
 ```
 
@@ -656,7 +656,7 @@ Indica o consumo mensal em kWh.                (Preciso, sem consumo; foco no ca
 Escolhe um ficheiro PDF.                       (o ficheiro não é um PDF)
 
 Não conseguimos ler esta fatura. Podes introduzir os valores à mão.
-[Introduzir manualmente]                       (abre o formulário manual com foco no Operador)
+[Introduzir manualmente]                       (abre o formulário manual com foco no Fornecedor)
 ```
 
 ---
@@ -711,7 +711,7 @@ A data vem de `data/meta.json` (`build.sourceUpdatedAt`) e é escrita por `js/da
 promete uma frequência de atualização. Quando os preços têm mais de 45 dias, aparece por baixo:
 
 ```
-Estes preços têm mais de 45 dias. Confirma no site do operador antes de mudar.
+Estes preços têm mais de 45 dias. Confirma no site do fornecedor antes de mudar.
 ```
 
 Sem ligação, quando a página e os preços vêm da cópia guardada pelo service worker (`sw.js`), aparece

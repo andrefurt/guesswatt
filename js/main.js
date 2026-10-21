@@ -207,7 +207,7 @@ function init() {
   initPageActions();
   initUIHandlers();
   
-  // Popular dropdown de operadores
+  // Popular dropdown de fornecedores
   populateProvidersDropdown();
   
   // Event delegation for copy phone button (works for both new and cached results)
@@ -280,7 +280,7 @@ function init() {
     });
   }
   
-  // "Escolher o operador" in a result with no supplier: back to the manual form, values kept
+  // "Escolher o fornecedor" in a result with no supplier: back to the manual form, values kept
   document.addEventListener('click', (e) => {
     const choose = e.target.closest('#choose-provider');
     if (!choose) return;

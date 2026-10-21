@@ -129,7 +129,7 @@ function resultVerdict(best, monthlyBill, savings, isEstimate) {
       : { text: `Já tens uma boa tarifa. Nenhuma oferta te poupa mais de ${formatEuro(GOOD_TARIFF_MARGIN, 0)}/mês.` };
   }
   if (!best.currentProvider) {
-    return { text: 'Escolhe o teu operador para saberes quanto poupas.', chooseProvider: true };
+    return { text: 'Escolhe o teu fornecedor para saberes quanto poupas.', chooseProvider: true };
   }
   const name = toTitleCase(PROVIDERS[best.currentProvider] || best.currentProvider);
   return { text: `Não encontrámos tarifas de ${name} com esta potência e este tipo de tarifa, por isso não sabemos quanto poupas.` };
