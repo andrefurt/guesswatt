@@ -103,19 +103,15 @@ export function hideResults() {
     });
   }
   
-  // Clear result content to reset animations for next submission
-  // Do this after a short delay to allow exit animations
-  setTimeout(() => {
-    if (resultDiv) {
-      resultDiv.innerHTML = '';
-      resultDiv.style.display = 'none';
-    }
-    // Remove dynamically added info section (matches new structure)
-    const currentResultInfo = document.querySelector('.result-card-container > .result-info');
-    if (currentResultInfo) {
-      currentResultInfo.remove();
-    }
-  }, 200);
+  // Clear the result now, so the next submission renders into an empty card and replays its
+  // entrance. The view has no exit animation; a deferred clear would wipe a result rendered in the
+  // meantime (audit M-3: a fast second Enter showed an empty card)
+  if (resultDiv) {
+    resultDiv.replaceChildren();
+    resultDiv.style.display = 'none';
+  }
+  // Remove dynamically added info section (matches new structure)
+  document.querySelector('.result-card-container > .result-info')?.remove();
   
   // Add returning class for appear animation
   if (inputView) {
