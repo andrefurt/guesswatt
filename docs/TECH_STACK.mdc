@@ -715,6 +715,7 @@ so a link from ERSE never becomes markup.
 ### Performance Considerations
 
 - **Lazy loading**: Data only loaded when form is submitted
+- **One data load per page**: `loadOffers()` keeps its promise, so a second submit reuses the parsed offers (a failed load is retried on the next call)
 - **Caching**: Results cached per tab to avoid recalculation
 - **Debouncing**: Not currently needed (no real-time input)
 - **Code splitting**: Not applicable (no build step, but modules loaded on demand)
