@@ -131,8 +131,10 @@ is white in both themes, so those are plain `oklch(0% 0 0 / N)` and `oklch(100% 
 
 **Dark mode** follows the system (`prefers-color-scheme`, no toggle): the same roles get dark values
 in one block at the end of `css/tokens.css`, and `color-scheme: light dark` turns the native controls
-dark. The dark page background is `#1C241C`, the dark theme-color both pages declare; the manifest
-keeps its one light `theme_color`. A new colour is a role in both blocks, measured in both themes
+dark. The dark theme mirrors the light one: near-neutral surfaces (chroma 0.004) that rise 3 to 4
+points of L per layer from the page at L 19% (`#131413`, the dark theme-color both pages declare),
+with the green kept to text, links and the accent (audit D-1); the manifest keeps its one light
+`theme_color`. A new colour is a role in both blocks, measured in both themes
 (the Phase 4 lab runs axe and the contrast check with `dark`).
 
 **Why OKLCH over HSL:**
@@ -474,7 +476,7 @@ part is the service worker, ADR-023).
 - `manifest.webmanifest`: name, `start_url` and `scope` `/`, `display: standalone`, background and
   theme `#E8E8E8` (the rendered page background), and the icons below. A manifest takes one theme
   colour only, so the per-theme colours live in the pages' `theme-color` metas: light `#E8E8E8`,
-  dark `#1C241C`. The splash takes the manifest's one `background_color`, so it stays light on a dark
+  dark `#131413`. The splash takes the manifest's one `background_color`, so it stays light on a dark
 phone (front-end audit question 11, kept on purpose).
   Colours here are hex, not OKLCH: the manifest and the meta are read outside CSS.
 - `icons/`: `favicon.svg`, `apple-touch-icon.png` (180, full bleed), `icon-192.png` and
