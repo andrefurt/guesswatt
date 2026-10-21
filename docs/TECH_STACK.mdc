@@ -453,16 +453,20 @@ Colour values, and any fallback, live in `css/tokens.css`.
 The site installs to the home screen and opens standalone (audit decision: full PWA; the offline
 part is the service worker, ADR-023).
 
-- `sw.js` (registered from `js/main.js` after `load`): pages and `data/*` network first, with the
-  saved copy offline and a marked response that makes `js/data-date.js` show the offline notice;
-  `vendor/*` cache first; other own files served from the cache and refreshed in the background.
-  Its PRECACHE list must name every file in css/ and js/ (selftest checks), and `VERSION` is the
-  price date, rewritten by the weekly refresh. Off on localhost unless the URL has `?sw`.
+- `sw.js` (registered from `js/data-date.js` after `load`, so either page installs it): every own
+  file (pages, `data/*`, CSS, JS, icons) network first, so a deploy never mixes new HTML with old
+  CSS. Offline, or after 3 s without an answer, it serves the saved copy as a marked response that
+  makes `js/data-date.js` show the offline notice. Copies are saved without the query string.
+  `vendor/*` is cache first; PDF.js is saved on first use in `guesswatts-pdfjs-<version>`, which the
+  weekly bump keeps (selftest checks the name matches `vendor/pdfjs`). Its PRECACHE list must name
+  every file in css/ and js/ (selftest checks), and `VERSION` is the price date, rewritten by the
+  weekly refresh. Off on localhost unless the URL has `?sw`.
 
 - `manifest.webmanifest`: name, `start_url` and `scope` `/`, `display: standalone`, background and
   theme `#E8E8E8` (the rendered page background), and the icons below. A manifest takes one theme
   colour only, so the per-theme colours live in the pages' `theme-color` metas: light `#E8E8E8`,
-  dark `#1C241C`. Until dark mode exists (audit 4.16a) a dark phone shows a dark bar above the light page.
+  dark `#1C241C`. The splash takes the manifest's one `background_color`, so it stays light on a dark
+phone (front-end audit question 11, kept on purpose).
   Colours here are hex, not OKLCH: the manifest and the meta are read outside CSS.
 - `icons/`: `favicon.svg`, `apple-touch-icon.png` (180, full bleed), `icon-192.png` and
   `icon-512.png` (rounded tile), `icon-maskable-512.png` (glyph inside the 80 % safe zone). The mark is
