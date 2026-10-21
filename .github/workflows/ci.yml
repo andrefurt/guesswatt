@@ -6,7 +6,8 @@
 # out of date" and never blocks anything. Manual trigger: Actions tab, "CI", "Run workflow"; a lower
 # limit (1 day) forces the issue, to test it. A manual run also runs the gate and the smoke.
 #
-# After the gate, a smoke test drives the page in headless Chromium (tests/smoke.mjs). Playwright is
+# A gate failure on main (a merge does not run the pre-commit hook) opens or comments on the issue
+# "Gate failed on main". After the gate, a smoke test drives the page in headless Chromium (tests/smoke.mjs). Playwright is
 # installed in the runner's temp folder for the run and never enters the repo. A smoke failure on main,
 # or a manual run with force-smoke-failure, opens or comments on the issue "Smoke test failed on main".
 
@@ -39,6 +40,9 @@ jobs:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write # open the gate issue
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -51,8 +55,32 @@ jobs:
           node-version: '24'
 
       - name: Run the gate
+        shell: bash # -o pipefail, so the gate's exit code survives the tee
+        run: sh -c "$(node -p 'require("./alfred.json").commands.check')" 2>&1 | tee gate.log
+
+      - name: Open or update the gate issue
+        if: failure() && github.ref == 'refs/heads/main'
         shell: bash
-        run: sh -c "$(node -p 'require("./alfred.json").commands.check')"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Gate failed on main"
+          {
+            echo "The gate (alfred.json commands.check) failed on main at ${GITHUB_SHA::7}: ${RUN_URL}"
+            echo
+            echo "Reproduce: run the check command from alfred.json. Each red line says the fix."
+            echo
+            echo '```'
+            tail -n 40 gate.log 2>/dev/null || echo "(no log: the job failed before the gate ran)"
+            echo '```'
+          } > issue.md
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --repo "$GITHUB_REPOSITORY" --body-file issue.md
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file issue.md
+          fi
 
   smoke:
     needs: gate

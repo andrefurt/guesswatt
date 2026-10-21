@@ -939,7 +939,8 @@ sem resultado passavam. O ADR-005 recusou o Playwright como dependência (50 MB)
 
 **Decisão:**
 - O smoke test corre num browser headless (Chromium) nos fluxos Estimado, manual (três tipos de
-  tarifa), fornecedor com poupança e fatura fora do intervalo, a 375 e 1280 px. Falha com resultado em
+  tarifa), fornecedor com poupança e fatura fora do intervalo, a 375 e 1280 px. Os fornecedores vêm
+  do próprio dropdown, por isso um fornecedor que sai do mercado não o parte. Falha com resultado em
   falta, overflow horizontal, o pill no primeiro ecrã, erros na consola ou pedidos a outra origem.
 - O CI instala o Playwright na pasta temporária do runner em cada execução: sem `package.json`, sem
   lockfile, sem `node_modules` no repositório. O script recebe o caminho em `PLAYWRIGHT`.
