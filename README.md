@@ -101,7 +101,7 @@ guesswatt/
 - **Styling**: Modern CSS with OKLCH colors, custom properties, clamp()
 - **Hosting**: Static hosting (GitHub Pages compatible)
 - **Build**: None—files are served directly
-- **Dependencies**: Zero runtime dependencies (except PDF.js for PDF parsing)
+- **Dependencies**: Zero runtime dependencies; PDF.js 3.11.174 is self-hosted in `vendor/pdfjs/` and loads only when a PDF is used
 
 ### Design Principles
 
