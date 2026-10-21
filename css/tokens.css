@@ -118,6 +118,10 @@
   --color-border-default: rgba(0, 0, 0, 0.10); /* Default border, 12% opacity */
   --color-border-subtle: rgba(0, 0, 0, 0.06); /* Subtle border, 6% opacity */
   --color-border-dashed: rgba(0, 0, 0, 0.16); /* Dashed border, 16% opacity */
+  /* Error text: 5.8:1 on the page, 5.4:1 on the darkest surface that carries text (#E1E1E1) */
+  --color-error: #A52A26; /* Fallback */
+  --color-error: oklch(48% 0.16 27); /* #A52A26 */
+  
   /* Focus ring: every :focus-visible uses it (reset.css). 12.9:1 on the page background; on dark
      buttons the 2px offset leaves the page colour between button and ring */
   --color-focus-ring: var(--color-accent);

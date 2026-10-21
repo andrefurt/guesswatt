@@ -18,29 +18,84 @@ import { initPageActions } from './page-actions.js';
 
 const TARIFF_NAMES = { 1: 'Simples', 2: 'Bi-horária', 3: 'Tri-horária' };
 
+// Status line copy (docs/COPY.mdc, "Estados Vazios e Erros"); technical detail goes to the console
+const STATUS = {
+  loading: 'A calcular…',
+  loadFailed: 'Não conseguimos carregar os dados das tarifas. Tenta novamente ou volta mais tarde.',
+  noOffers: 'Não encontrámos ofertas para esta potência e este tipo de tarifa. Experimenta outra potência ou tarifa.',
+  billRange: 'Indica um valor entre 20 € e 500 €.',
+  noConsumption: 'Indica o consumo mensal em kWh.',
+  notPDF: 'Escolhe um ficheiro PDF.',
+  pdfUnreadable: 'Não conseguimos ler esta fatura. Podes introduzir os valores à mão.'
+};
+const LOADING_DELAY_MS = 300; // a quicker answer shows no loading line, so nothing flashes
+
+let statusAction = null;
+
+/**
+ * Write the status line under the input card; an empty text clears it
+ * @param {'info'|'error'} kind
+ * @param {string} text
+ * @param {{label: string, run: Function}} [action] - One next step, shown as a button
+ */
+function setStatus(kind, text = '', action = null) {
+  const box = document.getElementById('form-status');
+  const button = document.getElementById('form-status-action');
+  if (!box || !button) return;
+  box.dataset.kind = kind;
+  document.getElementById('form-status-text').textContent = text;
+  statusAction = action?.run || null;
+  button.textContent = action?.label || '';
+  button.hidden = !action;
+}
+
+/** Show the manual form with focus on its first field (the way out of an unreadable PDF) */
+function openManualForm() {
+  setStatus('info');
+  document.getElementById('tab-preciso')?.click();
+  document.getElementById('input-slot')?.classList.add('preciso-mode', 'manual-mode');
+  document.getElementById('current-provider')?.focus();
+}
+
 /**
  * Load the data, run the one comparison (calculator.js compare) and render it. Every flow ends here.
  * @param {Object} input - See compare(); precise input may carry provider (ERSE code)
  */
 async function runComparison(input) {
-  const resultDiv = document.getElementById('result');
-  if (!resultDiv) return;
-  resultDiv.innerHTML = '<p>A calcular...</p>';
+  const submits = document.querySelectorAll('.submit-btn');
+  submits.forEach(button => { button.disabled = true; });
+  const loading = setTimeout(() => setStatus('info', STATUS.loading), LOADING_DELAY_MS);
 
+  let data;
   try {
-    const { offers, tar, dataDate } = await loadOffers();
-    const result = compare(offers, input, { tar, largeHousehold: isLargeHousehold() });
-    const best = {
-      ...result.best,
-      dataDate,
-      marketMedianCost: result.marketMedianCost,
-      currentProvider: input.provider || null
-    };
-    renderResult(best, result.consumption, result.power, input.bill ?? null, result.savings, input.mode === 'estimate');
+    data = await loadOffers();
   } catch (error) {
-    resultDiv.innerHTML = `<p class="error">Erro: ${error.message}</p>`;
     console.error(error);
+    setStatus('error', STATUS.loadFailed, { label: 'Tentar novamente', run: () => runComparison(input) });
+    return;
+  } finally {
+    clearTimeout(loading);
+    submits.forEach(button => { button.disabled = false; });
   }
+
+  const { offers, tar, dataDate } = data;
+  let result;
+  try {
+    result = compare(offers, input, { tar, largeHousehold: isLargeHousehold() });
+  } catch (error) {
+    console.error(error);
+    setStatus('error', STATUS.noOffers);
+    return;
+  }
+
+  setStatus('info');
+  const best = {
+    ...result.best,
+    dataDate,
+    marketMedianCost: result.marketMedianCost,
+    currentProvider: input.provider || null
+  };
+  renderResult(best, result.consumption, result.power, input.bill ?? null, result.savings, input.mode === 'estimate');
 }
 
 // =============================================================================
@@ -61,13 +116,11 @@ function handleEstimateSubmit(e) {
   const monthlyBill = parseFloat(String(document.getElementById('monthly-bill').value).replace(',', '.'));
 
   // The estimate only holds for typical household bills
-  const billNote = document.getElementById('estimate-note');
   if (!(monthlyBill >= MIN_BILL && monthlyBill <= MAX_BILL)) {
-    if (billNote) billNote.hidden = false;
+    setStatus('error', STATUS.billRange);
     document.getElementById('monthly-bill')?.focus();
     return;
   }
-  if (billNote) billNote.hidden = true;
 
   setEstimadoData(monthlyBill);
   runComparison({ mode: 'estimate', bill: monthlyBill });
@@ -97,7 +150,8 @@ function handlePreciseSubmit(e) {
   }, false);
 
   if (!consumption || consumption <= 0) {
-    document.getElementById('result').innerHTML = '<p class="error">Erro: Introduz um consumo válido</p>';
+    setStatus('error', STATUS.noConsumption);
+    document.getElementById('consumption')?.focus();
     return;
   }
 
@@ -183,8 +237,15 @@ function init() {
   // Inicializar tabs
   initTabs();
   
-  // A PDF with consumption and power goes straight to the comparison
-  initPDFUpload(handleInvoice);
+  // A PDF with consumption and power goes straight to the comparison; a file that is not a PDF, or
+  // one with no readable text, gets a line under the card
+  initPDFUpload(handleInvoice, problem => {
+    if (problem === 'not-pdf') setStatus('error', STATUS.notPDF);
+    else setStatus('error', STATUS.pdfUnreadable, { label: 'Introduzir manualmente', run: openManualForm });
+  });
+  document.getElementById('form-status-action')?.addEventListener('click', () => statusAction?.());
+  // A message belongs to the form it came from
+  document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => setStatus('info')));
   
   // Event delegation for manual-link (can be recreated dynamically)
   const inputSlot = document.getElementById('input-slot');
