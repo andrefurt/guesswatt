@@ -10,7 +10,7 @@
 - **Precise calculation**: Upload your PDF invoice or enter detailed consumption data
 - **Best offer discovery**: Finds the cheapest tariff for your profile
 - **Actionable guidance**: Step-by-step instructions on how to switch providers
-- **Zero backend**: Everything runs in your browser—your data never leaves your device
+- **Zero backend**: Everything runs in your browser; your data never leaves your device
 
 ## ✨ Key Features
 
@@ -21,14 +21,14 @@
 - **Loss framing**: Shows "You're losing €X/year" instead of generic savings
 - **Real provider contacts**: Phone numbers and links from official ERSE data
 - **No lock-in filtering**: Excludes offers with mandatory contract periods by default
-- **Accessible**: WCAG 2.1 AA compliant, keyboard navigable, screen reader friendly
+- **Accessible**: aims for WCAG 2.2 AA, keyboard navigable, screen reader friendly
 - **Privacy-first**: All processing happens client-side; no data collection
 
 ## 🚀 Quick Start
 
 ### For Users
 
-Simply visit the website. No installation needed—it's a static site that works in any modern browser.
+Simply visit the website. No installation needed: it's a static site that works in any modern browser.
 
 ### For Developers
 
@@ -59,14 +59,14 @@ The file map lives in [`docs/TECH_STACK.mdc`](docs/TECH_STACK.mdc#file-map) (Fil
 - **Frontend**: Vanilla JavaScript (ES6+ modules), no framework
 - **Styling**: Modern CSS with OKLCH colors, custom properties, clamp()
 - **Hosting**: Static hosting (GitHub Pages compatible)
-- **Build**: None—files are served directly
+- **Build**: None, files are served directly
 - **Dependencies**: Zero runtime dependencies; PDF.js 3.11.174 is self-hosted in `vendor/pdfjs/` and loads only when a PDF is used
 
 ### Design Principles
 
 1. **Simplicity**: No build step, no framework, no abstractions
 2. **Performance**: a gzip size budget checked in the gate, first paint about 1.8 s on Slow 4G (see `docs/TECH_STACK.mdc`)
-3. **Accessibility**: WCAG 2.1 AA compliant, keyboard-first design
+3. **Accessibility**: aims for WCAG 2.2 AA, keyboard-first design
 4. **Privacy**: Client-side processing only, no data collection
 5. **Maintainability**: Clean, documented code that lasts
 
@@ -122,6 +122,9 @@ All data comes from **ERSE** (Portuguese Energy Services Regulatory Authority):
    - Tests calculation samples
 
 ### Running Data Updates
+
+The weekly Action (`.github/workflows/update-erse.yml`, Mondays) runs these steps with plain
+`fetch` and pushes when the prices changed, so a manual run is only for testing a script change.
 
 ```bash
 # Download latest ERSE data
@@ -185,7 +188,7 @@ When only monthly bill amount is provided:
 
 ### Requirements
 
-- **WCAG 2.1 AA** compliance
+- Aims for **WCAG 2.2 AA**
 - **Keyboard navigation** throughout
 - **Screen reader** tested (VoiceOver, NVDA)
 - **Focus visible** at all times
@@ -253,7 +256,7 @@ Contributions are welcome! Please:
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+MIT License, see [LICENSE](LICENSE).
 
 ## 🙏 Acknowledgments
 
@@ -262,7 +265,7 @@ MIT License - see LICENSE file for details
 
 ## 🔗 Links
 
-- **Website**: [guesswatts.com](https://guesswatts.com) (or your domain)
+- **Website**: [guesswatts.com](https://guesswatts.com)
 - **Issues**: [GitHub Issues](https://github.com/andrefurt/guesswatt/issues)
 - **ERSE Simulator**: [ERSE Website](https://www.erse.pt/)
 

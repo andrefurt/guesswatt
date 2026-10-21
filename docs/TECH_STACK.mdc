@@ -38,6 +38,7 @@ guesswatt/
 ├── sw.js                  → Service worker (ADR-023); see Installable App
 ├── manifest.webmanifest   → PWA manifest; see Installable App
 ├── CNAME                  → GitHub Pages domain (guesswatts.com)
+├── LICENSE                → MIT
 ├── CLAUDE.md, alfred.json → Agent instructions and the gate command
 ├── skills-lock.json       → Pinned sources of the skills in .claude/skills/
 ├── css/
