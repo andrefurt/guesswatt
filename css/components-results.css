@@ -327,21 +327,35 @@
      RESULT INFO SECTION
      ═══════════════════════════════════════════════════════════ */
   
+  /* One row layout for every row (audit C-10): a label column as wide as the longest label (at most
+     40%, so a narrow screen wraps it) and a value column, both starting on the same lines. The rows
+     share the columns through subgrid */
   .result-info {
+    display: grid;
+    grid-template-columns: fit-content(40%) 1fr;
     padding: 0 var(--space-3);
   }
-  
+
+  .info-row,
+  .info-row-inner {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
   .info-row {
     border-bottom: 0.5px solid var(--color-border);
   }
-  
+
   .info-row-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3); /* keeps the label clear of wrapping chips */
+    align-items: start;
+    column-gap: var(--space-3); /* keeps the label clear of wrapping chips */
     padding: var(--space-4) 0;
     border-bottom: 1px solid var(--color-divider);
+  }
+
+  .disclaimer-row {
+    grid-column: 1 / -1;
   }
   
   .info-row-label {
@@ -360,32 +374,24 @@
     color: var(--color-text);
   }
   
-  /* Tags - Extends interactive-base structure */
+  /* Tags: facts, not controls, so no edge and no shadow; a tint sets them apart from the buttons
+     (audit C-9) */
   .tags-group {
     display: flex;
     flex-wrap: wrap; /* chips wrap instead of scrolling the page sideways at 320 px (WCAG 1.4.10) */
     gap: var(--space-1);
     align-items: center;
   }
-  
-  .tag {
-    border: 0.5px solid var(--color-border);
-    border-radius: var(--radius-sm);
-  }
-  
+
   .tag-inner {
-    /* Shares same visual structure as buttons/pills/badges */
     display: flex;
     align-items: center;
     gap: var(--space-1);
     padding: 2px var(--space-1);
-    border: 0.5px solid var(--color-highlight);
-    border-radius: calc(var(--radius-sm) - 0.5px); /* Child radius = parent radius - border width */
-    box-shadow: var(--shadow-xs);
-    background-color: var(--color-control-subtle);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-hover-tint);
   }
-    
-  
+
   .tag-inner span {
     font-family: var(--font-sans);
     font-weight: var(--font-medium);

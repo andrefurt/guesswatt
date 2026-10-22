@@ -8,9 +8,10 @@
 @layer components {
   /* ═══════════════════════════════════════════════════════════
      BUTTON
-     The one button: <button class="btn" data-variant="…" data-size="…">.
-     Variants: primary (accent fill), outline (glass edge), ghost (no edge), icon (square, no edge).
-     Sizes: sm (32 px) and md (36 px, the default). Every state is defined here once, for all
+     The one button: <button class="btn" data-variant="…" data-size="…" [data-square]>.
+     Variants: primary (accent fill), outline (glass edge), ghost (no edge).
+     Sizes: sm (32 px) and md (36 px, the default). data-square is its own axis, as in Foundations'
+     Button: icon only, as wide as the size is tall. Every state is defined here once, for all
      variants; a component sets only its own layout.
      ═══════════════════════════════════════════════════════════ */
 
@@ -44,12 +45,12 @@
     block-size: var(--control-height-sm);
   }
 
-  .btn[data-variant="icon"] {
+  .btn[data-square] {
     inline-size: var(--control-height-md);
     padding: 0;
   }
 
-  .btn[data-variant="icon"][data-size="sm"] {
+  .btn[data-square][data-size="sm"] {
     inline-size: var(--control-height-sm);
   }
 
@@ -131,6 +132,22 @@
     }
   }
 
+  /* The current page (sobre.html's Sobre link, aria-current="page"): a resting tint in place of the
+     outline's edge and shadow, and no press, so it reads as where you are, not as an action (C-10) */
+  .btn[aria-current="page"] {
+    background-color: var(--color-hover-tint);
+    box-shadow: none;
+    cursor: default;
+  }
+
+  .btn[aria-current="page"]::before {
+    content: none;
+  }
+
+  .btn[aria-current="page"]:active {
+    transform: none;
+  }
+
   /* ═══════════════════════════════════════════════════════════
      BUTTON SLOT (Container)
      ═══════════════════════════════════════════════════════════ */
@@ -154,7 +171,7 @@
       min-block-size: 2.75rem; /* 44px */
     }
 
-    .btn[data-variant="icon"] {
+    .btn[data-square] {
       min-inline-size: 2.75rem;
     }
   }
@@ -326,6 +343,11 @@
     .btn:is(:disabled, [aria-disabled="true"]) {
       color: GrayText;
       border-color: GrayText;
+    }
+
+    /* The tint is dropped here, so the current page is underlined */
+    .btn[aria-current="page"] {
+      text-decoration: underline;
     }
   
     .segmented-divider {
