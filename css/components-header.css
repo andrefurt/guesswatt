@@ -214,6 +214,28 @@
   .input-pill-delete {
     flex-shrink: 0;
   }
+
+  /* On touch the logo reaches 44 px, and the × stays 32 px inside the pill and takes taps over 44 px
+     (components-buttons.css) */
+  @media (pointer: coarse) {
+    .logo {
+      min-block-size: 2.75rem; /* 44px, as every button on touch (components-buttons.css) */
+    }
+
+    .btn[data-variant="icon"].input-pill-delete {
+      min-block-size: var(--control-height-sm);
+      min-inline-size: var(--control-height-sm);
+    }
+
+    .input-pill-delete::after {
+      content: '';
+      position: absolute;
+      inset: 50% auto auto 50%;
+      inline-size: 2.75rem; /* 44px */
+      block-size: 2.75rem;
+      translate: -50% -50%;
+    }
+  }
   
   /* ═══════════════════════════════════════════════════════════
      INPUT PILL - TWO MODES

@@ -146,6 +146,19 @@
     border-radius: calc(var(--radius-sm) - 0.5px);
   }
 
+  /* Touch screens (audit C-4, question 4): every button is at least 44 px, the platform minimum for
+     a finger, so the desktop density stays as it is. The pill's × keeps its drawn size and reaches
+     44 px with an invisible hit area (components-header.css), so the pill does not grow */
+  @media (pointer: coarse) {
+    .btn {
+      min-block-size: 2.75rem; /* 44px */
+    }
+
+    .btn[data-variant="icon"] {
+      min-inline-size: 2.75rem;
+    }
+  }
+
   /* ═══════════════════════════════════════════════════════════
      SEGMENTED BUTTON (split button: copy, divider, menu chevron)
      ═══════════════════════════════════════════════════════════ */

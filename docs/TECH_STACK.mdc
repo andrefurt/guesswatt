@@ -359,6 +359,9 @@ height on `data-size`:
   (the copy chevron, the pill's ×, the result card's website).
 - `sm` is 32 px (`--control-height-sm`), for controls inside a tray, menu or pill; `md` is 36 px
   (`--control-height-md`), for standalone actions. Every label is the UI text size.
+- On touch screens (`pointer: coarse`) every control is at least 44 px: buttons, the logo and the
+  fields grow to it, the household label covers its row, and the pill's × keeps its 32 px and takes
+  taps over 44 px with an invisible `::after`. The desktop density is unchanged (audit C-4).
 - States are written once, for every variant: hover inside `(hover: hover) and (pointer: fine)`,
   press `scale(0.97)` on `--duration-fast` (none with reduced motion), and `:disabled` or
   `aria-disabled="true"` (a busy submit stays focusable) without hover or press, in the secondary text
