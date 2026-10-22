@@ -98,7 +98,7 @@ async function runComparison(input) {
   // in Chromium), and a repeat press is ignored
   if (comparing) return;
   comparing = true;
-  const submits = document.querySelectorAll('.submit-btn');
+  const submits = document.querySelectorAll('#submit-btn, #manual-submit-btn');
   submits.forEach(button => button.setAttribute('aria-disabled', 'true'));
   const loading = setTimeout(() => setStatus('info', STATUS.loading), LOADING_DELAY_MS);
 

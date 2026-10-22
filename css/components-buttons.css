@@ -1,122 +1,59 @@
 /**
  * Button Components - Design System Implementation
- * 
- * Pixel-perfect match to design.html button styles
- * Includes: Default buttons, Segmented buttons, Copy button with blur transition, Submit button
+ *
+ * The one button (.btn, variants and sizes on data attributes) and the components built from it:
+ * the split copy button with its blur transition, and the copy menu
  */
 
 @layer components {
   /* ═══════════════════════════════════════════════════════════
-     SHARED BASE COMPONENT - Interactive Elements
-     Base class for buttons, tabs, pills, labels, chips
-     All share the same visual foundation
+     BUTTON
+     The one button: <button class="btn" data-variant="…" data-size="…" [data-square]>.
+     Variants: primary (accent fill), outline (glass edge), ghost (no edge).
+     Sizes: sm (32 px) and md (36 px, the default). data-square is its own axis, as in Foundations'
+     Button: icon only, as wide as the size is tall. Every state is defined here once, for all
+     variants; a component sets only its own layout.
      ═══════════════════════════════════════════════════════════ */
-  
-  .interactive-base {
+
+  .btn {
+    position: relative;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-1);
-    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
-    border: 0.5px solid var(--color-highlight);
+    block-size: var(--control-height-md);
+    padding: 0 var(--space-2);
+    border: none;
     border-radius: var(--radius-sm);
     background: transparent;
-    box-shadow: var(--shadow-xs);
-    cursor: pointer;
+    color: var(--color-text);
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-base-size);
     line-height: var(--text-default-leading);
-    color: var(--color-text);
-    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
-    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
     text-decoration: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  
-  .interactive-base:active {
-    transform: scale(0.97);
-  }
-  
-  .interactive-base span {
-    text-decoration: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  
-  /* If interactive-base is an <a> tag */
-  a.interactive-base,
-  a.interactive-base:hover,
-  a.interactive-base:visited,
-  a.interactive-base:active {
-    text-decoration: none;
-  }
-  
-  /* ═══════════════════════════════════════════════════════════
-     BUTTON SLOT (Container)
-     ═══════════════════════════════════════════════════════════ */
-  
-  .btn-slot {
-    border: 0.5px solid var(--color-border);
-    border-radius: var(--radius-sm);
-  }
-  
-  /* Child elements inside btn-slot should have calculated border-radius */
-  .btn-slot > * {
-    border-radius: calc(var(--radius-sm) - 0.5px); /* Parent radius - border */
-  }
-  
-  /* ═══════════════════════════════════════════════════════════
-     BASE BUTTON - Uses interactive-base styles
-     ═══════════════════════════════════════════════════════════ */
-  
-  .btn {
-    /* Apply all interactive-base styles directly */
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
-    border: 0.5px solid var(--color-highlight);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    box-shadow: var(--shadow-xs);
     cursor: pointer;
-    font-family: var(--font-sans);
-    font-weight: var(--font-medium);
-    font-size: var(--text-base-size); /* 14px */
-    line-height: var(--text-default-leading);
-    color: var(--color-text);
-    transition: 
+    transition:
       transform var(--duration-fast) var(--ease-emphasized-decelerate),
-      background var(--duration-micro) var(--ease-emphasized-decelerate);
-    -webkit-tap-highlight-color: transparent;
-    text-decoration: none;
+      background-color var(--duration-micro) var(--ease-emphasized-decelerate);
     user-select: none;
     -webkit-user-select: none;
   }
-  
-  .btn:hover {
-    background: var(--color-control-hover);
+
+  .btn[data-size="sm"] {
+    block-size: var(--control-height-sm);
   }
-  
-  .btn:active {
-    transform: scale(0.97);
+
+  .btn[data-square] {
+    inline-size: var(--control-height-md);
+    padding: 0;
   }
-  
-  .btn span {
-    text-decoration: none;
-    user-select: none;
-    -webkit-user-select: none;
+
+  .btn[data-square][data-size="sm"] {
+    inline-size: var(--control-height-sm);
   }
-  
-  /* If button is an <a> tag */
-  a.btn,
-  a.btn:hover,
-  a.btn:visited,
-  a.btn:active {
-    text-decoration: none;
-  }
-  
+
   .btn-icon {
     width: var(--text-base-size);
     height: var(--text-base-size);
@@ -124,84 +61,146 @@
     align-items: center;
     justify-content: center;
   }
-    
-  
-  /* ═══════════════════════════════════════════════════════════
-     SEGMENTED BUTTON
-     ═══════════════════════════════════════════════════════════ */
-  
-  /* Segmented button - the container */
+
+  /* Primary: the accent fill. The transparent border is the boundary forced colours paint (C-6) */
+  .btn[data-variant="primary"] {
+    border: 1px solid transparent;
+    background-color: var(--color-accent);
+    color: var(--color-text-on-accent);
+    box-shadow: var(--shadow-button);
+    overflow: hidden;
+  }
+
+  .btn[data-variant="primary"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: var(--shadow-button-inset);
+    pointer-events: none;
+  }
+
+  /* Outline: the glass edge, drawn over the box so it takes no height. The split button's group
+     wears the same edge around its two halves. */
+  .btn[data-variant="outline"],
   .segmented-btn {
+    box-shadow: var(--shadow-xs);
+  }
+
+  .btn[data-variant="outline"]::before,
+  .segmented-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 0.5px solid var(--color-highlight);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* States, once for every variant. Hover only where a pointer can hover, so a tap never leaves it on */
+  @media (hover: hover) and (pointer: fine) {
+    .btn:hover:not(:disabled, [aria-disabled="true"]) {
+      background-color: var(--color-hover-tint);
+    }
+
+    .btn[data-variant="primary"]:hover:not(:disabled, [aria-disabled="true"]) {
+      background-color: var(--color-accent-hover);
+    }
+  }
+
+  .btn:active:not(:disabled, [aria-disabled="true"]) {
+    transform: scale(0.97);
+  }
+
+  /* Disabled, or busy while a comparison runs (aria-disabled keeps it focusable, audit A-2) */
+  .btn:is(:disabled, [aria-disabled="true"]) {
+    color: var(--color-text-secondary);
+    cursor: not-allowed;
+  }
+
+  .btn[data-variant="primary"]:is(:disabled, [aria-disabled="true"]) {
+    background-color: var(--color-press-tint);
+    box-shadow: none;
+  }
+
+  .btn[data-variant="primary"]:is(:disabled, [aria-disabled="true"])::after {
+    box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn:active:not(:disabled, [aria-disabled="true"]) {
+      transform: none;
+    }
+  }
+
+  /* The current page (sobre.html's Sobre link, aria-current="page"): a resting tint in place of the
+     outline's edge and shadow, and no press, so it reads as where you are, not as an action (C-10) */
+  .btn[aria-current="page"] {
+    background-color: var(--color-hover-tint);
+    box-shadow: none;
+    cursor: default;
+  }
+
+  .btn[aria-current="page"]::before {
+    content: none;
+  }
+
+  .btn[aria-current="page"]:active {
+    transform: none;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     BUTTON SLOT (Container)
+     ═══════════════════════════════════════════════════════════ */
+
+  .btn-slot {
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+
+  /* A slot's child sits inside its border: parent radius minus the border */
+  .btn-slot > *,
+  .segmented-btn > * {
+    border-radius: calc(var(--radius-sm) - 0.5px);
+  }
+
+  /* Touch screens (audit C-4, question 4): every button is at least 44 px, the platform minimum for
+     a finger, so the desktop density stays as it is. The pill's × keeps its drawn size and reaches
+     44 px with an invisible hit area (components-header.css), so the pill does not grow */
+  @media (pointer: coarse) {
+    .btn {
+      min-block-size: 2.75rem; /* 44px */
+    }
+
+    .btn[data-square] {
+      min-inline-size: 2.75rem;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     SEGMENTED BUTTON (split button: copy, divider, menu chevron)
+     ═══════════════════════════════════════════════════════════ */
+
+  .segmented-btn {
+    position: relative;
     display: flex;
     align-items: center;
-    border: 0.5px solid var(--color-highlight);
     border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-xs);
-    position: relative;
-    background: var(--color-control-subtle);
-    transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
   }
-  
-  .segmented-btn:hover {
-    background: var(--color-control-subtle);
-  }
-  
-  /* Child buttons inside segmented-btn inherit parent's border-radius calculation */
-  .segmented-btn > * {
-    border-radius: calc(var(--radius-sm) - 0.5px); /* Parent radius - border */
-  }
-  
-  /* Copy button inside segmented - needs FULL padding */
-  .segmented-btn .copy-btn {
-    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
-    border: none;
-    box-shadow: none;
-  }
-  
-  /* Icon button (suffix) inside segmented - no border, background, or shadow */
-  .segmented-btn .btn-suffix {
-    border: none;
-    background: none;
-    box-shadow: none;
-  }
-  
-  /* Remove the generic override that breaks copy button */
-  /* .segmented-btn .btn { padding: 0.375rem 0.5rem; } - DELETED */
-  
+
   /* Divider */
   .segmented-divider {
     width: 0.5px;
     height: 1lh; /* one line of text tall; a bare leading token is a number and computes to 0 */
     background: var(--color-border);
   }
-  
-  /* Icon button (suffix) - square, matches secondary button visual style */
-  .btn-suffix {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* Calculate padding to make square button matching button height */
-    /* Button height = var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm) = ~32px */
-    /* For square: padding = (height - icon size) / 2 */
-    padding: calc((var(--radius-sm) + var(--text-default-leading) * var(--text-base-size) + var(--radius-sm) - var(--text-base-size)) / 2);
-    border: 0.5px solid var(--color-highlight); /* Same border as secondary button */
-    border-radius: var(--radius-sm);
-    background: transparent; /* Same background as secondary button */
-    box-shadow: var(--shadow-xs); /* Same shadow as secondary button */
-    /* Remove gap since icon-only button doesn't need spacing */
-    gap: 0;
-  }
-  
+
   /* ═══════════════════════════════════════════════════════════
      COPY BUTTON - Blur Transition (Emil Kowalski style)
      ═══════════════════════════════════════════════════════════ */
   
   .copy-btn {
-    position: relative;
     overflow: hidden;
     min-width: 6.25rem; /* 100px - fixed width for consistency */
-    user-select: none;
-    -webkit-user-select: none;
   }
   
   .copy-btn-content {
@@ -259,17 +258,9 @@
     position: relative;
   }
   
-  .dropdown-trigger {
-    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
-  }
-  
-  .dropdown-trigger:active {
-    transform: scale(0.94);
-  }
-  
   /* Chevron rotation */
   .dropdown-trigger .btn-icon {
-    transition: transform var(--duration-medium) var(--ease-emphasized-decelerate);
+    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
   }
   
   .dropdown-wrapper.open .dropdown-trigger .btn-icon {
@@ -281,7 +272,7 @@
     top: calc(100% + var(--space-1)); /* 4px gap between dropdown and segmented button */
     right: 0;
     width: fit-content; /* Fit content width */
-    background: var(--color-control);
+    background: var(--color-surface-overlay); /* opaque: the pill's text showed through (audit L-4) */
     border: 0.5px solid var(--color-border); /* Outer grey border */
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-xs); /* Match secondary button shadow */
@@ -318,44 +309,14 @@
     transform: scale(1);
   }
   
-  /* Dropdown items have calculated border-radius based on parent padding */
+  /* Menu items are ghost buttons; the menu sets only their layout. Radius: parent radius - padding */
   .dropdown-item {
-    display: flex;
-    align-items: center;
+    width: 100%;
+    justify-content: flex-start;
     gap: var(--space-2);
-    width: 100%; /* Fill parent width */
-    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right - match button padding */
-    border: none;
-    background: transparent;
-    border-radius: calc(var(--radius-sm) - var(--space-1)); /* Parent radius - padding */
-    font-family: var(--font-sans);
-    font-weight: var(--font-medium);
-    font-size: var(--text-sm-size);
-    color: var(--color-text);
-    cursor: pointer;
-    text-align: left;
-    white-space: nowrap; /* Prevent text from breaking into multiple lines */
-    transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
-    user-select: none;
-    -webkit-user-select: none;
+    border-radius: calc(var(--radius-sm) - var(--space-1));
   }
-  
-  .dropdown-item span {
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  
-  .dropdown-item:hover {
-    background: var(--color-hover-tint);
-  }
-  
-  
-  .dropdown-item:active {
-    background: var(--color-press-tint);
-    transition: none;
-  }
-  
-  
+
   .dropdown-item .item-icon {
     width: var(--space-4);
     height: var(--space-4);
@@ -371,57 +332,22 @@
   }
   
   
-  /* ═══════════════════════════════════════════════════════════
-     SUBMIT BUTTON
-     ═══════════════════════════════════════════════════════════ */
-  
-  .submit-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-1);
-    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
-    background-color: var(--color-text);
-    border: none;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-button);
-    cursor: pointer;
-    font-family: var(--font-sans);
-    font-weight: var(--font-medium);
-    font-size: var(--text-base-size); /* 14px */
-    line-height: var(--text-default-leading);
-    color: var(--color-text-on-accent);
-    position: relative;
-    overflow: hidden;
-    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  
-  /* A comparison is running (main.js runComparison); full disabled styling comes with the button system */
-  .submit-btn[aria-disabled="true"] {
-    cursor: progress;
-  }
-  
-  .submit-btn:active {
-    transform: scale(0.97);
-  }
-  
-  .submit-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    box-shadow: var(--shadow-button-inset);
-    pointer-events: none;
-  }
-  
-  /* Forced colours (a Windows contrast theme) drop fills and shadows: the filled submit gets a
-     border so it still reads as a button, and the divider, drawn as a fill, uses the text colour
-     (audit C-6) */
+  /* Forced colours (a Windows contrast theme) drop fills and shadows: the filled button's border
+     takes the text colour so it still reads as a button, a disabled one turns GrayText, and the
+     divider, drawn as a fill, uses the text colour (audit C-6) */
   @media (forced-colors: active) {
-    .submit-btn {
-      border: 1px solid ButtonText;
+    .btn[data-variant="primary"] {
+      border-color: ButtonText;
+    }
+
+    .btn:is(:disabled, [aria-disabled="true"]) {
+      color: GrayText;
+      border-color: GrayText;
+    }
+
+    /* The tint is dropped here, so the current page is underlined */
+    .btn[aria-current="page"] {
+      text-decoration: underline;
     }
   
     .segmented-divider {

@@ -71,14 +71,11 @@
     text-decoration-skip-ink: auto;
   }
 
-  /* Button reset - exclude styled buttons */
-  button:not(.submit-btn):not(.btn):not(.tab-btn):not(.dropdown-item) {
+  /* Button reset: the base layer, so any component rule wins without knowing it */
+  button {
     background: none;
     border: none;
     padding: 0;
-  }
-
-  button {
     cursor: pointer;
   }
 

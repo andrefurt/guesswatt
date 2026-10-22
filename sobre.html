@@ -75,7 +75,7 @@
 
       <div class="top-bar-actions">
         <div class="btn-slot">
-          <a href="sobre.html" class="btn" aria-current="page">
+          <a href="sobre.html" class="btn" data-variant="outline" data-size="md" aria-current="page">
             <span class="btn-icon" aria-hidden="true">
               <svg class="icon" aria-hidden="true"><use href="#ph-info-duotone"/></svg>
             </span>
@@ -84,7 +84,7 @@
         </div>
         <div class="btn-slot">
           <div class="segmented-btn">
-            <button class="btn copy-btn" id="copy-btn" type="button">
+            <button class="btn copy-btn" data-variant="ghost" data-size="md" id="copy-btn" type="button">
               <!-- Default state -->
               <div class="copy-btn-content copy-btn-default">
                 <span class="btn-icon" aria-hidden="true">
@@ -103,30 +103,30 @@
             <span class="sr-only" id="copy-status" role="status"></span>
             <div class="segmented-divider"></div>
             <div class="dropdown-wrapper" id="dropdown-wrapper">
-              <button class="btn btn-suffix dropdown-trigger" id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-controls="dropdown-menu">
+              <button class="btn dropdown-trigger" data-variant="ghost" data-size="md" data-square id="dropdown-trigger" type="button" aria-label="Mais opções de cópia" aria-expanded="false" aria-controls="dropdown-menu">
                 <span class="btn-icon" aria-hidden="true">
                   <svg class="icon" aria-hidden="true"><use href="#ph-caret-down"/></svg>
                 </span>
               </button>
               <div class="dropdown-menu" id="dropdown-menu">
-                <button class="dropdown-item" data-action="markdown" type="button">
+                <button class="btn dropdown-item" data-variant="ghost" data-size="sm" data-action="markdown" type="button">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon" aria-hidden="true"><use href="#ph-code-duotone"/></svg>
                   </span>
                   <span>Ver em markdown</span>
                 </button>
-                <button class="dropdown-item" data-action="chatgpt" type="button">
+                <a class="btn dropdown-item" data-variant="ghost" data-size="sm" data-action="chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon icon-brand" aria-hidden="true"><use href="#brand-chatgpt"/></svg>
                   </span>
                   <span>Abrir no ChatGPT</span>
-                </button>
-                <button class="dropdown-item" data-action="claude" type="button">
+                </a>
+                <a class="btn dropdown-item" data-variant="ghost" data-size="sm" data-action="claude" href="https://claude.ai/new" target="_blank" rel="noopener">
                   <span class="item-icon" aria-hidden="true">
                     <svg class="icon icon-brand" aria-hidden="true"><use href="#brand-claude"/></svg>
                   </span>
                   <span>Abrir no Claude</span>
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -139,7 +139,7 @@
       <main class="card" id="main" tabindex="-1">
         <div class="about-content">
           <section aria-labelledby="page-title" class="about-section">
-            <a href="index.html" class="btn about-back-button">
+            <a href="index.html" class="btn about-back-button" data-variant="outline" data-size="md">
               <span class="btn-icon" aria-hidden="true">
                 <svg class="icon" aria-hidden="true"><use href="#ph-arrow-left"/></svg>
               </span>
@@ -171,7 +171,7 @@
           
           <section aria-labelledby="how-calculate" class="about-section">
             <h2 id="how-calculate" class="about-heading">Como calculamos</h2>
-            <p class="about-text">Usamos os dados oficiais da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a> (Entidade Reguladora dos Serviços Energéticos), a mesma fonte usada pelo simulador oficial.</p>
+            <p class="about-text">Usamos os dados oficiais da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="link-button">ERSE</a> (Entidade Reguladora dos Serviços Energéticos), a mesma fonte usada pelo simulador oficial.</p>
             <p class="about-text">Para cada tarifa, calculamos:</p>
             <ul class="about-list">
               <li>Termo fixo (€/dia) × 30 dias</li>
@@ -186,13 +186,13 @@
           
           <section aria-labelledby="data-source" class="about-section">
             <h2 id="data-source" class="about-heading">Fonte dos dados</h2>
-            <p class="about-text">Os dados vêm diretamente da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a>:</p>
+            <p class="about-text">Os dados vêm diretamente da <a href="https://www.erse.pt" target="_blank" rel="noopener" class="link-button">ERSE</a>:</p>
             <ul class="about-list">
               <li>Preços por tarifa, potência contratada e tipo de contagem</li>
               <li>Condições comerciais (fidelização, contactos telefónicos, links para adesão)</li>
               <li>O fornecedor de cada oferta</li>
             </ul>
-            <p class="about-text">Usamos os dados publicados pela <a href="https://www.erse.pt" target="_blank" rel="noopener" class="about-link">ERSE</a>; a data dos preços aparece no fundo de cada página. O processamento é feito localmente no teu navegador: os teus dados nunca saem do teu dispositivo.</p>
+            <p class="about-text">Usamos os dados publicados pela <a href="https://www.erse.pt" target="_blank" rel="noopener" class="link-button">ERSE</a>; a data dos preços aparece no fundo de cada página. O processamento é feito localmente no teu navegador: os teus dados nunca saem do teu dispositivo.</p>
           </section>
           
           <section aria-labelledby="limitations" class="about-section">
@@ -205,7 +205,7 @@
           <section aria-labelledby="who" class="about-section">
             <h2 id="who" class="about-heading">Quem faz isto</h2>
             <p class="about-text">Projeto pessoal de Andrefurt. Código aberto, sem fins lucrativos.</p>
-            <p class="about-text">Sugestões, correções ou contribuições: <a href="https://github.com/andrefurt/guesswatt" target="_blank" rel="noopener" class="about-link">github.com/andrefurt/guesswatt</a></p>
+            <p class="about-text">Sugestões, correções ou contribuições: <a href="https://github.com/andrefurt/guesswatt" target="_blank" rel="noopener" class="link-button">github.com/andrefurt/guesswatt</a></p>
           </section>
         </div>
       </main>

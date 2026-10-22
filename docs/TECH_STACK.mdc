@@ -356,9 +356,30 @@ const state = {
 
 ### Button States
 
-Buttons, tabs, pills and chips share `.interactive-base` in `css/components-buttons.css` (hover and
-active live there), and a component adds only what differs. The focus ring is global, `:focus-visible`
-in `css/reset.css`.
+Every button is one `.btn` in `css/components-buttons.css`, with its look on `data-variant`, its
+height on `data-size` and, as in Foundations' Button, square as its own axis:
+
+- `primary`: the accent fill (Comparar, both forms); `outline`: the glass edge (Sobre, Voltar, the
+  result card's phone and website); `ghost`: no edge (tabs, the copy button, the copy chevron, menu
+  items, the pill's ×).
+- `data-square` (a boolean attribute): icon only, as wide as the size is tall, no padding (the copy
+  chevron, the pill's ×, the result card's website). It combines with any variant and size.
+- `sm` is 32 px (`--control-height-sm`), for controls inside a tray, menu or pill; `md` is 36 px
+  (`--control-height-md`), for standalone actions. Every label is the UI text size.
+- On touch screens (`pointer: coarse`) every control is at least 44 px: buttons, the logo and the
+  fields grow to it, the household label covers its row, and the pill's × keeps its 32 px and takes
+  taps over 44 px with an invisible `::after`. The desktop density is unchanged (audit C-4).
+- States are written once, for every variant: hover inside `(hover: hover) and (pointer: fine)`,
+  press `scale(0.97)` on `--duration-fast` (none with reduced motion), and `:disabled` or
+  `aria-disabled="true"` (a busy submit stays focusable) without hover or press, in the secondary text
+  colour. The focus ring is global, `:focus-visible` in `css/reset.css`.
+- `aria-current="page"` (sobre.html's Sobre link) rests on the hover tint, without the outline's edge,
+  shadow or press, so the current page reads as a place, not an action.
+- A menu item that goes somewhere is an `<a class="btn">` (the ChatGPT and Claude items, with
+  `target="_blank" rel="noopener"`); one that runs code is a `<button>`.
+
+A component sets only its layout around the button (the tab indicator, the split button's group and
+divider, the menu's position); it never restates the look. Text buttons are `.link-button`.
 
 ### Input States
 

@@ -56,12 +56,72 @@
     color: var(--color-text);
   }
 
+  /* The checkbox, drawn from the tokens so every browser shows the same one (audit C-11): an edge in
+     the text colour, the accent fill and a check in the text on the accent when checked. The check is
+     two borders turned 45 degrees, so no image is needed (the CSP allows no data: URIs). Focus is the
+     reset's ring */
   .household-option input {
+    appearance: none;
+    -webkit-appearance: none;
+    display: grid;
+    place-content: center;
+    flex-shrink: 0;
     width: 1rem;
     height: 1rem;
     margin: 0;
-    accent-color: var(--color-accent);
+    border: 1px solid currentColor;
+    border-radius: calc(var(--radius-sm) / 2); /* 3px: half the control radius on a 16px box */
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color var(--duration-micro) var(--ease-emphasized-decelerate);
   }
+
+  .household-option input::before {
+    content: '';
+    width: 0.3125rem; /* 5px */
+    height: 0.5625rem; /* 9px */
+    margin-block-start: -0.125rem; /* the turned check sits optically centred */
+    border: solid var(--color-text-on-accent);
+    border-width: 0 2px 2px 0;
+    rotate: 45deg;
+    visibility: hidden;
+  }
+
+  .household-option input:checked {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+  }
+
+  .household-option input:checked::before {
+    visibility: visible;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .household-option input {
+      transition: none;
+    }
+  }
+
+  /* Forced colours drop the fill, so the box paints its own system colours: the field's edge, and
+     the highlight with its text when checked */
+  @media (forced-colors: active) {
+    .household-option input {
+      forced-color-adjust: none;
+      border-color: FieldText;
+      background-color: Field;
+    }
+
+    .household-option input::before {
+      border-color: HighlightText;
+    }
+
+    .household-option input:checked {
+      border-color: Highlight;
+      background-color: Highlight;
+    }
+  }
+
 
   .input-slot {
     border: 0.5px solid var(--color-border);
@@ -98,19 +158,20 @@
     transition: opacity var(--duration-medium) var(--ease-emphasized-decelerate);
   }
   
-  /* Preciso mode - dashed border */
-  .input-slot.preciso-mode {
+  /* Preciso mode - dashed border: the drop zone. The manual form is a form, so it keeps the solid
+     card (audit C-10) */
+  .input-slot.preciso-mode:not(.manual-mode) {
     border: 1px dashed var(--color-border-dashed);
     transition: border var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
-  .input-slot.preciso-mode .input-content {
+  .input-slot.preciso-mode:not(.manual-mode) .input-content {
     background: var(--color-bg-drop-area);
     border: 1px solid var(--color-highlight-soft);
     box-shadow: none;
   }
   
-  .input-slot.preciso-mode .input-content::after {
+  .input-slot.preciso-mode:not(.manual-mode) .input-content::after {
     opacity: 0;
   }
   
@@ -369,6 +430,8 @@
     gap: var(--space-1);
     width: clamp(20rem, 90vw, 33.25rem); /* 320px → 532px, responsive */
     text-align: center;
+    line-height: var(--leading-tight); /* the text buttons inherit it */
+    letter-spacing: var(--text-default-tracking);
     opacity: 0;
     transform: translateY(var(--space-1));
     transition: 
@@ -396,34 +459,9 @@
     display: contents;
   }
   
-  .drop-area-pick,
-  .drop-area-link {
-    font-family: var(--font-sans);
-    font-weight: var(--font-normal);
-    font-size: var(--text-base-size);
-    line-height: var(--leading-tight);
-    letter-spacing: var(--text-default-tracking);
-    text-decoration: underline;
-    text-underline-offset: var(--space-1);
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-  }
-  
-  .drop-area-pick {
-    font-weight: var(--font-medium);
-    color: var(--color-text);
-  }
-  
-  .drop-area-link {
+  /* The second text button sits a little below the first */
+  .drop-area-empty .link-button + .link-button {
     margin-top: var(--space-2);
-    color: var(--color-text-secondary);
-  }
-  
-  .drop-area-pick:hover,
-  .drop-area-link:hover {
-    text-decoration-thickness: 2px;
   }
   
   .file-input {
@@ -500,17 +538,6 @@
     color: var(--color-error);
   }
   
-  .form-status-action {
-    font: inherit;
-    font-size: var(--text-base-size);
-    color: var(--color-text);
-    text-decoration: underline;
-    text-underline-offset: var(--space-1);
-    background: none;
-    border: none;
-    padding: 0;
-  }
-
   .form-row {
     display: flex;
     flex-wrap: wrap;
@@ -637,16 +664,20 @@
     font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03);
-    /* Secondary until a value is chosen: the "Selecionar" prompt reads as a prompt, not a value */
-    color: var(--color-text-secondary);
+    color: var(--color-text-field);
     outline: none;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
   }
   
-  .form-select:valid:not(:placeholder-shown),
-  .form-select.has-value {
+  /* The "Selecionar" prompt (the empty option) reads as a prompt, not a value, until one is chosen
+     (audit C-7). The open list keeps its options in the field colour */
+  .form-select:has(option:checked[value=""]) {
+    color: var(--color-text-secondary);
+  }
+
+  .form-select option {
     color: var(--color-text-field);
   }
   
@@ -670,28 +701,80 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--space-3);
-  }
-  
-  .form-link {
-    font-family: var(--font-sans);
-    font-weight: var(--font-normal);
-    font-size: var(--text-base-size);
-    line-height: var(--leading-tight);
+    line-height: var(--leading-tight); /* the text button inherits it */
     letter-spacing: var(--text-default-tracking);
-    color: var(--color-text-secondary);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     LINK BUTTON
+     ═══════════════════════════════════════════════════════════ */
+
+  /* The one text button, on a <button> or an <a>: "do this other thing" next to the main action.
+     Used in the drop area, the form, the status line, the results and sobre.html. Font comes from
+     the context; focus is the reset ring. data-variant="quiet" is the secondary one. */
+  .link-button {
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    letter-spacing: inherit; /* buttons reset it in the browser's own styles */
+    color: var(--color-text);
+    text-align: start;
     text-decoration: underline;
+    text-decoration-thickness: 1px;
     text-underline-offset: var(--space-1);
     cursor: pointer;
-    transition: opacity var(--duration-fast) var(--ease-emphasized-decelerate);
-    background: none;
-    border: none;
-    padding: 0;
-    user-select: none;
-    -webkit-user-select: none;
+    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
   }
-  
-  .form-link:hover {
-    opacity: 0.7;
+
+  .link-button[data-variant="quiet"] {
+    font-weight: var(--font-normal);
+    color: var(--color-text-secondary);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .link-button:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  /* The press of every other control (components-buttons.css); an inline <a> in a sentence ignores
+     transforms, so it stays put */
+  .link-button:active {
+    transform: scale(0.97);
+  }
+
+  /* Touch screens (audit C-4): fields and the household label take a 44 px tap, like the buttons
+     (components-buttons.css); the label's padding makes its whole row the checkbox's target */
+  @media (pointer: coarse) {
+    .value-input {
+      min-block-size: 2.75rem; /* 44px */
+    }
+
+    .form-input-content {
+      height: calc(2.75rem + 2px); /* its 1px edges sit outside the 44 px the field fills */
+    }
+
+    /* A text button standing on its own line takes a 44 px tap; a link inside a sentence does not */
+    button.link-button {
+      min-block-size: 2.75rem;
+    }
+
+    .drop-area-empty .link-button + .link-button {
+      margin-top: 0;
+    }
+
+    .household-option label {
+      padding-block: var(--space-3);
+    }
+
+    .household-option {
+      padding-block-start: 0;
+    }
+
+    /* The select fills the field's box, so the whole box opens it */
+    .form-select-wrapper {
+      align-self: stretch;
+    }
   }
 }
-
