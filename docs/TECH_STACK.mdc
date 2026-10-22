@@ -163,7 +163,11 @@ is for code only. A `calc()` that needs the line box height multiplies: `var(--t
 
 `--space-1` to `--space-8` (with `--space-1-5`, 6 px), static rem, so they respect the user's
 font size and stay whole pixels. The vertical rhythm above the card, `--space-top-card`, is the
-fluid one: 64 px at 320 to 128 px at 1280. `css/tokens.css` owns the values.
+fluid one: 64 px at 320 to 128 px at 1280. `css/tokens.css` owns the values. Space tokens are
+spacing only: a radius is never padding, and a box takes a size token (`--control-height-sm` and
+`-md`, `--icon-box-sm`), never a space step. A one-off layout length is a named token too
+(`--space-before-footer`, `--drop-area-padding-end`). Text is dimmed with
+`--color-text-secondary`, never with opacity.
 
 ### Motion Tokens
 
