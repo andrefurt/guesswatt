@@ -255,7 +255,7 @@
     top: calc(100% + var(--space-1)); /* 4px gap between dropdown and segmented button */
     right: 0;
     width: fit-content; /* Fit content width */
-    background: var(--color-control);
+    background: var(--color-surface-overlay); /* opaque: the pill's text showed through (audit L-4) */
     border: 0.5px solid var(--color-border); /* Outer grey border */
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-xs); /* Match secondary button shadow */
