@@ -493,7 +493,7 @@ Most important first, each with a recommendation. The owner answered questions 1
 5. **Menu surface (L-4).** A new opaque surface token for the menu in both themes? *Recommendation: yes.* **Decision (2026-10-21): yes. The token lands in 2.1, since Phase 2 owns `tokens.css`, and 3.5 uses it.**
 6. **Result entrance (M-1).** The full entrance on every submit, or on the first result only? *Recommendation: the first result only, then a 150 ms fade.* Related: should the tab indicator move as one piece (its width snaps today, by design)? *Recommendation: yes, with `clip-path` or an inner `scaleX`, both compositor-only, and the TECH_STACK motion rule amended to allow clip-path.*
 7. **PDF offline (P-2).** A separate vendor cache plus an honest message, or precache PDF.js (about 378 KB gzip per visitor)? *Recommendation: the separate cache, no precache.* **Decision (2026-10-21): "Cache própria, sem precache".**
-8. **The bluish checkbox (C-11).** Which browser and OS was the screenshot? *Recommendation: if it is Safari 26, draw the checkbox from tokens (about 15 lines).*
+8. **The bluish checkbox (C-11).** Which browser and OS was the screenshot? *Recommendation: if it is Safari 26, draw the checkbox from tokens (about 15 lines).* **Decision (2026-10-22): not answered; the checkbox is drawn from tokens in 3.6 whatever the browser, which also fixes its pure black or white (C-10).**
 9. **Delete main.css (X-1).** Its only live rules are about 10 lines of print CSS, which move to base.css. *Recommendation: yes.*
 10. **Decimals in consumption (F-1).** Bills show whole kWh. *Recommendation: accept them and round, so "250,5" is never an error or 2505.* **Decision (2026-10-21): "Aceitar e arredondar".**
 11. **Dark splash (P-7 area).** The manifest takes one `background_color`. *Recommendation: keep the light splash, and only correct the TECH_STACK line.* **Done in task 1.7 as recommended (not asked; the owner can reverse it).**
@@ -640,6 +640,7 @@ The lab in `$SCRATCH/lab/` can be rebuilt from this doc if the scratchpad is gon
 - Submit on the accent role moves from 2.1 to 3.1, as the primary variant.
 - 2.3 and 2.4b run after Phase 3 is in main, so the Phase 3 PR merges first.
 - Button variants use `data-variant` and `data-size` (Foundations' axes); `.claude/rules/css.md` rule 5 changes with 3.1.
+- Square buttons follow Foundations' `square` axis (owner, 2026-10-22): `data-square` beside `data-variant` and `data-size`, and the `icon` variant goes (3.6), so an outline square (the result card's website link) needs no fifth variant.
 - Quotes in rendered copy are PT-PT angle quotes, «assim»; 2.3 records it in `docs/COPY.mdc`.
 - 2.5 values: h1 from 24 to 30 px and h2 from 20 to 24 px over 320 to 1280; UI text static at 12, 13, 15 and 17 px.
 
