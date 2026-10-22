@@ -63,6 +63,8 @@
     accent-color: var(--color-accent);
   }
 
+  }
+
   .input-slot {
     border: 0.5px solid var(--color-border);
     border-radius: var(--radius-xl);
@@ -677,5 +679,30 @@
      transforms, so it stays put */
   .link-button:active {
     transform: scale(0.97);
+  }
+
+  /* Touch screens (audit C-4): fields and the household label take a 44 px tap, like the buttons
+     (components-buttons.css); the label's padding makes its whole row the checkbox's target */
+  @media (pointer: coarse) {
+    .value-input {
+      min-block-size: 2.75rem; /* 44px */
+    }
+
+    .form-input-content {
+      height: 2.75rem;
+    }
+
+    .household-option label {
+      padding-block: var(--space-3);
+    }
+
+    .household-option {
+      padding-block-start: 0;
+    }
+
+    /* The select fills the field's box, so the whole box opens it */
+    .form-select-wrapper {
+      align-self: stretch;
+    }
   }
 }
