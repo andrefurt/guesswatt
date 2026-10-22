@@ -241,7 +241,7 @@
     gap: var(--space-3);
   }
   
-  /* Campaign Badge - Extends interactive-base structure */
+  /* Campaign Badge */
   .badge {
     border: 0.5px solid var(--color-border);
     border-radius: var(--radius-sm);
@@ -262,7 +262,7 @@
   }
   
   /* ═══════════════════════════════════════════════════════════
-     SAVINGS BAR - Extends interactive-base with green variant
+     SAVINGS BAR - the positive green (--color-positive)
      Shares same visual aspect as secondary buttons, only color differs
      ═══════════════════════════════════════════════════════════ */
   
