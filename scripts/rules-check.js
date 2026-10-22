@@ -175,7 +175,7 @@ const LENGTH_PROPS = /^(?:(?:min-|max-)?(?:width|height|block-size|inline-size)|
 const lineOf = (src, offset) => src.slice(0, offset).split('\n').length;
 
 // Only what is read or announced: text between tags and the aria-label, alt and title values, so a
-// class name such as "submit-btn" is not text (offsets kept)
+// class name such as "link-button" is not text (offsets kept)
 const readableText = src => htmlText(src).replace(/<[^>]*>/g, tag => {
   const blank = tag.replace(/[^\n]/g, ' ');
   return [...tag.matchAll(/\b(?:aria-label|alt|title)="([^"]*)"/g)]
