@@ -179,7 +179,7 @@ export function renderResult(enrichedBest, consumption, power, monthlyBill = nul
   }
 
   const info = document.getElementById('result-info-template').content.firstElementChild.cloneNode(true);
-  info.querySelector('[data-slot="how-to-switch"]').textContent = `Liga ou entra no site e pede a oferta "${toTitleCase(enrichedBest.tariffName || 'tarifa')}"`;
+  info.querySelector('[data-slot="how-to-switch"]').textContent = `Liga ou entra no site e pede a oferta «${toTitleCase(enrichedBest.tariffName || 'tarifa')}»`;
 
   // Update result div content
   resultDiv.replaceChildren(card);

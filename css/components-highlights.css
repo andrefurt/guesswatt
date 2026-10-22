@@ -22,8 +22,8 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-base-size, 0.875rem); /* 14px */
-    line-height: 1.2;
-    letter-spacing: -0.03em; /* -0.42px */
+    line-height: var(--text-default-leading);
+    letter-spacing: var(--text-default-tracking);
     color: var(--color-text-secondary);
   }
   

@@ -45,8 +45,8 @@
     font-weight: var(--font-medium);
     font-size: var(--text-md-size);
     color: var(--color-text);
-    letter-spacing: calc(var(--text-md-size) * -0.03); /* -0.48px relative to font size */
-    line-height: var(--leading-tight);
+    letter-spacing: var(--text-lg-tracking);
+    line-height: var(--text-lg-leading);
     text-decoration: none;
     cursor: pointer;
     transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
@@ -200,7 +200,7 @@
     font-family: var(--font-sans); /* the unit in Inter, as the text around it (Roboto Mono was never loaded) */
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
-    line-height: var(--leading-normal);
+    line-height: var(--text-default-leading);
     letter-spacing: var(--text-default-tracking);
     color: var(--color-text-secondary);
   }
