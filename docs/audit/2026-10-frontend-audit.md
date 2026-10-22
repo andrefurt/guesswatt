@@ -643,6 +643,7 @@ The lab in `$SCRATCH/lab/` can be rebuilt from this doc if the scratchpad is gon
 - Square buttons follow Foundations' `square` axis (owner, 2026-10-22): `data-square` beside `data-variant` and `data-size`, and the `icon` variant goes (3.6), so an outline square (the result card's website link) needs no fifth variant.
 - Quotes in rendered copy are PT-PT angle quotes, «assim»; 2.3 records it in `docs/COPY.mdc`.
 - 2.5 values: h1 from 24 to 30 px and h2 from 20 to 24 px over 320 to 1280; UI text static at 12, 13, 15 and 17 px.
+- 2.3 and 2.4b tokens: `--text-prose-leading` (1.5, sobre), `--text-caps-tracking` (0.05em), `--space-before-footer` and `--drop-area-padding-end` (the two magic lengths, values unchanged) and `--icon-box-sm` (16 px, the menu icon box, which borrowed `--space-4`). The `--leading-*` trio is gone. Tracking renders 0, -0.02em and 0.05em.
 
 ---
 

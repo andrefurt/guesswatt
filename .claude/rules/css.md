@@ -11,7 +11,8 @@ The CSS conventions; `css/tokens.css` owns the values.
    Every `var(--*)` needs a definition: `scripts/rules-check.js` fails the gate on one that has none.
 2. Colours in OKLCH.
 3. rem for sizes; px only for borders and shadows.
-4. `clamp()` for fluid type and spacing.
+4. `clamp()` only for the heading sizes (lg, xl) and `--space-top-card`; UI text and the space
+   steps are static rem (`docs/TECH_STACK.mdc`, Typography Scale).
 5. Class names in this shape: `.component`, `.component-element`; variants go on `data-variant` and
    `data-size`, and `.component--modifier` only for a state that is neither.
 6. Every animation has a `prefers-reduced-motion` path.
