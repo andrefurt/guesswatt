@@ -55,7 +55,7 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-xl-size);
-    line-height: var(--leading-tight);
+    line-height: var(--text-xl-leading);
     letter-spacing: var(--text-xl-tracking);
     color: var(--color-text);
     margin-bottom: var(--space-2);
@@ -65,7 +65,7 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-lg-size);
-    line-height: var(--leading-relaxed);
+    line-height: var(--text-default-leading);
     letter-spacing: var(--text-lg-tracking);
     color: var(--color-text-secondary);
   }
@@ -168,7 +168,7 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-lg-size);
-    line-height: var(--leading-tight);
+    line-height: var(--text-lg-leading);
     letter-spacing: var(--text-lg-tracking);
     color: var(--color-text);
   }
@@ -177,7 +177,7 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-lg-size);
-    line-height: var(--leading-tight);
+    line-height: var(--text-lg-leading);
     letter-spacing: var(--text-lg-tracking);
     color: var(--color-text-secondary);
   }
@@ -258,6 +258,7 @@
     font-size: var(--text-xs-size);
     line-height: var(--text-xs-leading);
     text-transform: uppercase;
+    letter-spacing: var(--text-caps-tracking);
     color: var(--color-accent);
   }
   
@@ -398,6 +399,7 @@
     font-size: var(--text-xs-size);
     line-height: var(--text-xs-leading);
     text-transform: uppercase;
+    letter-spacing: var(--text-caps-tracking);
     color: var(--color-text);
   }
   
