@@ -119,14 +119,9 @@
     box-shadow: var(--shadow-xs);
     position: relative;
     background: transparent;
-    transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
   }
-  
-  @media (hover: hover) and (pointer: fine) {
-    .input-pill:hover .input-pill-inner {
-      background: var(--color-control);
-    }
-  }
+
+  /* No hover on the pill itself: only its × is a control, and it has the button's own hover (C-9) */
   
   /* Estimate mode: the delete button sets the 32px height and closes the pill on the right */
   .input-pill-inner:has(.input-pill-estimado) {
@@ -210,7 +205,7 @@
     color: var(--color-text-secondary);
   }
   
-  /* The delete button is an icon button (components-buttons.css); the pill keeps it from shrinking */
+  /* The delete button is a square ghost button (components-buttons.css); the pill keeps it from shrinking */
   .input-pill-delete {
     flex-shrink: 0;
   }
@@ -222,7 +217,7 @@
       min-block-size: 2.75rem; /* 44px, as every button on touch (components-buttons.css) */
     }
 
-    .btn[data-variant="icon"].input-pill-delete {
+    .btn[data-square].input-pill-delete {
       min-block-size: var(--control-height-sm);
       min-inline-size: var(--control-height-sm);
     }

@@ -56,11 +56,70 @@
     color: var(--color-text);
   }
 
+  /* The checkbox, drawn from the tokens so every browser shows the same one (audit C-11): an edge in
+     the text colour, the accent fill and a check in the text on the accent when checked. The check is
+     two borders turned 45 degrees, so no image is needed (the CSP allows no data: URIs). Focus is the
+     reset's ring */
   .household-option input {
+    appearance: none;
+    -webkit-appearance: none;
+    display: grid;
+    place-content: center;
+    flex-shrink: 0;
     width: 1rem;
     height: 1rem;
     margin: 0;
-    accent-color: var(--color-accent);
+    border: 1px solid currentColor;
+    border-radius: calc(var(--radius-sm) / 2); /* 3px: half the control radius on a 16px box */
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color var(--duration-micro) var(--ease-emphasized-decelerate);
+  }
+
+  .household-option input::before {
+    content: '';
+    width: 0.3125rem; /* 5px */
+    height: 0.5625rem; /* 9px */
+    margin-block-start: -0.125rem; /* the turned check sits optically centred */
+    border: solid var(--color-text-on-accent);
+    border-width: 0 2px 2px 0;
+    rotate: 45deg;
+    visibility: hidden;
+  }
+
+  .household-option input:checked {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+  }
+
+  .household-option input:checked::before {
+    visibility: visible;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .household-option input {
+      transition: none;
+    }
+  }
+
+  /* Forced colours drop the fill, so the box paints its own system colours: the field's edge, and
+     the highlight with its text when checked */
+  @media (forced-colors: active) {
+    .household-option input {
+      forced-color-adjust: none;
+      border-color: FieldText;
+      background-color: Field;
+    }
+
+    .household-option input::before {
+      border-color: HighlightText;
+    }
+
+    .household-option input:checked {
+      border-color: Highlight;
+      background-color: Highlight;
+    }
   }
 
   }
@@ -100,19 +159,20 @@
     transition: opacity var(--duration-medium) var(--ease-emphasized-decelerate);
   }
   
-  /* Preciso mode - dashed border */
-  .input-slot.preciso-mode {
+  /* Preciso mode - dashed border: the drop zone. The manual form is a form, so it keeps the solid
+     card (audit C-10) */
+  .input-slot.preciso-mode:not(.manual-mode) {
     border: 1px dashed var(--color-border-dashed);
     transition: border var(--duration-micro) var(--ease-emphasized-decelerate);
   }
   
-  .input-slot.preciso-mode .input-content {
+  .input-slot.preciso-mode:not(.manual-mode) .input-content {
     background: var(--color-bg-drop-area);
     border: 1px solid var(--color-highlight-soft);
     box-shadow: none;
   }
   
-  .input-slot.preciso-mode .input-content::after {
+  .input-slot.preciso-mode:not(.manual-mode) .input-content::after {
     opacity: 0;
   }
   
@@ -605,16 +665,20 @@
     font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
     line-height: var(--leading-tight);
     letter-spacing: calc(var(--text-base-size) * -0.03);
-    /* Secondary until a value is chosen: the "Selecionar" prompt reads as a prompt, not a value */
-    color: var(--color-text-secondary);
+    color: var(--color-text-field);
     outline: none;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
   }
   
-  .form-select:valid:not(:placeholder-shown),
-  .form-select.has-value {
+  /* The "Selecionar" prompt (the empty option) reads as a prompt, not a value, until one is chosen
+     (audit C-7). The open list keeps its options in the field colour */
+  .form-select:has(option:checked[value=""]) {
+    color: var(--color-text-secondary);
+  }
+
+  .form-select option {
     color: var(--color-text-field);
   }
   

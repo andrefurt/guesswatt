@@ -351,12 +351,14 @@ const state = {
 
 ### Button States
 
-Every button is one `.btn` in `css/components-buttons.css`, with its look on `data-variant` and its
-height on `data-size`:
+Every button is one `.btn` in `css/components-buttons.css`, with its look on `data-variant`, its
+height on `data-size` and, as in Foundations' Button, square as its own axis:
 
 - `primary`: the accent fill (Comparar, both forms); `outline`: the glass edge (Sobre, Voltar, the
-  result card's phone); `ghost`: no edge (tabs, the copy button, menu items); `icon`: square, icon only
-  (the copy chevron, the pill's ×, the result card's website).
+  result card's phone and website); `ghost`: no edge (tabs, the copy button, the copy chevron, menu
+  items, the pill's ×).
+- `data-square` (a boolean attribute): icon only, as wide as the size is tall, no padding (the copy
+  chevron, the pill's ×, the result card's website). It combines with any variant and size.
 - `sm` is 32 px (`--control-height-sm`), for controls inside a tray, menu or pill; `md` is 36 px
   (`--control-height-md`), for standalone actions. Every label is the UI text size.
 - On touch screens (`pointer: coarse`) every control is at least 44 px: buttons, the logo and the
@@ -366,6 +368,10 @@ height on `data-size`:
   press `scale(0.97)` on `--duration-fast` (none with reduced motion), and `:disabled` or
   `aria-disabled="true"` (a busy submit stays focusable) without hover or press, in the secondary text
   colour. The focus ring is global, `:focus-visible` in `css/reset.css`.
+- `aria-current="page"` (sobre.html's Sobre link) rests on the hover tint, without the outline's edge,
+  shadow or press, so the current page reads as a place, not an action.
+- A menu item that goes somewhere is an `<a class="btn">` (the ChatGPT and Claude items, with
+  `target="_blank" rel="noopener"`); one that runs code is a `<button>`.
 
 A component sets only its layout around the button (the tab indicator, the split button's group and
 divider, the menu's position); it never restates the look. Text buttons are `.link-button`.

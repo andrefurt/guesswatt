@@ -152,9 +152,14 @@ function initDropdown() {
   
   const dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
   
+  // The ChatGPT and Claude items are links; their address carries the page, so it is set now and
+  // again each time the menu opens
+  setAssistantLinks(dropdownMenu);
+
   // Toggle dropdown on trigger click
   dropdownTrigger.addEventListener('click', function(e) {
     e.stopPropagation();
+    setAssistantLinks(dropdownMenu);
     dropdownWrapper.classList.toggle('open');
     
     // Update ARIA
@@ -201,65 +206,60 @@ function initDropdown() {
         if (focusWasInside) dropdownTrigger.focus();
       }, 100);
       
-      // Handle actions
-      handleDropdownAction(action);
+      // The links open their own tab; only the markdown item needs code
+      if (action === 'markdown') openMarkdown();
     });
   });
 }
 
 /**
- * Handle dropdown action
- * @param {string} action - Action identifier
+ * The prompt the ChatGPT and Claude links open with: this page's address, never its query
+ * @returns {string}
  */
-async function handleDropdownAction(action) {
-  const copyBtn = document.getElementById('copy-btn');
-  
-  // Determine which markdown file to use based on current page
-  const isAboutPage = window.location.pathname.includes('sobre');
-  const markdownFile = isAboutPage ? 'sobre.md' : 'index.md';
-  
-  switch(action) {
-    case 'markdown':
-      // Shown as plain text from a blob: no HTML is written into the new window, so nothing there
-      // needs an inline style the page's Content Security Policy would block
-      try {
-        const response = await fetch(markdownFile);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch ${markdownFile}`);
-        }
-        const markdown = await response.text();
-        const url = URL.createObjectURL(new Blob([markdown], { type: 'text/plain;charset=utf-8' }));
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
-      } catch (err) {
-        console.error('Failed to open markdown:', err);
-        window.open(markdownFile, '_blank');
-      }
-      break;
-      
-    case 'chatgpt':
-      const productionUrl = pageURL();
-      const chatGPTPrompt = encodeURIComponent(
-        `I'm looking at this GuessWatts electricity tariff comparison tool: ${productionUrl}\n\n` +
-        `GuessWatts compares electricity tariffs in Portugal using official ERSE data. ` +
-        `Help me get a good electricity proposal using GuessWatts's algorithm, based on my consumption, ` +
-        `to see if I'm paying more than I should and missing better proposals. ` +
-        `Be ready to explain how to use the tool, interpret results, and guide me through the process.`
-      );
-      window.open(`https://chatgpt.com/?q=${chatGPTPrompt}`, '_blank');
-      break;
-      
-    case 'claude':
-      const productionUrlClaude = pageURL();
-      const claudePrompt = encodeURIComponent(
-        `I'm looking at this GuessWatts electricity tariff comparison tool: ${productionUrlClaude}\n\n` +
-        `GuessWatts compares electricity tariffs in Portugal using official ERSE data. ` +
-        `Help me get a good electricity proposal using GuessWatts's algorithm, based on my consumption, ` +
-        `to see if I'm paying more than I should and missing better proposals. ` +
-        `Be ready to explain how to use the tool, interpret results, and guide me through the process.`
-      );
-      window.open(`https://claude.ai/new?q=${claudePrompt}`, '_blank');
-      break;
+function assistantPrompt() {
+  return `I'm looking at this GuessWatts electricity tariff comparison tool: ${pageURL()}\n\n` +
+    `GuessWatts compares electricity tariffs in Portugal using official ERSE data. ` +
+    `Help me get a good electricity proposal using GuessWatts's algorithm, based on my consumption, ` +
+    `to see if I'm paying more than I should and missing better proposals. ` +
+    `Be ready to explain how to use the tool, interpret results, and guide me through the process.`;
+}
+
+const ASSISTANTS = {
+  chatgpt: 'https://chatgpt.com/?q=',
+  claude: 'https://claude.ai/new?q=',
+};
+
+/**
+ * Point the menu's assistant links (<a data-action="chatgpt|claude">) at the current page
+ * @param {HTMLElement} menu
+ */
+function setAssistantLinks(menu) {
+  const prompt = encodeURIComponent(assistantPrompt());
+  menu.querySelectorAll('a[data-action]').forEach(link => {
+    const base = ASSISTANTS[link.dataset.action];
+    if (base) link.href = base + prompt;
+  });
+}
+
+/**
+ * "Ver em markdown": the page's markdown twin, shown as plain text from a blob, so no HTML is
+ * written into the new window and nothing there needs an inline style the page's Content Security
+ * Policy would block
+ */
+async function openMarkdown() {
+  const markdownFile = window.location.pathname.includes('sobre') ? 'sobre.md' : 'index.md';
+  try {
+    const response = await fetch(markdownFile);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${markdownFile}`);
+    }
+    const markdown = await response.text();
+    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/plain;charset=utf-8' }));
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (err) {
+    console.error('Failed to open markdown:', err);
+    window.open(markdownFile, '_blank');
   }
 }
 
