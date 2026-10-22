@@ -177,6 +177,9 @@
   --control-height-md: 2.25rem; /* 36px */
 
   --content-width: clamp(20rem, 90vw, 36.25rem); /* 320px → 580px, responsive */
+  --space-before-footer: 8.6875rem; /* 139px between the content and the footer */
+  --drop-area-padding-end: 5.125rem; /* 82px under the drop area's text */
+  --icon-box-sm: 1rem; /* 16px: the box a menu row's icon sits in */
   --space-top-card: clamp(4rem, 2.6667rem + 6.6667vw, 8rem); /* 64px at 320 → 128px at 1280 */
   --max-width-prose: 65ch; /* Optimal reading width */
   

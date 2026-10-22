@@ -318,8 +318,8 @@
   }
 
   .dropdown-item .item-icon {
-    width: var(--space-4);
-    height: var(--space-4);
+    width: var(--icon-box-sm);
+    height: var(--icon-box-sm);
     display: flex;
     align-items: center;
     justify-content: center;
