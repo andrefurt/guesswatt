@@ -41,7 +41,9 @@
     left: 0;
     height: 100%;
     background: var(--color-surface-raised);
-    border: 0.5px solid var(--color-highlight);
+    /* The selected mode shows by an edge at 3:1 or more against the track, not only by the fill,
+       which measured 1.13:1 on light and 1.01:1 on dark (audit C-3) */
+    border: 1px solid var(--color-text-secondary);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-icon);
     /* Only the position animates; the width snaps (animating width relays out every frame) */
@@ -49,5 +51,9 @@
     z-index: var(--z-tabs-indicator);
   }
 
-  /* The tab buttons are ghost buttons (components-buttons.css); the indicator is their active fill */
+  /* The tab buttons are ghost buttons (components-buttons.css); the indicator is their active fill,
+     and the mode not chosen reads in the secondary text colour */
+  .tab[aria-pressed="false"] {
+    color: var(--color-text-secondary);
+  }
 }
