@@ -2,7 +2,7 @@
  * Tabs Component - Design System Implementation
  * 
  * Pixel-perfect match to design.html tab switcher
- * Includes: Sliding indicator animation, tab buttons, view transitions
+ * Includes: the track and its sliding indicator; the tab buttons are .btn
  */
 
 @layer components {
@@ -41,58 +41,19 @@
     left: 0;
     height: 100%;
     background: var(--color-surface-raised);
-    border: 0.5px solid var(--color-highlight);
+    /* The selected mode shows by an edge at 3:1 or more against the track, not only by the fill,
+       which measured 1.13:1 on light and 1.01:1 on dark (audit C-3) */
+    border: 1px solid var(--color-text-secondary);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-icon);
     /* Only the position animates; the width snaps (animating width relays out every frame) */
     transition: transform var(--duration-medium) var(--ease-emphasized-decelerate);
     z-index: var(--z-tabs-indicator);
   }
-  
-  /* ═══════════════════════════════════════════════════════════
-     TAB BUTTONS - Uses interactive-base styles
-     Active tab has more prominent background (via indicator)
-     ═══════════════════════════════════════════════════════════ */
-  
-  .tab-btn {
-    /* Apply all interactive-base styles directly */
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
-    border: none; /* Override: tabs don't have border, indicator provides bg */
-    border-radius: var(--radius-sm);
-    background: transparent;
-    box-shadow: none; /* Override: no shadow, indicator provides elevation */
-    cursor: pointer;
-    font-family: var(--font-sans);
-    font-weight: var(--font-medium);
-    font-size: var(--text-base-size); /* 14px */
-    line-height: var(--text-default-leading);
-    color: var(--color-text);
-    transition: transform var(--duration-fast) var(--ease-emphasized-decelerate);
-    position: relative;
-    z-index: 1;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  
-  .tab-btn:active {
-    transform: scale(0.97);
-  }
-  
-  .tab-btn span {
-    color: inherit;
-  }
-  
-  .tab-btn .btn-icon {
-    width: var(--text-base-size);
-    height: var(--text-base-size);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-    
-}
 
+  /* The tab buttons are ghost buttons (components-buttons.css); the indicator is their active fill,
+     and the mode not chosen reads in the secondary text colour */
+  .tab[aria-pressed="false"] {
+    color: var(--color-text-secondary);
+  }
+}

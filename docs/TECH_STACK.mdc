@@ -116,11 +116,18 @@ uses the role, never a raw colour:
 |---|---|
 | Text, strong text (headings, links), secondary text | `--color-text`, `--color-text-strong`, `--color-text-secondary` |
 | Values in form fields, text on the accent, errors | `--color-text-field`, `--color-text-on-accent`, `--color-error` |
-| Page, surface, raised surface, card | `--color-bg`, `--color-surface`, `--color-surface-raised`, `--color-surface-card` |
+| Page, surface, raised surface, card, opaque overlay (the copy menu) | `--color-bg`, `--color-surface`, `--color-surface-raised`, `--color-surface-card`, `--color-surface-overlay` |
 | Accent (buttons, focus), its hover and 8% tint | `--color-accent`, `--color-accent-hover`, `--color-accent-soft` |
 | Focus ring | `--color-focus-ring`, `--focus-ring-width`, `--focus-ring-offset` |
-| Borders | `--color-border`, `--color-border-strong`, `--color-border-dashed`, `--color-border-accent` |
+| Ink (black on light, white on dark), what borders and track tints are drawn with | `--color-ink` |
+| Positive: the money-saved green of the savings bar | `--color-positive`, `--color-savings-bar-bg` |
+| Borders | `--color-border`, `--color-border-strong`, `--color-border-dashed`, `--color-border-drag`, `--color-border-accent` |
 | Glass (white edges and translucent fills) | `--color-highlight*`, `--color-divider*`, `--color-control*`, `--color-surface-sunken`, `--color-hover-tint`, `--color-press-tint` |
+
+A tint of a role is derived from it, never typed as a colour: `oklch(from var(--color-accent) l c h
+/ 0.08)`. Retheming the role then carries its tints, borders and rings along, and the dark block
+restates a tint only when its opacity differs on dark (audit D-2). Shadows are black and the glass
+is white in both themes, so those are plain `oklch(0% 0 0 / N)` and `oklch(100% 0 0 / N)`.
 
 **Dark mode** follows the system (`prefers-color-scheme`, no toggle): the same roles get dark values
 in one block at the end of `css/tokens.css`, and `color-scheme: light dark` turns the native controls
@@ -344,9 +351,30 @@ const state = {
 
 ### Button States
 
-Buttons, tabs, pills and chips share `.interactive-base` in `css/components-buttons.css` (hover and
-active live there), and a component adds only what differs. The focus ring is global, `:focus-visible`
-in `css/reset.css`.
+Every button is one `.btn` in `css/components-buttons.css`, with its look on `data-variant`, its
+height on `data-size` and, as in Foundations' Button, square as its own axis:
+
+- `primary`: the accent fill (Comparar, both forms); `outline`: the glass edge (Sobre, Voltar, the
+  result card's phone and website); `ghost`: no edge (tabs, the copy button, the copy chevron, menu
+  items, the pill's ×).
+- `data-square` (a boolean attribute): icon only, as wide as the size is tall, no padding (the copy
+  chevron, the pill's ×, the result card's website). It combines with any variant and size.
+- `sm` is 32 px (`--control-height-sm`), for controls inside a tray, menu or pill; `md` is 36 px
+  (`--control-height-md`), for standalone actions. Every label is the UI text size.
+- On touch screens (`pointer: coarse`) every control is at least 44 px: buttons, the logo and the
+  fields grow to it, the household label covers its row, and the pill's × keeps its 32 px and takes
+  taps over 44 px with an invisible `::after`. The desktop density is unchanged (audit C-4).
+- States are written once, for every variant: hover inside `(hover: hover) and (pointer: fine)`,
+  press `scale(0.97)` on `--duration-fast` (none with reduced motion), and `:disabled` or
+  `aria-disabled="true"` (a busy submit stays focusable) without hover or press, in the secondary text
+  colour. The focus ring is global, `:focus-visible` in `css/reset.css`.
+- `aria-current="page"` (sobre.html's Sobre link) rests on the hover tint, without the outline's edge,
+  shadow or press, so the current page reads as a place, not an action.
+- A menu item that goes somewhere is an `<a class="btn">` (the ChatGPT and Claude items, with
+  `target="_blank" rel="noopener"`); one that runs code is a `<button>`.
+
+A component sets only its layout around the button (the tab indicator, the split button's group and
+divider, the menu's position); it never restates the look. Text buttons are `.link-button`.
 
 ### Input States
 
@@ -440,11 +468,11 @@ Targeting modern browsers only:
 |---------|---------|
 | CSS Custom Properties | 95%+ |
 | CSS clamp() | 93%+ |
-| OKLCH | 90%+ (fallback for older) |
+| OKLCH, and relative colour (`oklch(from …)`) | Baseline 2023 and 2024; no fallback |
 | ES6 Modules | 95%+ |
 | Fetch API | 97%+ |
 
-Colour values, and any fallback, live in `css/tokens.css`.
+Colour values live in `css/tokens.css`.
 
 ---
 

@@ -484,16 +484,16 @@ Also: DS-11, DS-16, DS-17, MOT-7, PWA-10 (doc part).
 
 ## 4. Questions for the owner
 
-Most important first, each with a recommendation. The owner answered questions 1 to 4 on 2026-10-21, all as recommended, and questions 7 and 10 at the start of Phase 1; question 11 followed the recommendation in Phase 1 without being asked. The rest are open.
+Most important first, each with a recommendation. The owner answered questions 1 to 4 on 2026-10-21, all as recommended, questions 7 and 10 at the start of Phase 1, and question 5 at the start of Phases 2 and 3; question 11 followed the recommendation in Phase 1 without being asked. The rest are open.
 
 1. **Result heading (R-1).** Should the heading carry the verdict (the saving, "já tens uma boa tarifa", or the market figure) instead of a fixed "Melhor proposta"? *Recommendation: yes. The offer becomes the support under it.* **Decision (2026-10-21): yes.**
 2. **Dark ramp (D-1).** Keep #1C241C as a brand colour, or go near-neutral? *Recommendation: near-neutral surfaces (chroma 0.004 or less on hue 145) with the page bg about L 19%, green only in text-strong, links and accent, and theme-color following the bg.* **Decision (2026-10-21): near-neutral, as recommended.**
 3. **Fluidity (L-3).** *Recommendation: fluid where it shows (headings and vertical rhythm on a 320 to 1280 clamp), static rem for UI text and control padding, and a header that wraps on content. Not 1 px ramps everywhere.* **Decision (2026-10-21): fluid where it shows, as recommended.**
 4. **Touch targets (C-4).** A 44 px minimum on touch screens only (`pointer: coarse`), keeping the desktop density? *Recommendation: yes.* **Decision (2026-10-21): yes, touch only.**
-5. **Menu surface (L-4).** A new opaque surface token for the menu in both themes? *Recommendation: yes.*
+5. **Menu surface (L-4).** A new opaque surface token for the menu in both themes? *Recommendation: yes.* **Decision (2026-10-21): yes. The token lands in 2.1, since Phase 2 owns `tokens.css`, and 3.5 uses it.**
 6. **Result entrance (M-1).** The full entrance on every submit, or on the first result only? *Recommendation: the first result only, then a 150 ms fade.* Related: should the tab indicator move as one piece (its width snaps today, by design)? *Recommendation: yes, with `clip-path` or an inner `scaleX`, both compositor-only, and the TECH_STACK motion rule amended to allow clip-path.*
 7. **PDF offline (P-2).** A separate vendor cache plus an honest message, or precache PDF.js (about 378 KB gzip per visitor)? *Recommendation: the separate cache, no precache.* **Decision (2026-10-21): "Cache própria, sem precache".**
-8. **The bluish checkbox (C-11).** Which browser and OS was the screenshot? *Recommendation: if it is Safari 26, draw the checkbox from tokens (about 15 lines).*
+8. **The bluish checkbox (C-11).** Which browser and OS was the screenshot? *Recommendation: if it is Safari 26, draw the checkbox from tokens (about 15 lines).* **Decision (2026-10-22): not answered; the checkbox is drawn from tokens in 3.6 whatever the browser, which also fixes its pure black or white (C-10).**
 9. **Delete main.css (X-1).** Its only live rules are about 10 lines of print CSS, which move to base.css. *Recommendation: yes.*
 10. **Decimals in consumption (F-1).** Bills show whole kWh. *Recommendation: accept them and round, so "250,5" is never an error or 2505.* **Decision (2026-10-21): "Aceitar e arredondar".**
 11. **Dark splash (P-7 area).** The manifest takes one `background_color`. *Recommendation: keep the light splash, and only correct the TECH_STACK line.* **Done in task 1.7 as recommended (not asked; the owner can reverse it).**
@@ -631,6 +631,18 @@ The lab in `$SCRATCH/lab/` can be rebuilt from this doc if the scratchpad is gon
   - question 9 before 5.1;
   - the written plans for Phases 2 and 3;
   - the screenshot approval in 2.2.
+
+**As run (owner decisions 2026-10-21, at the approval of the written plans for Phases 2 and 3).** The file split above does not hold: 2.3 and 2.4 edit the component files that Phase 3 rewrites, so a conflict would surface at the merge to main whatever the timing. The order became:
+
+- 3.1b (fix/divider-height) and 2.0 (chore/leading-guard) as two commits, merged into both phase branches: the guard cannot pass the gate while the divider's `height: var(--text-default-leading)` exists.
+- 2.4 splits: 2.4a adds the tokens only (`--space-1-5`, `--control-height-sm` at 32 px and `--control-height-md` at 36 px, two heights because 3.1 needs two sizes); 2.4b replaces the uses in the component files.
+- 2.1 and 2.4a touch `tokens.css` only, branch from the shared base and are merged into both phases, so Phase 3 has them before Phase 2 reaches main. 2.1 adds a `--color-ink` base role (black in light, white in dark) for borders and the glass edges, so they stay neutral instead of deriving from the green text.
+- Submit on the accent role moves from 2.1 to 3.1, as the primary variant.
+- 2.3 and 2.4b run after Phase 3 is in main, so the Phase 3 PR merges first.
+- Button variants use `data-variant` and `data-size` (Foundations' axes); `.claude/rules/css.md` rule 5 changes with 3.1.
+- Square buttons follow Foundations' `square` axis (owner, 2026-10-22): `data-square` beside `data-variant` and `data-size`, and the `icon` variant goes (3.6), so an outline square (the result card's website link) needs no fifth variant.
+- Quotes in rendered copy are PT-PT angle quotes, «assim»; 2.3 records it in `docs/COPY.mdc`.
+- 2.5 values: h1 from 24 to 30 px and h2 from 20 to 24 px over 320 to 1280; UI text static at 12, 13, 15 and 17 px.
 
 ---
 

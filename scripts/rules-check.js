@@ -16,6 +16,12 @@
  *   both pages, both pages have the skip link to #main, and the pages carry none of the English UI
  *   strings that drifted in before ("Copy as markdown" on sobre.html, audit C-5).
  * - CSS: every var(--*) has a definition.
+ * - CSS: a leading token is a unitless line-height, so as a length on its own it computes to 0
+ *   (`height: var(--text-default-leading)` hid the split-button divider, audit 3.1b). Multiplied by
+ *   a length inside calc() it is a length, and passes.
+ * - CSS: every :hover rule sits inside an @media whose query has `hover: hover`, so a tap on a phone
+ *   does not leave the hover look on (audit P-4). Blocks are tracked by braces, so @layer and other
+ *   wrappers around the @media are fine.
  * - Shipped files: every local file the site loads (src and href in the pages, file paths in JS
  *   strings, url() in CSS, the manifest's icons) is tracked by git. The site ships what git holds, so
  *   an ignored or uncommitted file works locally and 404s live (PDF.js, hidden by *.min.js).
@@ -163,10 +169,13 @@ function lexJs(src) {
 // The page with scripts, styles and comments blanked: what a user reads, attributes included
 const htmlText = src => src.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<!--[\s\S]*?-->/gi, m => m.replace(/[^\n]/g, ' '));
 
+// The properties that take a length, where a bare unitless leading token computes to 0
+const LENGTH_PROPS = /^(?:(?:min-|max-)?(?:width|height|block-size|inline-size)|inset(?:-[\w-]+)?|top|right|bottom|left|(?:row-|column-)?gap|(?:padding|margin)(?:-[\w-]+)?|flex-basis)$/;
+
 const lineOf = (src, offset) => src.slice(0, offset).split('\n').length;
 
 // Only what is read or announced: text between tags and the aria-label, alt and title values, so a
-// class name such as "submit-btn" is not text (offsets kept)
+// class name such as "link-button" is not text (offsets kept)
 const readableText = src => htmlText(src).replace(/<[^>]*>/g, tag => {
   const blank = tag.replace(/[^\n]/g, ' ');
   return [...tag.matchAll(/\b(?:aria-label|alt|title)="([^"]*)"/g)]
@@ -174,7 +183,7 @@ const readableText = src => htmlText(src).replace(/<[^>]*>/g, tag => {
 });
 
 function check() {
-  const breaches = { 1: [], 3: [], 7: [], 4: [], header: [], css: [], files: [], links: [] };
+  const breaches = { 1: [], 3: [], 7: [], 4: [], header: [], css: [], leading: [], hover: [], files: [], links: [] };
   const sources = Object.fromEntries([...JS, ...CSS, ...PAGES, ...TEXTS, ...DOCS].map(file => [file, read(file)]));
   const prose = []; // { file, src, text, at }
   const refs = [];  // { file, at, url, relativeToFile }: what the site loads
@@ -249,6 +258,40 @@ function check() {
     }
   }
 
+  for (const file of CSS) {
+    const src = sources[file].replace(/\/\*[\s\S]*?\*\//g, m => m.replace(/[^\n]/g, ' '));
+    for (const decl of src.matchAll(/([\w-]+)\s*:\s*([^;{}]+)/g)) {
+      const [, prop, value] = decl;
+      if (!LENGTH_PROPS.test(prop)) continue;
+      for (const m of value.matchAll(/var\(\s*--[\w-]*leading[\w-]*\s*\)/g)) {
+        const multiplied = value.slice(0, m.index).trimEnd().endsWith('*') || value.slice(m.index + m[0].length).trimStart().startsWith('*');
+        if (multiplied) continue;
+        breaches.leading.push(`${file}:${lineOf(src, decl.index)}: ${prop}: ${value.trim()}; a leading token is a unitless line-height and computes to 0 as a length. Use 1lh, or multiply in calc(): var(--text-default-leading) * var(--text-base-size)`);
+      }
+    }
+  }
+
+  for (const file of CSS) {
+    // Comments and strings blanked, offsets kept, so a brace or ":hover" in them is not code
+    const src = sources[file].replace(/\/\*[\s\S]*?\*\/|"[^"\n]*"|'[^'\n]*'/g, m => m.replace(/[^\n]/g, ' '));
+    const open = []; // the prelude of each open block: '@layer components', '@media (...)', '.x'
+    let start = 0;   // where the current prelude starts
+    for (let i = 0; i < src.length; i++) {
+      const c = src[i];
+      if (c === ';') start = i + 1;
+      if (c === '}') { open.pop(); start = i + 1; }
+      if (c !== '{') continue;
+      const prelude = src.slice(start, i).trim();
+      const gated = open.some(p => /^@media\b/.test(p) && /\bhover\s*:\s*hover\b/.test(p));
+      if (!prelude.startsWith('@') && /:hover\b/.test(prelude) && !gated) {
+        const at = start + src.slice(start, i).search(/\S/);
+        breaches.hover.push(`${file}:${lineOf(src, at)}: ${prelude.replace(/\s+/g, ' ')} is not gated; wrap it in @media (hover: hover) and (pointer: fine) so a tap does not leave it stuck (audit P-4)`);
+      }
+      open.push(prelude);
+      start = i + 1;
+    }
+  }
+
   // The index, staged files included, so a file added in this commit counts
   const tracked = new Set(execFileSync('git', ['ls-files', '-z'], { cwd: ROOT, encoding: 'utf8' }).split('\0'));
   const isTracked = file => tracked.has(file) || [...tracked].some(t => t.startsWith(`${file}/`));
@@ -275,6 +318,8 @@ function check() {
     4: 'Rule 4 and copy.md: PT-PT text',
     header: 'Header parity: same actions, skip link, no English UI strings',
     css: 'CSS: every var(--*) is defined',
+    leading: 'CSS: leading tokens are not lengths',
+    hover: 'CSS: hover only where a pointer hovers',
     files: 'Shipped files: everything the site loads is in git',
     links: 'Doc links: every relative link opens',
   };

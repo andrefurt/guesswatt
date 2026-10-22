@@ -47,8 +47,10 @@
     cursor: pointer;
   }
 
-  .offer-row:hover {
-    background-color: var(--color-surface-raised);
+  @media (hover: hover) and (pointer: fine) {
+    .offer-row:hover {
+      background-color: var(--color-surface-raised);
+    }
   }
 
   .offer-row.is-best {

@@ -11,6 +11,11 @@
   :root {
     font-size: 100%; /* Respect user font-size preferences */
     scroll-behavior: smooth;
+    /* No grey flash on tap: every control shows its own press (inherited, so once here, audit P-7) */
+    -webkit-tap-highlight-color: transparent;
+    /* Keep the type size when a phone turns to landscape (audit P-7) */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
 
@@ -118,8 +123,11 @@ a {
   transition: var(--transition-colors);
 }
 
-a:hover {
-  color: var(--color-accent-hover);
+/* Hover only where a pointer can hover, so a tap never leaves it on (audit P-4) */
+@media (hover: hover) and (pointer: fine) {
+  a:hover {
+    color: var(--color-accent-hover);
+  }
 }
 
 /* Strong / Bold */
@@ -276,8 +284,10 @@ summary {
   user-select: none;
 }
 
-summary:hover {
-  color: var(--color-text-strong);
+@media (hover: hover) and (pointer: fine) {
+  summary:hover {
+    color: var(--color-text-strong);
+  }
 }
 
 details[open] summary {
