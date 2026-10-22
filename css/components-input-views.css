@@ -752,7 +752,16 @@
     }
 
     .form-input-content {
-      height: 2.75rem;
+      height: calc(2.75rem + 2px); /* its 1px edges sit outside the 44 px the field fills */
+    }
+
+    /* A text button standing on its own line takes a 44 px tap; a link inside a sentence does not */
+    button.link-button {
+      min-block-size: 2.75rem;
+    }
+
+    .drop-area-empty .link-button + .link-button {
+      margin-top: 0;
     }
 
     .household-option label {
