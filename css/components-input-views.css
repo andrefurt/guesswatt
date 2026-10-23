@@ -27,7 +27,7 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-xl-size);
-    line-height: var(--leading-tight);
+    line-height: var(--text-xl-leading);
     letter-spacing: var(--text-xl-tracking);
     color: var(--color-text);
   }
@@ -36,9 +36,10 @@
     font-family: var(--font-sans);
     font-weight: var(--font-medium);
     font-size: var(--text-xl-size);
-    line-height: var(--leading-tight);
+    line-height: var(--text-xl-leading);
     letter-spacing: var(--text-xl-tracking);
     color: var(--color-text-secondary);
+    text-wrap: balance; /* a short display line, set like the heading above it */
   }
   
   /* ═══════════════════════════════════════════════════════════
@@ -243,7 +244,7 @@
     align-items: center;
     justify-content: center;
     gap: var(--space-3);
-    padding: var(--space-8) var(--space-3) 5.125rem var(--space-3); /* Asymmetric padding: 32px top/sides, 82px bottom (fixed) */
+    padding: var(--space-8) var(--space-3) var(--drop-area-padding-end);
     width: 100%;
     cursor: pointer;
     opacity: 0;
@@ -317,8 +318,8 @@
     font-family: var(--font-sans);
     font-weight: var(--font-normal); /* 400 */
     font-size: var(--text-xl-size); /* 24px - large input size */
-    line-height: var(--leading-tight);
-    letter-spacing: calc(var(--text-xl-size) * -0.03); /* -0.72px relative to font size */
+    line-height: var(--text-xl-leading);
+    letter-spacing: var(--text-xl-tracking);
     color: var(--color-text-secondary);
   }
   
@@ -326,8 +327,8 @@
     font-family: var(--font-sans);
     font-weight: var(--font-normal); /* 400 */
     font-size: var(--text-xl-size); /* 24px - large input size */
-    line-height: var(--leading-tight);
-    letter-spacing: calc(var(--text-xl-size) * -0.03); /* -0.72px relative to font size */
+    line-height: var(--text-xl-leading);
+    letter-spacing: var(--text-xl-tracking);
     color: var(--color-text);
     border: none;
     outline: none;
@@ -362,7 +363,7 @@
     color: var(--color-text-secondary);
     font-size: var(--text-xl-size); /* Same as value-input */
     font-weight: var(--font-normal);
-    letter-spacing: calc(var(--text-xl-size) * -0.03);
+    letter-spacing: var(--text-xl-tracking);
     opacity: 1; /* Ensure placeholder is fully visible */
   }
   
@@ -370,7 +371,7 @@
     font-family: var(--font-sans); /* the unit in Inter, as the text around it (Roboto Mono was never loaded) */
     font-weight: var(--font-normal);
     font-size: var(--text-base-size); /* 14px */
-    line-height: var(--leading-normal);
+    line-height: var(--text-default-leading);
     letter-spacing: var(--text-default-tracking);
     color: var(--color-text-secondary);
   }
@@ -390,8 +391,8 @@
      ═══════════════════════════════════════════════════════════ */
   
   .drop-area-icon {
-    width: var(--space-8);
-    height: var(--space-8);
+    width: var(--control-height-sm);
+    height: var(--control-height-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -430,7 +431,7 @@
     gap: var(--space-1);
     width: clamp(20rem, 90vw, 33.25rem); /* 320px → 532px, responsive */
     text-align: center;
-    line-height: var(--leading-tight); /* the text buttons inherit it */
+    line-height: var(--text-default-leading); /* the text buttons inherit it */
     letter-spacing: var(--text-default-tracking);
     opacity: 0;
     transform: translateY(var(--space-1));
@@ -448,7 +449,7 @@
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
-    line-height: var(--leading-tight);
+    line-height: var(--text-default-leading);
     letter-spacing: var(--text-default-tracking);
     color: var(--color-text);
   }
@@ -561,8 +562,8 @@
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
-    line-height: var(--leading-tight);
-    letter-spacing: calc(var(--text-base-size) * -0.03); /* -0.42px relative to font size */
+    line-height: var(--text-default-leading);
+    letter-spacing: var(--text-default-tracking);
     color: var(--color-text-secondary);
   }
   
@@ -612,14 +613,14 @@
   .form-input {
     flex: 1;
     height: 100%;
-    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
+    padding: var(--space-1-5) var(--space-2);
     border: none;
     background: transparent;
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
     font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
-    line-height: var(--leading-tight);
-    letter-spacing: calc(var(--text-base-size) * -0.03);
+    line-height: var(--text-default-leading);
+    letter-spacing: var(--text-default-tracking);
     color: var(--color-text-field);
     outline: none;
   }
@@ -633,7 +634,7 @@
     font-family: var(--font-sans); /* the unit in Inter, as the text around it (Roboto Mono was never loaded) */
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
-    line-height: var(--leading-normal);
+    line-height: var(--text-default-leading);
     letter-spacing: var(--text-default-tracking);
     color: var(--color-text-secondary);
     padding-right: var(--space-3);
@@ -655,15 +656,15 @@
     min-width: 0;
     text-overflow: ellipsis; /* a long supplier name ends in … at 375 px */
     height: 100%;
-    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right */
+    padding: var(--space-1-5) var(--space-2);
     padding-right: var(--space-8);
     border: none;
     background: transparent;
     font-family: var(--font-sans);
     font-weight: var(--font-normal);
     font-size: max(1rem, var(--text-base-size)); /* 16 px floor: iOS zooms into smaller fields */
-    line-height: var(--leading-tight);
-    letter-spacing: calc(var(--text-base-size) * -0.03);
+    line-height: var(--text-default-leading);
+    letter-spacing: var(--text-default-tracking);
     color: var(--color-text-field);
     outline: none;
     cursor: pointer;
@@ -701,7 +702,7 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--space-3);
-    line-height: var(--leading-tight); /* the text button inherits it */
+    line-height: var(--text-default-leading); /* the text button inherits it */
     letter-spacing: var(--text-default-tracking);
   }
 

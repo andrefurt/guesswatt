@@ -131,8 +131,10 @@ is white in both themes, so those are plain `oklch(0% 0 0 / N)` and `oklch(100% 
 
 **Dark mode** follows the system (`prefers-color-scheme`, no toggle): the same roles get dark values
 in one block at the end of `css/tokens.css`, and `color-scheme: light dark` turns the native controls
-dark. The dark page background is `#1C241C`, the dark theme-color both pages declare; the manifest
-keeps its one light `theme_color`. A new colour is a role in both blocks, measured in both themes
+dark. The dark theme mirrors the light one: near-neutral surfaces (chroma 0.004) that rise 3 to 4
+points of L per layer from the page at L 19% (`#131413`, the dark theme-color both pages declare),
+with the green kept to text, links and the accent (audit D-1); the manifest keeps its one light
+`theme_color`. A new colour is a role in both blocks, measured in both themes
 (the Phase 4 lab runs axe and the contrast check with `dark`).
 
 **Why OKLCH over HSL:**
@@ -143,8 +145,15 @@ keeps its one light `theme_color`. A new colour is a role in both blocks, measur
 ### Typography Scale
 
 `css/tokens.css` owns the values. Each step has `--text-STEP-size`, `-leading` and `-tracking`
-(xs, sm, base, md, lg, xl), sizes fluid with `clamp()`; body text uses the `--text-default-*`
-aliases. Leading is unitless, so it scales with the text (base: 1.4). Headings step down from h1
+(xs, sm, base, md, lg, xl). Fluid only where it shows (audit L-3, question 3): the two heading
+steps, lg (h2, 20 to 24 px) and xl (h1 and the typed amount, 24 to 30 px), grow with `clamp()` from
+320 to 1280 px wide; UI text is static rem (12, 13, 15 and 17 px). Body text uses the
+`--text-default-*` aliases. Leading is one family, unitless so it scales with the text: the
+headings (lg, xl) 1.15, base 1.4, sm 1.45 for the small print that wraps on phones, xs 1.6, and
+`--text-prose-leading` 1.5 for long-form (sobre). Text that can wrap to three lines takes 1.4 or
+more. Tracking takes three values, all tokens: 0 on body text, -0.02em on the heading steps, and
+`--text-caps-tracking` 0.05em on uppercase chips. Headings are `text-wrap: balance`, paragraphs
+`pretty`. Headings step down from h1
 (xl) to h2 (lg), h3 (md) and h4 (body). Prices and quantities use `font-variant-numeric:
 tabular-nums`; units ("/mês", "kWh/mês") are set in Inter like the text around them. `--font-mono`
 is for code only. A `calc()` that needs the line box height multiplies: `var(--text-default-leading)
@@ -152,8 +161,13 @@ is for code only. A `calc()` that needs the line box height multiplies: `var(--t
 
 ### Spacing Scale
 
-`--space-1` to `--space-8`, rem-based and fluid with `clamp()`, so they respect the user's font
-size. `css/tokens.css` owns the values.
+`--space-1` to `--space-8` (with `--space-1-5`, 6 px), static rem, so they respect the user's
+font size and stay whole pixels. The vertical rhythm above the card, `--space-top-card`, is the
+fluid one: 64 px at 320 to 128 px at 1280. `css/tokens.css` owns the values. Space tokens are
+spacing only: a radius is never padding, and a box takes a size token (`--control-height-sm` and
+`-md`, `--icon-box-sm`), never a space step. A one-off layout length is a named token too
+(`--space-before-footer`, `--drop-area-padding-end`). Text is dimmed with
+`--color-text-secondary`, never with opacity.
 
 ### Motion Tokens
 
@@ -495,7 +509,7 @@ part is the service worker, ADR-023).
 - `manifest.webmanifest`: name, `start_url` and `scope` `/`, `display: standalone`, background and
   theme `#E8E8E8` (the rendered page background), and the icons below. A manifest takes one theme
   colour only, so the per-theme colours live in the pages' `theme-color` metas: light `#E8E8E8`,
-  dark `#1C241C`. The splash takes the manifest's one `background_color`, so it stays light on a dark
+  dark `#131413`. The splash takes the manifest's one `background_color`, so it stays light on a dark
 phone (front-end audit question 11, kept on purpose).
   Colours here are hex, not OKLCH: the manifest and the meta are read outside CSS.
 - `icons/`: `favicon.svg`, `apple-touch-icon.png` (180, full bleed), `icon-192.png` and

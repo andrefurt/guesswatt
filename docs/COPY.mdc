@@ -90,6 +90,8 @@ Classic devices that work without sounding like a salesperson. All illustrations
   (`data/`); never invent one. Illustration: "Fonte: ERSE, junho de 2026".
 - The price date comes from `data/meta.json` and is written by `js/data-date.js`; the copy never
   promises an update frequency.
+- A name quoted in rendered copy, such as an offer's, takes PT-PT angle quotes: pede a oferta
+  «Eletricidade Casa» (owner, 2026-10-21). Straight quotes are for code only.
 
 ---
 

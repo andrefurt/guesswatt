@@ -6,8 +6,8 @@
  * 
  * Colour: OKLCH, no fallback. A tint of a role is derived from it, oklch(from the role l c h / N),
  *   so the dark block redefines the roles and the tints follow
- * Typography: Fluid clamp() values for responsive scaling
- * Spacing: Fluid clamp() values for responsive spacing
+ * Fluid only where it shows (audit L-3, question 3): headings and the space above the card grow
+ *   from 320 to 1280 px wide; UI text and spacing are static rem
  */
 
 /* Layer order for every stylesheet. Declared here because tokens.css is the first file the
@@ -65,7 +65,7 @@
   --color-surface-overlay: var(--color-surface); /* opaque, so nothing shows through the copy menu */
   --color-bg-tabs: oklch(from var(--color-ink) l c h / 0.03); /* tabs track */
   --color-bg-drop-area: oklch(92% 0 0);
-  --color-bg-drop-area-dragging: oklch(89% 0 0);
+  --color-bg-drop-area-dragging: oklch(96% 0 0); /* lifts while a file is dragged over, as on dark; secondary text 5.3:1 */
   --color-bg-form-input: oklch(97% 0 0);
   --color-savings-bar-bg: oklch(from var(--color-positive) l c h / 0.08);
   --color-warning-soft: oklch(84.4% 0.172 85 / 0.1); /* amber, the data-age notice */
@@ -103,7 +103,7 @@
   --color-border-accent: oklch(from var(--color-accent) l c h / 0.4);
   
   /* ═══════════════════════════════════════════════════════════
-     TYPOGRAPHY - Fluid scaling with clamp()
+     TYPOGRAPHY - static rem for UI text; the two heading steps grow from 320 to 1280 px
      ═══════════════════════════════════════════════════════════ */
   
   /* Font families */
@@ -116,21 +116,22 @@
   --font-semibold: 600; /* Semibold for emphasis */
   --font-bold: 700; /* Bold for headings */
   
-  /* Typography Scale - XS (11px → 12px) */
-  --text-xs-size: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem);
+  /* Typography Scale - XS (12px) */
+  --text-xs-size: 0.75rem;
   --text-xs-weight: 500;
   --text-xs-leading: 1.6; /* unitless, so it scales with the text (about 19 px at 12 px) */
   --text-xs-tracking: 0;
+  --text-caps-tracking: 0.05em; /* uppercase chips and badges */
   
-  /* Typography Scale - SM (12px → 13px) */
-  --text-sm-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
-  --text-sm-leading: 1.2;
+  /* Typography Scale - SM (13px) */
+  --text-sm-size: 0.8125rem;
+  --text-sm-leading: 1.45; /* small print wraps over several lines on phones */
   
-  /* Typography Scale - Base/Default (14px → 15px) */
-  --text-base-size: clamp(0.875rem, 0.8rem + 0.35vw, 0.9375rem); /* Same as --text-base for consistency */
+  /* Typography Scale - Base/Default (15px) */
+  --text-base-size: 0.9375rem;
   --text-base-weight: 500;
-  --text-base-leading: 1.4; /* unitless, so it scales with the text: 19.6 px at 14 px, 21 px at 15 px */
-  --text-base-tracking: -0.005em;
+  --text-base-leading: 1.4; /* unitless, so it scales with the text: 21 px at 15 px */
+  --text-base-tracking: 0; /* body text keeps Inter's own spacing */
   
   /* Legacy aliases for backward compatibility */
   --text-default-size: var(--text-base-size);
@@ -138,38 +139,34 @@
   --text-default-leading: var(--text-base-leading);
   --text-default-tracking: var(--text-base-tracking);
 
-  /* Typography Scale - MD (16px → 17px) */
-  --text-md-size: clamp(1rem, 0.9rem + 0.5vw, 1.0625rem);
+  /* Long-form prose (sobre.html) */
+  --text-prose-leading: 1.5;
+
+  /* Typography Scale - MD (17px) */
+  --text-md-size: 1.0625rem;
   
-  /* Typography Scale - LG (20px → 22px) */
-  --text-lg-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.375rem);
+  /* Typography Scale - LG (h2, 20px at 320 → 24px at 1280) */
+  --text-lg-size: clamp(1.25rem, 1.16666rem + 0.41667vw, 1.5rem);
   --text-lg-leading: 1.15;
-  --text-lg-tracking: -0.017em;
+  --text-lg-tracking: -0.02em;
   
-  /* Typography Scale - XL (24px → 26px) */
-  --text-xl-size: clamp(1.5rem, 1.2rem + 1.5vw, 1.625rem);
+  /* Typography Scale - XL (h1 and the typed amount, 24px at 320 → 30px at 1280) */
+  --text-xl-size: clamp(1.5rem, 1.375rem + 0.625vw, 1.875rem);
   --text-xl-leading: 1.15;
-  --text-xl-tracking: -0.022em;
-  
-  /* Line heights */
-  --leading-tight: 1.15; /* Tight for headings */
-  --leading-normal: 1.2; /* Normal for body text */
-  --leading-relaxed: 1.34; /* Relaxed for long-form content */
-  
-  /* Letter spacing */
+  --text-xl-tracking: -0.02em;
   
   /* ═══════════════════════════════════════════════════════════
-     SPACING - Fluid scaling with clamp()
+     SPACING - static rem; the vertical rhythm above the card is the fluid one
      ═══════════════════════════════════════════════════════════ */
   
-  --space-1: clamp(0.25rem, 0.2rem + 0.25vw, 0.3125rem); /* 4px → 5px */
+  --space-1: 0.25rem; /* 4px */
   --space-1-5: 0.375rem; /* 6px: control padding, which until now borrowed --radius-sm (audit D-4) */
-  --space-2: clamp(0.5rem, 0.45rem + 0.25vw, 0.5625rem); /* 8px → 9px */
-  --space-3: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem); /* 12px → 13px */
-  --space-4: clamp(1rem, 0.9rem + 0.5vw, 1.125rem); /* 16px → 18px */
-  --space-5: clamp(1.25rem, 1.15rem + 0.5vw, 1.375rem); /* 20px → 22px */
-  --space-6: clamp(1.5rem, 1.4rem + 0.5vw, 1.625rem); /* 24px → 26px */
-  --space-8: clamp(2rem, 1.8rem + 1vw, 2.25rem); /* 32px → 36px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
   
   /* ═══════════════════════════════════════════════════════════
      LAYOUT - Fluid scaling
@@ -180,7 +177,10 @@
   --control-height-md: 2.25rem; /* 36px */
 
   --content-width: clamp(20rem, 90vw, 36.25rem); /* 320px → 580px, responsive */
-  --space-top-card: clamp(4rem, 8vw, 8.6875rem); /* 64px → 139px, responsive */
+  --space-before-footer: 8.6875rem; /* 139px between the content and the footer */
+  --drop-area-padding-end: 5.125rem; /* 82px under the drop area's text */
+  --icon-box-sm: 1rem; /* 16px: the box a menu row's icon sits in */
+  --space-top-card: clamp(4rem, 2.6667rem + 6.6667vw, 8rem); /* 64px at 320 → 128px at 1280 */
   --max-width-prose: 65ch; /* Optimal reading width */
   
   /* ═══════════════════════════════════════════════════════════
@@ -248,29 +248,31 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   DARK THEME (audit 4.16a): the same roles, retuned; the tints derived from a role follow it, and
-   only those whose opacity differs on dark are restated. The page background is the dark theme-color
-   both pages already declare (#1C241C), so the browser bar matches. Contrast, measured: text 10:1 or
-   more on every surface, secondary text 5:1 or more, errors 5.7:1, the focus ring 11:1.
+   DARK THEME (audit 4.16a, ramp D-1): the light theme mirrored. Surfaces are near-neutral
+   (chroma 0.004) and rise 3 to 4 points of L per layer, from the page at L 19% (#131413, the dark
+   theme-color on both pages) to the surface at 31%; the green stays in text, links and the accent.
+   The tints derived from a role follow it, and only those whose opacity differs on dark are
+   restated. Contrast, computed: text 9.8:1 or more on every surface, secondary 5.3:1 or more,
+   errors 5.4:1, the focus ring 9.3:1.
    ═══════════════════════════════════════════════════════════ */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-text: oklch(90% 0.03 135);
     --color-text-strong: oklch(95% 0.02 145);
-    --color-text-secondary: oklch(70% 0.01 0);
+    --color-text-secondary: oklch(72% 0.01 145);
     --color-text-field: oklch(97% 0 0);
-    --color-text-on-accent: oklch(24.96% 0.0188 145); /* dark text on the light accent */
+    --color-text-on-accent: oklch(19% 0.004 145); /* the page colour, on the light accent */
     --color-ink: oklch(100% 0 0);
     --color-error: oklch(74% 0.14 27);
     
-    --color-bg: oklch(24.96% 0.0188 145); /* #1C241C */
-    --color-surface: oklch(31% 0.02 145);
-    --color-surface-raised: oklch(29% 0.02 145);
-    --color-surface-card: linear-gradient(90deg, oklch(28% 0.02 145) 1.07%, oklch(27% 0.02 145) 99.89%);
+    --color-bg: oklch(19% 0.004 145); /* #131413 */
+    --color-surface: oklch(31% 0.004 145);
+    --color-surface-raised: oklch(26% 0.004 145);
+    --color-surface-card: linear-gradient(90deg, oklch(23% 0.004 145) 1.07%, oklch(22.5% 0.004 145) 99.89%);
     --color-bg-tabs: oklch(from var(--color-ink) l c h / 0.04);
-    --color-bg-drop-area: oklch(22% 0.02 145);
-    --color-bg-drop-area-dragging: oklch(26% 0.02 145);
-    --color-bg-form-input: oklch(21% 0.015 145);
+    --color-bg-drop-area: oklch(17% 0.004 145); /* sunken, as on light */
+    --color-bg-drop-area-dragging: oklch(24% 0.004 145);
+    --color-bg-form-input: oklch(28% 0.004 145); /* raised above the card, as on light */
     --color-savings-bar-bg: oklch(from var(--color-positive) l c h / 0.16);
     --color-warning-soft: oklch(84.4% 0.172 85 / 0.12);
     

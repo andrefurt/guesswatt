@@ -35,8 +35,8 @@
   .logo {
     display: flex;
     align-items: center;
-    gap: var(--radius-sm); /* 6px gap */
-    padding: var(--radius-sm) var(--space-2); /* 6px top/bottom, 8px left/right - height 32px */
+    gap: var(--space-1-5);
+    padding: var(--space-1-5) var(--space-2);
     border: none; /* No border */
     border-radius: var(--radius-sm); /* 6px */
     background: transparent; /* No background */
@@ -45,8 +45,8 @@
     font-weight: var(--font-medium);
     font-size: var(--text-md-size);
     color: var(--color-text);
-    letter-spacing: calc(var(--text-md-size) * -0.03); /* -0.48px relative to font size */
-    line-height: var(--leading-tight);
+    letter-spacing: var(--text-lg-tracking);
+    line-height: var(--text-lg-leading);
     text-decoration: none;
     cursor: pointer;
     transition: background var(--duration-micro) var(--ease-emphasized-decelerate);
@@ -200,7 +200,7 @@
     font-family: var(--font-sans); /* the unit in Inter, as the text around it (Roboto Mono was never loaded) */
     font-weight: var(--font-normal);
     font-size: var(--text-base-size);
-    line-height: var(--leading-normal);
+    line-height: var(--text-default-leading);
     letter-spacing: var(--text-default-tracking);
     color: var(--color-text-secondary);
   }
@@ -374,7 +374,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-3); /* 12px gap between items (increased from 8px) */
-    padding: var(--radius-sm) 0; /* 6px top/bottom padding */
+    padding: var(--space-1-5) 0;
   }
   
   .pill-provider,
@@ -388,7 +388,6 @@
   
   .pill-provider {
     color: var(--color-text);
-    opacity: 0.9;
   }
   
   /* Pill item - icon + value container */
@@ -405,7 +404,6 @@
   
   .pill-value {
     color: var(--color-text);
-    opacity: 0.9;
   }
   
   /* Separators removed from design - hide them */

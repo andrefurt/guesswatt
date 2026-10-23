@@ -68,9 +68,8 @@ input, select, textarea {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
   font-weight: var(--font-semibold);
-  line-height: var(--leading-tight);
+  text-wrap: balance;
   color: var(--color-text-strong);
-  letter-spacing: -0.02em;
 }
 
 h1 {
@@ -89,7 +88,7 @@ h2 {
 /* A scale that steps down: h3 was as large as h1 (audit UI-13) */
 h3 {
   font-size: var(--text-md-size);
-  line-height: var(--leading-tight);
+  line-height: var(--text-lg-leading);
   letter-spacing: var(--text-lg-tracking);
 }
 
@@ -112,6 +111,7 @@ p {
   letter-spacing: var(--text-default-tracking);
   color: var(--color-text-strong);
   max-width: var(--max-width-prose);
+  text-wrap: pretty;
 }
 
 /* Links */
