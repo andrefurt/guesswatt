@@ -1,24 +1,24 @@
 {
-  "updatedAt": "2026-10-19T00:00:00.000Z",
-  "sourceUrl": "https://simuladorprecos.erse.pt/Admin/csvs/20261019%20172747%20CSV.zip",
+  "updatedAt": "2026-11-02T00:00:00.000Z",
+  "sourceUrl": "https://simuladorprecos.erse.pt/Admin/csvs/20261102%20152259%20CSV.zip",
   "files": {
     "Precos_ELEGN.csv": {
-      "rows": 17267,
+      "rows": 17457,
       "path": "data/Precos_ELEGN.csv"
     },
     "CondComerciais.csv": {
-      "rows": 942,
+      "rows": 974,
       "path": "data/CondComerciais.csv"
     }
   },
   "build": {
-    "builtAt": "2026-10-21T00:19:32.037Z",
-    "sourceUpdatedAt": "2026-10-19T00:00:00.000Z",
+    "builtAt": "2026-11-02T19:20:33.755Z",
+    "sourceUpdatedAt": "2026-11-02T00:00:00.000Z",
     "sourceDateNote": "ERSE's export date, from the name of the ZIP the downloader fetched",
-    "offersCount": 6508,
+    "offersCount": 6612,
     "rowCounts": {
-      "prices": 17267,
-      "conditions": 942
+      "prices": 17457,
+      "conditions": 974
     },
     "filtersApplied": {
       "fornecimento": "ELE only (excluded GN and DUAL)",
@@ -33,7 +33,7 @@
       "COOP": 33,
       "EDPC": 938,
       "END": 708,
-      "ENIPLENITUDE": 226,
+      "ENIPLENITUDE": 137,
       "EZUENERGIA": 66,
       "GALP": 2420,
       "GOLD": 283,
@@ -44,18 +44,18 @@
       "NABALIAENERGIA": 58,
       "NOSSAENERGIA": 62,
       "OENEO": 66,
-      "PORTULOGOS": 33,
-      "REPSOL": 640,
+      "PORTULOGOS": 66,
+      "REPSOL": 800,
       "YESENERGY": 23,
       "ZUG POWER": 33
     },
     "statistics": {
-      "lockInCount": 58,
+      "lockInCount": 91,
       "lockInBySourceTotals": {
-        "field": 58,
+        "field": 91,
         "text": 0
       },
-      "promotionsWithMetadataCount": 651,
+      "promotionsWithMetadataCount": 331,
       "promotionsWithKnownActiveStatusCount": 0,
       "promotionsActiveCount": 0,
       "promotionsAppliedCount": 0
@@ -66,35 +66,35 @@
     "promotionFieldHits": [
       {
         "column": "TxTERSE",
-        "hits": 4442
+        "hits": 4593
       },
       {
         "column": "TxTReembolsos",
-        "hits": 3095
+        "hits": 2931
       },
       {
         "column": "TxTOferta",
-        "hits": 2186
+        "hits": 2543
       },
       {
         "column": "TxTFaturacao",
-        "hits": 1308
+        "hits": 1377
       },
       {
         "column": "DetalheOutrosDesc/benefi",
-        "hits": 1072
+        "hits": 1188
       },
       {
         "column": "TxTFatura",
-        "hits": 941
-      },
-      {
-        "column": "TxTAtualizaPrecos",
-        "hits": 784
+        "hits": 973
       },
       {
         "column": "TxTServicoAdic",
-        "hits": 768
+        "hits": 788
+      },
+      {
+        "column": "TxTAtualizaPrecos",
+        "hits": 755
       },
       {
         "column": "NomeProposta",
@@ -109,12 +109,12 @@
         "hits": 409
       },
       {
-        "column": "TxToutrosServicoAdic",
-        "hits": 347
+        "column": "TxTRestricoesAdic",
+        "hits": 353
       },
       {
-        "column": "TxTRestricoesAdic",
-        "hits": 341
+        "column": "TxToutrosServicoAdic",
+        "hits": 351
       },
       {
         "column": "LinkCondicoesGerais",
@@ -122,7 +122,7 @@
       },
       {
         "column": "LinkOfertaCom",
-        "hits": 287
+        "hits": 319
       }
     ],
     "samplePromotionSnippets": [
@@ -223,8 +223,8 @@
         "columnName": "TxTFaturacao"
       },
       {
-        "COM": "CURREN",
-        "COD_Proposta": "CURREN",
+        "COM": "CUR",
+        "COD_Proposta": "CUR",
         "snippet": "Mensal, Bi-mestral",
         "columnName": "TxTFaturacao"
       },
