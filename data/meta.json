@@ -1,24 +1,24 @@
 {
-  "updatedAt": "2026-11-02T00:00:00.000Z",
-  "sourceUrl": "https://simuladorprecos.erse.pt/Admin/csvs/20261102%20152259%20CSV.zip",
+  "updatedAt": "2026-11-09T00:00:00.000Z",
+  "sourceUrl": "https://simuladorprecos.erse.pt/Admin/csvs/20261109%20120845%20CSV.zip",
   "files": {
     "Precos_ELEGN.csv": {
-      "rows": 17457,
+      "rows": 17601,
       "path": "data/Precos_ELEGN.csv"
     },
     "CondComerciais.csv": {
-      "rows": 974,
+      "rows": 979,
       "path": "data/CondComerciais.csv"
     }
   },
   "build": {
-    "builtAt": "2026-11-02T19:20:33.755Z",
-    "sourceUpdatedAt": "2026-11-02T00:00:00.000Z",
+    "builtAt": "2026-11-09T19:39:21.842Z",
+    "sourceUpdatedAt": "2026-11-09T00:00:00.000Z",
     "sourceDateNote": "ERSE's export date, from the name of the ZIP the downloader fetched",
-    "offersCount": 6612,
+    "offersCount": 6653,
     "rowCounts": {
-      "prices": 17457,
-      "conditions": 974
+      "prices": 17601,
+      "conditions": 979
     },
     "filtersApplied": {
       "fornecimento": "ELE only (excluded GN and DUAL)",
@@ -28,26 +28,27 @@
     },
     "providers": {
       "TUR": 33,
-      "ALFAENERGIA": 95,
+      "ALFAENERGIA": 62,
       "AUDAX": 165,
       "COOP": 33,
       "EDPC": 938,
       "END": 708,
-      "ENIPLENITUDE": 137,
+      "ENIPLENITUDE": 236,
       "EZUENERGIA": 66,
       "GALP": 2420,
-      "GOLD": 283,
+      "GOLD": 303,
       "IBD": 429,
       "JAFPLUS": 23,
-      "LUZBOA": 132,
+      "LOGICA": 23,
+      "LUZBOA": 33,
+      "LUZIGAS": 64,
       "MEOENERGIA": 42,
       "NABALIAENERGIA": 58,
       "NOSSAENERGIA": 62,
       "OENEO": 66,
       "PORTULOGOS": 66,
       "REPSOL": 800,
-      "YESENERGY": 23,
-      "ZUG POWER": 33
+      "YESENERGY": 23
     },
     "statistics": {
       "lockInCount": 91,
@@ -66,19 +67,19 @@
     "promotionFieldHits": [
       {
         "column": "TxTERSE",
-        "hits": 4593
+        "hits": 4615
       },
       {
         "column": "TxTReembolsos",
-        "hits": 2931
+        "hits": 2938
       },
       {
         "column": "TxTOferta",
-        "hits": 2543
+        "hits": 2522
       },
       {
         "column": "TxTFaturacao",
-        "hits": 1377
+        "hits": 1384
       },
       {
         "column": "DetalheOutrosDesc/benefi",
@@ -86,7 +87,7 @@
       },
       {
         "column": "TxTFatura",
-        "hits": 973
+        "hits": 978
       },
       {
         "column": "TxTServicoAdic",
@@ -94,31 +95,31 @@
       },
       {
         "column": "TxTAtualizaPrecos",
-        "hits": 755
+        "hits": 767
       },
       {
         "column": "NomeProposta",
-        "hits": 597
+        "hits": 596
       },
       {
         "column": "TxTModalidade",
-        "hits": 432
+        "hits": 436
       },
       {
         "column": "LinkFichaPadrao",
         "hits": 409
       },
       {
+        "column": "TxToutrosServicoAdic",
+        "hits": 379
+      },
+      {
         "column": "TxTRestricoesAdic",
         "hits": 353
       },
       {
-        "column": "TxToutrosServicoAdic",
-        "hits": 351
-      },
-      {
         "column": "LinkCondicoesGerais",
-        "hits": 329
+        "hits": 328
       },
       {
         "column": "LinkOfertaCom",
@@ -147,24 +148,24 @@
       {
         "COM": "ALFAENERGIA",
         "COD_Proposta": "ALFAENERGIA_02",
-        "snippet": "O contrato tem uma duração de 12 meses. Esta oferta está indexada ao Mercado Spot de eletricidade (OMIE), estando sujeita à volatilidade de preços do mercado gr",
+        "snippet": "O contrato tem uma duração de 12 meses.",
         "columnName": "TxTERSE"
       },
       {
         "COM": "ALFAENERGIA",
         "COD_Proposta": "ALFAENERGIA_03",
-        "snippet": "O contrato tem uma duração de 12 meses.",
+        "snippet": "O contrato tem uma duração de 12 meses. Esta oferta está indexada ao Mercado Spot de eletricidade (OMIE), estando sujeita à volatilidade de preços do mercado gr",
         "columnName": "TxTERSE"
       },
       {
         "COM": "AXPO",
-        "COD_Proposta": "AXPO_03",
+        "COD_Proposta": "AXPO_01",
         "snippet": "A proposta na modalidade de indexado a OMIE (Livre) têm incluído um desconto promocional de 3€/MWh.",
         "columnName": "TxTReembolsos"
       },
       {
         "COM": "AXPO",
-        "COD_Proposta": "AXPO_04",
+        "COD_Proposta": "AXPO_02",
         "snippet": "A proposta na modalidade de indexado a OMIE (Livre) têm incluído um desconto promocional de 3€/MWh.",
         "columnName": "TxTReembolsos"
       },
@@ -189,25 +190,25 @@
       {
         "COM": "ALFAENERGIA",
         "COD_Proposta": "ALFAENERGIA_01",
-        "snippet": "Tarifário aplicável para contratos de clientes domésticos em Baixa Pressão < 10.000 m3.Tarifa aplicada para novas Adesões.A aplicação deste tarifário está sujei",
-        "columnName": "TxTOferta"
-      },
-      {
-        "COM": "ALFAENERGIA",
-        "COD_Proposta": "ALFAENERGIA_02",
-        "snippet": "Este tarifário é indexado ao mercado e aplicável a clientes BTN Empresasl.O preço com referência aos preços OMIE de Setembro de 2026, supondo CGS= 13,95 €/MWh e",
-        "columnName": "TxTOferta"
-      },
-      {
-        "COM": "ALFAENERGIA",
-        "COD_Proposta": "ALFAENERGIA_03",
         "snippet": "Tarifário aplicável para contratos de clientes domésticos e Empresariais em BTN com horário simples, bi-horário ou tri-horário.Tarifa aplicada para novas Adesõe",
         "columnName": "TxTOferta"
       },
       {
         "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_02",
+        "snippet": "Tarifário aplicável para contratos de clientes domésticos em Baixa Pressão < 10.000 m3.Tarifa aplicada para novas Adesões.A aplicação deste tarifário está sujei",
+        "columnName": "TxTOferta"
+      },
+      {
+        "COM": "ALFAENERGIA",
+        "COD_Proposta": "ALFAENERGIA_03",
+        "snippet": "Este tarifário é indexado ao mercado e aplicável a clientes BTN Empresasl.O preço com referência aos preços OMIE de Outubro de 2026, supondo CGS= 17,36 €/MWh e",
+        "columnName": "TxTOferta"
+      },
+      {
+        "COM": "ALFAENERGIA",
         "COD_Proposta": "ALFAENERGIA_04",
-        "snippet": "Este tarifário é indexado ao mercado e aplicável a clientes BTN Residencial.O preço com referência aos preços OMIE de Setembro de 2026, supondo CGS= 13,95 €/MWh",
+        "snippet": "Este tarifário é indexado ao mercado e aplicável a clientes BTN Empresasl.O preço com referência aos preços OMIE de Outubro de 2026, supondo CGS= 17,36 €/MWh e",
         "columnName": "TxTOferta"
       },
       {
@@ -243,7 +244,7 @@
       {
         "COM": "ALFAENERGIA",
         "COD_Proposta": "ALFAENERGIA_01",
-        "snippet": "Faturação Mensal ou Bimensal",
+        "snippet": "Faturação Mensal",
         "columnName": "TxTFaturacao"
       },
       {
@@ -289,22 +290,6 @@
       {
         "COM": "AXPO",
         "COD_Proposta": "AXPO_01",
-        "NomeProposta": "Tarifa EASY Line 12m",
-        "lockInSource": "field",
-        "lockInMonths": 12,
-        "snippet": "Para as modalidades de contratação em Preço Fixo, que tenham um período de fidelização nos termos da cláusula 19 do RRC, a denúncia antecipada do Contrato pelo"
-      },
-      {
-        "COM": "AXPO",
-        "COD_Proposta": "AXPO_02",
-        "NomeProposta": "Tarifa EASY Line 100% VERDE 12m",
-        "lockInSource": "field",
-        "lockInMonths": 12,
-        "snippet": "Para as modalidades de contratação em Preço Fixo, que tenham um período de fidelização nos termos da cláusula 19 do RRC, a denúncia antecipada do Contrato pelo"
-      },
-      {
-        "COM": "AXPO",
-        "COD_Proposta": "AXPO_03",
         "NomeProposta": "Tarifa Livre Line 12m",
         "lockInSource": "field",
         "lockInMonths": 12,
@@ -312,7 +297,7 @@
       },
       {
         "COM": "AXPO",
-        "COD_Proposta": "AXPO_04",
+        "COD_Proposta": "AXPO_02",
         "NomeProposta": "Tarifa Livre Line 100% Verde 12m",
         "lockInSource": "field",
         "lockInMonths": 12,
@@ -437,6 +422,22 @@
         "lockInSource": "field",
         "lockInMonths": 12,
         "snippet": "Sim, durante os primeiros 12 meses. A denúncia antecipada do contrato por parte do cliente, neste período, implicará o pagamento de uma compensação equivalente"
+      },
+      {
+        "COM": "LOGICA",
+        "COD_Proposta": "LOGICA_01",
+        "NomeProposta": "Base Index S",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "A cessação do contrato pelo Cliente, durante o período de fidelização e por motivo não imputável à Logica Energy, implica o pagamento de indemnização. Esta corr"
+      },
+      {
+        "COM": "NABALIAENERGIA",
+        "COD_Proposta": "NABALIAENERGIA_01",
+        "NomeProposta": "A+B",
+        "lockInSource": "field",
+        "lockInMonths": 12,
+        "snippet": "Os preços indicados no presente Anexo têm um desconto promocional aplicado no preço da energia. Se o cliente denunciar o contrato antes do termo da sua vigência"
       }
     ],
     "lockInBySource": {

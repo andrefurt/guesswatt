@@ -17,7 +17,7 @@
  * it, so a new data set installs a fresh cache and drops the old one.
  */
 
-const VERSION = '2026-11-02';
+const VERSION = '2026-11-09';
 const CACHE = `guesswatts-${VERSION}`;
 const PDFJS_CACHE = 'guesswatts-pdfjs-3.11.174'; // the version in vendor/pdfjs (selftest checks)
 const OFFLINE_HEADER = 'X-GuessWatts-Offline';
