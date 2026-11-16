@@ -1,24 +1,24 @@
 {
-  "updatedAt": "2026-11-09T00:00:00.000Z",
-  "sourceUrl": "https://simuladorprecos.erse.pt/Admin/csvs/20261109%20120845%20CSV.zip",
+  "updatedAt": "2026-11-13T00:00:00.000Z",
+  "sourceUrl": "https://simuladorprecos.erse.pt/Admin/csvs/20261113%20174748%20CSV.zip",
   "files": {
     "Precos_ELEGN.csv": {
-      "rows": 17601,
+      "rows": 15694,
       "path": "data/Precos_ELEGN.csv"
     },
     "CondComerciais.csv": {
-      "rows": 979,
+      "rows": 854,
       "path": "data/CondComerciais.csv"
     }
   },
   "build": {
-    "builtAt": "2026-11-09T19:39:21.842Z",
-    "sourceUpdatedAt": "2026-11-09T00:00:00.000Z",
+    "builtAt": "2026-11-16T19:26:15.959Z",
+    "sourceUpdatedAt": "2026-11-13T00:00:00.000Z",
     "sourceDateNote": "ERSE's export date, from the name of the ZIP the downloader fetched",
-    "offersCount": 6653,
+    "offersCount": 5792,
     "rowCounts": {
-      "prices": 17601,
-      "conditions": 979
+      "prices": 15694,
+      "conditions": 854
     },
     "filtersApplied": {
       "fornecimento": "ELE only (excluded GN and DUAL)",
@@ -35,25 +35,25 @@
       "END": 708,
       "ENIPLENITUDE": 236,
       "EZUENERGIA": 66,
-      "GALP": 2420,
+      "GALP": 1493,
       "GOLD": 303,
       "IBD": 429,
       "JAFPLUS": 23,
       "LOGICA": 23,
-      "LUZBOA": 33,
+      "LUZBOA": 132,
       "LUZIGAS": 64,
       "MEOENERGIA": 42,
       "NABALIAENERGIA": 58,
       "NOSSAENERGIA": 62,
       "OENEO": 66,
-      "PORTULOGOS": 66,
+      "PORTULOGOS": 33,
       "REPSOL": 800,
       "YESENERGY": 23
     },
     "statistics": {
-      "lockInCount": 91,
+      "lockInCount": 58,
       "lockInBySourceTotals": {
-        "field": 91,
+        "field": 58,
         "text": 0
       },
       "promotionsWithMetadataCount": 331,
@@ -67,27 +67,27 @@
     "promotionFieldHits": [
       {
         "column": "TxTERSE",
-        "hits": 4615
-      },
-      {
-        "column": "TxTReembolsos",
-        "hits": 2938
+        "hits": 3818
       },
       {
         "column": "TxTOferta",
-        "hits": 2522
+        "hits": 2159
+      },
+      {
+        "column": "TxTReembolsos",
+        "hits": 1831
       },
       {
         "column": "TxTFaturacao",
-        "hits": 1384
+        "hits": 1262
       },
       {
         "column": "DetalheOutrosDesc/benefi",
-        "hits": 1188
+        "hits": 1186
       },
       {
         "column": "TxTFatura",
-        "hits": 978
+        "hits": 853
       },
       {
         "column": "TxTServicoAdic",
@@ -95,35 +95,35 @@
       },
       {
         "column": "TxTAtualizaPrecos",
-        "hits": 767
-      },
-      {
-        "column": "NomeProposta",
-        "hits": 596
-      },
-      {
-        "column": "TxTModalidade",
-        "hits": 436
-      },
-      {
-        "column": "LinkFichaPadrao",
-        "hits": 409
+        "hits": 510
       },
       {
         "column": "TxToutrosServicoAdic",
         "hits": 379
       },
       {
-        "column": "TxTRestricoesAdic",
-        "hits": 353
+        "column": "NomeProposta",
+        "hits": 356
       },
       {
-        "column": "LinkCondicoesGerais",
-        "hits": 328
+        "column": "TxTModalidade",
+        "hits": 344
       },
       {
         "column": "LinkOfertaCom",
-        "hits": 319
+        "hits": 298
+      },
+      {
+        "column": "LinkCondicoesGerais",
+        "hits": 202
+      },
+      {
+        "column": "TxTRestricoesAdic",
+        "hits": 141
+      },
+      {
+        "column": "LinkCOM",
+        "hits": 140
       }
     ],
     "samplePromotionSnippets": [
@@ -158,36 +158,6 @@
         "columnName": "TxTERSE"
       },
       {
-        "COM": "AXPO",
-        "COD_Proposta": "AXPO_01",
-        "snippet": "A proposta na modalidade de indexado a OMIE (Livre) têm incluído um desconto promocional de 3€/MWh.",
-        "columnName": "TxTReembolsos"
-      },
-      {
-        "COM": "AXPO",
-        "COD_Proposta": "AXPO_02",
-        "snippet": "A proposta na modalidade de indexado a OMIE (Livre) têm incluído um desconto promocional de 3€/MWh.",
-        "columnName": "TxTReembolsos"
-      },
-      {
-        "COM": "EDPC",
-        "COD_Proposta": "EDPC_13",
-        "snippet": "Desconto na eletricidade (20% na opção horária simples e bi-horária e potência entre 3,45 kVA e 20,7 kVA) durante 12 meses, a incidir sobre a potência contratad",
-        "columnName": "TxTReembolsos"
-      },
-      {
-        "COM": "EDPC",
-        "COD_Proposta": "EDPC_14",
-        "snippet": "Desconto adicional de 100€ em fatura, dividido em parcelas mensais de 5€ durante os primeiros 10 meses após a data da adesão.",
-        "columnName": "TxTReembolsos"
-      },
-      {
-        "COM": "EDPC",
-        "COD_Proposta": "EDPC_36",
-        "snippet": "Desconto adicional de 100€ em fatura, dividido em parcelas mensais de 10€ durante os primeiros 10 meses após a data da adesão.",
-        "columnName": "TxTReembolsos"
-      },
-      {
         "COM": "ALFAENERGIA",
         "COD_Proposta": "ALFAENERGIA_01",
         "snippet": "Tarifário aplicável para contratos de clientes domésticos e Empresariais em BTN com horário simples, bi-horário ou tri-horário.Tarifa aplicada para novas Adesõe",
@@ -216,6 +186,36 @@
         "COD_Proposta": "AUDAX_01",
         "snippet": "Na opção de Eletricidade Indexada o preço do termo de energia é variável à hora, sendo indexado ao mercado da OMIE e reproduzindo o preço real horário de aquisi",
         "columnName": "TxTOferta"
+      },
+      {
+        "COM": "AXPO",
+        "COD_Proposta": "AXPO_01",
+        "snippet": "A proposta na modalidade de indexado a OMIE (Livre) têm incluído um desconto promocional de 3€/MWh.",
+        "columnName": "TxTReembolsos"
+      },
+      {
+        "COM": "AXPO",
+        "COD_Proposta": "AXPO_02",
+        "snippet": "A proposta na modalidade de indexado a OMIE (Livre) têm incluído um desconto promocional de 3€/MWh.",
+        "columnName": "TxTReembolsos"
+      },
+      {
+        "COM": "EDPC",
+        "COD_Proposta": "EDPC_13",
+        "snippet": "Desconto na eletricidade (20% na opção horária simples e bi-horária e potência entre 3,45 kVA e 20,7 kVA) durante 12 meses, a incidir sobre a potência contratad",
+        "columnName": "TxTReembolsos"
+      },
+      {
+        "COM": "EDPC",
+        "COD_Proposta": "EDPC_14",
+        "snippet": "Desconto adicional de 100€ em fatura, dividido em parcelas mensais de 5€ durante os primeiros 10 meses após a data da adesão.",
+        "columnName": "TxTReembolsos"
+      },
+      {
+        "COM": "EDPC",
+        "COD_Proposta": "EDPC_36",
+        "snippet": "Desconto adicional de 100€ em fatura, dividido em parcelas mensais de 10€ durante os primeiros 10 meses após a data da adesão.",
+        "columnName": "TxTReembolsos"
       },
       {
         "COM": "TUR",
